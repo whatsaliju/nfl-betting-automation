@@ -3,6 +3,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select  # ← ADD THIS
 import pandas as pd
 import time
 from datetime import datetime
@@ -46,16 +47,16 @@ time.sleep(5)
 
 # --- SELECT "ALL MARKETS" FROM DROPDOWN ---
 try:
-    driver.find_element(By.XPATH, "//button[contains(text(), 'Spread')]").click()
-    time.sleep(2)
-    driver.find_element(By.XPATH, "//div[contains(text(), 'All Markets')]").click()
+    dropdown = driver.find_element(By.CSS_SELECTOR, "select[name='']")
+    select = Select(dropdown)
+    select.select_by_value('combined')
     time.sleep(5)
     print("✅ Selected 'All Markets'")
 except Exception as e:
     print(f"⚠️ Could not select All Markets: {e}")
     print("Proceeding with default view...")
 
-time.sleep(5)
+time.sleep(3)
 
 # --- SCRAPE THE TABLE ---
 rows = []
@@ -82,7 +83,7 @@ def clean_text(x):
 
 # --- SAVE ---
 df = pd.DataFrame(rows)
-df = df.applymap(clean_text)
+df = df.map(clean_text)  # Changed from applymap (deprecated)
 
 output = f"action_all_markets_{datetime.now().strftime('%Y-%m-%d')}.csv"
 df.to_csv(output, index=False)
