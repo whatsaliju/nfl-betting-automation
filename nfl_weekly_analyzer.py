@@ -210,10 +210,11 @@ def main():
         print(f"⚠️ RotoWire failed: {e}")
         print("Continuing without injury data...")
         
-    # Step 6: Generate final report
-    print_header(f"STEP 6/6: Generate Final Report")
-    if not generate_final_report(week):
-        print("❌ Failed to generate final report")
+    # Step 6: Generate enhanced report
+    print_header(f"STEP 6/6: Generate Enhanced Report")
+    from enhanced_report_generator import generate_enhanced_report
+    if not generate_enhanced_report(week):
+        print("❌ Failed to generate enhanced report")
         return False
     
     # Success!
