@@ -8,74 +8,39 @@ on:
 jobs:
   analyze:
     runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-        sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-        sudo apt-get update
-        sudo apt-get install google-chrome-stable
-    - name: Run Analysis
-      env:
-        GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
-        GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
-        ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-      run: python3 nfl_weekly_analyzer.py
-    - name: Commit results
-      run: |
-        git config user.email "action@github.com"
-        git config user.name "GitHub Action"
-        git add week*.csv week*.txt || true
-        git commit -m "Analysis $(date)" || true
-    - uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-
-name: NFL Weekly Analysis
-
-on:
-  schedule:
-    - cron: '0 22 * * 3'  # Wednesday 6 PM ET (10 PM UTC)
-  workflow_dispatch:
-
-jobs:
-  analyze:
-    runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
-    
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-        sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-        sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
-    
-    - name: Run Analysis
-      env:
-        GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
-        GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
-        ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-      run: python3 nfl_weekly_analyzer.py
-    
-    - name: Commit results
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add week*.csv week*.txt || true
-        git diff --quiet && git diff --staged --quiet || git commit -m "Analysis $(date)"
-    
-    - uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+      
+      - name: Run Analysis
+        env:
+          GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
+          GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: python3 nfl_weekly_analyzer.py
+      
+      - name: Commit results
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add week*.csv week*.txt || true
+          git commit -m "Analysis $(date)" || true
+      
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
