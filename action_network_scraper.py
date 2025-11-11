@@ -47,11 +47,21 @@ time.sleep(5)
 
 # --- SELECT "ALL MARKETS" FROM DROPDOWN ---
 try:
-    dropdown = driver.find_element(By.CSS_SELECTOR, "select[name='']")
-    select = Select(dropdown)
-    select.select_by_value('combined')
+    # Find the container div first (more reliable)
+    container = driver.find_element(By.CSS_SELECTOR, "div[data-testid='odds-tools-sub-nav__odds-type']")
+    
+    # Find the select within it
+    dropdown = container.find_element(By.TAG_NAME, "select")
+    
+    # Use JavaScript to set value and trigger change
+    driver.execute_script("""
+        arguments[0].value = 'combined';
+        arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+    """, dropdown)
+    
     time.sleep(5)
     print("✅ Selected 'All Markets'")
+    
 except Exception as e:
     print(f"⚠️ Could not select All Markets: {e}")
     print("Proceeding with default view...")
