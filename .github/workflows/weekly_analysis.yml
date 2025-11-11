@@ -2,7 +2,7 @@ name: NFL Weekly Analysis
 
 on:
   schedule:
-    - cron: '0 22 * * 3'
+    - cron: '0 22 * * 3'  # Wednesday 6 PM ET
   workflow_dispatch:
 
 jobs:
@@ -21,24 +21,24 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
           sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+          sudo apt-get install -y chromium-browser chromium-chromedriver
       
-      - name: Run Analysis
+      - name: Run NFL Analysis
         env:
           GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
           GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ACTION_NETWORK_EMAIL: ${{ secrets.ACTION_NETWORK_EMAIL }}
+          ACTION_NETWORK_PASSWORD: ${{ secrets.ACTION_NETWORK_PASSWORD }}
         run: python3 nfl_weekly_analyzer.py
       
       - name: Commit results
         run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
-          git add week*.csv week*.txt || true
-          git commit -m "Analysis $(date)" || true
+          git add week*.csv week*.txt action_public*.csv || true
+          git commit -m "Week analysis $(date)" || true
       
       - name: Push changes
         uses: ad-m/github-push-action@master
