@@ -18,6 +18,17 @@ jobs:
         with:
           python-version: '3.9'
       
+      - name: Get Week Number
+        id: get_week
+        run: |
+          WEEK=$(python3 -c "from nfl_weekly_analyzer import get_current_nfl_week; print(get_current_nfl_week())")
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+      
+      - name: Get Timestamp
+        id: timestamp
+        run: |
+          echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
+      
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
@@ -91,10 +102,43 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Send notification (optional)
+      - name: Send Email Notification
         if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "🏈 NFL Week ${{ steps.get_week.outputs.week }} Analysis Ready!"
+          to: lvarughese@gmail.com
+          from: NFL Betting Bot <noreply@github.com>
+          body: |
+            Your NFL Week analysis is complete and ready for review!
+            
+            📥 DOWNLOAD YOUR FILES:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            🤖 NEXT STEPS:
+            1. Click the link above
+            2. Scroll down to "Artifacts" section
+            3. Download "nfl-analysis-results.zip"
+            4. Extract and open "week_ai_summary.txt"
+            5. Copy the entire file
+            6. Paste into Claude.ai chat
+            7. Ask: "Analyze these games and give me betting recommendations"
+            
+            ⏰ Analysis completed at: ${{ steps.timestamp.outputs.time }}
+            
+            Good luck with your bets! 🎯
+          
+      - name: Get Week Number
+        id: get_week
         run: |
           WEEK=$(python3 -c "from nfl_weekly_analyzer import get_current_nfl_week; print(get_current_nfl_week())")
-          echo "✅ Week $WEEK analysis complete!"
-          echo "📥 Download AI summary from GitHub Actions artifacts"
-          # Add email/Slack notification here if desired
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+      
+      - name: Get Timestamp
+        id: timestamp
+        run: |
+          echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
