@@ -1,13 +1,11 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import pandas as pd
 import time
 from datetime import datetime
-import subprocess
-
-
 import os
 import sys
 
@@ -17,20 +15,24 @@ PASSWORD = os.environ.get('ACTION_NETWORK_PASSWORD')
 
 if not EMAIL or not PASSWORD:
     print("❌ Action Network credentials not found")
-    print("Set ACTION_NETWORK_EMAIL and ACTION_NETWORK_PASSWORD environment variables")
     sys.exit(1)
 
 print(f"✅ Using Action Network credentials for: {EMAIL[:3]}***@{EMAIL.split('@')[1]}")
 
-
-# === Set up Chrome options ===
+# === Set up Chrome options for Ubuntu ===
 options = Options()
-options.add_argument("--headless=new")     # remove this line if you want to watch the browser
+options.add_argument("--headless=new")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 options.add_argument("--window-size=1920,1080")
 
-driver = webdriver.Chrome(options=options)
+# Add binary location for Ubuntu
+options.binary_location = "/usr/bin/chromium-browser"
 
+# Use system chromedriver
+service = Service("/usr/bin/chromedriver")
+driver = webdriver.Chrome(service=service, options=options)
 # --- LOGIN ---
 driver.get("https://www.actionnetwork.com/login")
 time.sleep(3)
