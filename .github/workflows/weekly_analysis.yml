@@ -37,7 +37,7 @@ jobs:
         run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
-          git add week*.csv week*.txt action_all_markets*.csv || true
+          git add week*.csv week*.txt action_public*.csv || true
           git commit -m "Week analysis $(date)" || true
       
       - name: Push changes
