@@ -127,7 +127,7 @@ def main():
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Step 1: Scrape Football Zebras
-    print_header(f"STEP 1/5: Scrape Week {week} Referee Assignments")
+    print_header(f"STEP 1/6: Scrape Week {week} Referee Assignments")
     from football_zebras_scraper import save_referees
     try:
         df = save_referees(week)
@@ -142,7 +142,7 @@ def main():
         return False
     
     # Step 2: Generate queries
-    print_header(f"STEP 2/5: Generate SDQL Queries for Week {week}")
+    print_header(f"STEP 2/6: Generate SDQL Queries for Week {week}")
     from query_generator import generate_queries
     try:
         queries_df = generate_queries(
@@ -160,7 +160,7 @@ def main():
         return False
     
     # Step 3: Run SDQL scraper
-    print_header(f"STEP 3/5: Run SDQL Queries")
+    print_header(f"STEP 3/6: Run SDQL Queries")
     from sdql_test import run_sdql_queries
     
     with open(f'week{week}_queries.txt', 'r') as f:
@@ -182,7 +182,7 @@ def main():
         print(f"❌ Error: {e}")
         return False
     # Step 4: Run Action Network scraper (after SDQL)
-    print_header("STEP 4/5: Scrape Action Network Sharp Money")
+    print_header("STEP 4/6: Scrape Action Network Sharp Money")
     try:
         result = subprocess.run(['python3', 'action_network_scraper.py'], 
                               capture_output=True, 
@@ -197,8 +197,21 @@ def main():
         print(f"⚠️ Action Network failed: {e}")
         print("Continuing without sharp money data...")
 
-    # Step 5: Generate final report
-    print_header(f"STEP 5/5: Generate Final Report")
+    # Step 5: Scrape RotoWire Injuries
+    print_header("STEP 5/6: Scrape RotoWire Lineup & Injuries")
+    try:
+        from rotowire_scraper import scrape_lineups
+        injuries_df = scrape_lineups()
+        if injuries_df is not None and len(injuries_df) > 0:
+            print(f"✅ Got injury data for {len(injuries_df)} games")
+        else:
+            print("⚠️ No injury data scraped")
+    except Exception as e:
+        print(f"⚠️ RotoWire failed: {e}")
+        print("Continuing without injury data...")
+        
+    # Step 6: Generate final report
+    print_header(f"STEP 6/6: Generate Final Report")
     if not generate_final_report(week):
         print("❌ Failed to generate final report")
         return False
