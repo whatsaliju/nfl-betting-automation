@@ -22,20 +22,21 @@ GIMMETHEDOG_PASSWORD = "winner2b"
 ODDS_API_KEY = "5f3c8ca6e631e6b59c3a05c291658e22"
 
 def get_current_nfl_week():
-    """Auto-detect current NFL week based on date"""
-    # 2025 NFL Season starts Week 1 on September 4, 2025
+    """Auto-detect NEXT NFL week (upcoming games)"""
     season_start = datetime(2025, 9, 4)
     today = datetime.now()
     
     if today < season_start:
         return 1
     
-    # Calculate weeks since season start
     days_since_start = (today - season_start).days
-    week = (days_since_start // 7) + 1
+    current_week = (days_since_start // 7) + 1
     
-    # Cap at Week 18
-    return min(week, 18)
+    # If it's Tuesday or later, analyze NEXT week
+    if today.weekday() >= 1:  # Tuesday = 1
+        current_week += 1
+    
+    return min(current_week, 18)
 
 def print_header(text):
     print("\n" + "="*80)
