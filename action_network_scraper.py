@@ -66,8 +66,6 @@ except Exception as e:
     print(f"⚠️ Could not select All Markets: {e}")
     print("Proceeding with default view...")
 
-time.sleep(3)
-
 # --- SCRAPE THE TABLE ---
 rows = []
 for tr in driver.find_elements(By.CSS_SELECTOR, "table tbody tr"):
