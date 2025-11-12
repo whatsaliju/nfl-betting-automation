@@ -23,15 +23,23 @@ print(f"✅ Using credentials for: {EMAIL[:3]}***@{EMAIL.split('@')[1]}")
 
 # --- Browser setup ---
 options = Options()
-# TEMPORARILY DISABLE HEADLESS to debug authentication
-# options.add_argument("--headless=new")
+options.add_argument("--headless=new")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 options.add_argument("--window-size=1920,1080")
+# Add user agent to mimic real browser
+options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+# Disable automation flags that sites use to detect bots
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
+options.add_argument("--disable-blink-features=AutomationControlled")
 options.binary_location = "/usr/bin/chromium-browser"
 service = Service("/usr/bin/chromedriver")
 driver = webdriver.Chrome(service=service, options=options)
+
+# Remove webdriver property to avoid detection
+driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
 # --- Login ---
 driver.get("https://www.actionnetwork.com/login")
@@ -57,6 +65,13 @@ driver.get("https://www.actionnetwork.com/nfl/public-betting")
 print("⏳ Waiting for page to fully load...")
 time.sleep(8)  # Longer initial wait
 
+# Take a screenshot for debugging
+try:
+    driver.save_screenshot("debug_after_load.png")
+    print("📸 Saved screenshot: debug_after_load.png")
+except:
+    pass
+
 # Wait specifically for Money % data to appear
 try:
     print("⏳ Waiting for Money % data to load...")
@@ -64,8 +79,14 @@ try:
         EC.presence_of_element_located((By.CSS_SELECTOR, ".public-betting__percents-container .highlight-text__children"))
     )
     print("✅ Money % elements detected on page")
+    
+    # Take another screenshot after Money % loads
+    driver.save_screenshot("debug_after_money_load.png")
+    print("📸 Saved screenshot: debug_after_money_load.png")
 except TimeoutException:
     print("⚠️ Money % elements not found - may need to check authentication or page structure")
+    driver.save_screenshot("debug_timeout.png")
+    print("📸 Saved screenshot: debug_timeout.png")
 
 def extract_percentage_pairs(container):
     """Extract both percentages from a container (away | home)"""
