@@ -1,4 +1,4 @@
-# action_network_scraper_split_v3_3.py
+# action_network_scraper_split_v3_4.py
 # -------------------------------------------
 # Scrapes Action Network NFL Public Betting by Market Type
 # Markets: Spread, Total, Moneyline
@@ -69,14 +69,24 @@ def scrape_current_market(market_name):
 
     for g in games:
         try:
-            # Try to get matchup from <a href="/nfl-game/...">
-            link = g.find_element(By.CSS_SELECTOR, "a[href*='/nfl-game/']")
-            matchup = link.text.strip()
-            if not matchup:
-                matchup = link.get_attribute("title") or "Unknown matchup"
-        except:
-            matchup = "Unknown matchup"
+            # Extract matchup teams
+            teams = g.find_elements(By.CSS_SELECTOR, ".game-info__team--desktop span")
+            if len(teams) >= 2:
+                away_team = teams[0].text.strip()
+                home_team = teams[1].text.strip()
+                matchup = f"{away_team} @ {home_team}"
+            else:
+                matchup = "Unknown matchup"
 
+            # Extract time
+            try:
+                game_time = g.find_element(By.CSS_SELECTOR, ".public-betting__game-status").text.strip()
+            except:
+                game_time = ""
+        except Exception:
+            matchup, game_time = "Unknown matchup", ""
+
+        # Extract main numeric data
         tds = g.find_elements(By.TAG_NAME, "td")
         if len(tds) < 6:
             continue
@@ -95,6 +105,7 @@ def scrape_current_market(market_name):
             "Bets %": bets_pct,
             "Money %": money_pct,
             "Diff": diff,
+            "Game Time": game_time,
             "Fetched": datetime.now().strftime("%Y-%m-%d %H:%M")
         })
     return rows
