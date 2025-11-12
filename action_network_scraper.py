@@ -1,4 +1,4 @@
-# action_network_scraper_split.py
+# action_network_scraper_split_v3_3.py
 # -------------------------------------------
 # Scrapes Action Network NFL Public Betting by Market Type
 # Markets: Spread, Total, Moneyline
@@ -10,8 +10,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import pandas as pd
@@ -52,7 +51,7 @@ time.sleep(6)
 driver.get("https://www.actionnetwork.com/nfl/public-betting")
 time.sleep(5)
 
-# --- Helper to scrape current dropdown state ---
+# --- Helper to scrape one market ---
 def scrape_current_market(market_name):
     print(f"🔍 Scraping {market_name} market...")
     rows = []
@@ -69,11 +68,19 @@ def scrape_current_market(market_name):
     print(f"📊 Found {len(games)} rows in {market_name}")
 
     for g in games:
+        try:
+            # Try to get matchup from <a href="/nfl-game/...">
+            link = g.find_element(By.CSS_SELECTOR, "a[href*='/nfl-game/']")
+            matchup = link.text.strip()
+            if not matchup:
+                matchup = link.get_attribute("title") or "Unknown matchup"
+        except:
+            matchup = "Unknown matchup"
+
         tds = g.find_elements(By.TAG_NAME, "td")
         if len(tds) < 6:
             continue
         try:
-            matchup = tds[0].text.strip()
             line = tds[2].text.strip()
             bets_pct = tds[3].text.strip()
             money_pct = tds[4].text.strip()
