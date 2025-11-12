@@ -103,15 +103,22 @@ def run_sdql_queries(email, password, queries, headless=True):
             print(f"\n[{i}/{len(queries)}] Running query: {query[:50]}...")
             
             try:
+                # If not first query, wait for previous results to clear
+                if i > 1:
+                    print("  Waiting for previous results to clear...")
+                    # Wait until we find fewer than 10 table rows (meaning results cleared)
+                    for attempt in range(10):
+                        current_rows = len(driver.find_elements(By.XPATH, "//tbody/tr"))
+                        if current_rows < 10:
+                            print(f"    Results cleared (found {current_rows} rows)")
+                            break
+                        print(f"    Still {current_rows} rows, waiting...")
+                        time.sleep(2)
+                
                 # Wait for query box to be ready
                 query_box = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.ID, "standard-textarea"))
                 )
-                
-                # Clear previous results if this isn't the first query
-                if i > 1:
-                    print("  Waiting for previous results to clear...")
-                    time.sleep(5)
                 
                 query_box.click()
                 query_box.clear()
