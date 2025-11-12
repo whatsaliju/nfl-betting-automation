@@ -1,10 +1,17 @@
+# action_network_scraper.py
+# -------------------------------------------
+# Scrapes Action Network NFL public betting ("All Markets")
+# Outputs CSV: action_all_markets_YYYY-MM-DD.csv
+# -------------------------------------------
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 import pandas as pd
 import time
 from datetime import datetime
@@ -21,7 +28,7 @@ if not EMAIL or not PASSWORD:
 
 print(f"✅ Using Action Network credentials for: {EMAIL[:3]}***@{EMAIL.split('@')[1]}")
 
-# === Set up Chrome options for Ubuntu ===
+# === Set up Chrome options ===
 options = Options()
 options.add_argument("--headless=new")
 options.add_argument("--no-sandbox")
@@ -33,7 +40,7 @@ options.binary_location = "/usr/bin/chromium-browser"
 service = Service("/usr/bin/chromedriver")
 driver = webdriver.Chrome(service=service, options=options)
 
-# --- LOGIN ---
+# === LOGIN ===
 driver.get("https://www.actionnetwork.com/login")
 time.sleep(3)
 driver.find_element(By.NAME, "email").send_keys(EMAIL)
@@ -41,13 +48,16 @@ driver.find_element(By.NAME, "password").send_keys(PASSWORD)
 driver.find_element(By.NAME, "password").send_keys(Keys.RETURN)
 time.sleep(6)
 
-# --- NAVIGATE TO PUBLIC BETTING PAGE ---
+# === NAVIGATE TO PUBLIC BETTING PAGE ===
 driver.get("https://www.actionnetwork.com/nfl/public-betting")
 time.sleep(5)
 
-# --- SELECT "ALL MARKETS" FROM DROPDOWN ---
-from selenium.webdriver.support.ui import Select
+# Scroll once to trigger lazy load
+driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+time.sleep(3)
+driver.execute_script("window.scrollTo(0, 0);")
 
+# === SELECT "ALL MARKETS" FROM DROPDOWN ===
 try:
     container = driver.find_element(By.CSS_SELECTOR, "div[data-testid='odds-tools-sub-nav__odds-type']")
     dropdown_el = container.find_element(By.TAG_NAME, "select")
@@ -57,55 +67,61 @@ try:
 except Exception as e:
     print("⚠️ Could not select All Markets:", e)
 
+# === WAIT FOR BETTING DATA TO LOAD ===
+try:
+    print("⏳ Waiting for betting data to refresh...")
+    # first wait for any old content to disappear
+    WebDriverWait(driver, 10).until_not(
+        EC.presence_of_all_elements_located(
+            (By.CSS_SELECTOR, ".mobile-public-betting__percent .highlight-text__children")
+        )
+    )
+except TimeoutException:
+    pass
 
-# --- WAIT FOR PAGE RENDER ---
-wait = WebDriverWait(driver, 10)
-wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".public-betting__percents-container")))
+try:
+    WebDriverWait(driver, 25).until(
+        EC.presence_of_all_elements_located(
+            (By.CSS_SELECTOR, ".mobile-public-betting__percent .highlight-text__children")
+        )
+    )
+    print("✅ Betting percentages visible")
+except TimeoutException:
+    print("⚠️ Still no visible % spans after 25s, continuing anyway")
+    time.sleep(5)
 
-# --- SCROLL THROUGH PAGE (lazy load safeguard) ---
-driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-time.sleep(2)
-driver.execute_script("window.scrollTo(0, 0);")
-time.sleep(1)
-
-# --- SCRAPE FUNCTION ---
+# === SCRAPE FUNCTION ===
 def scrape_table():
     data = []
 
-    # Wait until the page populates at least one betting block
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".mobile-public-betting__row--last"))
-    )
-
-    # 1️⃣ Get all matchup headers (global list)
+    # find all matchup links
     game_links = driver.find_elements(By.CSS_SELECTOR, "a[href*='/nfl-game/']")
     matchups = []
     for link in game_links:
         href = link.get_attribute("href")
         text = " ".join(link.text.split())
         if "/nfl-game/" in href and text:
-            # derive readable date from slug
             date_part = href.split("odds-")[-1].split("/")[0].replace("-", " ").title()
             matchups.append(f"{date_part} {text}")
 
-    print(f"Found {len(matchups)} matchup headers")
+    print(f"🧾 Found {len(matchups)} matchup headers")
 
-    # 2️⃣ Get all betting rows (one per matchup)
+    # find all betting rows (mobile containers)
     blocks = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__row--last")
-    print(f"Found {len(blocks)} betting blocks")
+    print(f"📊 Found {len(blocks)} betting blocks")
 
-    # Use min(len(matchups), len(blocks)) to avoid index overflow
+    # align matchups with betting blocks
     for idx, g in enumerate(blocks[:len(matchups)]):
         matchup = matchups[idx] if idx < len(matchups) else "Unknown"
-
-        # Extract percentage pairs (bets %, money %)
         percents = g.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__percent .highlight-text__children")
+
         for i in range(0, len(percents), 2):
             try:
                 bets_pct = driver.execute_script("return arguments[0].innerText;", percents[i]).strip()
                 money_pct = driver.execute_script("return arguments[0].innerText;", percents[i + 1]).strip()
-
-            except IndexError:
+                if not bets_pct or not money_pct:
+                    continue
+            except Exception:
                 continue
 
             diff = ""
@@ -119,49 +135,20 @@ def scrape_table():
                 "Bets %": bets_pct,
                 "Money %": money_pct,
                 "Diff": diff,
-                "Fetched": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "Fetched": datetime.now().strftime("%Y-%m-%d %H:%M")
             })
 
     return data
 
-
-WebDriverWait(driver, 10).until(
-    EC.visibility_of_element_located((By.CSS_SELECTOR, ".mobile-public-betting__percent .highlight-text__children"))
-)
-
-# --- INITIAL SCRAPE ---
+# === RUN SCRAPE ===
 rows = scrape_table()
-
-# --- RETRY PASS FOR MISSING MONEY% ---
-missing_rows = [r for r in rows if not r["Money %"]]
-if missing_rows:
-    print(f"🔁 Retrying {len(missing_rows)} rows missing Money % ...")
-    time.sleep(4)
-    driver.refresh()
-    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".public-betting__percents-container")))
-    time.sleep(3)
-    retry_data = scrape_table()
-    retry_map = {r["Matchup"] + r["Line"]: r for r in retry_data}
-    for row in rows:
-        key = row["Matchup"] + row["Line"]
-        if not row["Money %"] and key in retry_map:
-            row.update(retry_map[key])
 
 driver.quit()
 
-# --- CLEANUP TEXT ---
-def clean_text(x):
-    if isinstance(x, str):
-        x = x.replace("\n", " ").replace("\r", " ")
-        x = " ".join(x.split())
-    return x
-
-# --- SAVE ---
+# === SAVE TO CSV ===
 df = pd.DataFrame(rows)
-df = df.map(clean_text)
-
 output = f"action_all_markets_{datetime.now().strftime('%Y-%m-%d')}.csv"
 df.to_csv(output, index=False)
-
 print(f"✅ Rows scraped: {len(df)}")
 print(f"📁 Saved to {output}")
+print("✅ Script completed")
