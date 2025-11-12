@@ -1,6 +1,7 @@
-# action_network_scraper_v3_1.py
+# action_network_scraper_v3_2.py
 # -------------------------------------------
 # Scrapes Action Network NFL Public Betting ("All Markets")
+# Captures Spread, Total, and Moneyline % with odds
 # Outputs: action_all_markets_YYYY-MM-DD.csv
 # -------------------------------------------
 
@@ -62,23 +63,31 @@ try:
     dropdown_el = container.find_element(By.TAG_NAME, "select")
     Select(dropdown_el).select_by_value("combined")
     print("✅ Selected 'All Markets'")
-    time.sleep(6)
+
+    # Wait longer for React to refresh content
+    for i in range(10, 0, -1):
+        print(f"⏳ Waiting {i*2}s for page to refresh...", end="\r")
+        time.sleep(2)
 except Exception as e:
     print("⚠️ Could not change dropdown:", e)
 
 # === Wait for Betting Data ===
+print("\n⏳ Waiting for game containers to appear...")
 try:
-    WebDriverWait(driver, 25).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".mobile-public-betting__details"))
+    WebDriverWait(driver, 40).until(
+        EC.presence_of_all_elements_located((
+            By.CSS_SELECTOR,
+            ".mobile-public-betting__details, .mobile-public-betting__row--last, .mobile-public-betting__table-container"
+        ))
     )
     print("✅ Betting rows visible")
 except TimeoutException:
-    print("⚠️ Timeout waiting for betting rows")
+    print("⚠️ Still no visible game rows after 40s, proceeding anyway")
 
 # === SCRAPE ===
 rows = []
-blocks = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__details")
-print(f"📊 Found {len(blocks)} full game containers")
+blocks = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__details, .mobile-public-betting__row--last")
+print(f"📊 Found {len(blocks)} possible game containers")
 
 for block in blocks:
     # --- Matchup name ---
@@ -117,7 +126,6 @@ for block in blocks:
         except:
             pass
 
-        # Assign market type by order
         market = ["Spread", "Total", "Moneyline"][i] if i < 3 else f"Market_{i+1}"
         line = odds_lines[i] if i < len(odds_lines) else ""
 
