@@ -184,7 +184,7 @@ def main():
     # Step 4: Run Action Network scraper (after SDQL)
     print_header("STEP 4/6: Scrape Action Network Sharp Money")
     try:
-        result = subprocess.run(['python3', 'action_network_scraper.py'], 
+        result = subprocess.run(['python3', 'action_network_scraper_cookies.py'], 
                               capture_output=True, 
                               text=True,
                               timeout=120)
