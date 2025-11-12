@@ -13,6 +13,13 @@ import os
 def run_sdql_queries(email, password, queries, headless=True):
     print("Starting browser...")
     
+    # Validate credentials
+    if not email or not password:
+        print(f"❌ ERROR: Missing credentials!")
+        print(f"   Email: {email}")
+        print(f"   Password: {'***' if password else 'None'}")
+        return
+    
     options = webdriver.ChromeOptions()
     if headless:
         options.add_argument('--headless=new')
@@ -27,7 +34,7 @@ def run_sdql_queries(email, password, queries, headless=True):
     all_results = []
     
     try:
-        print(f"Logging in with email: {email[:3]}***@{email.split('@')[1]}")
+        print(f"Logging in with email: {email[:3]}***")
         driver.get("https://www.gimmethedog.com/login")
         time.sleep(3)
         
@@ -175,39 +182,25 @@ def run_sdql_queries(email, password, queries, headless=True):
     finally:
         driver.quit()
 
-if __name__ == "__main__":
-    GIMMETHEDOG_EMAIL = os.getenv('GIMMETHEDOG_EMAIL')
-    GIMMETHEDOG_PASSWORD = os.getenv('GIMMETHEDOG_PASSWORD')
-    
-    if not GIMMETHEDOG_EMAIL or not GIMMETHEDOG_PASSWORD:
-        print("❌ ERROR: Environment variables not set!")
-        print(f"EMAIL: {GIMMETHEDOG_EMAIL}")
-        print(f"PASSWORD: {'***' if GIMMETHEDOG_PASSWORD else 'None'}")
-        exit(1)
-    
-    # Test queries...
 
 # Only run this when script is executed directly (not imported)
 if __name__ == "__main__":
     GIMMETHEDOG_EMAIL = os.getenv('GIMMETHEDOG_EMAIL')
     GIMMETHEDOG_PASSWORD = os.getenv('GIMMETHEDOG_PASSWORD')
     
+    print("Checking environment variables...")
+    print(f"EMAIL present: {bool(GIMMETHEDOG_EMAIL)}")
+    print(f"PASSWORD present: {bool(GIMMETHEDOG_PASSWORD)}")
+    
+    if not GIMMETHEDOG_EMAIL or not GIMMETHEDOG_PASSWORD:
+        print("❌ ERROR: Environment variables not set!")
+        exit(1)
+    
     # Test queries
     queries = [
         "'Bill Vinovich' in officials and HF and DIV and REG and season>=2018",
-        "'Clete Blakeman' in officials and AF and NDIV and REG and season>=2018",
-        "'Brad Allen' in officials and HF and DIV and REG and season>=2018",
-        "'Adrian Hill' in officials and HF and NDIV and REG and season>=2018",
-        "'Alex Moore' in officials and AF and DIV and REG and season>=2018",
-        "'Ron Torbert' in officials and AF and DIV and REG and season>=2018",
-        "'Shawn Hochuli' in officials and AF and NDIV and REG and season>=2018",
-        "'Shawn Smith' in officials and AF and C and REG and season>=2018",
-        "'Alex Kemp' in officials and HF and NDIV and REG and season>=2018",
-        "'Alan Eck' in officials and HF and DIV and REG and season>=2018",
-        "'Land Clark' in officials and AF and DIV and REG and season>=2018",
-        "'Scott Novak' in officials and AF and C and REG and season>=2018",
-        "'Brad Rogers' in officials and HF and NDIV and REG and season>=2018",
-        "'Clay Martin' in officials and HF and C and REG and season>=2018"
+        "'Clete Blakeman' in officials and AF and NDIV and REG and season>=2018"
     ]
     
+    print(f"\nRunning {len(queries)} test queries...")
     run_sdql_queries(GIMMETHEDOG_EMAIL, GIMMETHEDOG_PASSWORD, queries, headless=True)
