@@ -1,0 +1,36 @@
+name: Test SDQL Scraper
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  test-sdql:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install selenium webdriver-manager pandas requests beautifulsoup4
+    
+    - name: Run SDQL Test (2 queries only)
+      env:
+        GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
+        GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
+      run: |
+        python3 sdql_test.py
+    
+    - name: Upload results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: sdql-test-results
+        path: |
+          sdql_results.csv
+          *.png
