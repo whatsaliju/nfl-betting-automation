@@ -40,27 +40,26 @@ jobs:
           echo "🪶 Sample output:"
           head -20 action_all_markets_*.csv
 
-  - name: Check completeness of scraped data
+      - name: Check completeness of scraped data
         run: |
           echo "🔍 Checking completeness of scraped data..."
           python3 - <<EOF
-          
-          import pandas as pd, glob
-          files = glob.glob("action_all_markets_*.csv")
-          if not files:
-              raise SystemExit("❌ No CSV file found")
-          df = pd.read_csv(files[0])
-          missing = df["Money %"].isna().sum() + (df["Money %"] == "").sum()
-          total = len(df)
-          print(f"✅ Total rows: {total}")
-          print(f"⚠️ Missing Money %% rows: {missing}")
-          if missing > 0:
-              print("❌ Some games missing Money %:")
-              print(df[df["Money %"].isna() | (df["Money %"] == '')][['Matchup','Bets %','Money %']].head())
-              raise SystemExit(1)
-          else:
-              print("✅ All games have Money % values.")
-          EOF
+import pandas as pd, glob
+files = glob.glob("action_all_markets_*.csv")
+if not files:
+    raise SystemExit("❌ No CSV file found")
+df = pd.read_csv(files[0])
+missing = df["Money %"].isna().sum() + (df["Money %"] == "").sum()
+total = len(df)
+print(f"✅ Total rows: {total}")
+print(f"⚠️ Missing Money %% rows: {missing}")
+if missing > 0:
+    print("❌ Some games missing Money %:")
+    print(df[df["Money %"].isna() | (df["Money %"] == '')][['Matchup','Bets %','Money %']].head())
+    raise SystemExit(1)
+else:
+    print("✅ All games have Money % values.")
+EOF
 
       - name: Commit CSV back to repo
         run: |
