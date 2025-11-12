@@ -34,7 +34,11 @@ jobs:
         id: timestamp
         run: |
           echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
-      
+    
+      - name: Create Action Network Cookies File
+        run: |
+          echo "${{ secrets.ACTION_NETWORK_COOKIES }}" > action_network_cookies.json
+
       - name: Run NFL Analysis
         env:
           GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
