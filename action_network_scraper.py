@@ -72,35 +72,40 @@ time.sleep(1)
 # --- SCRAPE FUNCTION ---
 def scrape_table():
     data = []
-    # wait until React populates rows
     WebDriverWait(driver, 10).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".mobile-public-betting__row--last"))
     )
 
     game_blocks = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__row--last")
+    print(f"Found {len(game_blocks)} game blocks...")
+
     for g in game_blocks:
+        # --- Matchup Header ---
+        matchup = "Unknown matchup"
         try:
-            link = g.find_element(By.CSS_SELECTOR, ".mobile-public-betting__game-info a[href*='/nfl-game/']")
-            teams = " ".join(link.text.split())
+            link = g.find_element(By.CSS_SELECTOR, "a[href*='/nfl-game/']")
+            teams_text = " ".join(link.text.split())
             href = link.get_attribute("href")
+            # Extract date from slug, e.g. "november-13-2025"
             date_part = href.split("odds-")[-1].split("/")[0].replace("-", " ").title()
+            # Extract kickoff time if visible
+            try:
+                kickoff = g.find_element(By.CSS_SELECTOR, ".mobile-public-betting__game-status").text.strip()
+            except Exception:
+                kickoff = ""
+            matchup = f"{date_part} {kickoff} {teams_text}"
+        except Exception as e:
+            print("⚠️ Could not extract matchup:", e)
 
-            # pickup visible kickoff time if present
-            time_el = g.find_element(By.CSS_SELECTOR, ".mobile-public-betting__game-status")
-            kickoff = time_el.text.strip()
-            matchup = f"{date_part} {kickoff} {teams}"
-        except Exception:
-            matchup = "Unknown matchup"
-
-        # Each block has multiple groups of .mobile-public-betting__percent pairs
+        # --- Percentages ---
         percents = g.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__percent .highlight-text__children")
-        # They come as [bets1, money1, bets2, money2, bets3, money3, ...]
         for i in range(0, len(percents), 2):
             try:
                 bets_pct = percents[i].text.strip() + "%"
                 money_pct = percents[i + 1].text.strip() + "%"
             except IndexError:
                 continue
+
             diff = ""
             try:
                 diff = str(abs(int(money_pct.strip('%')) - int(bets_pct.strip('%')))) + "%"
@@ -114,7 +119,9 @@ def scrape_table():
                 "Diff": diff,
                 "Fetched": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })
+
     return data
+
 
 
 
