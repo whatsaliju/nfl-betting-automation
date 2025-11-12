@@ -1,4 +1,10 @@
-# action_network_scraper_v2.py
+# action_network_scraper_v3.py
+# -------------------------------------------
+# Scrapes Action Network NFL public betting (All Markets)
+# Collects spread, total, and moneyline data per matchup
+# Outputs: action_all_markets_YYYY-MM-DD.csv
+# -------------------------------------------
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -13,16 +19,17 @@ from datetime import datetime
 import os
 import sys
 
-EMAIL = os.environ.get('ACTION_NETWORK_EMAIL')
-PASSWORD = os.environ.get('ACTION_NETWORK_PASSWORD')
+# === Credentials ===
+EMAIL = os.environ.get("ACTION_NETWORK_EMAIL")
+PASSWORD = os.environ.get("ACTION_NETWORK_PASSWORD")
 
 if not EMAIL or not PASSWORD:
-    print("❌ Missing credentials")
+    print("❌ Missing Action Network credentials")
     sys.exit(1)
 
-print(f"✅ Using Action Network credentials for: {EMAIL[:3]}***@{EMAIL.split('@')[1]}")
+print(f"✅ Using credentials for: {EMAIL[:3]}***@{EMAIL.split('@')[1]}")
 
-# --- CHROME SETUP ---
+# === Chrome Setup ===
 options = Options()
 options.add_argument("--headless=new")
 options.add_argument("--no-sandbox")
@@ -33,7 +40,7 @@ options.binary_location = "/usr/bin/chromium-browser"
 service = Service("/usr/bin/chromedriver")
 driver = webdriver.Chrome(service=service, options=options)
 
-# --- LOGIN ---
+# === Login ===
 driver.get("https://www.actionnetwork.com/login")
 time.sleep(3)
 driver.find_element(By.NAME, "email").send_keys(EMAIL)
@@ -41,66 +48,73 @@ driver.find_element(By.NAME, "password").send_keys(PASSWORD)
 driver.find_element(By.NAME, "password").send_keys(Keys.RETURN)
 time.sleep(6)
 
-# --- NAVIGATE ---
+# === Go to Public Betting Page ===
 driver.get("https://www.actionnetwork.com/nfl/public-betting")
 time.sleep(5)
 
-# scroll to trigger lazy load
+# Scroll once to load dynamic content
 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 time.sleep(2)
 driver.execute_script("window.scrollTo(0, 0);")
 
-# --- SELECT 'ALL MARKETS' ---
+# === Select 'All Markets' ===
 try:
     container = driver.find_element(By.CSS_SELECTOR, "div[data-testid='odds-tools-sub-nav__odds-type']")
     dropdown_el = container.find_element(By.TAG_NAME, "select")
     Select(dropdown_el).select_by_value("combined")
-    print("✅ Selected 'All Markets' via dropdown")
+    print("✅ Selected 'All Markets'")
     time.sleep(6)
 except Exception as e:
-    print("⚠️ Could not switch dropdown:", e)
+    print("⚠️ Could not change dropdown:", e)
 
-# --- WAIT FOR RELOAD ---
+# === Wait for betting data ===
 try:
     WebDriverWait(driver, 25).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".mobile-public-betting__row--last"))
     )
     print("✅ Betting rows visible")
 except TimeoutException:
-    print("⚠️ Timeout waiting for rows")
+    print("⚠️ Timeout waiting for betting rows")
 
-# --- SCRAPE ---
+# === Scraping ===
 rows = []
 blocks = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__row--last")
-
 print(f"📊 Found {len(blocks)} game blocks")
 
 for block in blocks:
-    # matchup name
+    # --- Matchup name ---
     try:
-        matchup_link = block.find_element(By.CSS_SELECTOR, "a[href*='/nfl-game/']")
-        matchup = " ".join(matchup_link.text.split())
-        if not matchup:
-            matchup = "Unknown matchup"
+        matchup_el = block.find_element(By.CSS_SELECTOR, "a[href*='/nfl-game/']")
+        matchup = " ".join(matchup_el.text.split())
     except:
         matchup = "Unknown matchup"
 
-    # market sections (Spread / Total / ML)
-    markets = block.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__odds-container")
+    # --- Game time ---
+    try:
+        time_str = block.find_element(By.CSS_SELECTOR, ".mobile-public-betting__game-status").text.strip()
+    except:
+        time_str = ""
 
-    for m in markets:
-        try:
-            line_text = m.text.strip()
-        except:
-            line_text = ""
+    # --- Find percent div groups ---
+    percent_groups = block.find_elements(By.XPATH, "./div[span[@class='mobile-public-betting__percent css-q2y3yl e1srmxq10']]")
+    if not percent_groups:
+        percent_groups = block.find_elements(By.XPATH, "./div[span[contains(@class,'mobile-public-betting__percent')]]")
 
-        # find % spans within this market section
-        percents = m.find_elements(By.XPATH, "../../following-sibling::div/span/span[@class='highlight-text__children']")
-        if len(percents) >= 2:
-            bets_pct = driver.execute_script("return arguments[0].innerText;", percents[0]).strip()
-            money_pct = driver.execute_script("return arguments[0].innerText;", percents[1]).strip()
-        else:
-            bets_pct = money_pct = ""
+    # --- Find odds container (spread/total/ml) ---
+    odds_container = block.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__odds-container div[data-testid='book-cell__odds']")
+    odds_lines = []
+    for o in odds_container:
+        odds_lines.append(o.text.replace("\n", " ").strip())
+
+    # --- Align percentages with markets ---
+    # Typically: [spread %, total %, moneyline %]
+    for i, group in enumerate(percent_groups):
+        percents = group.find_elements(By.CSS_SELECTOR, ".highlight-text__children")
+        if len(percents) < 2:
+            continue
+
+        bets_pct = driver.execute_script("return arguments[0].innerText;", percents[0]).strip()
+        money_pct = driver.execute_script("return arguments[0].innerText;", percents[1]).strip()
 
         diff = ""
         try:
@@ -108,22 +122,27 @@ for block in blocks:
         except:
             pass
 
+        # Assign market type based on index
+        market = ["Spread", "Total", "Moneyline"][i] if i < 3 else f"Market_{i+1}"
+        line = odds_lines[i] if i < len(odds_lines) else ""
+
         rows.append({
             "Matchup": matchup,
-            "Line": line_text,
+            "Market": market,
+            "Line": line,
             "Bets %": bets_pct,
             "Money %": money_pct,
             "Diff": diff,
+            "Game Time": time_str,
             "Fetched": datetime.now().strftime("%Y-%m-%d %H:%M")
         })
 
 driver.quit()
 
-# --- SAVE ---
+# === Save to CSV ===
 df = pd.DataFrame(rows)
 output = f"action_all_markets_{datetime.now().strftime('%Y-%m-%d')}.csv"
 df.to_csv(output, index=False)
-
 print(f"✅ Rows scraped: {len(df)}")
 print(f"📁 Saved to {output}")
 print("✅ Script completed")
