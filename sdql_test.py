@@ -107,26 +107,27 @@ def run_sdql_queries(email, password, queries, headless=True):
     finally:
         driver.quit()
 
-EMAIL = "dondadapicks@gmail.com"
-PASSWORD = "winner2b"
 
-# All 14 queries
-queries = [
-    "'Bill Vinovich' in officials and HF and DIV and REG and season>=2018",
-    "'Clete Blakeman' in officials and AF and NDIV and REG and season>=2018",
-    "'Brad Allen' in officials and HF and DIV and REG and season>=2018",
-    "'Adrian Hill' in officials and HF and NDIV and REG and season>=2018",
-    "'Alex Moore' in officials and AF and DIV and REG and season>=2018",
-    "'Ron Torbert' in officials and AF and DIV and REG and season>=2018",
-    "'Shawn Hochuli' in officials and AF and NDIV and REG and season>=2018",
-    "'Shawn Smith' in officials and AF and C and REG and season>=2018",
-    "'Alex Kemp' in officials and HF and NDIV and REG and season>=2018",
-    "'Alan Eck' in officials and HF and DIV and REG and season>=2018",
-    "'Land Clark' in officials and AF and DIV and REG and season>=2018",
-    "'Scott Novak' in officials and AF and C and REG and season>=2018",
-    "'Brad Rogers' in officials and HF and NDIV and REG and season>=2018",
-    "'Clay Martin' in officials and HF and C and REG and season>=2018"
-]
-
-# Set headless=False to see browser, True to run in background
-run_sdql_queries(EMAIL, PASSWORD, queries, headless=True)
+# Only run this when script is executed directly (not imported)
+if __name__ == "__main__":
+    from config import GIMMETHEDOG_EMAIL, GIMMETHEDOG_PASSWORD
+    
+    # Test queries
+    queries = [
+        "'Bill Vinovich' in officials and HF and DIV and REG and season>=2018",
+        "'Clete Blakeman' in officials and AF and NDIV and REG and season>=2018",
+        "'Brad Allen' in officials and HF and DIV and REG and season>=2018",
+        "'Adrian Hill' in officials and HF and NDIV and REG and season>=2018",
+        "'Alex Moore' in officials and AF and DIV and REG and season>=2018",
+        "'Ron Torbert' in officials and AF and DIV and REG and season>=2018",
+        "'Shawn Hochuli' in officials and AF and NDIV and REG and season>=2018",
+        "'Shawn Smith' in officials and AF and C and REG and season>=2018",
+        "'Alex Kemp' in officials and HF and NDIV and REG and season>=2018",
+        "'Alan Eck' in officials and HF and DIV and REG and season>=2018",
+        "'Land Clark' in officials and AF and DIV and REG and season>=2018",
+        "'Scott Novak' in officials and AF and C and REG and season>=2018",
+        "'Brad Rogers' in officials and HF and NDIV and REG and season>=2018",
+        "'Clay Martin' in officials and HF and C and REG and season>=2018"
+    ]
+    
+    run_sdql_queries(GIMMETHEDOG_EMAIL, GIMMETHEDOG_PASSWORD, queries, headless=True)
