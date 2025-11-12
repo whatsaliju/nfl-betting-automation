@@ -58,11 +58,14 @@ jobs:
         with:
           name: nfl-analysis-results
           path: |
-            week${{ steps.detect_week.outputs.week }}_*.csv
-            week${{ steps.detect_week.outputs.week }}_*.txt
+            week${{ steps.detect_week.outputs.week }}_referees.csv
+            week${{ steps.detect_week.outputs.week }}_queries.csv
+            week${{ steps.detect_week.outputs.week }}_complete_data.csv
+            week${{ steps.detect_week.outputs.week }}_enhanced_report.txt
+            week${{ steps.detect_week.outputs.week }}_ai_summary.txt
             sdql_results.csv
-            action_*.csv
-            rotowire_*.csv
+            action_all_markets_*.csv
+            rotowire_lineups_*.csv
           retention-days: 30
       
       - name: Create Summary Comment
