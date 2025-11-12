@@ -110,7 +110,8 @@ def run_sdql_queries(email, password, queries, headless=True):
 
 # Only run this when script is executed directly (not imported)
 if __name__ == "__main__":
-    from config import GIMMETHEDOG_EMAIL, GIMMETHEDOG_PASSWORD
+    GIMMETHEDOG_EMAIL = os.getenv('GIMMETHEDOG_EMAIL')
+    GIMMETHEDOG_PASSWORD = os.getenv('GIMMETHEDOG_PASSWORD')
     
     # Test queries
     queries = [
