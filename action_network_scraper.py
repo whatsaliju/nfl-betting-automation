@@ -146,6 +146,8 @@ def scrape_current_market(market_name):
                 bets_text = extract_percentage_pairs(bets_container)
             except Exception as e:
                 print(f"  ⚠️ Row {idx}: Error extracting bets %: {e}")
+                # Fallback: try to get any text from the column
+                bets_text = tds[3].text.strip()
             
             # Extract Money % (column 4)
             money_text = ""
@@ -153,7 +155,23 @@ def scrape_current_market(market_name):
                 money_container = tds[4].find_element(By.CSS_SELECTOR, ".public-betting__percents-container")
                 money_text = extract_percentage_pairs(money_container)
             except Exception as e:
-                print(f"  ⚠️ Row {idx}: Error extracting money %: {e}")
+                print(f"  ⚠️ Row {idx}: Error extracting money % via container: {e}")
+            
+            # If money_text is empty, try alternative extraction methods
+            if not money_text:
+                try:
+                    # Try getting all text from column 4
+                    raw_text = tds[4].text.strip()
+                    print(f"  🔍 Row {idx}: Money column raw text: '{raw_text}'")
+                    
+                    # Try finding percentage elements differently
+                    all_pcts = tds[4].find_elements(By.CSS_SELECTOR, ".public-betting__percent")
+                    if all_pcts:
+                        pct_texts = [p.text.strip() for p in all_pcts if p.text.strip()]
+                        money_text = " | ".join(pct_texts)
+                        print(f"  ✅ Row {idx}: Found money % via alternate method: {money_text}")
+                except Exception as e2:
+                    print(f"  ⚠️ Row {idx}: Alternate extraction also failed: {e2}")
             
             # Extract Diff (column 5)
             diff_text = ""
@@ -277,7 +295,7 @@ driver.quit()
 
 # --- Save results ---
 df = pd.DataFrame(all_data)
-out = f"action_all_markets_{datetime.now().strftime('%Y-%m-%d')}.csv"
+out = f"action_public_betting_{datetime.now().strftime('%Y-%m-%d_%H%M')}.csv"
 df.to_csv(out, index=False)
 
 print(f"\n{'='*60}")
