@@ -23,7 +23,8 @@ print(f"✅ Using credentials for: {EMAIL[:3]}***@{EMAIL.split('@')[1]}")
 
 # --- Browser setup ---
 options = Options()
-options.add_argument("--headless=new")
+# TEMPORARILY DISABLE HEADLESS to debug authentication
+# options.add_argument("--headless=new")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
@@ -38,11 +39,33 @@ time.sleep(3)
 driver.find_element(By.NAME, "email").send_keys(EMAIL)
 driver.find_element(By.NAME, "password").send_keys(PASSWORD)
 driver.find_element(By.NAME, "password").send_keys(Keys.RETURN)
-time.sleep(6)
+print("⏳ Waiting for login to complete...")
+time.sleep(10)  # Longer wait for login
+
+# Verify login succeeded
+try:
+    # Check if we're still on login page or if there's an error
+    current_url = driver.current_url
+    print(f"📍 Current URL after login: {current_url}")
+    if "login" in current_url:
+        print("⚠️ Still on login page - login may have failed!")
+except:
+    pass
 
 # --- Navigate ---
 driver.get("https://www.actionnetwork.com/nfl/public-betting")
-time.sleep(5)
+print("⏳ Waiting for page to fully load...")
+time.sleep(8)  # Longer initial wait
+
+# Wait specifically for Money % data to appear
+try:
+    print("⏳ Waiting for Money % data to load...")
+    WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, ".public-betting__percents-container .highlight-text__children"))
+    )
+    print("✅ Money % elements detected on page")
+except TimeoutException:
+    print("⚠️ Money % elements not found - may need to check authentication or page structure")
 
 def extract_percentage_pairs(container):
     """Extract both percentages from a container (away | home)"""
@@ -68,8 +91,9 @@ def scrape_current_market(market_name):
         print(f"⚠️ Timeout waiting for {market_name} rows")
         return rows
 
-    # Wait a bit more for dynamic content
-    time.sleep(2)
+    # Wait longer for Money % data to fully render
+    print("⏳ Waiting for Money % data to render...")
+    time.sleep(5)
     
     games = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
     print(f"📊 Found {len(games)} total rows in {market_name}")
@@ -79,6 +103,7 @@ def scrape_current_market(market_name):
             # Skip header/promo rows
             html = g.get_attribute("innerHTML")
             if not html or "public-betting-upsell-header" in html or "FREE" in g.text:
+                print(f"  ⏭️ Row {idx}: Skipping header/promo row")
                 continue
             
             # Must have game info to be a valid game row
@@ -281,7 +306,16 @@ for val, label in markets:
     try:
         market_select.select_by_value(val)
         print(f"✅ Dropdown set to: {label}")
-        time.sleep(7)  # Longer wait for table to reload
+        time.sleep(10)  # Even longer wait for Money % to load after market switch
+        
+        # Explicitly wait for Money % elements after switching markets
+        try:
+            WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "table tbody tr .public-betting__percents-container"))
+            )
+            print(f"✅ Table data loaded for {label}")
+        except TimeoutException:
+            print(f"⚠️ Table data slow to load for {label}")
         
         market_data = scrape_current_market(label)
         all_data.extend(market_data)
