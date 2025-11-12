@@ -10,48 +10,64 @@ import pandas as pd
 import re
 import os
 
-try:
-    print(f"Logging in with email: {email[:3]}***@{email.split('@')[1]}")
-    driver.get("https://www.gimmethedog.com/login")
-    time.sleep(3)
+def run_sdql_queries(email, password, queries, headless=True):
+    print("Starting browser...")
     
-    print("Entering credentials...")
-    email_field = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "email"))
-    )
-    email_field.clear()
-    email_field.send_keys(email)
-    time.sleep(0.5)
+    options = webdriver.ChromeOptions()
+    if headless:
+        options.add_argument('--headless=new')  # Use new headless mode
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--disable-blink-features=AutomationControlled')  # Avoid detection
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        options.add_experimental_option('useAutomationExtension', False)
+        print("Running in background mode...")
     
-    password_field = driver.find_element(By.ID, "password")
-    password_field.clear()
-    password_field.send_keys(password)
-    time.sleep(0.5)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    all_results = []
     
-    # Try pressing Enter instead of clicking button
-    print("Submitting login form...")
-    password_field.send_keys(Keys.RETURN)
-    time.sleep(5)
-    
-    # Check if login was successful
-    current_url = driver.current_url
-    print(f"After login, URL: {current_url}")
-    
-    if "login" in current_url.lower():
-        print("⚠️ WARNING: Still on login page - authentication failed!")
-        print("Checking for error messages...")
+    try:
+        print(f"Logging in with email: {email[:3]}***@{email.split('@')[1]}")
+        driver.get("https://www.gimmethedog.com/login")
+        time.sleep(3)
         
-        try:
-            body_text = driver.find_element(By.TAG_NAME, "body").text
-            if "invalid" in body_text.lower() or "incorrect" in body_text.lower():
-                print(f"❌ Login error found: {body_text[:200]}")
-        except:
-            pass
+        print("Entering credentials...")
+        email_field = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "email"))
+        )
+        email_field.clear()
+        email_field.send_keys(email)
+        time.sleep(0.5)
         
-        driver.save_screenshot("login_failed.png")
-        print("📸 Saved screenshot: login_failed.png")
-        driver.quit()
-        return
+        password_field = driver.find_element(By.ID, "password")
+        password_field.clear()
+        password_field.send_keys(password)
+        time.sleep(0.5)
+        
+        # Try pressing Enter instead of clicking button
+        print("Submitting login form...")
+        password_field.send_keys(Keys.RETURN)
+        time.sleep(5)
+        
+        # Check if login was successful
+        current_url = driver.current_url
+        print(f"After login, URL: {current_url}")
+        
+        if "login" in current_url.lower():
+            print("⚠️ WARNING: Still on login page - authentication failed!")
+            print("Checking for error messages...")
+            
+            try:
+                body_text = driver.find_element(By.TAG_NAME, "body").text
+                if "invalid" in body_text.lower() or "incorrect" in body_text.lower():
+                    print(f"❌ Login error found: {body_text[:200]}")
+            except:
+                pass
+            
+            driver.save_screenshot("login_failed.png")
+            print("📸 Saved screenshot: login_failed.png")
+            driver.quit()
+            return
     
     print("✅ Login successful!")
     driver.get("https://www.gimmethedog.com/NFL")
