@@ -58,14 +58,11 @@ jobs:
         with:
           name: nfl-analysis-results
           path: |
-            week*_ai_summary.txt
-            week*_enhanced_report.txt
-            week*_complete_data.csv
-            week*_referees.csv
-            week*_queries.csv
+            week${{ steps.detect_week.outputs.week }}_*.csv
+            week${{ steps.detect_week.outputs.week }}_*.txt
             sdql_results.csv
-            action_all_markets*.csv
-            rotowire_lineups*.csv
+            action_*.csv
+            rotowire_*.csv
           retention-days: 30
       
       - name: Create Summary Comment
