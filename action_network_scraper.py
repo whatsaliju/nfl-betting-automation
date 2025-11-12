@@ -23,7 +23,7 @@ print(f"✅ Using Action Network credentials for: {EMAIL[:3]}***@{EMAIL.split('@
 
 # === Set up Chrome options for Ubuntu ===
 options = Options()
-# options.add_argument("--headless=new")
+options.add_argument("--headless=new")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
@@ -72,38 +72,34 @@ time.sleep(1)
 # --- SCRAPE FUNCTION ---
 def scrape_table():
     data = []
+
+    # Wait until the page populates at least one betting block
     WebDriverWait(driver, 10).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".mobile-public-betting__row--last"))
     )
 
-    game_blocks = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__row--last")
-    print(f"Found {len(game_blocks)} game blocks...")
-
-    html = driver.page_source
-    with open("debug_actionnetwork.html", "w", encoding="utf-8") as f:
-        f.write(html)
-    print("📄 Saved page_source to debug_actionnetwork.html")
-
-    
-    for g in game_blocks:
-        # --- Matchup Header ---
-        matchup = "Unknown matchup"
-        try:
-            link = g.find_element(By.CSS_SELECTOR, "a[href*='/nfl-game/']")
-            teams_text = " ".join(link.text.split())
-            href = link.get_attribute("href")
-            # Extract date from slug, e.g. "november-13-2025"
+    # 1️⃣ Get all matchup headers (global list)
+    game_links = driver.find_elements(By.CSS_SELECTOR, "a[href*='/nfl-game/']")
+    matchups = []
+    for link in game_links:
+        href = link.get_attribute("href")
+        text = " ".join(link.text.split())
+        if "/nfl-game/" in href and text:
+            # derive readable date from slug
             date_part = href.split("odds-")[-1].split("/")[0].replace("-", " ").title()
-            # Extract kickoff time if visible
-            try:
-                kickoff = g.find_element(By.CSS_SELECTOR, ".mobile-public-betting__game-status").text.strip()
-            except Exception:
-                kickoff = ""
-            matchup = f"{date_part} {kickoff} {teams_text}"
-        except Exception as e:
-            print("⚠️ Could not extract matchup:", e)
+            matchups.append(f"{date_part} {text}")
 
-        # --- Percentages ---
+    print(f"Found {len(matchups)} matchup headers")
+
+    # 2️⃣ Get all betting rows (one per matchup)
+    blocks = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__row--last")
+    print(f"Found {len(blocks)} betting blocks")
+
+    # Use min(len(matchups), len(blocks)) to avoid index overflow
+    for idx, g in enumerate(blocks[:len(matchups)]):
+        matchup = matchups[idx] if idx < len(matchups) else "Unknown"
+
+        # Extract percentage pairs (bets %, money %)
         percents = g.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__percent .highlight-text__children")
         for i in range(0, len(percents), 2):
             try:
@@ -127,6 +123,7 @@ def scrape_table():
             })
 
     return data
+
 
 
 
