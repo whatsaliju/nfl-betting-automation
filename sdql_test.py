@@ -175,6 +175,17 @@ def run_sdql_queries(email, password, queries, headless=True):
     finally:
         driver.quit()
 
+if __name__ == "__main__":
+    GIMMETHEDOG_EMAIL = os.getenv('GIMMETHEDOG_EMAIL')
+    GIMMETHEDOG_PASSWORD = os.getenv('GIMMETHEDOG_PASSWORD')
+    
+    if not GIMMETHEDOG_EMAIL or not GIMMETHEDOG_PASSWORD:
+        print("❌ ERROR: Environment variables not set!")
+        print(f"EMAIL: {GIMMETHEDOG_EMAIL}")
+        print(f"PASSWORD: {'***' if GIMMETHEDOG_PASSWORD else 'None'}")
+        exit(1)
+    
+    # Test queries...
 
 # Only run this when script is executed directly (not imported)
 if __name__ == "__main__":
