@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import pandas as pd
 import re
+import os
 
 def run_sdql_queries(email, password, queries, headless=True):
     print("Starting browser...")
