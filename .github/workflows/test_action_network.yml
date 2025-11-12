@@ -7,7 +7,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # allow committing CSV back to repo
+      contents: write  # allows committing CSV back to repo
 
     steps:
       - name: Checkout repository
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'  # modern + better Selenium support
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -68,3 +68,9 @@ PYCODE
           git add action_all_markets_*.csv
           git commit -m "Auto-update Action Network CSV [skip ci]" || echo "No changes to commit"
           git push
+
+      - name: Upload CSV artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: actionnetwork-scraper-output
+          path: action_all_markets_*.csv
