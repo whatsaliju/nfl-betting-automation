@@ -23,7 +23,7 @@ print(f"✅ Using Action Network credentials for: {EMAIL[:3]}***@{EMAIL.split('@
 
 # === Set up Chrome options for Ubuntu ===
 options = Options()
-options.add_argument("--headless=new")
+# options.add_argument("--headless=new")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
@@ -79,6 +79,12 @@ def scrape_table():
     game_blocks = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__row--last")
     print(f"Found {len(game_blocks)} game blocks...")
 
+    html = driver.page_source
+    with open("debug_actionnetwork.html", "w", encoding="utf-8") as f:
+        f.write(html)
+    print("📄 Saved page_source to debug_actionnetwork.html")
+
+    
     for g in game_blocks:
         # --- Matchup Header ---
         matchup = "Unknown matchup"
