@@ -3,7 +3,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
@@ -37,7 +36,6 @@ driver = webdriver.Chrome(service=service, options=options)
 # --- LOGIN ---
 driver.get("https://www.actionnetwork.com/login")
 time.sleep(3)
-
 driver.find_element(By.NAME, "email").send_keys(EMAIL)
 driver.find_element(By.NAME, "password").send_keys(PASSWORD)
 driver.find_element(By.NAME, "password").send_keys(Keys.RETURN)
@@ -61,7 +59,7 @@ except Exception as e:
     print(f"⚠️ Could not select All Markets: {e}")
     print("Proceeding with default view...")
 
-# --- ENSURE PAGE FULLY LOADED ---
+# --- WAIT FOR PAGE RENDER ---
 wait = WebDriverWait(driver, 10)
 wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".public-betting__percents-container")))
 
@@ -74,24 +72,36 @@ time.sleep(1)
 # --- SCRAPE FUNCTION ---
 def scrape_table():
     data = []
-    for tr in driver.find_elements(By.CSS_SELECTOR, "table tbody tr"):
-        tds = tr.find_elements(By.TAG_NAME, "td")
-        if len(tds) >= 3:
-            matchup = tds[0].text.strip()
-            line = tds[2].text.strip()
+    rows = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
+    current_matchup = None
 
+    for tr in rows:
+        tds = tr.find_elements(By.TAG_NAME, "td")
+        if not tds:
+            continue
+
+        # Detect matchup header row
+        if "AM" in tds[0].text or "PM" in tds[0].text:
+            current_matchup = tds[0].text.strip()
+            continue
+
+        if not current_matchup:
+            continue  # skip stray rows
+
+        # Line type row
+        if len(tds) >= 3:
+            line = tds[2].text.strip()
             bets_pct = ""
             money_pct = ""
 
             try:
                 pct_container = tds[3].find_element(By.CSS_SELECTOR, ".public-betting__percents-container")
-                percents = pct_container.find_elements(By.CSS_SELECTOR, ".highlight-text__children")
-
-                if len(percents) >= 2:
-                    bets_pct = percents[0].text.strip()
-                    money_pct = percents[1].text.strip()
-                elif len(percents) == 1:
-                    bets_pct = percents[0].text.strip()
+                spans = pct_container.find_elements(By.CSS_SELECTOR, ".highlight-text__children")
+                if len(spans) >= 2:
+                    bets_pct = spans[0].text.strip()
+                    money_pct = spans[1].text.strip()
+                elif len(spans) == 1:
+                    bets_pct = spans[0].text.strip()
             except Exception:
                 bets_pct = tds[3].text.strip()
                 try:
@@ -107,14 +117,16 @@ def scrape_table():
                     diff = ""
 
             data.append({
-                "Matchup": matchup,
+                "Matchup": current_matchup,
                 "Line": line,
                 "Bets %": bets_pct,
                 "Money %": money_pct,
                 "Diff": diff,
                 "Fetched": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })
+
     return data
+
 
 # --- INITIAL SCRAPE ---
 rows = scrape_table()
@@ -128,12 +140,11 @@ if missing_rows:
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".public-betting__percents-container")))
     time.sleep(3)
     retry_data = scrape_table()
-
-    # merge retry results where matchup names match
-    retry_map = {r["Matchup"]: r for r in retry_data}
+    retry_map = {r["Matchup"] + r["Line"]: r for r in retry_data}
     for row in rows:
-        if not row["Money %"] and row["Matchup"] in retry_map:
-            row.update(retry_map[row["Matchup"]])
+        key = row["Matchup"] + row["Line"]
+        if not row["Money %"] and key in retry_map:
+            row.update(retry_map[key])
 
 driver.quit()
 
