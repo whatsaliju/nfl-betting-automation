@@ -182,8 +182,11 @@ def main():
             return False
             
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"❌ Error running SDQL queries: {e}")
+        import traceback
+        traceback.print_exc()
         return False
+        
     # Step 4: Run Action Network scraper (after SDQL)
     print_header("STEP 4/6: Scrape Action Network Sharp Money")
     try:
