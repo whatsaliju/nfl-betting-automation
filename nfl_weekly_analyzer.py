@@ -17,9 +17,12 @@ from datetime import datetime, timedelta
 import argparse
 
 # Configuration
-GIMMETHEDOG_EMAIL = "dondadapicks@gmail.com"
-GIMMETHEDOG_PASSWORD = "winner2b"
-ODDS_API_KEY = "5f3c8ca6e631e6b59c3a05c291658e22"
+# GimmeTheDog / SDQL Credentials (from environment or fallback to local)
+GIMMETHEDOG_EMAIL = os.getenv('GIMMETHEDOG_EMAIL')
+GIMMETHEDOG_PASSWORD = os.getenv('GIMMETHEDOG_PASSWORD')
+
+# Odds API (you might want to add this as a secret too)
+ODDS_API_KEY = os.getenv('ODDS_API_KEY')
 
 def get_current_nfl_week():
     """Auto-detect NEXT NFL week (upcoming games)"""
