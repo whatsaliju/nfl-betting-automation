@@ -21,14 +21,13 @@ def run_sdql_queries(email, password, queries, headless=True):
         return
     
     options = webdriver.ChromeOptions()
-
     if headless:
         options.add_argument('--headless=new')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-blink-features=AutomationControlled')
-        options.add_argument('--ignore-certificate-errors')  # Add this
-        options.add_argument('--allow-insecure-localhost')   # Add this
+        options.add_argument('--ignore-certificate-errors')
+        options.add_argument('--allow-insecure-localhost')
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         print("Running in background mode...")
@@ -39,7 +38,19 @@ def run_sdql_queries(email, password, queries, headless=True):
     try:
         print(f"Logging in with email: {email[:3]}***")
         driver.get("https://www.gimmethedog.com/login")
-        time.sleep(3)
+        
+        # Wait longer for page to fully load and any dialogs to appear
+        print("Waiting for page to load (and any certificate dialogs)...")
+        time.sleep(5)
+        
+        # Try to dismiss any alert/dialog
+        try:
+            alert = driver.switch_to.alert
+            print("Found alert dialog, dismissing...")
+            alert.dismiss()
+            time.sleep(2)
+        except:
+            print("No alert dialog found, proceeding...")
         
         print("Entering credentials...")
         email_field = WebDriverWait(driver, 10).until(
@@ -54,9 +65,12 @@ def run_sdql_queries(email, password, queries, headless=True):
         password_field.send_keys(password)
         time.sleep(0.5)
         
-        # Try pressing Enter instead of clicking button
-        print("Submitting login form...")
-        password_field.send_keys(Keys.RETURN)
+        # Try clicking the button instead of pressing Enter
+        print("Clicking login button...")
+        login_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[@type='submit']"))
+        )
+        login_button.click()
         time.sleep(5)
         
         # Check if login was successful
@@ -69,8 +83,9 @@ def run_sdql_queries(email, password, queries, headless=True):
             
             try:
                 body_text = driver.find_element(By.TAG_NAME, "body").text
+                print(f"Page content: {body_text[:500]}")
                 if "invalid" in body_text.lower() or "incorrect" in body_text.lower():
-                    print(f"❌ Login error found: {body_text[:200]}")
+                    print(f"❌ Login error found")
             except:
                 pass
             
