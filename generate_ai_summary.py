@@ -21,8 +21,14 @@ def generate_ai_summary(week):
         
         # Optional data
         try:
-            action = pd.read_csv([f for f in os.listdir('.') if f.startswith('action_all_markets')][0])
-            has_action = True
+            # Get the most recent action network file (the one with timestamp)
+            action_files = [f for f in os.listdir('.') if f.startswith('action_all_markets') and '_' in f and not f.endswith('_2058.csv')]
+            if action_files:
+                action = pd.read_csv(sorted(action_files)[-1])
+                has_action = True
+            else:
+                action = None
+                has_action = False
         except:
             action = None
             has_action = False
@@ -41,11 +47,19 @@ def generate_ai_summary(week):
         if has_action:
             for idx, row in final.iterrows():
                 home = row['home']
-                match = action[action['game'].str.contains(home, na=False)]
+                away = row['away']
+                # Try to match by looking for team codes in Matchup column
+                match = action[action['Matchup'].str.contains(home, na=False) | action['Matchup'].str.contains(away, na=False)]
                 if len(match) > 0:
-                    final.loc[idx, 'sharp_edge'] = float(match.iloc[0].get('money_pct', 0)) - float(match.iloc[0].get('bets_pct', 0))
-                    final.loc[idx, 'money_pct'] = match.iloc[0].get('money_pct', 0)
-                    final.loc[idx, 'bets_pct'] = match.iloc[0].get('bets_pct', 0)
+                    # Parse the percentage columns (they might have % or be strings)
+                    try:
+                        bets_pct = str(match.iloc[0].get('Bets %', '0')).replace('%', '').strip()
+                        money_pct = str(match.iloc[0].get('Money %', '0')).replace('%', '').strip()
+                        final.loc[idx, 'bets_pct'] = float(bets_pct) if bets_pct else 0
+                        final.loc[idx, 'money_pct'] = float(money_pct) if money_pct else 0
+                        final.loc[idx, 'sharp_edge'] = final.loc[idx, 'money_pct'] - final.loc[idx, 'bets_pct']
+                    except:
+                        pass
         
         # Add injury/weather data
         if has_injuries:
