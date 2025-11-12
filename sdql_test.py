@@ -36,11 +36,20 @@ def run_sdql_queries(email, password, queries, headless=True):
         login_button.click()
         time.sleep(3)
         
+        # Check if login was successful
+        current_url = driver.current_url
+        print(f"After login, URL: {current_url}")
+        if "login" in current_url.lower():
+            print("⚠️ WARNING: Still on login page - authentication may have failed!")
+            driver.save_screenshot("login_failed.png")
+        
         driver.get("https://www.gimmethedog.com/NFL")
         time.sleep(4)
         
+        print(f"On NFL page, URL: {driver.current_url}")
+        
         for i, query in enumerate(queries, 1):
-            print(f"\n[{i}/{len(queries)}] Running query...")
+            print(f"\n[{i}/{len(queries)}] Running query: {query[:50]}...")
             
             try:
                 # Clear and enter query
@@ -57,19 +66,50 @@ def run_sdql_queries(email, password, queries, headless=True):
                 # Submit
                 submit_btn = driver.find_element(By.XPATH, "//button[text()='SDQL']")
                 submit_btn.click()
+                print("  Clicked SDQL button, waiting for results...")
                 
                 # Wait for table to appear
-                time.sleep(8)
+                time.sleep(10)  # Increased from 8 to 10
                 
-                # Extract results
+                # Try multiple ways to find results
+                print("  Searching for results table...")
+                
+                # Method 1: Original way
                 table_rows = driver.find_elements(By.XPATH, "//tbody/tr")
+                print(f"  Method 1 (//tbody/tr): Found {len(table_rows)} rows")
+                
+                # Method 2: Look for any table
+                all_tables = driver.find_elements(By.TAG_NAME, "table")
+                print(f"  Found {len(all_tables)} table elements on page")
+                
+                # Method 3: Look for text containing "ATS:"
+                page_source = driver.page_source
+                if "ATS:" in page_source:
+                    print("  ✓ Found 'ATS:' text in page")
+                else:
+                    print("  ✗ No 'ATS:' text found in page")
+                
+                # Method 4: Check for any tbody
+                tbodies = driver.find_elements(By.TAG_NAME, "tbody")
+                print(f"  Found {len(tbodies)} tbody elements")
                 
                 if len(table_rows) < 3:
-                    print(f"⚠️ Only found {len(table_rows)} rows, expected 3")
+                    print(f"  ⚠️ Only found {len(table_rows)} rows, expected 3")
+                    # Save screenshot for first failed query
+                    if i == 1:
+                        driver.save_screenshot("debug_no_results.png")
+                        print("  📸 Saved screenshot: debug_no_results.png")
+                        # Print part of page to see what's there
+                        body_text = driver.find_element(By.TAG_NAME, "body").text
+                        print(f"  Page text preview: {body_text[:300]}")
                 
                 su_text = table_rows[0].text if len(table_rows) > 0 else ""
                 ats_text = table_rows[1].text if len(table_rows) > 1 else ""
                 ou_text = table_rows[2].text if len(table_rows) > 2 else ""
+                
+                print(f"  SU text: {su_text}")
+                print(f"  ATS text: {ats_text}")
+                print(f"  OU text: {ou_text}")
                 
                 su_match = re.search(r'SU:\s*(\d+-\d+)\s*\([^,]+,([^)]+)\)', su_text)
                 su_record = su_match.group(1) if su_match else ""
@@ -94,15 +134,17 @@ def run_sdql_queries(email, password, queries, headless=True):
                 }
                 
                 all_results.append(result)
-                print(f"✓ ATS: {ats_record} ({ats_pct})")
+                print(f"  ✓ ATS: {ats_record} ({ats_pct})")
                 
             except Exception as e:
-                print(f"✗ Error on query {i}: {e}")
+                print(f"  ✗ Error on query {i}: {e}")
+                import traceback
+                traceback.print_exc()
                 all_results.append({'query': query, 'error': str(e)})
         
         df = pd.DataFrame(all_results)
         df.to_csv('sdql_results.csv', index=False)
-        print(f"\n✓ Saved to sdql_results.csv")
+        print(f"\n✓ Saved {len(all_results)} results to sdql_results.csv")
         
     finally:
         driver.quit()
