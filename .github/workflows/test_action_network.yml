@@ -24,14 +24,12 @@ jobs:
           sudo apt-get install -y chromium-browser chromium-chromedriver
           pip install pandas selenium
 
-      - name: Run Action Network Scraper
-        env:
-          ACTION_NETWORK_EMAIL: ${{ secrets.ACTION_NETWORK_EMAIL }}
-          ACTION_NETWORK_PASSWORD: ${{ secrets.ACTION_NETWORK_PASSWORD }}
+      - name: Create cookies file
         run: |
-          echo "🚀 Running Action Network scraper..."
-          python3 action_network_scraper.py
-          echo "✅ Script completed"
+          echo '${{ secrets.ACTION_NETWORK_COOKIES }}' > action_network_cookies.json
+        
+      - name: Run scraper
+        run: python action_network_scraper_cookies.py
 
       - name: Verify CSV output
         run: |
