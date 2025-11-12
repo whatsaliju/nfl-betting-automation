@@ -42,28 +42,68 @@ driver = webdriver.Chrome(service=service, options=options)
 driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
 # --- Login ---
+print("🔐 Attempting login...")
 driver.get("https://www.actionnetwork.com/login")
 time.sleep(3)
-driver.find_element(By.NAME, "email").send_keys(EMAIL)
-driver.find_element(By.NAME, "password").send_keys(PASSWORD)
-driver.find_element(By.NAME, "password").send_keys(Keys.RETURN)
-print("⏳ Waiting for login to complete...")
-time.sleep(10)  # Longer wait for login
 
-# Verify login succeeded
 try:
-    # Check if we're still on login page or if there's an error
-    current_url = driver.current_url
-    print(f"📍 Current URL after login: {current_url}")
-    if "login" in current_url:
-        print("⚠️ Still on login page - login may have failed!")
-except:
-    pass
+    email_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.NAME, "email"))
+    )
+    password_field = driver.find_element(By.NAME, "password")
+    
+    email_field.clear()
+    email_field.send_keys(EMAIL)
+    password_field.clear()
+    password_field.send_keys(PASSWORD)
+    password_field.send_keys(Keys.RETURN)
+    
+    print("⏳ Waiting for login to complete...")
+    
+    # Wait for redirect away from login page OR for an error message
+    try:
+        WebDriverWait(driver, 15).until(
+            lambda driver: "login" not in driver.current_url.lower()
+        )
+        print(f"✅ Login successful! Redirected to: {driver.current_url}")
+    except TimeoutException:
+        print("⚠️ Login may have failed - still on login page")
+        
+        # Check for error messages
+        try:
+            error_msg = driver.find_element(By.CSS_SELECTOR, ".error, [class*='error'], [class*='alert']")
+            print(f"❌ Login error: {error_msg.text}")
+        except:
+            print("⚠️ No error message found, but still on login page")
+        
+        # Take screenshot of login issue
+        driver.save_screenshot("debug_login_failed.png")
+        print("📸 Saved screenshot: debug_login_failed.png")
+    
+    # Additional wait to ensure session is fully established
+    time.sleep(5)
+    
+except Exception as e:
+    print(f"❌ Login exception: {e}")
+    driver.save_screenshot("debug_login_exception.png")
+    driver.quit()
+    sys.exit(1)
 
 # --- Navigate ---
 driver.get("https://www.actionnetwork.com/nfl/public-betting")
 print("⏳ Waiting for page to fully load...")
 time.sleep(8)  # Longer initial wait
+
+# Check if we're actually logged in by looking for login/signup buttons
+try:
+    login_buttons = driver.find_elements(By.XPATH, "//*[contains(text(), 'Log In') or contains(text(), 'Sign Up')]")
+    if login_buttons:
+        print("⚠️ WARNING: Found login/signup buttons - may not be authenticated!")
+        print("⚠️ This explains why Money % data is limited")
+    else:
+        print("✅ No login buttons found - appears to be authenticated")
+except:
+    pass
 
 # Take a screenshot for debugging
 try:
