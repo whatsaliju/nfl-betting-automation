@@ -91,15 +91,17 @@ jobs:
       
       - name: Commit results to repo
         run: |
-          git config user.email "action@github.com"
-          git config user.name "GitHub Action"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main  # Pull first to avoid conflicts
           git add week*.csv week*.txt action_all_markets*.csv rotowire_*.csv sdql_results.csv || true
-          git commit -m "🏈 Week $(python3 -c 'from nfl_weekly_analyzer import get_current_nfl_week; print(get_current_nfl_week())') analysis - $(date +%Y-%m-%d)" || true
+          git commit -m "🏈 Week $(python3 -c 'from nfl_weekly_analyzer import get_current_nfl_week; print(get_current_nfl_week())') analysis - $(date +%Y-%m-%d)" || echo "No changes to commit"
       
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
       
       - name: Send Email Notification
         if: success()
