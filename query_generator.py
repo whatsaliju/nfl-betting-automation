@@ -200,10 +200,10 @@ def generate_queries(referees_csv, api_key, output_file='week10_queries.txt'):
     return queries_df
 
 if __name__ == "__main__":
-    API_KEY = "5f3c8ca6e631e6b59c3a05c291658e22"
+    from config import ODDS_API_KEY
     
     generate_queries(
         referees_csv='week10_referees.csv',
-        api_key=API_KEY,
+        api_key=ODDS_API_KEY,
         output_file='week10_queries.txt'
     )
