@@ -10,46 +10,55 @@ import pandas as pd
 import re
 import os
 
-def run_sdql_queries(email, password, queries, headless=True):
-    print("Starting browser...")
+try:
+    print(f"Logging in with email: {email[:3]}***@{email.split('@')[1]}")
+    driver.get("https://www.gimmethedog.com/login")
+    time.sleep(3)
     
-    options = webdriver.ChromeOptions()
-    if headless:
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        print("Running in background mode...")
+    print("Entering credentials...")
+    email_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "email"))
+    )
+    email_field.clear()
+    email_field.send_keys(email)
+    time.sleep(0.5)
     
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    all_results = []
+    password_field = driver.find_element(By.ID, "password")
+    password_field.clear()
+    password_field.send_keys(password)
+    time.sleep(0.5)
     
-    try:
-        driver.get("https://www.gimmethedog.com/login")
-        time.sleep(2)
+    # Try pressing Enter instead of clicking button
+    print("Submitting login form...")
+    password_field.send_keys(Keys.RETURN)
+    time.sleep(5)
+    
+    # Check if login was successful
+    current_url = driver.current_url
+    print(f"After login, URL: {current_url}")
+    
+    if "login" in current_url.lower():
+        print("⚠️ WARNING: Still on login page - authentication failed!")
+        print("Checking for error messages...")
         
-        print("Logging in...")
-        email_field = driver.find_element(By.ID, "email")
-        password_field = driver.find_element(By.ID, "password")
-        email_field.send_keys(email)
-        password_field.send_keys(password)
+        try:
+            body_text = driver.find_element(By.TAG_NAME, "body").text
+            if "invalid" in body_text.lower() or "incorrect" in body_text.lower():
+                print(f"❌ Login error found: {body_text[:200]}")
+        except:
+            pass
         
-        login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
-        login_button.click()
-        time.sleep(3)
-        
-        # Check if login was successful
-        current_url = driver.current_url
-        print(f"After login, URL: {current_url}")
-        if "login" in current_url.lower():
-            print("⚠️ WARNING: Still on login page - authentication may have failed!")
-            driver.save_screenshot("login_failed.png")
-        
-        driver.get("https://www.gimmethedog.com/NFL")
-        time.sleep(4)
-        
-        print(f"On NFL page, URL: {driver.current_url}")
-        
-        for i, query in enumerate(queries, 1):
+        driver.save_screenshot("login_failed.png")
+        print("📸 Saved screenshot: login_failed.png")
+        driver.quit()
+        return
+    
+    print("✅ Login successful!")
+    driver.get("https://www.gimmethedog.com/NFL")
+    time.sleep(4)
+    print(f"On NFL page, URL: {driver.current_url}")
+    
+    for i, query in enumerate(queries, 1):
             print(f"\n[{i}/{len(queries)}] Running query: {query[:50]}...")
             
             try:
