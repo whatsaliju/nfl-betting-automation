@@ -18,6 +18,12 @@ jobs:
         with:
           python-version: '3.9'
       
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+      
       - name: Get Week Number
         id: get_week
         run: |
@@ -28,12 +34,6 @@ jobs:
         id: timestamp
         run: |
           echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
-      
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
       
       - name: Run NFL Analysis
         env:
