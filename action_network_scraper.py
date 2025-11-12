@@ -1,8 +1,6 @@
-# action_network_scraper_split_v3_4.py
+# action_network_scraper_split_v3_5.py
 # -------------------------------------------
-# Scrapes Action Network NFL Public Betting by Market Type
-# Markets: Spread, Total, Moneyline
-# Outputs: action_public_betting_YYYY-MM-DD.csv
+# Fully corrected DOM selector version
 # -------------------------------------------
 
 from selenium import webdriver
@@ -16,8 +14,7 @@ from selenium.common.exceptions import TimeoutException
 import pandas as pd
 import time
 from datetime import datetime
-import os
-import sys
+import os, sys
 
 EMAIL = os.environ.get("ACTION_NETWORK_EMAIL")
 PASSWORD = os.environ.get("ACTION_NETWORK_PASSWORD")
@@ -51,7 +48,6 @@ time.sleep(6)
 driver.get("https://www.actionnetwork.com/nfl/public-betting")
 time.sleep(5)
 
-# --- Helper to scrape one market ---
 def scrape_current_market(market_name):
     print(f"🔍 Scraping {market_name} market...")
     rows = []
@@ -69,24 +65,16 @@ def scrape_current_market(market_name):
 
     for g in games:
         try:
-            # Extract matchup teams
-            teams = g.find_elements(By.CSS_SELECTOR, ".game-info__team--desktop span")
+            info = g.find_element(By.CSS_SELECTOR, ".public-betting__game-info")
+            teams = info.find_elements(By.CSS_SELECTOR, ".game-info__team--desktop span")
+            game_time = info.find_element(By.CSS_SELECTOR, ".public-betting__game-status").text.strip()
             if len(teams) >= 2:
-                away_team = teams[0].text.strip()
-                home_team = teams[1].text.strip()
-                matchup = f"{away_team} @ {home_team}"
+                matchup = f"{teams[0].text.strip()} @ {teams[1].text.strip()}"
             else:
                 matchup = "Unknown matchup"
-
-            # Extract time
-            try:
-                game_time = g.find_element(By.CSS_SELECTOR, ".public-betting__game-status").text.strip()
-            except:
-                game_time = ""
         except Exception:
             matchup, game_time = "Unknown matchup", ""
 
-        # Extract main numeric data
         tds = g.find_elements(By.TAG_NAME, "td")
         if len(tds) < 6:
             continue
@@ -110,29 +98,27 @@ def scrape_current_market(market_name):
         })
     return rows
 
-# --- Dropdown container ---
+# --- Dropdown ---
 container = driver.find_element(By.CSS_SELECTOR, "div[data-testid='odds-tools-sub-nav__odds-type']")
 dropdown_el = container.find_element(By.TAG_NAME, "select")
 select = Select(dropdown_el)
 
-# --- Scrape Spread / Total / Moneyline sequentially ---
+# --- Scrape all markets ---
 all_data = []
-for market_val, market_label in [("spread", "Spread"), ("total", "Total"), ("ml", "Moneyline")]:
+for val, label in [("spread", "Spread"), ("total", "Total"), ("ml", "Moneyline")]:
     try:
-        select.select_by_value(market_val)
-        print(f"✅ Selected {market_label}")
-        time.sleep(5)
-        all_data.extend(scrape_current_market(market_label))
+        select.select_by_value(val)
+        print(f"✅ Selected {label}")
+        time.sleep(6)
+        all_data.extend(scrape_current_market(label))
     except Exception as e:
-        print(f"⚠️ Error scraping {market_label}: {e}")
+        print(f"⚠️ Error scraping {label}: {e}")
 
 driver.quit()
 
-# --- Save combined CSV ---
 df = pd.DataFrame(all_data)
-output = f"action_public_betting_{datetime.now().strftime('%Y-%m-%d')}.csv"
-df.to_csv(output, index=False)
-
+out = f"action_public_betting_{datetime.now().strftime('%Y-%m-%d')}.csv"
+df.to_csv(out, index=False)
 print(f"✅ Rows scraped: {len(df)}")
-print(f"📁 Saved to {output}")
+print(f"📁 Saved to {out}")
 print("✅ Script completed")
