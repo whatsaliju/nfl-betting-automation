@@ -1,7 +1,6 @@
-# action_network_scraper_v3.py
+# action_network_scraper_v3_1.py
 # -------------------------------------------
-# Scrapes Action Network NFL public betting (All Markets)
-# Collects spread, total, and moneyline data per matchup
+# Scrapes Action Network NFL Public Betting ("All Markets")
 # Outputs: action_all_markets_YYYY-MM-DD.csv
 # -------------------------------------------
 
@@ -48,16 +47,16 @@ driver.find_element(By.NAME, "password").send_keys(PASSWORD)
 driver.find_element(By.NAME, "password").send_keys(Keys.RETURN)
 time.sleep(6)
 
-# === Go to Public Betting Page ===
+# === Navigate to Public Betting ===
 driver.get("https://www.actionnetwork.com/nfl/public-betting")
 time.sleep(5)
 
-# Scroll once to load dynamic content
+# Scroll to trigger lazy load
 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 time.sleep(2)
 driver.execute_script("window.scrollTo(0, 0);")
 
-# === Select 'All Markets' ===
+# === Select "All Markets" ===
 try:
     container = driver.find_element(By.CSS_SELECTOR, "div[data-testid='odds-tools-sub-nav__odds-type']")
     dropdown_el = container.find_element(By.TAG_NAME, "select")
@@ -67,19 +66,19 @@ try:
 except Exception as e:
     print("⚠️ Could not change dropdown:", e)
 
-# === Wait for betting data ===
+# === Wait for Betting Data ===
 try:
     WebDriverWait(driver, 25).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".mobile-public-betting__row--last"))
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".mobile-public-betting__details"))
     )
     print("✅ Betting rows visible")
 except TimeoutException:
     print("⚠️ Timeout waiting for betting rows")
 
-# === Scraping ===
+# === SCRAPE ===
 rows = []
-blocks = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__row--last")
-print(f"📊 Found {len(blocks)} game blocks")
+blocks = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__details")
+print(f"📊 Found {len(blocks)} full game containers")
 
 for block in blocks:
     # --- Matchup name ---
@@ -95,19 +94,15 @@ for block in blocks:
     except:
         time_str = ""
 
-    # --- Find percent div groups ---
-    percent_groups = block.find_elements(By.XPATH, "./div[span[@class='mobile-public-betting__percent css-q2y3yl e1srmxq10']]")
-    if not percent_groups:
-        percent_groups = block.find_elements(By.XPATH, "./div[span[contains(@class,'mobile-public-betting__percent')]]")
+    # --- Percent groups (Spread / Total / Moneyline) ---
+    percent_groups = block.find_elements(By.XPATH, ".//div[span[contains(@class,'mobile-public-betting__percent')]]")
 
-    # --- Find odds container (spread/total/ml) ---
+    # --- Odds container (lines) ---
     odds_container = block.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__odds-container div[data-testid='book-cell__odds']")
     odds_lines = []
     for o in odds_container:
         odds_lines.append(o.text.replace("\n", " ").strip())
 
-    # --- Align percentages with markets ---
-    # Typically: [spread %, total %, moneyline %]
     for i, group in enumerate(percent_groups):
         percents = group.find_elements(By.CSS_SELECTOR, ".highlight-text__children")
         if len(percents) < 2:
@@ -122,7 +117,7 @@ for block in blocks:
         except:
             pass
 
-        # Assign market type based on index
+        # Assign market type by order
         market = ["Spread", "Total", "Moneyline"][i] if i < 3 else f"Market_{i+1}"
         line = odds_lines[i] if i < len(odds_lines) else ""
 
@@ -139,7 +134,7 @@ for block in blocks:
 
 driver.quit()
 
-# === Save to CSV ===
+# === SAVE TO CSV ===
 df = pd.DataFrame(rows)
 output = f"action_all_markets_{datetime.now().strftime('%Y-%m-%d')}.csv"
 df.to_csv(output, index=False)
