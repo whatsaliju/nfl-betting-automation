@@ -3,7 +3,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import Select  # ← ADD THIS
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 import time
 from datetime import datetime
@@ -47,38 +49,91 @@ time.sleep(5)
 
 # --- SELECT "ALL MARKETS" FROM DROPDOWN ---
 try:
-    # Find the container div first (more reliable)
     container = driver.find_element(By.CSS_SELECTOR, "div[data-testid='odds-tools-sub-nav__odds-type']")
-    
-    # Find the select within it
     dropdown = container.find_element(By.TAG_NAME, "select")
-    
-    # Use JavaScript to set value and trigger change
     driver.execute_script("""
         arguments[0].value = 'combined';
         arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
     """, dropdown)
-    
     time.sleep(5)
     print("✅ Selected 'All Markets'")
-    
 except Exception as e:
     print(f"⚠️ Could not select All Markets: {e}")
     print("Proceeding with default view...")
 
-# --- SCRAPE THE TABLE ---
-rows = []
-for tr in driver.find_elements(By.CSS_SELECTOR, "table tbody tr"):
-    tds = tr.find_elements(By.TAG_NAME, "td")
-    if len(tds) >= 6:
-        rows.append({
-            "Matchup": tds[0].text.strip(),
-            "Line": tds[2].text.strip(),
-            "Bets %": tds[3].text.strip(),
-            "Money %": tds[4].text.strip(),
-            "Diff": tds[5].text.strip() if len(tds) > 5 else "",
-            "Fetched": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        })
+# --- ENSURE PAGE FULLY LOADED ---
+wait = WebDriverWait(driver, 10)
+wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".public-betting__percents-container")))
+
+# --- SCROLL THROUGH PAGE (lazy load safeguard) ---
+driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+time.sleep(2)
+driver.execute_script("window.scrollTo(0, 0);")
+time.sleep(1)
+
+# --- SCRAPE FUNCTION ---
+def scrape_table():
+    data = []
+    for tr in driver.find_elements(By.CSS_SELECTOR, "table tbody tr"):
+        tds = tr.find_elements(By.TAG_NAME, "td")
+        if len(tds) >= 3:
+            matchup = tds[0].text.strip()
+            line = tds[2].text.strip()
+
+            bets_pct = ""
+            money_pct = ""
+
+            try:
+                pct_container = tds[3].find_element(By.CSS_SELECTOR, ".public-betting__percents-container")
+                percents = pct_container.find_elements(By.CSS_SELECTOR, ".highlight-text__children")
+
+                if len(percents) >= 2:
+                    bets_pct = percents[0].text.strip()
+                    money_pct = percents[1].text.strip()
+                elif len(percents) == 1:
+                    bets_pct = percents[0].text.strip()
+            except Exception:
+                bets_pct = tds[3].text.strip()
+                try:
+                    money_pct = tds[4].text.strip()
+                except Exception:
+                    pass
+
+            diff = ""
+            if bets_pct and money_pct and "%" in bets_pct and "%" in money_pct:
+                try:
+                    diff = abs(int(money_pct.strip('%')) - int(bets_pct.strip('%')))
+                except ValueError:
+                    diff = ""
+
+            data.append({
+                "Matchup": matchup,
+                "Line": line,
+                "Bets %": bets_pct,
+                "Money %": money_pct,
+                "Diff": diff,
+                "Fetched": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+    return data
+
+# --- INITIAL SCRAPE ---
+rows = scrape_table()
+
+# --- RETRY PASS FOR MISSING MONEY% ---
+missing_rows = [r for r in rows if not r["Money %"]]
+if missing_rows:
+    print(f"🔁 Retrying {len(missing_rows)} rows missing Money % ...")
+    time.sleep(4)
+    driver.refresh()
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".public-betting__percents-container")))
+    time.sleep(3)
+    retry_data = scrape_table()
+
+    # merge retry results where matchup names match
+    retry_map = {r["Matchup"]: r for r in retry_data}
+    for row in rows:
+        if not row["Money %"] and row["Matchup"] in retry_map:
+            row.update(retry_map[row["Matchup"]])
 
 driver.quit()
 
@@ -91,7 +146,7 @@ def clean_text(x):
 
 # --- SAVE ---
 df = pd.DataFrame(rows)
-df = df.map(clean_text)  # Changed from applymap (deprecated)
+df = df.map(clean_text)
 
 output = f"action_all_markets_{datetime.now().strftime('%Y-%m-%d')}.csv"
 df.to_csv(output, index=False)
