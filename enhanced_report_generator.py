@@ -140,7 +140,7 @@ def generate_enhanced_report(week):
         # Try to load optional data sources
         try:
             action = pd.read_csv([f for f in os.listdir('.') if f.startswith('action_all_markets')][0])
-            has_action = True
+            has_action = False
         except:
             has_action = False
             print("⚠️ No Action Network data found")
