@@ -21,11 +21,14 @@ def run_sdql_queries(email, password, queries, headless=True):
         return
     
     options = webdriver.ChromeOptions()
+
     if headless:
         options.add_argument('--headless=new')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_argument('--ignore-certificate-errors')  # Add this
+        options.add_argument('--allow-insecure-localhost')   # Add this
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         print("Running in background mode...")
