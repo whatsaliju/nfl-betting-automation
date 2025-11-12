@@ -15,10 +15,10 @@ def run_sdql_queries(email, password, queries, headless=True):
     
     options = webdriver.ChromeOptions()
     if headless:
-        options.add_argument('--headless=new')  # Use new headless mode
+        options.add_argument('--headless=new')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--disable-blink-features=AutomationControlled')  # Avoid detection
+        options.add_argument('--disable-blink-features=AutomationControlled')
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         print("Running in background mode...")
@@ -68,13 +68,13 @@ def run_sdql_queries(email, password, queries, headless=True):
             print("📸 Saved screenshot: login_failed.png")
             driver.quit()
             return
-    
-    print("✅ Login successful!")
-    driver.get("https://www.gimmethedog.com/NFL")
-    time.sleep(4)
-    print(f"On NFL page, URL: {driver.current_url}")
-    
-    for i, query in enumerate(queries, 1):
+        
+        print("✅ Login successful!")
+        driver.get("https://www.gimmethedog.com/NFL")
+        time.sleep(4)
+        print(f"On NFL page, URL: {driver.current_url}")
+        
+        for i, query in enumerate(queries, 1):
             print(f"\n[{i}/{len(queries)}] Running query: {query[:50]}...")
             
             try:
@@ -95,7 +95,7 @@ def run_sdql_queries(email, password, queries, headless=True):
                 print("  Clicked SDQL button, waiting for results...")
                 
                 # Wait for table to appear
-                time.sleep(10)  # Increased from 8 to 10
+                time.sleep(10)
                 
                 # Try multiple ways to find results
                 print("  Searching for results table...")
