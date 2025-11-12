@@ -46,18 +46,17 @@ driver.get("https://www.actionnetwork.com/nfl/public-betting")
 time.sleep(5)
 
 # --- SELECT "ALL MARKETS" FROM DROPDOWN ---
+from selenium.webdriver.support.ui import Select
+
 try:
     container = driver.find_element(By.CSS_SELECTOR, "div[data-testid='odds-tools-sub-nav__odds-type']")
-    dropdown = container.find_element(By.TAG_NAME, "select")
-    driver.execute_script("""
-        arguments[0].value = 'combined';
-        arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-    """, dropdown)
+    dropdown_el = container.find_element(By.TAG_NAME, "select")
+    Select(dropdown_el).select_by_value("combined")
+    print("✅ Selected 'All Markets' via dropdown")
     time.sleep(5)
-    print("✅ Selected 'All Markets'")
 except Exception as e:
-    print(f"⚠️ Could not select All Markets: {e}")
-    print("Proceeding with default view...")
+    print("⚠️ Could not select All Markets:", e)
+
 
 # --- WAIT FOR PAGE RENDER ---
 wait = WebDriverWait(driver, 10)
@@ -103,8 +102,9 @@ def scrape_table():
         percents = g.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__percent .highlight-text__children")
         for i in range(0, len(percents), 2):
             try:
-                bets_pct = percents[i].text.strip() + "%"
-                money_pct = percents[i + 1].text.strip() + "%"
+                bets_pct = driver.execute_script("return arguments[0].innerText;", percents[i]).strip()
+                money_pct = driver.execute_script("return arguments[0].innerText;", percents[i + 1]).strip()
+
             except IndexError:
                 continue
 
@@ -125,9 +125,9 @@ def scrape_table():
     return data
 
 
-
-
-
+WebDriverWait(driver, 10).until(
+    EC.visibility_of_element_located((By.CSS_SELECTOR, ".mobile-public-betting__percent .highlight-text__children"))
+)
 
 # --- INITIAL SCRAPE ---
 rows = scrape_table()
