@@ -3,13 +3,14 @@ name: NFL Weekly Analysis
 on:
   schedule:
     - cron: '0 22 * * 3'  # Wednesday 6 PM ET (10 PM UTC)
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
     
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v3
       
@@ -52,8 +53,8 @@ jobs:
       
       - name: Generate AI Summary
         run: |
+          WEEK="${{ steps.get_week.outputs.week }}"
           echo "🤖 Generating AI analysis summary..."
-          WEEK=$(python3 -c "from nfl_weekly_analyzer import get_current_nfl_week; print(get_current_nfl_week())")
           python3 generate_ai_summary.py $WEEK
           echo "✅ AI summary ready for Week $WEEK"
       
@@ -62,11 +63,11 @@ jobs:
         with:
           name: nfl-analysis-results
           path: |
-            week${{ steps.detect_week.outputs.week }}_referees.csv
-            week${{ steps.detect_week.outputs.week }}_queries.csv
-            week${{ steps.detect_week.outputs.week }}_complete_data.csv
-            week${{ steps.detect_week.outputs.week }}_enhanced_report.txt
-            week${{ steps.detect_week.outputs.week }}_ai_summary.txt
+            week${{ steps.get_week.outputs.week }}_referees.csv
+            week${{ steps.get_week.outputs.week }}_queries.csv
+            week${{ steps.get_week.outputs.week }}_complete_data.csv
+            week${{ steps.get_week.outputs.week }}_enhanced_report.txt
+            week${{ steps.get_week.outputs.week }}_ai_summary.txt
             sdql_results.csv
             action_all_markets_*.csv
             rotowire_lineups_*.csv
@@ -74,33 +75,45 @@ jobs:
       
       - name: Create Summary Comment
         run: |
-          WEEK=$(python3 -c "from nfl_weekly_analyzer import get_current_nfl_week; print(get_current_nfl_week())")
-          echo "# 🏈 NFL Week $WEEK Analysis Complete!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Analysis finished at $(date)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📥 Download Files:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Go to Actions tab" >> $GITHUB_STEP_SUMMARY
-          echo "2. Click on this workflow run" >> $GITHUB_STEP_SUMMARY
-          echo "3. Download 'nfl-analysis-results' artifact" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 🤖 Next Steps:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Download \`week${WEEK}_ai_summary.txt\`" >> $GITHUB_STEP_SUMMARY
-          echo "2. Copy entire contents" >> $GITHUB_STEP_SUMMARY
-          echo "3. Paste into Claude chat" >> $GITHUB_STEP_SUMMARY
-          echo "4. Ask: 'Analyze these games and give me betting recommendations'" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📊 Files Generated:" >> $GITHUB_STEP_SUMMARY
-          ls -lh week*.txt week*.csv 2>/dev/null | tail -n +2 | awk '{print "- " $9 " (" $5 ")"}' >> $GITHUB_STEP_SUMMARY || echo "- Check artifacts for files" >> $GITHUB_STEP_SUMMARY
-      
+          WEEK="${{ steps.get_week.outputs.week }}"
+
+          {
+            echo "# 🏈 NFL Week $WEEK Analysis Complete!"
+            echo ""
+            echo "✅ Analysis finished at $(date)"
+            echo ""
+            echo "## 📥 Download Files:"
+            echo "1. Go to Actions tab"
+            echo "2. Click on this workflow run"
+            echo "3. Download 'nfl-analysis-results' artifact"
+            echo ""
+            echo "## 🤖 Next Steps:"
+            echo "1. Download \`week${WEEK}_ai_summary.txt\`"
+            echo "2. Copy entire contents"
+            echo "3. Paste into Claude chat"
+            echo "4. Ask: 'Analyze these games and give me betting recommendations'"
+            echo ""
+            echo "## 📊 Files Generated:"
+          } >> $GITHUB_STEP_SUMMARY
+
+          # List ONLY the files for the current week
+          FILES=$(ls week${WEEK}_*.txt week${WEEK}_*.csv 2>/dev/null)
+
+          if [ -z "$FILES" ]; then
+            echo "- No files found for week ${WEEK}" >> $GITHUB_STEP_SUMMARY
+          else
+            ls -lh week${WEEK}_*.txt week${WEEK}_*.csv 2>/dev/null | \
+              awk '{print "- " $9 " (" $5 ")"}' >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Commit results to repo
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main  # Pull first to avoid conflicts
+          git pull --rebase origin main || true
           git add week*.csv week*.txt action_all_markets*.csv rotowire_*.csv sdql_results.csv || true
-          git commit -m "🏈 Week $(python3 -c 'from nfl_weekly_analyzer import get_current_nfl_week; print(get_current_nfl_week())') analysis - $(date +%Y-%m-%d)" || echo "No changes to commit"
-      
+          git commit -m "🏈 Week ${{ steps.get_week.outputs.week }} analysis - $(date +%Y-%m-%d)" || echo "No changes to commit"
+
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
@@ -120,10 +133,10 @@ jobs:
           from: NFL Betting Bot <noreply@github.com>
           body: |
             Your NFL Week analysis is complete and ready for review!
-            
+
             📥 DOWNLOAD YOUR FILES:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            
+
             🤖 NEXT STEPS:
             1. Click the link above
             2. Scroll down to "Artifacts" section
@@ -132,7 +145,7 @@ jobs:
             5. Copy the entire file
             6. Paste into Claude.ai chat
             7. Ask: "Analyze these games and give me betting recommendations"
-            
+
             ⏰ Analysis completed at: ${{ steps.timestamp.outputs.time }}
-            
+
             Good luck with your bets! 🎯
