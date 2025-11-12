@@ -72,60 +72,50 @@ time.sleep(1)
 # --- SCRAPE FUNCTION ---
 def scrape_table():
     data = []
-    rows = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
-    current_matchup = None
+    games = driver.find_elements(By.CSS_SELECTOR, ".mobile-public-betting__row--last")
 
-    for tr in rows:
-        tds = tr.find_elements(By.TAG_NAME, "td")
-        if not tds:
-            continue
+    for g in games:
+        try:
+            # --- matchup header ---
+            link = g.find_element(By.CSS_SELECTOR, "a[href*='/nfl-game/']")
+            matchup_text = link.text.replace("\n", " ").strip()
 
-        # Detect matchup header row
-        if "AM" in tds[0].text or "PM" in tds[0].text:
-            current_matchup = tds[0].text.strip()
-            continue
+            # derive date from URL (e.g. /nfl-game/jets-patriots-score-odds-november-13-2025/)
+            href = link.get_attribute("href")
+            date_part = href.split("odds-")[-1].replace("/", "").replace("-", " ").title()
+            matchup = f"{date_part}  {matchup_text}"
+        except Exception:
+            matchup = "Unknown matchup"
 
-        if not current_matchup:
-            continue  # skip stray rows
+        # --- now scrape its internal table ---
+        try:
+            rows = g.find_elements(By.CSS_SELECTOR, "table tbody tr")
+        except Exception:
+            rows = []
 
-        # Line type row
-        if len(tds) >= 3:
+        for tr in rows:
+            tds = tr.find_elements(By.TAG_NAME, "td")
+            if len(tds) < 7:
+                continue
+
             line = tds[2].text.strip()
-            bets_pct = ""
-            money_pct = ""
-
-            try:
-                pct_container = tds[3].find_element(By.CSS_SELECTOR, ".public-betting__percents-container")
-                spans = pct_container.find_elements(By.CSS_SELECTOR, ".highlight-text__children")
-                if len(spans) >= 2:
-                    bets_pct = spans[0].text.strip()
-                    money_pct = spans[1].text.strip()
-                elif len(spans) == 1:
-                    bets_pct = spans[0].text.strip()
-            except Exception:
-                bets_pct = tds[3].text.strip()
-                try:
-                    money_pct = tds[4].text.strip()
-                except Exception:
-                    pass
-
-            diff = ""
-            if bets_pct and money_pct and "%" in bets_pct and "%" in money_pct:
-                try:
-                    diff = abs(int(money_pct.strip('%')) - int(bets_pct.strip('%')))
-                except ValueError:
-                    diff = ""
+            bets_pct = tds[3].text.strip()
+            money_pct = tds[4].text.strip()
+            diff = tds[5].text.strip()
+            bets_total = tds[6].text.strip()
 
             data.append({
-                "Matchup": current_matchup,
+                "Matchup": matchup,
                 "Line": line,
                 "Bets %": bets_pct,
                 "Money %": money_pct,
                 "Diff": diff,
+                "Bets": bets_total,
                 "Fetched": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })
 
     return data
+
 
 
 # --- INITIAL SCRAPE ---
