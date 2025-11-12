@@ -111,13 +111,13 @@ def run_sdql_queries(email, password, queries, headless=True):
                 # Clear previous results if this isn't the first query
                 if i > 1:
                     print("  Waiting for previous results to clear...")
-                    time.sleep(3)
+                    time.sleep(5)
                 
                 query_box.click()
                 query_box.clear()
-                time.sleep(0.5)
+                time.sleep(1)
                 query_box.send_keys(query)
-                time.sleep(0.5)
+                time.sleep(1)
                 
                 # Submit
                 submit_btn = driver.find_element(By.XPATH, "//button[text()='SDQL']")
@@ -125,7 +125,7 @@ def run_sdql_queries(email, password, queries, headless=True):
                 print("  Clicked SDQL button, waiting for results...")
                 
                 # Wait for table to appear
-                time.sleep(10)
+                time.sleep(15)
                 
                 # Try multiple ways to find results
                 print("  Searching for results table...")
