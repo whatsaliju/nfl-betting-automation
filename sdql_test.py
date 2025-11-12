@@ -103,10 +103,16 @@ def run_sdql_queries(email, password, queries, headless=True):
             print(f"\n[{i}/{len(queries)}] Running query: {query[:50]}...")
             
             try:
-                # Clear and enter query
+                # Wait for query box to be ready
                 query_box = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.ID, "standard-textarea"))
                 )
+                
+                # Clear previous results if this isn't the first query
+                if i > 1:
+                    print("  Waiting for previous results to clear...")
+                    time.sleep(3)
+                
                 query_box.click()
                 query_box.clear()
                 time.sleep(0.5)
