@@ -49,7 +49,6 @@ jobs:
       - name: Generate AI Summary
         run: |
           echo "🤖 Generating AI analysis summary..."
-          # Auto-detect week number
           WEEK=$(python3 -c "from nfl_weekly_analyzer import get_current_nfl_week; print(get_current_nfl_week())")
           python3 generate_ai_summary.py $WEEK
           echo "✅ AI summary ready for Week $WEEK"
@@ -131,14 +130,3 @@ jobs:
             ⏰ Analysis completed at: ${{ steps.timestamp.outputs.time }}
             
             Good luck with your bets! 🎯
-          
-      - name: Get Week Number
-        id: get_week
-        run: |
-          WEEK=$(python3 -c "from nfl_weekly_analyzer import get_current_nfl_week; print(get_current_nfl_week())")
-          echo "week=$WEEK" >> $GITHUB_OUTPUT
-      
-      - name: Get Timestamp
-        id: timestamp
-        run: |
-          echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
