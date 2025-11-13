@@ -26,7 +26,7 @@ ODDS_API_KEY = os.getenv('ODDS_API_KEY')
 
 def get_current_nfl_week():
     """Auto-detect NEXT NFL week (upcoming games)"""
-    season_start = datetime(2025, 9, 4)
+    season_start = datetime(2025, 9, 5)
     today = datetime.now()
     
     if today < season_start:
@@ -35,8 +35,10 @@ def get_current_nfl_week():
     days_since_start = (today - season_start).days
     current_week = (days_since_start // 7) + 1
     
-    # If it's Tuesday or later, analyze NEXT week
-    if today.weekday() >= 1:  # Tuesday = 1
+    # Only advance to next week after Sunday games are done
+    if today.weekday() >= 1 and today.weekday() <= 2:  # Monday-Tuesday
+        pass  # Still analyze current week
+    elif today.weekday() >= 3:  # Wednesday+
         current_week += 1
     
     return min(current_week, 18)
