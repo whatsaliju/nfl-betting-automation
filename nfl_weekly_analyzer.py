@@ -130,7 +130,7 @@ def main():
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Step 1: Scrape Football Zebras
-    print_header(f"STEP 1/7: Scrape Week {week} Referee Assignments")
+    print_header(f"STEP 1/8: Scrape Week {week} Referee Assignments")
     from football_zebras_scraper import save_referees
     try:
         df = save_referees(week)
@@ -145,7 +145,7 @@ def main():
         return False
     
     # Step 2: Generate queries
-    print_header(f"STEP 2/7: Generate SDQL Queries for Week {week}")
+    print_header(f"STEP 2/8: Generate SDQL Queries for Week {week}")
     from query_generator import generate_queries
     try:
         queries_df = generate_queries(
@@ -163,7 +163,7 @@ def main():
         return False
     
     # Step 3: Run SDQL scraper
-    print_header(f"STEP 3/7: Run SDQL Queries")
+    print_header(f"STEP 3/8: Run SDQL Queries")
     from sdql_test import run_sdql_queries
     
     with open(f'week{week}_queries.txt', 'r') as f:
@@ -188,7 +188,7 @@ def main():
         return False
         
     # Step 4: Run Action Network scraper (after SDQL)
-    print_header("STEP 4/7: Scrape Action Network Sharp Money")
+    print_header("STEP 4/8: Scrape Action Network Sharp Money")
     try:
         result = subprocess.run(
             ['python3', 'action_network_scraper_cookies.py'], 
@@ -209,7 +209,7 @@ def main():
     
 
     # Step 5: Scrape RotoWire Injuries
-    print_header("STEP 5/7: Scrape RotoWire Lineup & Injuries")
+    print_header("STEP 5/8: Scrape RotoWire Lineup & Injuries")
     try:
         from rotowire_scraper import scrape_lineups
         injuries_df = scrape_lineups()
@@ -221,15 +221,20 @@ def main():
         print(f"⚠️ RotoWire failed: {e}")
         print("Continuing without injury data...")
         
-    # Step 6: Generate enhanced report
-    print_header(f"STEP 6/7: Generate Enhanced Report")
-    from enhanced_report_generator import generate_enhanced_report
-    if not generate_enhanced_report(week):
-        print("❌ Failed to generate enhanced report")
-        return False
+    # Step 6: Generate enhanced report (LEGACY - kept for backward compatibility)
+    print_header(f"STEP 6/8: Generate Enhanced Report (Legacy)")
+    try:
+        from enhanced_report_generator import generate_enhanced_report
+        if generate_enhanced_report(week):
+            print("✅ Legacy enhanced report generated")
+        else:
+            print("⚠️ Legacy enhanced report failed, continuing...")
+    except Exception as e:
+        print(f"⚠️ Enhanced report failed: {e}")
+        print("Continuing to pro analysis...")
         
     # Step 7: Generate referee-only digest
-    print_header(f"STEP 7/7: Generate Referee Trend Digest")
+    print_header(f"STEP 7/8: Generate Referee Trend Digest")
     try:
         from referee_trend_generator import generate_referee_digest
         if not generate_referee_digest(week):
@@ -238,15 +243,33 @@ def main():
         print(f"⚠️ Referee digest failed: {e}")
         print("Continuing without referee digest...")
     
+    # Step 8: Generate PRO ANALYSIS (NEW - Premium intelligence layer)
+    print_header(f"STEP 8/8: Generate PRO ANALYSIS 🔥")
+    try:
+        from nfl_pro_analyzer import analyze_week
+        analyze_week(week)
+        print("✅ PRO ANALYSIS COMPLETE - Premium reports generated!")
+    except Exception as e:
+        print(f"⚠️ Pro analysis failed: {e}")
+        import traceback
+        traceback.print_exc()
+        print("Continuing with legacy reports...")
+    
     # Success!
     print_header(f"✅ WEEK {week} AUTOMATION COMPLETE!")
     print(f"\nGenerated files:")
     print(f"  📄 week{week}_referees.csv - Referee assignments")
     print(f"  📄 week{week}_queries.csv - SDQL queries with spreads")
     print(f"  📄 sdql_results.csv - Historical trends")
-    print(f"  📄 week{week}_enhanced_report.txt - Enhanced analysis ⭐")
-    print(f"  📄 week{week}_complete_data.csv - All data combined")
-    print(f"\n👉 Open week{week}_enhanced_report.txt for betting recommendations")
+    print(f"  📄 week{week}_enhanced_report.txt - Enhanced analysis (Legacy)")
+    print(f"  📄 week{week}_referee_trends.txt - Referee digest")
+    print(f"\n  🔥 PRO ANALYSIS FILES (NEW):")
+    print(f"  📄 week{week}_executive_summary.txt - Top plays only ⭐⭐⭐")
+    print(f"  📄 week{week}_pro_analysis.txt - Full narrative intelligence ⭐⭐⭐")
+    print(f"  📄 week{week}_analytics.csv - All scores + data")
+    print(f"  📄 week{week}_analytics.json - Structured data")
+    print(f"\n👉 START HERE: week{week}_executive_summary.txt")
+    print(f"👉 DEEP DIVE: week{week}_pro_analysis.txt")
     
     return True
 
