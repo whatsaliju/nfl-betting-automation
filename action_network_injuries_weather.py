@@ -83,19 +83,14 @@ def scrape_injuries():
         driver.get("https://www.actionnetwork.com/nfl/injury-report")
         time.sleep(5)
         
-        # Save page source for debugging
-        with open('injury_page_debug.html', 'w') as f:
-            f.write(driver.page_source)
-        
-        # Try multiple selectors to find injury data
         injuries = []
         
-        # Method 1: Look for table rows
+        # Look for table rows
         try:
             rows = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
             print(f"  Found {len(rows)} table rows")
             
-            for row in rows[:50]:  # Limit to first 50 for testing
+            for row in rows:  # NO LIMIT - get all rows
                 try:
                     cells = row.find_elements(By.TAG_NAME, "td")
                     if len(cells) >= 4:
@@ -104,41 +99,35 @@ def scrape_injuries():
                             'player': cells[1].text,
                             'position': cells[2].text if len(cells) > 2 else '',
                             'status': cells[3].text if len(cells) > 3 else '',
-                            'injury': cells[4].text if len(cells) > 4 else ''
+                            'injury': cells[4].text if len(cells) > 4 else '',
+                            'updated': cells[5].text if len(cells) > 5 else ''  # ADD THIS
                         })
-                except:
+                except Exception as e:
+                    print(f"  ⚠️ Error parsing row: {e}")
                     continue
-        except:
-            print("  ⚠️ Table method failed")
-        
-        # Method 2: Look for div-based layout
-        if len(injuries) == 0:
-            try:
-                injury_cards = driver.find_elements(By.CSS_SELECTOR, "[class*='injury']")
-                print(f"  Found {len(injury_cards)} injury cards")
-                
-                for card in injury_cards[:50]:
-                    text = card.text
-                    if text:
-                        injuries.append({
-                            'raw_data': text
-                        })
-            except:
-                print("  ⚠️ Card method failed")
+            
+            print(f"  ✅ Parsed {len(injuries)} injury entries")
+                    
+        except Exception as e:
+            print(f"  ❌ Table method failed: {e}")
         
         if len(injuries) > 0:
             df = pd.DataFrame(injuries)
             output = f"action_injuries_{datetime.now().strftime('%Y-%m-%d_')}.csv"
             df.to_csv(output, index=False)
             
-            print(f"✅ Scraped {len(df)} injury entries")
+            print(f"✅ Scraped {len(df)} total injury entries")
             print(f"📁 Saved to {output}")
+            
+            # Show sample
+            print("\n📊 Sample data:")
+            print(df.head(10))
+            print(f"\n📊 Last entry: {df.iloc[-1]['team']} - {df.iloc[-1]['player']}")
             
             driver.quit()
             return df
         else:
             print("❌ No injury data found")
-            print("📸 Saved page source to injury_page_debug.html")
             driver.quit()
             return None
         
