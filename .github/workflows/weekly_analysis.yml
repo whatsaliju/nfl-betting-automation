@@ -68,6 +68,7 @@ jobs:
             week${{ steps.get_week.outputs.week }}_complete_data.csv
             week${{ steps.get_week.outputs.week }}_enhanced_report.txt
             week${{ steps.get_week.outputs.week }}_ai_summary.txt
+            week${{ steps.get_week.outputs.week }}_referee_trends.txt
             sdql_results.csv
             action_all_markets_*.csv
             rotowire_lineups_*.csv
@@ -96,7 +97,6 @@ jobs:
             echo "## 📊 Files Generated:"
           } >> $GITHUB_STEP_SUMMARY
 
-          # List ONLY the files for the current week
           FILES=$(ls week${WEEK}_*.txt week${WEEK}_*.csv 2>/dev/null)
 
           if [ -z "$FILES" ]; then
@@ -119,7 +119,31 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: main
-      
+
+      # -------------------------------------------------------
+      # REQUIRED: PREPARE EMAIL CONTENT (digest + report)
+      # -------------------------------------------------------
+      - name: Prepare Email Content
+        run: |
+          WEEK="${{ steps.get_week.outputs.week }}"
+
+          REF_DIGEST=$(cat week${WEEK}_referee_trends.txt)
+          REPORT=$(cat week${WEEK}_enhanced_report.txt)
+
+          REF_DIGEST_ESCAPED=$(printf '%s\n' "$REF_DIGEST" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+          REPORT_ESCAPED=$(printf '%s\n' "$REPORT" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+
+          echo "REFEREE_DIGEST<<EOF" >> $GITHUB_ENV
+          echo "$REF_DIGEST_ESCAPED" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "FULL_REPORT<<EOF" >> $GITHUB_ENV
+          echo "$REPORT_ESCAPED" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      # -------------------------------------------------------
+      # SEND HTML EMAIL (Option 4 Deluxe)
+      # -------------------------------------------------------
       - name: Send Email Notification
         if: success()
         uses: dawidd6/action-send-mail@v3
@@ -128,24 +152,41 @@ jobs:
           server_port: 587
           username: ${{ secrets.GMAIL_USERNAME }}
           password: ${{ secrets.GMAIL_APP_PASSWORD }}
-          subject: "🏈 NFL Week ${{ steps.get_week.outputs.week }} Analysis Ready!"
+          content_type: text/html
+          subject: "🏈 NFL Week ${{ steps.get_week.outputs.week }} Betting Analysis (Full Report Included)"
           to: lvarughese@gmail.com
           from: NFL Betting Bot <noreply@github.com>
           body: |
-            Your NFL Week analysis is complete and ready for review!
+            <html>
+            <body style="font-family:Arial, sans-serif; line-height:1.5;">
 
-            📥 DOWNLOAD YOUR FILES:
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            <h1>🏈 NFL Week ${{ steps.get_week.outputs.week }} Betting Analysis</h1>
+            <p>Analysis completed: <b>${{ steps.timestamp.outputs.time }}</b></p>
 
-            🤖 NEXT STEPS:
-            1. Click the link above
-            2. Scroll down to "Artifacts" section
-            3. Download "nfl-analysis-results.zip"
-            4. Extract and open "week_ai_summary.txt"
-            5. Copy the entire file
-            6. Paste into Claude.ai chat
-            7. Ask: "Analyze these games and give me betting recommendations"
+            <h2>🔥 Summary Highlights</h2>
+            <ul>
+              <li><b>Top Plays:</b> See enhanced report below</li>
+              <li><b>Sharp Money Alerts:</b> High-value edges detected</li>
+              <li><b>Weather Risks:</b> Included in enhanced report</li>
+              <li><b>Key Injuries:</b> Included in enhanced report</li>
+            </ul>
 
-            ⏰ Analysis completed at: ${{ steps.timestamp.outputs.time }}
+            <h2>🧑‍⚖️ Weekly Referee Trend Digest</h2>
+            <pre style="background:#f4f4f4; padding:12px; border-radius:6px;">
+${{ env.REFEREE_DIGEST }}
+            </pre>
 
-            Good luck with your bets! 🎯
+            <h2>📄 Full Enhanced Report</h2>
+            <pre style="white-space:pre-wrap; background:#f4f4f4; padding:12px; border-radius:6px;">
+${{ env.FULL_REPORT }}
+            </pre>
+
+            <h3>📥 Download All Files</h3>
+            <p>
+              <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+                Click here to download the complete artifact package
+              </a>
+            </p>
+
+            </body>
+            </html>
