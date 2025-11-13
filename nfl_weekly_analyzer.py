@@ -225,19 +225,23 @@ def main():
         
     # Step 7: Generate referee-only digest
     print_header(f"STEP 7/7: Generate Referee Trend Digest")
-    from referee_trend_generator import generate_referee_digest
-    if not generate_referee_digest(week):
-        print("⚠️ Failed to generate referee digest")
-
+    try:
+        from referee_trend_generator import generate_referee_digest
+        if not generate_referee_digest(week):
+            print("⚠️ Failed to generate referee digest, continuing...")
+    except Exception as e:
+        print(f"⚠️ Referee digest failed: {e}")
+        print("Continuing without referee digest...")
+    
     # Success!
     print_header(f"✅ WEEK {week} AUTOMATION COMPLETE!")
     print(f"\nGenerated files:")
     print(f"  📄 week{week}_referees.csv - Referee assignments")
     print(f"  📄 week{week}_queries.csv - SDQL queries with spreads")
     print(f"  📄 sdql_results.csv - Historical trends")
-    print(f"  📄 week{week}_betting_report.txt - Final analysis ⭐")
+    print(f"  📄 week{week}_enhanced_report.txt - Enhanced analysis ⭐")
     print(f"  📄 week{week}_complete_data.csv - All data combined")
-    print(f"\n👉 Open week{week}_betting_report.txt for betting recommendations")
+    print(f"\n👉 Open week{week}_enhanced_report.txt for betting recommendations")
     
     return True
 
