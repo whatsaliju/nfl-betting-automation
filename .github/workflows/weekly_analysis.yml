@@ -60,7 +60,10 @@ jobs:
         run: |
           echo "🏈 Starting NFL Week Analysis..."
           python3 nfl_weekly_analyzer.py
-      
+
+      - name: Scrape RotoWire Lineups
+        run: python3 rotowire_scraper.py
+
       - name: Generate AI Summary
         run: |
           WEEK="${{ steps.get_week.outputs.week }}"
