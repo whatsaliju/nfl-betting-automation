@@ -27,39 +27,39 @@ jobs:
           python3 query_generator.py
       
       - name: Verify Results
-          run: |
-            echo "==================== VERIFICATION ===================="
-            python3 << 'EOF'
-            import pandas as pd
-            
-            df = pd.read_csv('week11_queries.csv')
-            
-            print("Validating query logic:")
-            print("-" * 80)
-            
-            errors = []
-            
-            for _, row in df.iterrows():
-                matchup = row['matchup']
-                spread = row['spread']
-                favorite = row['favorite']
-                
-                # Verify logic: negative spread = AF, positive spread = HF
-                if spread < 0 and favorite != 'AF':
-                    errors.append(f"❌ {matchup}: Spread {spread:+.1f} should be AF, got {favorite}")
-                elif spread > 0 and favorite != 'HF':
-                    errors.append(f"❌ {matchup}: Spread {spread:+.1f} should be HF, got {favorite}")
-                else:
-                    print(f"✅ {matchup}: Spread {spread:+.1f} → {favorite} (correct)")
-            
-            if errors:
-                print("\n⚠️ ERRORS FOUND:")
-                for error in errors:
-                    print(error)
-                exit(1)
-            else:
-                print("\n✅ All queries validated successfully!")
-            EOF
+        run: |
+          echo "==================== VERIFICATION ===================="
+          python3 << 'EOF'
+          import pandas as pd
+          
+          df = pd.read_csv('week11_queries.csv')
+          
+          print("Validating query logic:")
+          print("-" * 80)
+          
+          errors = []
+          
+          for _, row in df.iterrows():
+              matchup = row['matchup']
+              spread = row['spread']
+              favorite = row['favorite']
+              
+              # Verify logic: negative spread = AF, positive spread = HF
+              if spread < 0 and favorite != 'AF':
+                  errors.append(f"❌ {matchup}: Spread {spread:+.1f} should be AF, got {favorite}")
+              elif spread > 0 and favorite != 'HF':
+                  errors.append(f"❌ {matchup}: Spread {spread:+.1f} should be HF, got {favorite}")
+              else:
+                  print(f"✅ {matchup}: Spread {spread:+.1f} → {favorite} (correct)")
+          
+          if errors:
+              print("\n⚠️ ERRORS FOUND:")
+              for error in errors:
+                  print(error)
+              exit(1)
+          else:
+              print("\n✅ All queries validated successfully!")
+          EOF
       
       - name: Upload test results
         uses: actions/upload-artifact@v4
