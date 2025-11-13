@@ -131,10 +131,14 @@ def get_odds_api_spreads(api_key):
         return {}
 
 def determine_query_type(away_code, home_code, spread):
+    # API gives spread from HOME team perspective
+    # Negative spread = HOME team favored (they're giving points)
+    # Positive spread = AWAY team favored (home is getting points)
+    
     if spread < 0:
-        position = 'AF'  # Negative = away favorite
+        position = 'HF'  # Negative = home team favored
     elif spread > 0:
-        position = 'HF'  # Positive = home favorite
+        position = 'AF'  # Positive = away team favored
     else:
         position = 'HF'  # Pick 'em, default to HF
     
