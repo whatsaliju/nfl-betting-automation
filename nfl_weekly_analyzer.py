@@ -190,18 +190,23 @@ def main():
     # Step 4: Run Action Network scraper (after SDQL)
     print_header("STEP 4/7: Scrape Action Network Sharp Money")
     try:
-        result = subprocess.run(['python3', 'action_network_scraper_cookies.py'], 
-                              capture_output=True, 
-                              text=True,
-                              timeout=120)
+        result = subprocess.run(
+            ['python3', 'action_network_scraper_cookies.py'], 
+            capture_output=True, 
+            text=True,
+            timeout=180  # 3 minute timeout - will kill if it hangs
+        )
         print(result.stdout)
         if result.returncode == 0:
             print("✅ Action Network data scraped")
         else:
             print("⚠️ Action Network scraper had issues, continuing...")
+    except subprocess.TimeoutExpired:
+        print("⚠️ Action Network timed out after 3 minutes, skipping...")
     except Exception as e:
         print(f"⚠️ Action Network failed: {e}")
         print("Continuing without sharp money data...")
+    
 
     # Step 5: Scrape RotoWire Injuries
     print_header("STEP 5/7: Scrape RotoWire Lineup & Injuries")
