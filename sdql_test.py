@@ -176,9 +176,22 @@ def run_sdql_queries(email, password, queries, headless=True):
                 su_record = su_match.group(1) if su_match else ""
                 su_pct = su_match.group(2) if su_match else ""
                 
-                ats_match = re.search(r'ATS:\s*([\d-]+)\s*\(([\d\.%]+)\)', ats_text)
-                ats_record = ats_match.group(1) if ats_match else ""
-                ats_pct = ats_match.group(2) if ats_match else ""
+                # Extract only the FIRST ATS block (ignore teaser ATS blocks)
+                ats_primary_match = re.search(r'ATS:\s*([\d-]+)\s*\(([^)]+)\)', ats_text)
+                
+                if ats_primary_match:
+                    ats_record = ats_primary_match.group(1)
+                
+                    # Inside parentheses you get things like: "1.1,41.9%" or "0.0,47.6%"
+                    raw_parentheses = ats_primary_match.group(2)
+                
+                    # Extract the FINAL percentage value only
+                    pct_match = re.search(r'(\d+\.\d+%)', raw_parentheses)
+                    ats_pct = pct_match.group(1) if pct_match else ""
+                else:
+                    ats_record = ""
+                    ats_pct = ""
+
                 
                 ou_match = re.search(r'OU:\s*(\d+-\d+-\d+)\s*\([^,]+,([^)]+)\)', ou_text)
                 ou_record = ou_match.group(1) if ou_match else ""
