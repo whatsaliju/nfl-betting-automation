@@ -130,7 +130,7 @@ def scrape_lineups():
         
         # Save to CSV
         df = pd.DataFrame(games)
-        output = f"rotowire_lineups_{datetime.now().strftime('%Y-%m-%d_%H%M')}.csv"
+        output = f"rotowire_lineups_{datetime.now().strftime('%Y-%m-%d_')}.csv"
         df.to_csv(output, index=False)
         
         print(f"\n✅ Scraped {len(df)} games")
