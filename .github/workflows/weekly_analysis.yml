@@ -156,47 +156,68 @@ jobs:
       # -------------------------------------------------------
       - name: Send Email Notification
         if: success()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.GMAIL_USERNAME }}
-          password: ${{ secrets.GMAIL_APP_PASSWORD }}
-          content_type: text/html
-          subject: "🏈 NFL Week ${{ steps.get_week.outputs.week }} Betting Analysis (Full Report Included)"
-          to: lvarughese@gmail.com
-          from: NFL Betting Bot <noreply@github.com>
-          body: |
-            <html>
-            <body style="font-family:Arial, sans-serif; line-height:1.5;">
-
-            <h1>🏈 NFL Week ${{ steps.get_week.outputs.week }} Betting Analysis</h1>
-            <p>Analysis completed: <b>${{ steps.timestamp.outputs.time }}</b></p>
-
-            <h2>🔥 Summary Highlights</h2>
-            <ul>
-              <li><b>Top Plays:</b> See enhanced report below</li>
-              <li><b>Sharp Money Alerts:</b> High-value edges detected</li>
-              <li><b>Weather Risks:</b> Included in enhanced report</li>
-              <li><b>Key Injuries:</b> Included in enhanced report</li>
-            </ul>
-
-            <h2>🧑‍⚖️ Weekly Referee Trend Digest</h2>
-            <pre style="background:#f4f4f4; padding:12px; border-radius:6px;">
-            ${{ env.REFEREE_DIGEST }}
-            </pre>
-
-            <h2>📄 Full Enhanced Report</h2>
-            <pre style="white-space:pre-wrap; background:#f4f4f4; padding:12px; border-radius:6px;">
-            ${{ env.FULL_REPORT }}
-            </pre>
-
-            <h3>📥 Download All Files</h3>
-            <p>
-              <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
-                Click here to download the complete artifact package
-              </a>
-            </p>
-
-            </body>
-            </html>
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: |
+          python3 << 'PYTHON_EOF'
+          import smtplib
+          from email.mime.multipart import MIMEMultipart
+          from email.mime.text import MIMEText
+          import os
+          
+          week = "${{ steps.get_week.outputs.week }}"
+          timestamp = "${{ steps.timestamp.outputs.time }}"
+          ref_digest = """${{ env.REFEREE_DIGEST }}"""
+          full_report = """${{ env.FULL_REPORT }}"""
+          
+          html_body = f"""
+          <html>
+          <body style="font-family:Arial, sans-serif; line-height:1.5;">
+          <h1>🏈 NFL Week {week} Betting Analysis</h1>
+          <p>Analysis completed: <b>{timestamp}</b></p>
+          
+          <h2>🔥 Summary Highlights</h2>
+          <ul>
+            <li><b>Top Plays:</b> See enhanced report below</li>
+            <li><b>Sharp Money Alerts:</b> High-value edges detected</li>
+            <li><b>Weather Risks:</b> Included in enhanced report</li>
+            <li><b>Key Injuries:</b> Included in enhanced report</li>
+          </ul>
+          
+          <h2>🧑‍⚖️ Weekly Referee Trend Digest</h2>
+          <pre style="background:#f4f4f4; padding:12px; border-radius:6px;">
+      {ref_digest}
+          </pre>
+          
+          <h2>📄 Full Enhanced Report</h2>
+          <pre style="white-space:pre-wrap; background:#f4f4f4; padding:12px; border-radius:6px;">
+      {full_report}
+          </pre>
+          
+          <h3>📥 Download All Files</h3>
+          <p>
+            <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+              Click here to download the complete artifact package
+            </a>
+          </p>
+          </body>
+          </html>
+          """
+          
+          msg = MIMEMultipart('alternative')
+          msg['Subject'] = f"🏈 NFL Week {week} Betting Analysis (Full Report Included)"
+          msg['From'] = os.getenv('GMAIL_USER')
+          msg['To'] = "lvarughese@gmail.com"
+          
+          html_part = MIMEText(html_body, 'html', 'utf-8')
+          msg.attach(html_part)
+          
+          server = smtplib.SMTP('smtp.gmail.com', 587)
+          server.starttls()
+          server.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
+          server.send_message(msg)
+          server.quit()
+          
+          print("✅ Email sent successfully!")
+          PYTHON_EOF
