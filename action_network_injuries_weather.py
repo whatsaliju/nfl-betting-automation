@@ -139,80 +139,147 @@ def scrape_injuries():
         return None
 
 def scrape_weather():
-    """Scrape NFL weather conditions"""
+    """Scrape NFL weather conditions from Action Network."""
     driver = setup_driver_with_cookies()
-    
-    print("\n🌤️  Scraping Action Network Weather...")
-    
+
+    print("\n🌤️  Scraping Action Network Weather Page...")
+    driver.get("https://www.actionnetwork.com/nfl/weather")
+    time.sleep(5)
+
+    all_weather = []
+
+    # -----------------------------------------------------------
+    # 1. SEVERE WEATHER SECTIONS (e.g., Strong Winds)
+    # -----------------------------------------------------------
     try:
-        driver.get("https://www.actionnetwork.com/nfl/weather")
-        time.sleep(5)
-        
-        # Save page source for debugging
-        with open('weather_page_debug.html', 'w') as f:
-            f.write(driver.page_source)
-        
-        weather_data = []
-        
-        # Method 1: Look for table rows
-        try:
-            rows = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
-            print(f"  Found {len(rows)} table rows")
-            
-            for row in rows:
-                try:
-                    cells = row.find_elements(By.TAG_NAME, "td")
-                    if len(cells) >= 3:
-                        weather_data.append({
-                            'matchup': cells[0].text,
-                            'game_time': cells[1].text if len(cells) > 1 else '',
-                            'temp': cells[2].text if len(cells) > 2 else '',
-                            'conditions': cells[3].text if len(cells) > 3 else '',
-                            'wind': cells[4].text if len(cells) > 4 else '',
-                            'forecast': cells[5].text if len(cells) > 5 else ''
-                        })
-                except:
-                    continue
-        except:
-            print("  ⚠️ Table method failed")
-        
-        # Method 2: Look for card-based layout
-        if len(weather_data) == 0:
+        severe_sections = driver.find_elements(
+            By.CSS_SELECTOR,
+            "section[class*='severe-weather-category']"
+        )
+
+        print(f"  Found {len(severe_sections)} severe weather sections")
+
+        for section in severe_sections:
             try:
-                weather_cards = driver.find_elements(By.CSS_SELECTOR, "[class*='weather']")
-                print(f"  Found {len(weather_cards)} weather cards")
-                
-                for card in weather_cards:
-                    text = card.text
-                    if text:
-                        weather_data.append({
-                            'raw_data': text
-                        })
+                category_name = section.find_element(
+                    By.CSS_SELECTOR,
+                    ".severe-weather-category__title"
+                ).text.strip()
+
+                teams = section.find_elements(
+                    By.CSS_SELECTOR,
+                    ".severe-weather-category__team-name--desktop"
+                )
+                metrics = section.find_elements(
+                    By.CSS_SELECTOR,
+                    ".severe-weather-category__metric"
+                )
+
+                for i, team in enumerate(teams):
+                    metric_text = metrics[i].text.strip() if i < len(metrics) else ""
+
+                    all_weather.append({
+                        "team": team.text.strip(),
+                        "category": category_name,
+                        "wind_mph": metric_text,
+                        "temp": "",
+                        "precip": "",
+                        "conditions": "",
+                        "wind_full": metric_text,
+                        "is_severe": "YES"
+                    })
+
             except:
-                print("  ⚠️ Card method failed")
-        
-        if len(weather_data) > 0:
-            df = pd.DataFrame(weather_data)
-            output = f"action_weather_{datetime.now().strftime('%Y-%m-%d_')}.csv"
-            df.to_csv(output, index=False)
-            
-            print(f"✅ Scraped weather for {len(df)} games")
-            print(f"📁 Saved to {output}")
-            
-            driver.quit()
-            return df
-        else:
-            print("❌ No weather data found")
-            print("📸 Saved page source to weather_page_debug.html")
-            driver.quit()
-            return None
-        
+                continue
+
     except Exception as e:
-        print(f"❌ Error: {e}")
-        import traceback
-        traceback.print_exc()
-        driver.quit()
-        return None
+        print(f"  ⚠️ Severe weather block error: {e}")
+
+    # -----------------------------------------------------------
+    # 2. MAIN GAME FORECASTS
+    # -----------------------------------------------------------
+    try:
+        forecast_rows = driver.find_elements(
+            By.CSS_SELECTOR,
+            ".forecast-row"
+        )
+
+        print(f"  Found {len(forecast_rows)} forecast-game rows")
+
+        for row in forecast_rows:
+            try:
+                # TEAM name
+                team = row.find_element(
+                    By.CSS_SELECTOR,
+                    ".forecast-row__team-name"
+                ).text.strip()
+
+                # Temperature + condition
+                desc = row.find_element(
+                    By.CSS_SELECTOR,
+                    ".forecast-row__forecast-description"
+                ).text.strip()  # e.g., "45°F Partly Cloudy"
+
+                # Precipitation %
+                try:
+                    precip = row.find_element(
+                        By.CSS_SELECTOR,
+                        ".forecast-row__summarized-field"
+                    ).text.strip().replace(" %", "%")
+                except:
+                    precip = ""
+
+                # Wind direction + speed (e.g. "14.19 ESE")
+                try:
+                    wind_block = row.find_element(
+                        By.CSS_SELECTOR,
+                        ".css-13s1q9n"
+                    ).text.strip()
+                except:
+                    wind_block = ""
+
+                # Extract temp + conditions cleanly
+                temp = ""
+                conditions = ""
+
+                temp_match = re.search(r"(\d+°F)", desc)
+                if temp_match:
+                    temp = temp_match.group(1)
+
+                conditions = desc.replace(temp, "").strip()
+
+                all_weather.append({
+                    "team": team,
+                    "category": "",
+                    "wind_mph": wind_block,
+                    "temp": temp,
+                    "precip": precip,
+                    "conditions": conditions,
+                    "wind_full": wind_block,
+                    "is_severe": "NO"
+                })
+
+            except Exception as e:
+                print(f"  ⚠️ Error parsing row: {e}")
+                continue
+
+    except Exception as e:
+        print(f"  ⚠️ Forecast block error: {e}")
+
+    driver.quit()
+
+    # -----------------------------------------------------------
+    # SAVE TO CSV
+    # -----------------------------------------------------------
+    df = pd.DataFrame(all_weather)
+    out = f"action_weather_{datetime.now().strftime('%Y-%m-%d_')}.csv"
+    df.to_csv(out, index=False)
+
+    print(f"\n✅ Weather scraped: {len(df)} entries")
+    print(f"📁 Saved to {out}")
+
+    return df
+
 
 if __name__ == "__main__":
     print("="*60)
