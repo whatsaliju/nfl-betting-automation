@@ -35,10 +35,8 @@ def get_current_nfl_week():
     days_since_start = (today - season_start).days
     current_week = (days_since_start // 7) + 1
     
-    # Only advance to next week after Sunday games are done
-    if today.weekday() >= 1 and today.weekday() <= 2:  # Monday-Tuesday
-        pass  # Still analyze current week
-    elif today.weekday() >= 3:  # Wednesday+
+    # If it's Tuesday or later, analyze NEXT week
+    if today.weekday() >= 1:  # Tuesday = 1
         current_week += 1
     
     return min(current_week, 18)
