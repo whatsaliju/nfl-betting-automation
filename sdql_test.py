@@ -99,42 +99,41 @@ def run_sdql_queries(email, password, queries, headless=True):
         time.sleep(4)
         print(f"On NFL page, URL: {driver.current_url}")
         
-       for i, query in enumerate(queries, 1):
-        print(f"\n[{i}/{len(queries)}] Running query: {query[:50]}...")
-        
-        try:
-            # Reload page between queries to clear previous results
-            if i > 1:
-                print("  Reloading page to clear previous results...")
-                driver.get("https://www.gimmethedog.com/NFL")
-                time.sleep(4)
-                print("  ✓ Page reloaded")
+        for i, query in enumerate(queries, 1):
+            print(f"\n[{i}/{len(queries)}] Running query: {query[:50]}...")
             
-            # Wait for query box to be ready
-            print("  Waiting for query box...")
-            query_box = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.ID, "standard-textarea"))
-            )
-            print("  ✓ Query box found")
-            
-            query_box.click()
-            query_box.clear()
-            time.sleep(1)
-            query_box.send_keys(query)
-            time.sleep(1)
-            print("  ✓ Query entered")
-            
-            # Submit
-            submit_btn = driver.find_element(By.XPATH, "//button[text()='SDQL']")
-            submit_btn.click()
-            print("  ✓ Clicked SDQL button, waiting for results...")
-    
-            
-            # Wait for table to appear
-            time.sleep(15)
-            
-            # Try multiple ways to find results
-            print("  Searching for results table...")
+            try:
+                # Reload page between queries to clear previous results
+                if i > 1:
+                    print("  Reloading page to clear previous results...")
+                    driver.get("https://www.gimmethedog.com/NFL")
+                    time.sleep(4)
+                    print("  ✓ Page reloaded")
+                
+                # Wait for query box to be ready
+                print("  Waiting for query box...")
+                query_box = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.ID, "standard-textarea"))
+                )
+                print("  ✓ Query box found")
+                
+                query_box.click()
+                query_box.clear()
+                time.sleep(1)
+                query_box.send_keys(query)
+                time.sleep(1)
+                print("  ✓ Query entered")
+                
+                # Submit
+                submit_btn = driver.find_element(By.XPATH, "//button[text()='SDQL']")
+                submit_btn.click()
+                print("  ✓ Clicked SDQL button, waiting for results...")
+                
+                # Wait for table to appear
+                time.sleep(15)
+                
+                # Try multiple ways to find results
+                print("  Searching for results table...")
                 
                 # Method 1: Original way
                 table_rows = driver.find_elements(By.XPATH, "//tbody/tr")
