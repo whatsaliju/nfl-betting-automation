@@ -2,7 +2,6 @@
 """
 Referee Trend Digest Generator
 Creates quick referee-only summaries for each matchup.
-Format: emoji-friendly, grouped style (Option A)
 """
 import pandas as pd
 
@@ -28,7 +27,23 @@ def generate_referee_digest(week):
                 game_type = row.get('game_type', 'UNKNOWN')
                 favorite = row.get('favorite', 'UNKNOWN')
                 
-                category = f"{favorite} {game_type}".strip()
+                # Determine game type description
+                if game_type == 'DIV':
+                    type_desc = "Divisional"
+                elif game_type == 'C':
+                    type_desc = "Conference"
+                elif game_type == 'NDIV':
+                    type_desc = "Non-division"
+                else:
+                    type_desc = "Unknown"
+                
+                # Determine favorite position
+                if favorite == 'HF':
+                    fav_desc = "HOME favorites"
+                elif favorite == 'AF':
+                    fav_desc = "AWAY favorites"
+                else:
+                    fav_desc = "Unknown"
                 
                 # Find matching SDQL results by query
                 query = row.get('query', '')
@@ -38,9 +53,9 @@ def generate_referee_digest(week):
                     trend = pd.DataFrame()
                 
                 if trend.empty:
-                    f.write(f"🏈 {matchup}\n")
-                    f.write(f"🧑‍⚖️ {category} with {referee}\n")
-                    f.write(f"⚠️ No historical data available\n\n")
+                    f.write(f"{matchup}\n")
+                    f.write(f"{type_desc} {fav_desc} with {referee} as lead official:\n")
+                    f.write(f"No historical data available\n\n")
                     continue
                 
                 t = trend.iloc[0]
@@ -51,11 +66,11 @@ def generate_referee_digest(week):
                 ou = t.get("ou_record", "N/A")
                 ou_pct = t.get("ou_pct", "N/A")
                 
-                f.write(f"🏈 {matchup}\n")
-                f.write(f"🧑‍⚖️ {category} with {referee}\n")
-                f.write(f"📈 SU: {su} ({su_pct})\n")
-                f.write(f"📉 ATS: {ats} ({ats_pct})\n")
-                f.write(f"🔽 O/U: {ou} ({ou_pct})\n\n")
+                f.write(f"{matchup}\n")
+                f.write(f"{type_desc} {fav_desc} with {referee} as lead official:\n")
+                f.write(f"SU: {su} ({su_pct})\n")
+                f.write(f"ATS: {ats} ({ats_pct})\n")
+                f.write(f"OU: {ou} ({ou_pct})\n\n")
         
         print(f"✅ Referee digest created: {output_file}")
         return True
