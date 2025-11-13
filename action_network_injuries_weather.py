@@ -1,196 +1,180 @@
 #!/usr/bin/env python3
-
 """
-Action Network NFL Injury + Weather Scraper
-Fully rewritten, stable, production-ready.
-
-Outputs:
-- action_injuries_YYYY-MM-DD_.csv
-- action_weather_YYYY-MM-DD_.csv
-- injury_page_debug.html
-- weather_page_debug.html
-
-Author: ChatGPT
+Action Network – Unified Scraper
+Scrapes BOTH:
+  • NFL Injuries
+  • NFL Weather
+Produces two CSV outputs:
+  • action_injuries_YYYY-MM-DD_.csv
+  • action_weather_YYYY-MM-DD_.csv
 """
 
 import time
-import pandas as pd
 from datetime import datetime
-
+import pandas as pd
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 
-# =====================================================================
-# 🔧 DRIVER SETUP
-# =====================================================================
-
+# ------------------------------------------------------------
+# DRIVER SETUP
+# ------------------------------------------------------------
 def setup_driver():
-    opts = Options()
-    opts.add_argument("--headless=new")
-    opts.add_argument("--no-sandbox")
-    opts.add_argument("--disable-dev-shm-usage")
-    opts.add_argument("--window-size=1920,1080")
-    opts.add_argument("--disable-blink-features=AutomationControlled")
-    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--window-size=1920,1080")
+    return webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=options
+    )
 
 
-# =====================================================================
-# 🩹 INJURY SCRAPER
-# =====================================================================
-
+# ------------------------------------------------------------
+# SCRAPE ACTION NETWORK INJURIES
+# ------------------------------------------------------------
 def scrape_action_injuries(driver):
-    print("\n🩹 Loading Action Network injuries page…")
+    print("🩹 Scraping Action Network NFL Injuries...")
+
     driver.get("https://www.actionnetwork.com/nfl/injuries")
     time.sleep(5)
 
-    # ALWAYS SAVE DEBUG
-    with open("injury_page_debug.html", "w", encoding="utf-8") as f:
-        f.write(driver.page_source)
-
-    rows = driver.find_elements(By.CSS_SELECTOR, ".injuries-table-layout__row")
-    print(f"Found {len(rows)} injury rows (including team headers).")
-
-    injury_data = []
-
+    injuries = []
     current_team = None
 
-    for r in rows:
-        try:
-            # Team header row
-            try:
-                header = r.find_element(By.CSS_SELECTOR, ".injuries-table-layout__team-header-cell")
-                current_team = header.text.strip()
-                continue
-            except:
-                pass  # Not a header row → player row
+    try:
+        rows = driver.find_elements(By.CSS_SELECTOR, "table tr")
 
-            # Player row
-            cols = r.find_elements(By.TAG_NAME, "td")
-            if len(cols) < 5:
+        for row in rows:
+            # Detect team header row
+            team_cells = row.find_elements(By.CSS_SELECTOR, "td.injuries-table-layout__team-header-cell")
+            if team_cells:
+                current_team = team_cells[0].text.strip()
                 continue
 
-            player = cols[0].text.strip()
-            position = cols[1].text.strip()
-            status = cols[2].text.strip()
-            injury_type = cols[3].text.strip()
-            notes = cols[4].text.strip() if len(cols) > 4 else ""
+            # Player rows
+            cells = row.find_elements(By.TAG_NAME, "td")
+            if len(cells) == 6 and current_team:
+                injuries.append({
+                    "team": current_team,
+                    "player": cells[0].text.strip(),
+                    "pos": cells[1].text.strip(),
+                    "status": cells[2].text.strip(),
+                    "injury": cells[3].text.strip(),
+                    "description": cells[4].text.strip(),
+                    "date": cells[5].text.strip()
+                })
 
-            injury_data.append({
-                "team": current_team,
-                "player": player,
-                "position": position,
-                "status": status,
-                "injury": injury_type,
-                "notes": notes
-            })
+    except Exception as e:
+        print("❌ Error scraping injuries:", e)
 
-        except Exception:
-            continue
+    df = pd.DataFrame(injuries)
+    output = f"action_injuries_{datetime.now().strftime('%Y-%m-%d_')}.csv"
+    df.to_csv(output, index=False)
 
-    df = pd.DataFrame(injury_data)
-    out_csv = f"action_injuries_{datetime.now().strftime('%Y-%m-%d_')}.csv"
-    df.to_csv(out_csv, index=False)
+    print(f"✅ Scraped {len(df)} injuries")
+    print(f"📁 Saved injuries → {output}")
 
-    print(f"✅ Saved {len(df)} injuries → {out_csv}")
-    return df
+    return df, output
 
 
-# =====================================================================
-# 🌤️ WEATHER SCRAPER
-# =====================================================================
-
+# ------------------------------------------------------------
+# SCRAPE ACTION NETWORK WEATHER
+# ------------------------------------------------------------
 def scrape_action_weather(driver):
-    print("\n🌤️ Loading Action Network weather page…")
+    print("🌤️ Scraping Action Network NFL Weather...")
+
     driver.get("https://www.actionnetwork.com/nfl/weather")
     time.sleep(5)
 
-    # ALWAYS SAVE DEBUG
-    with open("weather_page_debug.html", "w", encoding="utf-8") as f:
-        f.write(driver.page_source)
+    games = []
 
-    rows = driver.find_elements(By.CSS_SELECTOR, ".forecasts__row")
-    print(f"Found {len(rows)} weather rows.")
+    try:
+        rows = driver.find_elements(By.CSS_SELECTOR, "li.forecasts__row")
 
-    weather_data = []
+        for row in rows:
 
-    for r in rows:
-        try:
-            # Team names
-            teams = r.find_elements(By.CSS_SELECTOR, ".forecast-row__team-display--desktop")
-            if len(teams) < 2:
+            # -----------------------------
+            # Extract teams
+            # -----------------------------
+            team_containers = row.find_elements(By.CSS_SELECTOR, ".forecast-row__team-container")
+            if len(team_containers) < 2:
                 continue
 
-            away = teams[0].text.strip()
-            home = teams[1].text.strip()
+            away = team_containers[0].text.split("\n")[-1].strip()
+            home = team_containers[1].text.split("\n")[-1].strip()
 
-            # Date/time info
-            time_block = r.find_elements(By.CSS_SELECTOR, ".forecast-row__summarized-fields-container > div:nth-child(2) div")
-            game_date = time_block[0].text if len(time_block) > 0 else ""
-            game_time = time_block[1].text if len(time_block) > 1 else ""
+            # -----------------------------
+            # Extract date/time
+            # -----------------------------
+            date = time_txt = ""
+            dt_block = row.find_elements(By.CSS_SELECTOR, "div > div")
+            if len(dt_block) >= 2:
+                date = dt_block[0].text.strip()
+                time_txt = dt_block[1].text.strip()
 
-            # Forecast description: "46°F Partly Cloudy"
-            try:
-                desc = r.find_element(By.CSS_SELECTOR, ".forecast-row__forecast-description").text.strip()
-            except:
-                desc = ""
+            # -----------------------------
+            # Forecast
+            # -----------------------------
+            forecast_el = row.find_elements(By.CSS_SELECTOR, ".forecast-row__forecast-description")
+            forecast = forecast_el[0].text.strip() if forecast_el else ""
 
-            # Precip %
-            try:
-                precip = r.find_element(By.CSS_SELECTOR, ".forecast-row__summarized-field").text.strip()
-            except:
-                precip = ""
+            # -----------------------------
+            # Precipitation
+            # -----------------------------
+            precip_el = row.find_elements(By.CSS_SELECTOR, ".forecast-row__summarized-field")
+            precip = precip_el[0].text.strip() if precip_el else "--"
 
-            # Wind (mph + direction)
-            try:
-                wind = r.find_element(By.CSS_SELECTOR, "span.css-13s1q9n").text.strip()
-            except:
+            # -----------------------------
+            # Wind
+            # -----------------------------
+            wind_el = row.find_elements(By.CSS_SELECTOR, "span.css-13s1q9n")
+            wind = wind_el[0].text.strip() if wind_el else ""
+
+            # Dome logic
+            if forecast == "" and precip == "--":
+                forecast = "Dome"
                 wind = ""
 
-            weather_data.append({
+            games.append({
                 "away": away,
                 "home": home,
-                "date": game_date,
-                "time": game_time,
-                "forecast": desc,
+                "date": date,
+                "time": time_txt,
+                "forecast": forecast,
                 "precip": precip,
                 "wind": wind
             })
 
-        except Exception:
-            continue
+    except Exception as e:
+        print("❌ Error scraping weather:", e)
 
-    df = pd.DataFrame(weather_data)
-    out_csv = f"action_weather_{datetime.now().strftime('%Y-%m-%d_')}.csv"
-    df.to_csv(out_csv, index=False)
+    df = pd.DataFrame(games)
+    output = f"action_weather_{datetime.now().strftime('%Y-%m-%d_')}.csv"
+    df.to_csv(output, index=False)
 
-    print(f"✅ Saved {len(df)} weather rows → {out_csv}")
-    return df
+    print(f"✅ Scraped {len(df)} weather rows")
+    print(f"📁 Saved weather → {output}")
+
+    return df, output
 
 
-# =====================================================================
-# 🚀 MASTER RUNNER — CALL THIS IN GITHUB ACTIONS
-# =====================================================================
-
-def run_full_action_network_scrape():
+# ------------------------------------------------------------
+# RUN BOTH
+# ------------------------------------------------------------
+if __name__ == "__main__":
     driver = setup_driver()
 
     try:
-        injuries = scrape_action_injuries(driver)
-        weather = scrape_action_weather(driver)
-
-        print("\n🎉 COMPLETE!")
-        print(f"Injuries: {len(injuries)} rows")
-        print(f"Weather : {len(weather)} rows")
-
-        return injuries, weather
-
+        injuries_df, inj_file = scrape_action_injuries(driver)
+        weather_df, weather_file = scrape_action_weather(driver)
     finally:
         driver.quit()
 
-
-if __name__ == "__main__":
-    run_full_action_network_scrape()
+    print("\n🎉 ALL DONE!")
+    print(f"📁 Injuries File: {inj_file}")
+    print(f"📁 Weather File:  {weather_file}")
