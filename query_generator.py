@@ -119,13 +119,13 @@ def get_odds_api_spreads(api_key):
                         for outcome in market['outcomes']:
                             if normalize_team_name(outcome['name']) == home:
                                 spread = outcome['point']
-                                # Invert the spread since API gives home team perspective
-                                # But we want: negative = away favorite, positive = home favorite
-                                spreads[f"{away}@{home}"] = -spread  # FLIP THE SIGN
-                                print(f"  {away} @ {home}: {-spread:+.1f}")
+                                # Store the spread as-is (from home team perspective)
+                                # Negative = home favored, Positive = away favored
+                                spreads[f"{away}@{home}"] = spread
+                                print(f"  {away} @ {home}: {spread:+.1f}")
                                 break
         
-        return spreads
+    return spreads
     except Exception as e:
         print(f"❌ Error fetching spreads: {e}")
         return {}
