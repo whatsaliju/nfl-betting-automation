@@ -13,7 +13,14 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v3
-      
+        
+      - name: Clean previous run data
+        run: |
+          rm -f action_all_markets_*.csv
+          rm -f rotowire_lineups_*.csv
+          rm -f week*_*.csv week*_*.txt week*_*.md week*_*.json
+          rm -f sdql_results.csv
+          
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
