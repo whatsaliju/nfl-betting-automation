@@ -32,36 +32,21 @@ def normalize_team_name(name):
     """Convert API team names to our abbreviations"""
     name_map = {
         'Las Vegas Raiders': 'LV', 'Oakland Raiders': 'LV',
-        'Denver Broncos': 'DEN',
-        'Atlanta Falcons': 'ATL',
-        'Indianapolis Colts': 'IND',
-        'New Orleans Saints': 'NO',
-        'Carolina Panthers': 'CAR',
-        'New York Giants': 'NYG',
-        'Chicago Bears': 'CHI',
-        'Jacksonville Jaguars': 'JAX',
-        'Houston Texans': 'HOU',
-        'Buffalo Bills': 'BUF',
-        'Miami Dolphins': 'MIA',
-        'Baltimore Ravens': 'BAL',
-        'Minnesota Vikings': 'MIN',
-        'Cleveland Browns': 'CLE',
-        'New York Jets': 'NYJ',
-        'New England Patriots': 'NE',
-        'Tampa Bay Buccaneers': 'TB',
-        'Arizona Cardinals': 'ARI',
-        'Seattle Seahawks': 'SEA',
-        'Los Angeles Rams': 'LAR',
-        'San Francisco 49ers': 'SF',
-        'Detroit Lions': 'DET',
-        'Washington Commanders': 'WAS',
-        'Pittsburgh Steelers': 'PIT',
-        'Los Angeles Chargers': 'LAC',
-        'Philadelphia Eagles': 'PHI',
-        'Green Bay Packers': 'GB',
-        'Kansas City Chiefs': 'KC',
-        'Cincinnati Bengals': 'CIN',
-        'Tennessee Titans': 'TEN',
+        'Denver Broncos': 'DEN', 'Atlanta Falcons': 'ATL',
+        'Indianapolis Colts': 'IND', 'New Orleans Saints': 'NO',
+        'Carolina Panthers': 'CAR', 'New York Giants': 'NYG',
+        'Chicago Bears': 'CHI', 'Jacksonville Jaguars': 'JAX',
+        'Houston Texans': 'HOU', 'Buffalo Bills': 'BUF',
+        'Miami Dolphins': 'MIA', 'Baltimore Ravens': 'BAL',
+        'Minnesota Vikings': 'MIN', 'Cleveland Browns': 'CLE',
+        'New York Jets': 'NYJ', 'New England Patriots': 'NE',
+        'Tampa Bay Buccaneers': 'TB', 'Arizona Cardinals': 'ARI',
+        'Seattle Seahawks': 'SEA', 'Los Angeles Rams': 'LAR',
+        'San Francisco 49ers': 'SF', 'Detroit Lions': 'DET',
+        'Washington Commanders': 'WAS', 'Pittsburgh Steelers': 'PIT',
+        'Los Angeles Chargers': 'LAC', 'Philadelphia Eagles': 'PHI',
+        'Green Bay Packers': 'GB', 'Kansas City Chiefs': 'KC',
+        'Cincinnati Bengals': 'CIN', 'Tennessee Titans': 'TEN',
         'Dallas Cowboys': 'DAL'
     }
     return name_map.get(name, name)
@@ -121,20 +106,25 @@ def get_odds_api_spreads(api_key):
                                 home_spread = outcome['point']
                                 
                                 # Determine who the favorite is
+                                # Negative = favorite, Positive = underdog
                                 if home_spread < 0:
-                                    # Home team is favorite
-                                    favorite_team = 'HF'
+                                    # Home team is favorite (has negative spread)
+                                    favorite = 'HF'
                                     spread_value = home_spread  # Keep negative
+                                elif home_spread > 0:
+                                    # Away team is favorite (home has positive = underdog)
+                                    favorite = 'AF'
+                                    spread_value = -home_spread  # Make negative (favorite always negative)
                                 else:
-                                    # Away team is favorite
-                                    favorite_team = 'AF'
-                                    spread_value = -home_spread  # Make it negative (favorite always negative)
+                                    # Pick 'em
+                                    favorite = 'HF'
+                                    spread_value = 0
                                 
                                 spreads[f"{away}@{home}"] = {
                                     'spread': spread_value,
-                                    'favorite': favorite_team
+                                    'favorite': favorite
                                 }
-                                print(f"  {away} @ {home}: {spread_value:+.1f} ({favorite_team})")
+                                print(f"  {away} @ {home}: {spread_value:+.1f} ({favorite})")
                                 break
         
         return spreads
@@ -142,26 +132,14 @@ def get_odds_api_spreads(api_key):
         print(f"❌ Error fetching spreads: {e}")
         return {}
 
-def determine_query_type(away_code, home_code, spread):
-    # API gives spread from HOME team perspective
-    # Negative spread = HOME team favored (they're giving points)
-    # Positive spread = AWAY team favored (home is getting points)
-    
-    if spread < 0:
-        position = 'HF'  # Negative = home team favored
-    elif spread > 0:
-        position = 'AF'  # Positive = away team favored
-    else:
-        position = 'HF'  # Pick 'em, default to HF
-    
+def determine_game_type(away_code, home_code):
+    """Determine if game is divisional, conference, or non-division"""
     if is_same_division(away_code, home_code):
-        game_type = 'DIV'
+        return 'DIV'
     elif is_same_conference(away_code, home_code):
-        game_type = 'C'
+        return 'C'
     else:
-        game_type = 'NDIV'
-    
-    return position, game_type
+        return 'NDIV'
 
 def generate_queries(referees_csv, api_key, output_file='week11_queries.txt'):
     print(f"Reading {referees_csv}...")
@@ -183,24 +161,26 @@ def generate_queries(referees_csv, api_key, output_file='week11_queries.txt'):
         home_code = get_team_code(home_name)
         
         spread_key = f"{away_code}@{home_code}"
-        spread = spreads.get(spread_key, 0)
+        spread_data = spreads.get(spread_key, {'spread': 0, 'favorite': 'HF'})
         
-        position, game_type = determine_query_type(away_code, home_code, spread)
+        spread_value = spread_data['spread']
+        favorite = spread_data['favorite']
+        game_type = determine_game_type(away_code, home_code)
         
-        query = f"'{referee}' in officials and {position} and {game_type} and REG and season>=2018"
+        query = f"'{referee}' in officials and {favorite} and {game_type} and REG and season>=2018"
         
         queries.append({
             'matchup': matchup,
             'referee': referee,
             'away': away_code,
             'home': home_code,
-            'spread': spread,
-            'favorite': position,
+            'spread': spread_value,
+            'favorite': favorite,
             'game_type': game_type,
             'query': query
         })
         
-        print(f"{matchup:<35} | {referee:<18} | {position} {game_type:4} | {spread:+5.1f}")
+        print(f"{matchup:<35} | {referee:<18} | {favorite} {game_type:4} | {spread_value:+5.1f}")
     
     print("="*90)
     
@@ -221,7 +201,6 @@ def generate_queries(referees_csv, api_key, output_file='week11_queries.txt'):
 if __name__ == "__main__":
     ODDS_API_KEY = os.getenv('ODDS_API_KEY', '5f3c8ca6e631e6b59c3a05c291658e22')
     
-    # Allow week to be passed as command line argument
     import sys
     week = int(sys.argv[1]) if len(sys.argv) > 1 else 11
     
