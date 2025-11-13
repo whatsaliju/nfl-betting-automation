@@ -71,11 +71,11 @@ jobs:
               away = row['away']
               home = row['home']
               
-              # 1. Verify favorite logic: negative spread = AF, positive = HF
-              if spread < 0 and favorite != 'AF':
-                  errors.append(f"❌ {matchup}: Spread {spread:+.1f} should be AF, got {favorite}")
-              elif spread > 0 and favorite != 'HF':
+              # 1. Verify favorite logic: negative spread = HF, positive = AF
+              if spread < 0 and favorite != 'HF':
                   errors.append(f"❌ {matchup}: Spread {spread:+.1f} should be HF, got {favorite}")
+              elif spread > 0 and favorite != 'AF':
+                  errors.append(f"❌ {matchup}: Spread {spread:+.1f} should be AF, got {favorite}")
               
               # 2. Verify game_type logic
               away_div = get_division(away)
@@ -84,15 +84,12 @@ jobs:
               home_conf = get_conference(home)
               
               if away_div == home_div:
-                  # Same division
                   if game_type != 'DIV':
                       errors.append(f"❌ {matchup} ({away} @ {home}): Same division, should be DIV, got {game_type}")
               elif away_conf == home_conf:
-                  # Same conference, different division
                   if game_type != 'C':
                       errors.append(f"❌ {matchup} ({away} @ {home}): Same conference, should be C, got {game_type}")
               else:
-                  # Different conference
                   if game_type != 'NDIV':
                       errors.append(f"❌ {matchup} ({away} @ {home}): Different conference, should be NDIV, got {game_type}")
               
@@ -106,7 +103,7 @@ jobs:
               exit(1)
           else:
               print("\n✅ All 15 queries validated successfully!")
-              print("   - Favorite logic correct (AF/HF)")
+              print("   - Favorite logic correct (negative = HF, positive = AF)")
               print("   - Game type logic correct (DIV/C/NDIV)")
           EOF
       
