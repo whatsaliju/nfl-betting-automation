@@ -1,0 +1,64 @@
+name: Test Query Generator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          pip install pandas requests
+      
+      - name: Test Query Generator
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          echo "Testing query generator with Week 11 referee data..."
+          python3 query_generator.py
+      
+      - name: Verify Results
+        run: |
+          echo "==================== GENERATED QUERIES ===================="
+          cat week11_queries.csv
+          echo ""
+          echo "==================== VERIFICATION ===================="
+          python3 << 'EOF'
+          import pandas as pd
+          
+          df = pd.read_csv('week11_queries.csv')
+          
+          tests = [
+              ("Chargers", "HF", "JAX -3"),
+              ("Texans", "HF", "TEN -6.5"),
+              ("Jets", "HF", "NE -12.5"),
+              ("Packers", "AF", "GB -7"),
+              ("Ravens", "AF", "BAL -7.5"),
+          ]
+          
+          print("Checking key matchups:")
+          for team, expected, note in tests:
+              row = df[df['matchup'].str.contains(team)]
+              if not row.empty:
+                  actual = row.iloc[0]['favorite']
+                  spread = row.iloc[0]['spread']
+                  status = "✅" if actual == expected else "❌"
+                  print(f"{status} {row.iloc[0]['matchup']}: {actual} (expected {expected}) | Spread: {spread:+.1f} | {note}")
+          EOF
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: query-generator-test
+          path: |
+            week11_queries.csv
+            week11_queries.txt
