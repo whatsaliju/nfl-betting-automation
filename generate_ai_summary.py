@@ -105,36 +105,43 @@ def generate_ai_summary(week):
         )
 
     # -------------------------------------------------
-    # Merge Sharp Money
+    # Merge Sharp Money (corrected)
     # -------------------------------------------------
     final["bets_pct"] = 0.0
     final["money_pct"] = 0.0
     final["sharp_edge"] = 0.0
-
-    if not action.empty:
+    
+    if not action.empty and "Matchup" in action.columns:
+    
         for idx, row in final.iterrows():
-            home = row.get("home", "")
-            away = row.get("away", "")
-
-            if not home or not away:
-                continue
-
-            match = action[
-                (action["home_full"] == home) &
-                (action["away_full"] == away)
+    
+            away_abbr = row.get("away", "")
+            home_abbr = row.get("home", "")
+    
+            # Convert abbrev → full name
+            away_full = TEAM_MAP.get(away_abbr, away_abbr)
+            home_full = TEAM_MAP.get(home_abbr, home_abbr)
+    
+            # Two possible matchup formats
+            target1 = f"{away_full} @ {home_full}"
+            target2 = f"{home_full} @ {away_full}"
+    
+            matches = action[
+                (action["Matchup"] == target1) |
+                (action["Matchup"] == target2)
             ]
-
-            if not match.empty:
-                m = match.iloc[0]
+    
+            if len(matches) > 0:
+                m = matches.iloc[0]
                 try:
-                    final.loc[idx, "bets_pct"] = float(str(m["Bets %"]).replace("%", ""))
-                    final.loc[idx, "money_pct"] = float(str(m["Money %"]).replace("%", ""))
-                    final.loc[idx, "sharp_edge"] = (
-                        final.loc[idx, "money_pct"] -
-                        final.loc[idx, "bets_pct"]
-                    )
+                    bets = float(str(m["Bets %"]).replace("%", ""))
+                    money = float(str(m["Money %"]).replace("%", ""))
+                    final.loc[idx, "bets_pct"] = bets
+                    final.loc[idx, "money_pct"] = money
+                    final.loc[idx, "sharp_edge"] = money - bets
                 except:
                     pass
+
 
 
     # -------------------------------------------------
