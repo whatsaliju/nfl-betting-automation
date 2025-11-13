@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""
+Referee Trend Digest Generator
+Creates quick referee-only summaries for each matchup.
+Format: emoji-friendly, grouped style (Option A)
+"""
+
+import pandas as pd
+
+def generate_referee_digest(week):
+    try:
+        refs = pd.read_csv(f"week{week}_referees.csv")
+        sdql = pd.read_csv("sdql_results.csv")
+
+        output_file = f"week{week}_referee_trends.txt"
+
+        with open(output_file, "w") as f:
+            for _, row in refs.iterrows():
+                matchup = row['matchup']
+                referee = row['referee']
+                game_type = row.get('game_type', '')
+                favorite = row.get('favorite', '')
+                category = f"{favorite} {game_type}".strip()
+
+                trend = sdql[sdql['referee'] == referee]
+                if trend.empty:
+                    continue
+
+                t = trend.iloc[0]
+
+                su = t.get("su_record", "N/A")
+                su_pct = t.get("su_pct", "N/A")
+                ats = t.get("ats_record", "N/A")
+                ats_pct = t.get("ats_pct", "N/A")
+                ou = t.get("ou_record", "N/A")
+                ou_pct = t.get("ou_pct", "N/A")
+
+                f.write(f"🏈 {matchup}\n")
+                f.write(f"🧑‍⚖️ {category} with {referee}\n")
+                f.write(f"📈 SU: {su} ({su_pct})\n")
+                f.write(f"📉 ATS: {ats} ({ats_pct})\n")
+                f.write(f"🔽 O/U: {ou} ({ou_pct})\n\n")
+
+        print(f"✅ Referee digest created: {output_file}")
+        return True
+
+    except Exception as e:
+        print(f"❌ Error generating referee digest: {e}")
+        return False
+
+
+if __name__ == "__main__":
+    import sys
+    week = int(sys.argv[1]) if len(sys.argv) > 1 else 11
+    generate_referee_digest(week)
