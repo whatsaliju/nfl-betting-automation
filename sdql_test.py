@@ -13,11 +13,8 @@ import os
 def run_sdql_queries(email, password, queries, headless=True):
     print("Starting browser...")
     
-    # Validate credentials
     if not email or not password:
-        print(f"❌ ERROR: Missing credentials!")
-        print(f"   Email: {email}")
-        print(f"   Password: {'***' if password else 'None'}")
+        print("❌ ERROR: Missing credentials!")
         return
     
     options = webdriver.ChromeOptions()
@@ -30,7 +27,6 @@ def run_sdql_queries(email, password, queries, headless=True):
         options.add_argument('--allow-insecure-localhost')
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
-        print("Running in background mode...")
     
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     all_results = []
@@ -38,165 +34,77 @@ def run_sdql_queries(email, password, queries, headless=True):
     try:
         print(f"Logging in with email: {email[:3]}***")
         driver.get("https://www.gimmethedog.com/login")
-        
-        # Wait longer for page to fully load and any dialogs to appear
-        print("Waiting for page to load (and any certificate dialogs)...")
         time.sleep(5)
-        
-        # Try to dismiss any alert/dialog
+
+        # Try dismiss alert
         try:
-            alert = driver.switch_to.alert
-            print("Found alert dialog, dismissing...")
-            alert.dismiss()
-            time.sleep(2)
+            driver.switch_to.alert.dismiss()
+            time.sleep(1)
         except:
-            print("No alert dialog found, proceeding...")
+            pass
         
-        print("Entering credentials...")
+        # login
         email_field = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "email"))
         )
-        email_field.clear()
         email_field.send_keys(email)
-        time.sleep(0.5)
-        
-        password_field = driver.find_element(By.ID, "password")
-        password_field.clear()
-        password_field.send_keys(password)
-        time.sleep(0.5)
-        
-        # Try clicking the button instead of pressing Enter
-        print("Clicking login button...")
-        login_button = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, "//button[@type='submit']"))
-        )
+        driver.find_element(By.ID, "password").send_keys(password)
+
+        login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
         login_button.click()
         time.sleep(5)
-        
-        # Check if login was successful
-        current_url = driver.current_url
-        print(f"After login, URL: {current_url}")
-        
-        if "login" in current_url.lower():
-            print("⚠️ WARNING: Still on login page - authentication failed!")
-            print("Checking for error messages...")
-            
-            try:
-                body_text = driver.find_element(By.TAG_NAME, "body").text
-                print(f"Page content: {body_text[:500]}")
-                if "invalid" in body_text.lower() or "incorrect" in body_text.lower():
-                    print(f"❌ Login error found")
-            except:
-                pass
-            
-            driver.save_screenshot("login_failed.png")
-            print("📸 Saved screenshot: login_failed.png")
-            driver.quit()
+
+        if "login" in driver.current_url.lower():
+            print("❌ Login failed")
             return
-        
+
         print("✅ Login successful!")
         driver.get("https://www.gimmethedog.com/NFL")
         time.sleep(4)
-        print(f"On NFL page, URL: {driver.current_url}")
-        
+
         for i, query in enumerate(queries, 1):
             print(f"\n[{i}/{len(queries)}] Running query: {query[:50]}...")
-            
+
             try:
-                # Reload page between queries to clear previous results
                 if i > 1:
-                    print("  Reloading page to clear previous results...")
                     driver.get("https://www.gimmethedog.com/NFL")
                     time.sleep(4)
-                    print("  ✓ Page reloaded")
-                
-                # Wait for query box to be ready
-                print("  Waiting for query box...")
+
                 query_box = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.ID, "standard-textarea"))
                 )
-                print("  ✓ Query box found")
-                
+
                 query_box.click()
                 query_box.clear()
                 time.sleep(1)
                 query_box.send_keys(query)
                 time.sleep(1)
-                print("  ✓ Query entered")
-                
-                # Submit
-                submit_btn = driver.find_element(By.XPATH, "//button[text()='SDQL']")
-                submit_btn.click()
-                print("  ✓ Clicked SDQL button, waiting for results...")
-                
-                # Wait for table to appear
+
+                driver.find_element(By.XPATH, "//button[text()='SDQL']").click()
                 time.sleep(15)
-                
-                # Try multiple ways to find results
-                print("  Searching for results table...")
-                
-                # Method 1: Original way
+
                 table_rows = driver.find_elements(By.XPATH, "//tbody/tr")
-                print(f"  Method 1 (//tbody/tr): Found {len(table_rows)} rows")
-                
-                # Method 2: Look for any table
-                all_tables = driver.find_elements(By.TAG_NAME, "table")
-                print(f"  Found {len(all_tables)} table elements on page")
-                
-                # Method 3: Look for text containing "ATS:"
-                page_source = driver.page_source
-                if "ATS:" in page_source:
-                    print("  ✓ Found 'ATS:' text in page")
-                else:
-                    print("  ✗ No 'ATS:' text found in page")
-                
-                # Method 4: Check for any tbody
-                tbodies = driver.find_elements(By.TAG_NAME, "tbody")
-                print(f"  Found {len(tbodies)} tbody elements")
-                
-                if len(table_rows) < 3:
-                    print(f"  ⚠️ Only found {len(table_rows)} rows, expected 3")
-                    # Save screenshot for first failed query
-                    if i == 1:
-                        driver.save_screenshot("debug_no_results.png")
-                        print("  📸 Saved screenshot: debug_no_results.png")
-                        # Print part of page to see what's there
-                        body_text = driver.find_element(By.TAG_NAME, "body").text
-                        print(f"  Page text preview: {body_text[:300]}")
-                
+
                 su_text = table_rows[0].text if len(table_rows) > 0 else ""
                 ats_text = table_rows[1].text if len(table_rows) > 1 else ""
                 ou_text = table_rows[2].text if len(table_rows) > 2 else ""
-                
-                print(f"  SU text: {su_text}")
-                print(f"  ATS text: {ats_text}")
-                print(f"  OU text: {ou_text}")
-                
-                su_match = re.search(r'SU:\s*(\d+-\d+)\s*\([^,]+,([^)]+)\)', su_text)
-                su_record = su_match.group(1) if su_match else ""
-                su_pct = su_match.group(2) if su_match else ""
-                
-                # Extract only the FIRST ATS block (ignore teaser ATS blocks)
-                ats_primary_match = re.search(r'ATS:\s*([\d-]+)\s*\(([^)]+)\)', ats_text)
-                
+
                 # -----------------------------
-                #        CLEAN EXTRACTION
+                # CLEAN EXTRACTION BLOCKS
                 # -----------------------------
-                
-                # --- SU extraction (first SU block only) ---
+
+                # SU extraction
                 su_match = re.search(r'SU:\s*([\d-]+)\s*\(([^)]+)\)', su_text)
                 if su_match:
                     su_record = su_match.group(1)
                     raw = su_match.group(2)
-                    # Extract percentage
                     pct_match = re.search(r'(\d+\.\d+%)', raw)
                     su_pct = pct_match.group(1) if pct_match else ""
                 else:
                     su_record = ""
                     su_pct = ""
-                
-                
-                # --- ATS extraction (first ATS block only) ---
+
+                # ATS extraction
                 ats_match = re.search(r'ATS:\s*([\d-]+)\s*\(([^)]+)\)', ats_text)
                 if ats_match:
                     ats_record = ats_match.group(1)
@@ -206,9 +114,8 @@ def run_sdql_queries(email, password, queries, headless=True):
                 else:
                     ats_record = ""
                     ats_pct = ""
-                
-                
-                # --- OU extraction (first OU block only) ---
+
+                # OU extraction
                 ou_match = re.search(r'OU:\s*([\d-]+)\s*\(([^)]+)\)', ou_text)
                 if ou_match:
                     ou_record = ou_match.group(1)
@@ -219,42 +126,44 @@ def run_sdql_queries(email, password, queries, headless=True):
                     ou_record = ""
                     ou_pct = ""
 
-                
+                # Add result
+                result = {
+                    'query': query,
+                    'su_record': su_record,
+                    'su_pct': su_pct,
+                    'ats_record': ats_record,
+                    'ats_pct': ats_pct,
+                    'ou_record': ou_record,
+                    'ou_pct': ou_pct
+                }
+
                 all_results.append(result)
                 print(f"  ✓ ATS: {ats_record} ({ats_pct})")
-                
+
             except Exception as e:
                 print(f"  ✗ Error on query {i}: {e}")
-                import traceback
-                traceback.print_exc()
                 all_results.append({'query': query, 'error': str(e)})
-        
+
         df = pd.DataFrame(all_results)
         df.to_csv('sdql_results.csv', index=False)
-        print(f"\n✓ Saved {len(all_results)} results to sdql_results.csv")
-        
+        print("\n✓ Saved results to sdql_results.csv")
+
     finally:
         driver.quit()
 
 
-# Only run this when script is executed directly (not imported)
+
 if __name__ == "__main__":
     GIMMETHEDOG_EMAIL = os.getenv('GIMMETHEDOG_EMAIL')
     GIMMETHEDOG_PASSWORD = os.getenv('GIMMETHEDOG_PASSWORD')
-    
-    print("Checking environment variables...")
-    print(f"EMAIL present: {bool(GIMMETHEDOG_EMAIL)}")
-    print(f"PASSWORD present: {bool(GIMMETHEDOG_PASSWORD)}")
-    
+
     if not GIMMETHEDOG_EMAIL or not GIMMETHEDOG_PASSWORD:
-        print("❌ ERROR: Environment variables not set!")
+        print("❌ ERROR: Missing environment variables")
         exit(1)
-    
-    # Test queries
+
     queries = [
         "'Bill Vinovich' in officials and HF and DIV and REG and season>=2018",
         "'Clete Blakeman' in officials and AF and NDIV and REG and season>=2018"
     ]
-    
-    print(f"\nRunning {len(queries)} test queries...")
+
     run_sdql_queries(GIMMETHEDOG_EMAIL, GIMMETHEDOG_PASSWORD, queries, headless=True)
