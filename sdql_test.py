@@ -179,33 +179,46 @@ def run_sdql_queries(email, password, queries, headless=True):
                 # Extract only the FIRST ATS block (ignore teaser ATS blocks)
                 ats_primary_match = re.search(r'ATS:\s*([\d-]+)\s*\(([^)]+)\)', ats_text)
                 
-                if ats_primary_match:
-                    ats_record = ats_primary_match.group(1)
+                # -----------------------------
+                #        CLEAN EXTRACTION
+                # -----------------------------
                 
-                    # Inside parentheses you get things like: "1.1,41.9%" or "0.0,47.6%"
-                    raw_parentheses = ats_primary_match.group(2)
+                # --- SU extraction (first SU block only) ---
+                su_match = re.search(r'SU:\s*([\d-]+)\s*\(([^)]+)\)', su_text)
+                if su_match:
+                    su_record = su_match.group(1)
+                    raw = su_match.group(2)
+                    # Extract percentage
+                    pct_match = re.search(r'(\d+\.\d+%)', raw)
+                    su_pct = pct_match.group(1) if pct_match else ""
+                else:
+                    su_record = ""
+                    su_pct = ""
                 
-                    # Extract the FINAL percentage value only
-                    pct_match = re.search(r'(\d+\.\d+%)', raw_parentheses)
+                
+                # --- ATS extraction (first ATS block only) ---
+                ats_match = re.search(r'ATS:\s*([\d-]+)\s*\(([^)]+)\)', ats_text)
+                if ats_match:
+                    ats_record = ats_match.group(1)
+                    raw = ats_match.group(2)
+                    pct_match = re.search(r'(\d+\.\d+%)', raw)
                     ats_pct = pct_match.group(1) if pct_match else ""
                 else:
                     ats_record = ""
                     ats_pct = ""
+                
+                
+                # --- OU extraction (first OU block only) ---
+                ou_match = re.search(r'OU:\s*([\d-]+)\s*\(([^)]+)\)', ou_text)
+                if ou_match:
+                    ou_record = ou_match.group(1)
+                    raw = ou_match.group(2)
+                    pct_match = re.search(r'(\d+\.\d+%)', raw)
+                    ou_pct = pct_match.group(1) if pct_match else ""
+                else:
+                    ou_record = ""
+                    ou_pct = ""
 
-                
-                ou_match = re.search(r'OU:\s*(\d+-\d+-\d+)\s*\([^,]+,([^)]+)\)', ou_text)
-                ou_record = ou_match.group(1) if ou_match else ""
-                ou_pct = ou_match.group(2) if ou_match else ""
-                
-                result = {
-                    'query': query,
-                    'su_record': su_record,
-                    'su_pct': su_pct,
-                    'ats_record': ats_record,
-                    'ats_pct': ats_pct,
-                    'ou_record': ou_record,
-                    'ou_pct': ou_pct
-                }
                 
                 all_results.append(result)
                 print(f"  ✓ ATS: {ats_record} ({ats_pct})")
