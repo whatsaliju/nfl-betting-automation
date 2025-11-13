@@ -26,6 +26,24 @@ import os
 import json
 from datetime import datetime
 
+TEAM_MAP = {
+    "NE": "Patriots", "NYJ": "Jets",
+    "WAS": "Commanders", "MIA": "Dolphins",
+    "CAR": "Panthers", "ATL": "Falcons",
+    "TB": "Buccaneers", "BUF": "Bills",
+    "LAC": "Chargers", "JAX": "Jaguars",
+    "CHI": "Bears", "MIN": "Vikings",
+    "GB": "Packers", "NYG": "Giants",
+    "CIN": "Bengals", "PIT": "Steelers",
+    "HOU": "Texans", "TEN": "Titans",
+    "SF": "49ers", "ARI": "Cardinals",
+    "SEA": "Seahawks", "LAR": "Rams",
+    "BAL": "Ravens", "CLE": "Browns",
+    "KC": "Chiefs", "DEN": "Broncos",
+    "DET": "Lions", "PHI": "Eagles",
+    "DAL": "Cowboys", "LV": "Raiders"
+}
+
 # ------------------------------------------------------------
 # Safe file loading utilities
 # ------------------------------------------------------------
@@ -203,30 +221,44 @@ def generate_enhanced_report(week):
         final = queries.merge(sdql, on="query", how="left")
         final['team_ats'] = 0   # placeholder for future ATS tracking
 
-        # --------------------------------------------------------
-        # Merge in sharp money
-        # --------------------------------------------------------
-        if has_action and "Matchup" in action.columns:
-            final['bets_pct'] = 0.0
-            final['money_pct'] = 0.0
-            final['sharp_edge'] = 0.0
-
+        # -------------------------------------------------
+        # SHARP MONEY MERGE (corrected)
+        # -------------------------------------------------
+        final["bets_pct"] = 0.0
+        final["money_pct"] = 0.0
+        final["sharp_edge"] = 0.0
+        
+        if "Matchup" in action.columns and not action.empty:
+        
             for idx, row in final.iterrows():
-                home, away = row['home'], row['away']
-                match = action[
-                    action['Matchup'].str.contains(home, na=False) |
-                    action['Matchup'].str.contains(away, na=False)
+        
+                away_abbr = row.get("away", "")
+                home_abbr = row.get("home", "")
+        
+                # Convert abbrev → full name
+                away_full = TEAM_MAP.get(away_abbr, away_abbr)
+                home_full = TEAM_MAP.get(home_abbr, home_abbr)
+        
+                # Allow both directions
+                target1 = f"{away_full} @ {home_full}"
+                target2 = f"{home_full} @ {away_full}"
+        
+                matches = action[
+                    (action["Matchup"] == target1) |
+                    (action["Matchup"] == target2)
                 ]
-                if len(match) > 0:
-                    m = match.iloc[0]
+        
+                if not matches.empty:
+                    m = matches.iloc[0]
                     try:
-                        bets = float(str(m.get('Bets %', '0')).replace('%', '') or 0)
-                        money = float(str(m.get('Money %', '0')).replace('%', '') or 0)
-                        final.at[idx, 'bets_pct'] = bets
-                        final.at[idx, 'money_pct'] = money
-                        final.at[idx, 'sharp_edge'] = money - bets
+                        bets = float(str(m["Bets %"]).replace("%", ""))
+                        money = float(str(m["Money %"]).replace("%", ""))
+                        final.loc[idx, "bets_pct"] = bets
+                        final.loc[idx, "money_pct"] = money
+                        final.loc[idx, "sharp_edge"] = money - bets
                     except:
                         pass
+
 
         # --------------------------------------------------------
         # Merge injuries & weather
