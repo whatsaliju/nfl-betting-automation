@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import warnings
+import os
 warnings.filterwarnings('ignore')
 
 # Team abbreviations mapping
@@ -125,14 +126,17 @@ def get_odds_api_spreads(api_key):
                                 break
         
         return spreads
+    except Exception as e:
+        print(f"❌ Error fetching spreads: {e}")
+        return {}
 
 def determine_query_type(away_code, home_code, spread):
     if spread < 0:
-        position = 'HF'
+        position = 'AF'  # Negative = away favorite
     elif spread > 0:
-        position = 'AF'
+        position = 'HF'  # Positive = home favorite
     else:
-        position = 'HF'
+        position = 'HF'  # Pick 'em, default to HF
     
     if is_same_division(away_code, home_code):
         game_type = 'DIV'
@@ -143,7 +147,7 @@ def determine_query_type(away_code, home_code, spread):
     
     return position, game_type
 
-def generate_queries(referees_csv, api_key, output_file='week10_queries.txt'):
+def generate_queries(referees_csv, api_key, output_file='week11_queries.txt'):
     print(f"Reading {referees_csv}...")
     df = pd.read_csv(referees_csv)
     print(f"✅ Loaded {len(df)} games\n")
@@ -199,10 +203,14 @@ def generate_queries(referees_csv, api_key, output_file='week10_queries.txt'):
     return queries_df
 
 if __name__ == "__main__":
-    from config import ODDS_API_KEY
+    ODDS_API_KEY = os.getenv('ODDS_API_KEY', '5f3c8ca6e631e6b59c3a05c291658e22')
+    
+    # Allow week to be passed as command line argument
+    import sys
+    week = int(sys.argv[1]) if len(sys.argv) > 1 else 11
     
     generate_queries(
-        referees_csv='week10_referees.csv',
+        referees_csv=f'week{week}_referees.csv',
         api_key=ODDS_API_KEY,
-        output_file='week10_queries.txt'
+        output_file=f'week{week}_queries.txt'
     )
