@@ -108,24 +108,36 @@ def get_odds_api_spreads(api_key):
         data = response.json()
         print(f"✅ Found {len(data)} games from API\n")
         
-        spreads = {}
-        for game in data:
-            home = normalize_team_name(game['home_team'])
-            away = normalize_team_name(game['away_team'])
-            
-            if game.get('bookmakers'):
-                for market in game['bookmakers'][0].get('markets', []):
-                    if market['key'] == 'spreads':
-                        for outcome in market['outcomes']:
-                            if normalize_team_name(outcome['name']) == home:
-                                spread = outcome['point']
-                                # Store the spread as-is (from home team perspective)
-                                # Negative = home favored, Positive = away favored
-                                spreads[f"{away}@{home}"] = spread
-                                print(f"  {away} @ {home}: {spread:+.1f}")
-                                break
+    spreads = {}
+    for game in data:
+        home = normalize_team_name(game['home_team'])
+        away = normalize_team_name(game['away_team'])
         
-        return spreads
+        if game.get('bookmakers'):
+            for market in game['bookmakers'][0].get('markets', []):
+                if market['key'] == 'spreads':
+                    for outcome in market['outcomes']:
+                        if normalize_team_name(outcome['name']) == home:
+                            home_spread = outcome['point']
+                            
+                            # Determine who the favorite is
+                            if home_spread < 0:
+                                # Home team is favorite
+                                favorite_team = 'HF'
+                                spread_value = home_spread  # Keep negative
+                            else:
+                                # Away team is favorite
+                                favorite_team = 'AF'
+                                spread_value = -home_spread  # Make it negative (favorite always negative)
+                            
+                            spreads[f"{away}@{home}"] = {
+                                'spread': spread_value,
+                                'favorite': favorite_team
+                            }
+                            print(f"  {away} @ {home}: {spread_value:+.1f} ({favorite_team})")
+                            break
+    
+    return spreads
     except Exception as e:
         print(f"❌ Error fetching spreads: {e}")
         return {}
