@@ -125,7 +125,7 @@ def get_odds_api_spreads(api_key):
                                 print(f"  {away} @ {home}: {spread:+.1f}")
                                 break
         
-    return spreads
+        return spreads
     except Exception as e:
         print(f"❌ Error fetching spreads: {e}")
         return {}
