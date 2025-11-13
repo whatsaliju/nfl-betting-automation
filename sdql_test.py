@@ -176,7 +176,7 @@ def run_sdql_queries(email, password, queries, headless=True):
                 su_record = su_match.group(1) if su_match else ""
                 su_pct = su_match.group(2) if su_match else ""
                 
-                ats_match = re.search(r'ATS:\s*(\d+-\d+)\s*\([^,]+,([^)]+)\)', ats_text)
+                ats_match = re.search(r'ATS:\s*([\d-]+)\s*\(([\d\.%]+)\)', ats_text)
                 ats_record = ats_match.group(1) if ats_match else ""
                 ats_pct = ats_match.group(2) if ats_match else ""
                 
