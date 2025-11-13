@@ -38,7 +38,8 @@ jobs:
     
       - name: Create Action Network Cookies File
         run: |
-          echo "${{ secrets.ACTION_NETWORK_COOKIES }}" > action_network_cookies.json
+          echo '${{ secrets.ACTION_NETWORK_COOKIES }}' > action_network_cookies.json
+
 
       - name: Run NFL Analysis
         env:
