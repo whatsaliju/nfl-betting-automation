@@ -1,0 +1,52 @@
+name: Test Action Network Injuries & Weather
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          pip install selenium webdriver-manager pandas
+      
+      - name: Create cookies file
+        env:
+          COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
+        run: |
+          echo "$COOKIES" > action_network_cookies.json
+      
+      - name: Run scraper
+        run: |
+          python3 action_network_injuries_weather.py
+      
+      - name: Display results
+        if: always()
+        run: |
+          echo "==================== INJURIES ===================="
+          if [ -f action_injuries_*.csv ]; then
+            cat action_injuries_*.csv | head -20
+          fi
+          echo ""
+          echo "==================== WEATHER ===================="
+          if [ -f action_weather_*.csv ]; then
+            cat action_weather_*.csv
+          fi
+      
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: action-injury-weather-test
+          path: |
+            action_injuries_*.csv
+            action_weather_*.csv
