@@ -9,10 +9,10 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 import time
 from datetime import datetime
-import os
 
 def setup_driver():
     options = Options()
@@ -20,13 +20,13 @@ def setup_driver():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1920,1080")
+    options.add_argument("--disable-blink-features=AutomationControlled")
     
-    if os.path.exists("/usr/bin/chromium-browser"):
-        options.binary_location = "/usr/bin/chromium-browser"
-        service = Service("/usr/bin/chromedriver")
-        return webdriver.Chrome(service=service, options=options)
-    else:
-        return webdriver.Chrome(options=options)
+    # Use webdriver-manager like sdql_test.py
+    return webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=options
+    )
 
 def scrape_lineups():
     driver = setup_driver()
