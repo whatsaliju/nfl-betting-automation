@@ -19,6 +19,7 @@ def generate_referee_digest(week):
         with open(output_file, "w") as f:
             f.write("="*60 + "\n")
             f.write(f"NFL WEEK {week} - REFEREE TREND DIGEST\n")
+            f.write(f"Historical data: Regular season games 2018-present\n")
             f.write("="*60 + "\n\n")
             
             for _, row in data.iterrows():
@@ -26,6 +27,9 @@ def generate_referee_digest(week):
                 referee = row['referee']
                 game_type = row.get('game_type', 'UNKNOWN')
                 favorite = row.get('favorite', 'UNKNOWN')
+                spread = row.get('spread', 0)
+                away = row.get('away', '')
+                home = row.get('home', '')
                 
                 # Determine game type description
                 if game_type == 'DIV':
@@ -37,13 +41,16 @@ def generate_referee_digest(week):
                 else:
                     type_desc = "Unknown"
                 
-                # Determine favorite position
+                # Determine favorite position and team
                 if favorite == 'HF':
                     fav_desc = "HOME favorites"
+                    fav_team = home
                 elif favorite == 'AF':
                     fav_desc = "AWAY favorites"
+                    fav_team = away
                 else:
                     fav_desc = "Unknown"
+                    fav_team = ""
                 
                 # Find matching SDQL results by query
                 query = row.get('query', '')
@@ -52,8 +59,12 @@ def generate_referee_digest(week):
                 else:
                     trend = pd.DataFrame()
                 
+                # Write matchup and spread
+                f.write(f"{matchup}\n")
+                if spread != 0:
+                    f.write(f"Line: {fav_team} {spread:+.1f}\n")
+                
                 if trend.empty:
-                    f.write(f"{matchup}\n")
                     f.write(f"{type_desc} {fav_desc} with {referee} as lead official:\n")
                     f.write(f"No historical data available\n\n")
                     continue
@@ -66,7 +77,6 @@ def generate_referee_digest(week):
                 ou = t.get("ou_record", "N/A")
                 ou_pct = t.get("ou_pct", "N/A")
                 
-                f.write(f"{matchup}\n")
                 f.write(f"{type_desc} {fav_desc} with {referee} as lead official:\n")
                 f.write(f"SU: {su} ({su_pct})\n")
                 f.write(f"ATS: {ats} ({ats_pct})\n")
