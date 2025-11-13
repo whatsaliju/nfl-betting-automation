@@ -37,8 +37,10 @@ jobs:
           echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
     
       - name: Create Action Network Cookies File
+        env:
+          COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
         run: |
-          echo '${{ secrets.ACTION_NETWORK_COOKIES }}' > action_network_cookies.json
+          echo "$COOKIES" > action_network_cookies.json  
 
 
       - name: Run NFL Analysis
