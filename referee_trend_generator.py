@@ -7,9 +7,9 @@ import pandas as pd
 
 def generate_referee_digest(week):
     try:
-        refs = pd.read_csv(f"week{week}_referees.csv")
-        queries = pd.read_csv(f"week{week}_queries.csv")
-        sdql = pd.read_csv("sdql_results.csv")
+        refs = pd.read_csv(f"data/week{week}/week{week}_referees.csv")
+        queries = pd.read_csv(f"data/week{week}/week{week}_queries.csv")
+        sdql = pd.read_csv("data/historical/sdql_results.csv")
         
         # Merge to get game_type and favorite
         data = refs.merge(queries, on=['matchup', 'referee'], how='left')
