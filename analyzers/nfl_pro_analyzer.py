@@ -508,7 +508,7 @@ def analyze_week(week):
         # Sharp Money Analysis
         sharp_analysis = {}
         if not action.empty:
-            for market in ['Spread', 'Total', 'Moneyline']:
+            for market in ['spread', 'total', 'moneyline']:
                 market_data = action[
                     (action['Market'] == market) &
                     (action['Matchup'].str.contains(away_full, na=False)) &
