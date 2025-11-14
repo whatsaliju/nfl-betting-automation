@@ -1,0 +1,125 @@
+name: 1. Referee Data Collection
+
+on:
+  schedule:
+    - cron: '0 22 * * 3'  # Wednesday 6 PM ET (10 PM UTC)
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'NFL Week Number'
+        required: false
+        type: number
+
+jobs:
+  collect_referee_data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install pandas requests beautifulsoup4 selenium lxml
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+      
+      - name: Get Week Number
+        id: get_week
+        run: |
+          if [ -n "${{ github.event.inputs.week }}" ]; then
+            WEEK=${{ github.event.inputs.week }}
+          else
+            WEEK=$(python3 -c "from datetime import datetime; start=datetime(2025,9,5); days=(datetime.now()-start).days; week=min((days//7)+1+(1 if datetime.now().weekday()>=1 else 0),18); print(week)")
+          fi
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "📅 NFL Week: $WEEK"
+      
+      - name: Scrape Referee Assignments
+        run: |
+          echo "🏈 Scraping Week ${{ steps.get_week.outputs.week }} referee assignments..."
+          python3 << 'PYTHON_EOF'
+          from football_zebras_scraper import save_referees
+          week = ${{ steps.get_week.outputs.week }}
+          df = save_referees(week)
+          if df is None or len(df) == 0:
+              print("❌ No referee assignments found")
+              exit(1)
+          print(f"✅ Got {len(df)} games")
+          PYTHON_EOF
+      
+      - name: Scrape Action Network for Spreads
+        env:
+          COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
+        run: |
+          echo "$COOKIES" > action_network_cookies.json
+          echo "📊 Scraping Action Network for spreads..."
+          python3 action_network_scraper_cookies.py
+      
+      - name: Generate SDQL Queries (using Action Network spreads)
+        run: |
+          echo "🔍 Generating SDQL queries..."
+          python3 query_generator_v2.py ${{ steps.get_week.outputs.week }}
+      
+      - name: Run SDQL Queries
+        env:
+          GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
+          GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
+        run: |
+          echo "📈 Running SDQL historical queries..."
+          python3 << 'PYTHON_EOF'
+          from sdql_test import run_sdql_queries
+          
+          week = ${{ steps.get_week.outputs.week }}
+          with open(f'week{week}_queries.txt', 'r') as f:
+              queries = [line.strip() for line in f if line.strip()]
+          
+          run_sdql_queries(
+              email="$GIMMETHEDOG_EMAIL",
+              password="$GIMMETHEDOG_PASSWORD",
+              queries=queries,
+              headless=True
+          )
+          print("✅ SDQL queries complete")
+          PYTHON_EOF
+      
+      - name: Generate Referee Trends Digest
+        run: |
+          echo "📋 Generating referee trends digest..."
+          python3 << 'PYTHON_EOF'
+          from referee_trend_generator import generate_referee_digest
+          week = ${{ steps.get_week.outputs.week }}
+          generate_referee_digest(week)
+          PYTHON_EOF
+      
+      - name: Commit Referee Data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git add week${{ steps.get_week.outputs.week }}_referees.csv \
+                  week${{ steps.get_week.outputs.week }}_queries.csv \
+                  week${{ steps.get_week.outputs.week }}_queries.txt \
+                  week${{ steps.get_week.outputs.week }}_referee_trends.txt \
+                  sdql_results.csv \
+                  action_all_markets_*.csv || true
+          git commit -m "🏈 Week ${{ steps.get_week.outputs.week }} referee data collection" || echo "No changes"
+          git push
+      
+      - name: Trigger Initial Market Data Workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: referee-data-ready
+          client-payload: '{"week": "${{ steps.get_week.outputs.week }}"}'
+      
+      - name: Summary
+        run: |
+          echo "✅ Referee data collection complete for Week ${{ steps.get_week.outputs.week }}"
+          echo "📁 Files created:"
+          ls -lh week${{ steps.get_week.outputs.week }}_*.csv week${{ steps.get_week.outputs.week }}_*.txt sdql_results.csv
