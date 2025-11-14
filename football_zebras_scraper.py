@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 from datetime import datetime
+import os
 
 def scrape_week_referees(week_number, year=2025):
     """
@@ -100,7 +101,8 @@ def save_referees(week_number, output_file=None):
     )
     
     if output_file is None:
-        output_file = f"week{week_number}_referees.csv"
+        os.makedirs(f'data/week{week}', exist_ok=True)
+        output_file = f"data/week{week}/week{week}_referees.csv"  # Changed week_number to week, added folder
     
     df.to_csv(output_file, index=False)
     print(f"📁 Saved to {output_file}")
