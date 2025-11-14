@@ -28,6 +28,14 @@ jobs:
         with:
           python-version: '3.11'
       
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
       - name: Install dependencies
         run: |
           pip install pandas selenium lxml
@@ -51,31 +59,31 @@ jobs:
       - name: Create Action Network Cookies
         env:
           COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
-        run: echo "$COOKIES" > action_network_cookies.json
+        run: echo "$COOKIES" > config/action_network_cookies.json
       
       - name: Scrape Action Network (All Markets)
         run: |
           echo "📊 Scraping Action Network..."
-          python3 action_network_scraper_cookies.py
+          python3 scrapers/action_network_scraper_cookies.py
       
       - name: Scrape RotoWire Lineups
         run: |
           echo "🏈 Scraping RotoWire lineups & injuries..."
-          python3 rotowire_scraper.py
+          python3 scrapers/rotowire_scraper.py
       
       - name: Scrape Action Network Injuries & Weather
         run: |
           echo "🩹 Scraping Action Network injuries & weather..."
-          python3 action_network_injuries_weather.py
+          python3 scrapers/action_network_injuries_weather.py
       
       - name: Commit Market Data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add action_all_markets_*.csv \
-                  rotowire_lineups_*.csv \
-                  action_injuries_*.csv \
-                  action_weather_*.csv || true
+          git add data/action_all_markets_*.csv \
+                  data/rotowire_lineups_*.csv \
+                  data/action_injuries_*.csv \
+                  data/action_weather_*.csv || true
           git commit -m "📊 Week ${{ steps.get_week.outputs.week }} initial market data" || echo "No changes"
           git push
       
@@ -90,4 +98,4 @@ jobs:
         run: |
           echo "✅ Initial market data collection complete"
           echo "📁 Market files created:"
-          ls -lh action_all_markets_*.csv rotowire_lineups_*.csv action_injuries_*.csv action_weather_*.csv 2>/dev/null || true
+          ls -lh data/action_all_markets_*.csv data/rotowire_lineups_*.csv data/action_injuries_*.csv data/action_weather_*.csv 2>/dev/null || true
