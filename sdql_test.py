@@ -144,7 +144,8 @@ def run_sdql_queries(email, password, queries, headless=True):
                 all_results.append({'query': query, 'error': str(e)})
 
         df = pd.DataFrame(all_results)
-        df.to_csv('sdql_results.csv', index=False)
+        os.makedirs('data/historical', exist_ok=True)
+        df.to_csv('data/historical/sdql_results.csv', index=False)
         print("\n✓ Saved results to sdql_results.csv")
 
     finally:
