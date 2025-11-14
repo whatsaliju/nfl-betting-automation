@@ -28,6 +28,14 @@ jobs:
         with:
           python-version: '3.11'
       
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
       - name: Install dependencies
         run: pip install pandas numpy
       
@@ -72,15 +80,15 @@ jobs:
       - name: Run Pro Analyzer
         run: |
           echo "🔬 Running Pro Analysis Engine..."
-          python3 nfl_pro_analyzer.py ${{ steps.get_week.outputs.week }}
+          python3 analyzers/nfl_pro_analyzer.py ${{ steps.get_week.outputs.week }}
       
       - name: Prepare Email Content
         run: |
           WEEK="${{ steps.get_week.outputs.week }}"
           
           # Load all report content
-          REF_DIGEST=$(cat week${WEEK}_referee_trends.txt 2>/dev/null || echo "Referee trends not available")
-          EXEC_SUMMARY=$(cat week${WEEK}_executive_summary.txt 2>/dev/null || echo "Executive summary not available")
+          REF_DIGEST=$(cat data/week${WEEK}/week${WEEK}_referee_trends.txt 2>/dev/null || echo "Referee trends not available")
+          EXEC_SUMMARY=$(cat data/week${WEEK}/week${WEEK}_executive_summary.txt 2>/dev/null || echo "Executive summary not available")
           
           # Escape HTML
           REF_DIGEST_ESCAPED=$(printf '%s\n' "$REF_DIGEST" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
@@ -185,21 +193,18 @@ jobs:
         with:
           name: week-${{ steps.get_week.outputs.week }}-analysis
           path: |
-            week${{ steps.get_week.outputs.week }}_executive_summary.txt
-            week${{ steps.get_week.outputs.week }}_pro_analysis.txt
-            week${{ steps.get_week.outputs.week }}_analytics.csv
-            week${{ steps.get_week.outputs.week }}_analytics.json
-            week${{ steps.get_week.outputs.week }}_referee_trends.txt
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_executive_summary.txt
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_pro_analysis.txt
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.csv
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.json
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_referee_trends.txt
           retention-days: 30
       
       - name: Commit Analysis Files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add week${{ steps.get_week.outputs.week }}_executive_summary.txt \
-                  week${{ steps.get_week.outputs.week }}_pro_analysis.txt \
-                  week${{ steps.get_week.outputs.week }}_analytics.csv \
-                  week${{ steps.get_week.outputs.week }}_analytics.json || true
+          git add data/week${{ steps.get_week.outputs.week }}/ || true
           git commit -m "📊 Week ${{ steps.get_week.outputs.week }} pro analysis - ${{ steps.analysis_type.outputs.type }}" || echo "No changes"
           git push
       
@@ -208,4 +213,4 @@ jobs:
           echo "✅ Pro Analysis Complete!"
           echo "📧 Email sent: ${{ steps.analysis_type.outputs.type }}"
           echo "📁 Analysis files:"
-          ls -lh week${{ steps.get_week.outputs.week }}_*.txt week${{ steps.get_week.outputs.week }}_*.csv week${{ steps.get_week.outputs.week }}_*.json 2>/dev/null || true
+          ls -lh data/week${{ steps.get_week.outputs.week }}/*.txt data/week${{ steps.get_week.outputs.week }}/*.csv data/week${{ steps.get_week.outputs.week }}/*.json 2>/dev/null || true
