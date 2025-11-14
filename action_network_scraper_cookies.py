@@ -14,7 +14,7 @@ from datetime import datetime
 import os, sys
 
 # Set this to your cookies JSON file path
-COOKIES_FILE = os.environ.get("ACTION_NETWORK_COOKIES", "action_network_cookies.json")
+COOKIES_FILE = os.environ.get("ACTION_NETWORK_COOKIES", "config/action_network_cookies.json")
 
 # --- Browser setup ---
 options = Options()
@@ -293,7 +293,7 @@ driver.quit()
 
 # --- Save results ---
 df = pd.DataFrame(all_data)
-out = f"action_all_markets_{datetime.now().strftime('%Y-%m-%d_')}.csv"
+out = f"data/action_all_markets_{datetime.now().strftime('%Y-%m-%d_')}.csv"
 df.to_csv(out, index=False)
 
 print(f"\n{'='*60}")
