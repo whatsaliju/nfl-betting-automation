@@ -477,6 +477,13 @@ def analyze_week(week):
     rotowire_file = find_latest("rotowire_lineups_")
     rotowire = safe_load_csv(rotowire_file) if rotowire_file else pd.DataFrame()
     
+    # Load Action Network supplemental data
+    an_injuries_file = find_latest("action_injuries_")
+    an_injuries = safe_load_csv(an_injuries_file) if an_injuries_file else pd.DataFrame()
+    
+    an_weather_file = find_latest("action_weather_")
+    an_weather = safe_load_csv(an_weather_file) if an_weather_file else pd.DataFrame()
+    
     if queries.empty:
         print("❌ No games found")
         return
