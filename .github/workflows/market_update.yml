@@ -31,6 +31,14 @@ jobs:
         with:
           python-version: '3.11'
       
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
       - name: Install dependencies
         run: |
           pip install pandas selenium lxml
@@ -52,22 +60,22 @@ jobs:
       - name: Create Action Network Cookies
         env:
           COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
-        run: echo "$COOKIES" > action_network_cookies.json
+        run: echo "$COOKIES" > config/action_network_cookies.json
       
       - name: Scrape Action Network (All Markets)
         run: |
           echo "📊 Scraping Action Network..."
-          python3 action_network_scraper_cookies.py
+          python3 scrapers/action_network_scraper_cookies.py
       
       - name: Scrape RotoWire Lineups
         run: |
           echo "🏈 Scraping RotoWire lineups & injuries..."
-          python3 rotowire_scraper.py
+          python3 scrapers/rotowire_scraper.py
       
       - name: Scrape Action Network Injuries & Weather
         run: |
           echo "🩹 Scraping Action Network injuries & weather..."
-          python3 action_network_injuries_weather.py
+          python3 scrapers/action_network_injuries_weather.py
       
       - name: Detect Line Flips & Update SDQL
         id: line_flips
@@ -76,6 +84,8 @@ jobs:
           GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
         run: |
           python3 << 'PYTHON_EOF'
+          import sys
+          sys.path.append('scrapers')
           import pandas as pd
           import re
           from sdql_test import run_sdql_queries
@@ -84,17 +94,17 @@ jobs:
           
           # Load baseline queries (from Wednesday)
           try:
-              baseline = pd.read_csv(f'week{week}_queries.csv')
+              baseline = pd.read_csv(f'data/week{week}/week{week}_queries.csv')
           except:
               print("⚠️ No baseline queries found, skipping line-flip detection")
               exit(0)
           
           # Load current Action Network spreads
           try:
-              action_files = [f for f in __import__('os').listdir('.') 
+              action_files = [f for f in __import__('os').listdir('data') 
                             if f.startswith('action_all_markets_')]
               latest_action = sorted(action_files)[-1]
-              current_spreads = pd.read_csv(latest_action)
+              current_spreads = pd.read_csv(f'data/{latest_action}')
               current_spreads = current_spreads[current_spreads['Market'] == 'Spread']
           except:
               print("⚠️ No current spreads found, skipping line-flip detection")
@@ -196,11 +206,11 @@ jobs:
                   baseline.loc[mask, 'query'] = new_query
               
               # Save updated queries
-              baseline.to_csv(f'week{week}_queries.csv', index=False)
+              baseline.to_csv(f'data/week{week}/week{week}_queries.csv', index=False)
               
               # Save flip report
               flip_df = pd.DataFrame(flips)
-              flip_df.to_csv(f'week{week}_line_flips_{__import__("datetime").datetime.now().strftime("%Y%m%d_%H%M")}.csv', index=False)
+              flip_df.to_csv(f'data/week{week}_line_flips_{__import__("datetime").datetime.now().strftime("%Y%m%d_%H%M")}.csv', index=False)
               
               print(f"✅ Updated SDQL data for {len(flips)} flipped games")
               
@@ -220,13 +230,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add action_all_markets_*.csv \
-                  rotowire_lineups_*.csv \
-                  action_injuries_*.csv \
-                  action_weather_*.csv \
-                  week${{ steps.get_week.outputs.week }}_queries.csv \
-                  week${{ steps.get_week.outputs.week }}_line_flips_*.csv \
-                  sdql_results.csv || true
+          git add data/action_all_markets_*.csv \
+                  data/rotowire_lineups_*.csv \
+                  data/action_injuries_*.csv \
+                  data/action_weather_*.csv \
+                  data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv \
+                  data/week${{ steps.get_week.outputs.week }}_line_flips_*.csv \
+                  data/historical/sdql_results.csv || true
           git commit -m "📊 Week ${{ steps.get_week.outputs.week }} market update (${{ steps.line_flips.outputs.flip_count }} line flips)" || echo "No changes"
           git push
       
@@ -242,4 +252,4 @@ jobs:
           echo "✅ Market data update complete"
           echo "📊 Line flips detected: ${{ steps.line_flips.outputs.flip_count }}"
           echo "📁 Updated files:"
-          ls -lh action_all_markets_*.csv rotowire_lineups_*.csv 2>/dev/null | tail -5
+          ls -lh data/action_all_markets_*.csv data/rotowire_lineups_*.csv 2>/dev/null | tail -5
