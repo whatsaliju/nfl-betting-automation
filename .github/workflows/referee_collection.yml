@@ -1,22 +1,27 @@
-name: 1. Referee Data Collection
+name: 4. Pro Analysis & Email
 
 on:
-  schedule:
-    - cron: '0 22 * * 3'  # Wednesday 6 PM ET (10 PM UTC)
+  repository_dispatch:
+    types: [market-data-ready]
   workflow_dispatch:
     inputs:
       week:
         description: 'NFL Week Number'
-        required: false
+        required: true
         type: number
 
 jobs:
-  collect_referee_data:
+  generate_analysis:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          ref: main
+      
+      - name: Pull latest changes
+        run: git pull origin main
         
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -24,96 +29,180 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: |
-          pip install pandas requests beautifulsoup4 selenium lxml
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
+        run: pip install pandas numpy
       
       - name: Get Week Number
         id: get_week
         run: |
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK=${{ github.event.inputs.week }}
+          elif [ -n "${{ github.event.client_payload.week }}" ]; then
+            WEEK=${{ github.event.client_payload.week }}
           else
-            WEEK=$(python3 -c "from datetime import datetime; start=datetime(2025,9,5); days=(datetime.now()-start).days; week=min((days//7)+1+(1 if datetime.now().weekday()>=1 else 0),18); print(week)")
+            # Auto-detect from existing files
+            WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
-          echo "📅 NFL Week: $WEEK"
+          echo "📅 Generating analysis for Week $WEEK"
       
-      - name: Scrape Referee Assignments
+      - name: Get Analysis Type
+        id: analysis_type
         run: |
-          echo "🏈 Scraping Week ${{ steps.get_week.outputs.week }} referee assignments..."
-          python3 << 'PYTHON_EOF'
-          from football_zebras_scraper import save_referees
-          week = ${{ steps.get_week.outputs.week }}
-          df = save_referees(week)
-          if df is None or len(df) == 0:
-              print("❌ No referee assignments found")
-              exit(1)
-          print(f"✅ Got {len(df)} games")
-          PYTHON_EOF
-      
-      - name: Generate SDQL Queries (using Odds API)
-        env:
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-        run: |
-          echo "🔍 Generating SDQL queries using Odds API..."
-          python3 query_generator.py ${{ steps.get_week.outputs.week }}
-      
-      - name: Run SDQL Queries
-        env:
-          GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
-          GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
-        run: |
-          echo "📈 Running SDQL historical queries..."
-          python3 << 'PYTHON_EOF'
-          from sdql_test import run_sdql_queries
+          TYPE="${{ github.event.client_payload.analysis_type }}"
+          FLIPS="${{ github.event.client_payload.line_flips }}"
           
-          week = ${{ steps.get_week.outputs.week }}
-          with open(f'week{week}_queries.txt', 'r') as f:
-              queries = [line.strip() for line in f if line.strip()]
+          if [ "$TYPE" = "initial" ]; then
+            echo "type=Initial Analysis" >> $GITHUB_OUTPUT
+            echo "subject_prefix=🏈 Initial" >> $GITHUB_OUTPUT
+          else
+            echo "type=Updated Analysis" >> $GITHUB_OUTPUT
+            echo "subject_prefix=📊 Updated" >> $GITHUB_OUTPUT
+          fi
           
-          run_sdql_queries(
-              email="$GIMMETHEDOG_EMAIL",
-              password="$GIMMETHEDOG_PASSWORD",
-              queries=queries,
-              headless=True
-          )
-          print("✅ SDQL queries complete")
-          PYTHON_EOF
+          if [ -n "$FLIPS" ] && [ "$FLIPS" != "0" ]; then
+            echo "flip_alert=🚨 $FLIPS line flip(s) detected and processed" >> $GITHUB_OUTPUT
+          else
+            echo "flip_alert=" >> $GITHUB_OUTPUT
+          fi
       
-      - name: Generate Referee Trends Digest
+      - name: Get Timestamp
+        id: timestamp
+        run: echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
+      
+      - name: Run Pro Analyzer
         run: |
-          echo "📋 Generating referee trends digest..."
+          echo "🔬 Running Pro Analysis Engine..."
+          python3 analyzers/nfl_pro_analyzer.py ${{ steps.get_week.outputs.week }}
+      
+      - name: Prepare Email Content
+        run: |
+          WEEK="${{ steps.get_week.outputs.week }}"
+          
+          # Load all report content
+          REF_DIGEST=$(cat data/week${WEEK}/week${WEEK}_referee_trends.txt 2>/dev/null || echo "Referee trends not available")
+          EXEC_SUMMARY=$(cat data/week${WEEK}/week${WEEK}_executive_summary.txt 2>/dev/null || echo "Executive summary not available")
+          
+          # Escape HTML
+          REF_DIGEST_ESCAPED=$(printf '%s\n' "$REF_DIGEST" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+          EXEC_SUMMARY_ESCAPED=$(printf '%s\n' "$EXEC_SUMMARY" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+          
+          # Save to env
+          echo "REFEREE_DIGEST<<EOF" >> $GITHUB_ENV
+          echo "$REF_DIGEST_ESCAPED" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+          echo "EXEC_SUMMARY<<EOF" >> $GITHUB_ENV
+          echo "$EXEC_SUMMARY_ESCAPED" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      
+      - name: Send Email
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: |
           python3 << 'PYTHON_EOF'
-          from referee_trend_generator import generate_referee_digest
-          week = ${{ steps.get_week.outputs.week }}
-          generate_referee_digest(week)
+          import smtplib
+          from email.mime.multipart import MIMEMultipart
+          from email.mime.text import MIMEText
+          import os
+          
+          week = "${{ steps.get_week.outputs.week }}"
+          timestamp = "${{ steps.timestamp.outputs.time }}"
+          analysis_type = "${{ steps.analysis_type.outputs.type }}"
+          flip_alert = "${{ steps.analysis_type.outputs.flip_alert }}"
+          ref_digest = """${{ env.REFEREE_DIGEST }}"""
+          exec_summary = """${{ env.EXEC_SUMMARY }}"""
+          
+          # Build HTML email
+          flip_section = ""
+          if flip_alert:
+              flip_section = f"""
+              <div style="background:#fff3cd; padding:15px; border-left:4px solid #ffc107; margin:20px 0;">
+                  <h3 style="margin-top:0;">⚠️ Line Movement Alert</h3>
+                  <p><b>{flip_alert}</b></p>
+                  <p>Referee trend queries have been updated to reflect the new favorite/dog status.</p>
+              </div>
+              """
+          
+          html_body = f"""<html>
+          <body style="font-family:Arial, sans-serif; line-height:1.6;">
+          <h1>🏈 NFL Week {week} - {analysis_type}</h1>
+          <p>Generated: <b>{timestamp}</b></p>
+          
+          {flip_section}
+          
+          <div style="background:#e8f4f8; padding:15px; border-left:4px solid #0066cc; margin:20px 0;">
+              <h2 style="margin-top:0;">📊 Sharp Money Intelligence</h2>
+              <ul>
+                  <li><b>Multi-Market Analysis:</b> Spread + Total + Moneyline consensus</li>
+                  <li><b>Divergence Detection:</b> When sharps target opposite sides</li>
+                  <li><b>Trap Game Alerts:</b> Public vs. sharp money discrepancies</li>
+                  <li><b>Line-Flip Tracking:</b> Automatic referee trend updates</li>
+              </ul>
+          </div>
+          
+          <h2>⭐ EXECUTIVE SUMMARY</h2>
+          <pre style="background:#f4f4f4; padding:15px; border-radius:6px; white-space:pre-wrap; font-size:13px;">{exec_summary}</pre>
+          
+          <h2>🧑‍⚖️ Referee Trends</h2>
+          <pre style="background:#f4f4f4; padding:15px; border-radius:6px; white-space:pre-wrap; font-size:12px;">{ref_digest}</pre>
+          
+          <h3>📥 Download Full Reports</h3>
+          <p><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+             Click here to download complete analysis package (CSV/JSON)
+          </a></p>
+          
+          <div style="background:#f8f9fa; padding:10px; border-left:4px solid #6c757d; margin:20px 0;">
+              <p style="margin:0;"><b>💡 Quick Start:</b> Executive Summary shows top plays. Full Pro Analysis available in GitHub artifacts.</p>
+          </div>
+          
+          <p style="color:#666; font-size:12px; margin-top:30px;">
+              Automated NFL Betting Intelligence System<br>
+              Week {week} {analysis_type}
+          </p>
+          </body>
+          </html>"""
+          
+          msg = MIMEMultipart('alternative')
+          msg['Subject'] = f"${{ steps.analysis_type.outputs.subject_prefix }} NFL Week {week} Analysis - Sharp Money Intelligence"
+          msg['From'] = os.getenv('GMAIL_USER')
+          msg['To'] = "lvarughese@gmail.com"
+          
+          html_part = MIMEText(html_body, 'html', 'utf-8')
+          msg.attach(html_part)
+          
+          server = smtplib.SMTP('smtp.gmail.com', 587)
+          server.starttls()
+          server.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
+          server.send_message(msg)
+          server.quit()
+          
+          print(f"✅ Email sent: {analysis_type} for Week {week}")
           PYTHON_EOF
       
-      - name: Commit Referee Data
+      - name: Upload Analysis Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: week-${{ steps.get_week.outputs.week }}-analysis
+          path: |
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_executive_summary.txt
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_pro_analysis.txt
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.csv
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.json
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_referee_trends.txt
+          retention-days: 30
+      
+      - name: Commit Analysis Files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main || true
-          git add week${{ steps.get_week.outputs.week }}_referees.csv \
-                  week${{ steps.get_week.outputs.week }}_queries.csv \
-                  week${{ steps.get_week.outputs.week }}_queries.txt \
-                  week${{ steps.get_week.outputs.week }}_referee_trends.txt \
-                  sdql_results.csv \
-                  action_all_markets_*.csv || true
-          git commit -m "🏈 Week ${{ steps.get_week.outputs.week }} referee data collection" || echo "No changes"
+          git add data/week${{ steps.get_week.outputs.week }}/ || true
+          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} pro analysis - ${{ steps.analysis_type.outputs.type }}" || echo "No changes"
           git push
-      
-      - name: Trigger Initial Market Data Workflow
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: referee-data-ready
-          client-payload: '{"week": "${{ steps.get_week.outputs.week }}"}'
       
       - name: Summary
         run: |
-          echo "✅ Referee data collection complete for Week ${{ steps.get_week.outputs.week }}"
-          echo "📁 Files created:"
-          ls -lh week${{ steps.get_week.outputs.week }}_*.csv week${{ steps.get_week.outputs.week }}_*.txt sdql_results.csv
+          echo "✅ Pro Analysis Complete!"
+          echo "📧 Email sent: ${{ steps.analysis_type.outputs.type }}"
+          echo "📁 Analysis files:"
+          ls -lh data/week${{ steps.get_week.outputs.week }}/*.txt data/week${{ steps.get_week.outputs.week }}/*.csv data/week${{ steps.get_week.outputs.week }}/*.json 2>/dev/null || true
