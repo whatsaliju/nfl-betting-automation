@@ -16,11 +16,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 # ------------------------------------------------------------
-# DRIVER SETUP
+# DRIVER SETUP (FIXED - uses system ChromeDriver)
 # ------------------------------------------------------------
 def setup_driver():
     options = Options()
@@ -29,7 +28,7 @@ def setup_driver():
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--window-size=1920,1080")
     return webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
+        service=Service('/usr/bin/chromedriver'),
         options=options
     )
 
