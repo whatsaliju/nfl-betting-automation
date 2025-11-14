@@ -468,21 +468,21 @@ def analyze_week(week):
     
     # Load data
     print("📥 Loading data sources...")
-    queries = safe_load_csv(f"week{week}_queries.csv", required=True)
-    sdql = safe_load_csv("sdql_results.csv")
+    queries = safe_load_csv(f"data/week{week}/week{week}_queries.csv", required=True)
+    sdql = safe_load_csv("data/historical/sdql_results.csv")
     
     action_file = find_latest("action_all_markets_")
-    action = safe_load_csv(action_file) if action_file else pd.DataFrame()
+    action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
     
     rotowire_file = find_latest("rotowire_lineups_")
-    rotowire = safe_load_csv(rotowire_file) if rotowire_file else pd.DataFrame()
+    rotowire = safe_load_csv(f"data/{rotowire_file}") if rotowire_file else pd.DataFrame()
     
     # Load Action Network supplemental data
     an_injuries_file = find_latest("action_injuries_")
-    an_injuries = safe_load_csv(an_injuries_file) if an_injuries_file else pd.DataFrame()
+    an_injuries = safe_load_csv(f"data/{an_injuries_file}") if an_injuries_file else pd.DataFrame()
     
     an_weather_file = find_latest("action_weather_")
-    an_weather = safe_load_csv(an_weather_file) if an_weather_file else pd.DataFrame()
+    an_weather = safe_load_csv(f"data/{an_weather_file}") if an_weather_file else pd.DataFrame()
     
     if queries.empty:
         print("❌ No games found")
