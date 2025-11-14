@@ -60,8 +60,9 @@ jobs:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: |
           echo "🔍 Generating SDQL queries using Odds API..."
-          python3 analyzers/query_generator.py ${{ steps.get_week.outputs.week }}
-      
+          WEEK=${{ steps.get_week.outputs.week }}
+          python3 analyzers/query_generator.py data/week${WEEK}/week${WEEK}_referees.csv $ODDS_API_KEY week${WEEK}_queries.txt
+
       - name: Run SDQL Queries
         env:
           GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
