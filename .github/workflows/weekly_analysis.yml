@@ -59,7 +59,7 @@ jobs:
           ACTION_NETWORK_PASSWORD: ${{ secrets.ACTION_NETWORK_PASSWORD }}
         run: |
           echo "🏈 Starting NFL Week Analysis..."
-          python3 nfl_weekly_analyzer.py
+          python3 nfl_weekly_analyzer.py --week 11
 
       - name: Scrape RotoWire Lineups
         run: python3 rotowire_scraper.py
