@@ -186,9 +186,16 @@ def generate_queries(referees_csv, api_key, output_file='week11_queries.txt'):
     
     queries_df = pd.DataFrame(queries)
     csv_file = output_file.replace('.txt', '.csv')
-    queries_df.to_csv(csv_file, index=False)
+    week = # (get week from function args)
+    os.makedirs(f'data/week{week}', exist_ok=True)
     
-    with open(output_file, 'w') as f:
+    csv_file = output_file.replace('.txt', '.csv')
+    # Update paths to include data/week{X}/
+    csv_file = f'data/week{week}/' + csv_file.split('/')[-1]
+    txt_file = f'data/week{week}/' + output_file.split('/')[-1]
+    
+    queries_df.to_csv(csv_file, index=False)
+    with open(txt_file, 'w') as f:
         for q in queries:
             f.write(q['query'] + '\n')
     
