@@ -1,0 +1,245 @@
+name: 3. Market Update (with Line-Flip Detection)
+
+on:
+  # Commented scheduled runs - uncomment when ready
+  # schedule:
+  #   - cron: '0 23 * * 4'   # Thursday 7 PM ET (11 PM UTC) - before TNF
+  #   - cron: '0 0 * * 0'    # Saturday 8 PM ET (Sunday 12 AM UTC)
+  #   - cron: '0 16 * * 0'   # Sunday 12 PM ET (4 PM UTC) - before 1 PM games
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'NFL Week Number'
+        required: true
+        type: number
+
+jobs:
+  update_market_data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: main
+      
+      - name: Pull latest changes
+        run: git pull origin main
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install pandas selenium lxml
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+      
+      - name: Get Week Number
+        id: get_week
+        run: |
+          if [ -n "${{ github.event.inputs.week }}" ]; then
+            WEEK=${{ github.event.inputs.week }}
+          else
+            # Auto-detect from existing files
+            WEEK=$(ls week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
+          fi
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "📅 Updating market data for Week $WEEK"
+      
+      - name: Create Action Network Cookies
+        env:
+          COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
+        run: echo "$COOKIES" > action_network_cookies.json
+      
+      - name: Scrape Action Network (All Markets)
+        run: |
+          echo "📊 Scraping Action Network..."
+          python3 action_network_scraper_cookies.py
+      
+      - name: Scrape RotoWire Lineups
+        run: |
+          echo "🏈 Scraping RotoWire lineups & injuries..."
+          python3 rotowire_scraper.py
+      
+      - name: Scrape Action Network Injuries & Weather
+        run: |
+          echo "🩹 Scraping Action Network injuries & weather..."
+          python3 action_network_injuries_weather.py
+      
+      - name: Detect Line Flips & Update SDQL
+        id: line_flips
+        env:
+          GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
+          GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
+        run: |
+          python3 << 'PYTHON_EOF'
+          import pandas as pd
+          import re
+          from sdql_test import run_sdql_queries
+          
+          week = ${{ steps.get_week.outputs.week }}
+          
+          # Load baseline queries (from Wednesday)
+          try:
+              baseline = pd.read_csv(f'week{week}_queries.csv')
+          except:
+              print("⚠️ No baseline queries found, skipping line-flip detection")
+              exit(0)
+          
+          # Load current Action Network spreads
+          try:
+              action_files = [f for f in __import__('os').listdir('.') 
+                            if f.startswith('action_all_markets_')]
+              latest_action = sorted(action_files)[-1]
+              current_spreads = pd.read_csv(latest_action)
+              current_spreads = current_spreads[current_spreads['Market'] == 'Spread']
+          except:
+              print("⚠️ No current spreads found, skipping line-flip detection")
+              exit(0)
+          
+          # Team name mapping
+          TEAM_FULL_TO_ABBR = {
+              'Patriots': 'NE', 'Jets': 'NYJ', 'Commanders': 'WAS', 'Dolphins': 'MIA',
+              'Panthers': 'CAR', 'Falcons': 'ATL', 'Buccaneers': 'TB', 'Bills': 'BUF',
+              'Chargers': 'LAC', 'Jaguars': 'JAX', 'Bears': 'CHI', 'Vikings': 'MIN',
+              'Packers': 'GB', 'Giants': 'NYG', 'Bengals': 'CIN', 'Steelers': 'PIT',
+              'Texans': 'HOU', 'Titans': 'TEN', '49ers': 'SF', 'Cardinals': 'ARI',
+              'Seahawks': 'SEA', 'Rams': 'LAR', 'Ravens': 'BAL', 'Browns': 'CLE',
+              'Chiefs': 'KC', 'Broncos': 'DEN', 'Lions': 'DET', 'Eagles': 'PHI',
+              'Cowboys': 'DAL', 'Raiders': 'LV'
+          }
+          
+          def parse_spread(line_str):
+              match = re.search(r'([+-]?\d+\.?\d*)', str(line_str))
+              return float(match.group(1)) if match else 0.0
+          
+          # Detect line flips (zero crosses)
+          flips = []
+          
+          for _, row in current_spreads.iterrows():
+              try:
+                  away_full, home_full = row['Matchup'].split('@')
+                  away_full = away_full.strip()
+                  home_full = home_full.strip()
+                  away_code = TEAM_FULL_TO_ABBR.get(away_full, away_full)
+                  home_code = TEAM_FULL_TO_ABBR.get(home_full, home_full)
+                  
+                  # Get current spread
+                  current_spread = parse_spread(row['Line'])
+                  
+                  # Find baseline
+                  baseline_row = baseline[
+                      (baseline['away'] == away_code) & 
+                      (baseline['home'] == home_code)
+                  ]
+                  
+                  if baseline_row.empty:
+                      continue
+                  
+                  baseline_fav = baseline_row.iloc[0]['favorite']
+                  baseline_spread = float(baseline_row.iloc[0]['spread'])
+                  
+                  # Determine current favorite
+                  current_fav = 'AF' if current_spread < 0 else 'HF'
+                  
+                  # Check if favorite flipped
+                  if baseline_fav != current_fav:
+                      print(f"🚨 LINE FLIP DETECTED: {away_code} @ {home_code}")
+                      print(f"   Was: {baseline_fav} ({baseline_spread:+.1f})")
+                      print(f"   Now: {current_fav} ({current_spread:+.1f})")
+                      
+                      referee = baseline_row.iloc[0]['referee']
+                      
+                      # Determine game type
+                      game_type = baseline_row.iloc[0]['game_type']
+                      
+                      # Generate new query
+                      new_query = f"'{referee}' in officials and {current_fav} and {game_type} and REG and season>=2018"
+                      
+                      flips.append({
+                          'matchup': f"{away_code} @ {home_code}",
+                          'old_favorite': baseline_fav,
+                          'new_favorite': current_fav,
+                          'old_spread': baseline_spread,
+                          'new_spread': current_spread,
+                          'query': new_query,
+                          'referee': referee
+                      })
+                      
+              except Exception as e:
+                  continue
+          
+          # Run new queries if any flips detected
+          if flips:
+              print(f"\n📊 Running {len(flips)} updated SDQL queries...")
+              
+              new_queries = [flip['query'] for flip in flips]
+              
+              run_sdql_queries(
+                  email="${GIMMETHEDOG_EMAIL}",
+                  password="${GIMMETHEDOG_PASSWORD}",
+                  queries=new_queries,
+                  headless=True
+              )
+              
+              # Update baseline queries CSV
+              for flip in flips:
+                  mask = (baseline['matchup'] == flip['matchup'])
+                  baseline.loc[mask, 'favorite'] = flip['new_favorite']
+                  baseline.loc[mask, 'spread'] = flip['new_spread']
+                  
+                  # Update query
+                  new_query = f"'{flip['referee']}' in officials and {flip['new_favorite']} and {baseline.loc[mask, 'game_type'].iloc[0]} and REG and season>=2018"
+                  baseline.loc[mask, 'query'] = new_query
+              
+              # Save updated queries
+              baseline.to_csv(f'week{week}_queries.csv', index=False)
+              
+              # Save flip report
+              flip_df = pd.DataFrame(flips)
+              flip_df.to_csv(f'week{week}_line_flips_{__import__("datetime").datetime.now().strftime("%Y%m%d_%H%M")}.csv', index=False)
+              
+              print(f"✅ Updated SDQL data for {len(flips)} flipped games")
+              
+              # Output for later steps
+              with open(__import__('os').environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"flips_detected=true\n")
+                  f.write(f"flip_count={len(flips)}\n")
+          else:
+              print("✅ No line flips detected")
+              with open(__import__('os').environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"flips_detected=false\n")
+                  f.write(f"flip_count=0\n")
+          
+          PYTHON_EOF
+      
+      - name: Commit Updated Data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add action_all_markets_*.csv \
+                  rotowire_lineups_*.csv \
+                  action_injuries_*.csv \
+                  action_weather_*.csv \
+                  week${{ steps.get_week.outputs.week }}_queries.csv \
+                  week${{ steps.get_week.outputs.week }}_line_flips_*.csv \
+                  sdql_results.csv || true
+          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} market update (${{ steps.line_flips.outputs.flip_count }} line flips)" || echo "No changes"
+          git push
+      
+      - name: Trigger Pro Analysis
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: market-data-ready
+          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "analysis_type": "update", "line_flips": "${{ steps.line_flips.outputs.flip_count }}"}'
+      
+      - name: Summary
+        run: |
+          echo "✅ Market data update complete"
+          echo "📊 Line flips detected: ${{ steps.line_flips.outputs.flip_count }}"
+          echo "📁 Updated files:"
+          ls -lh action_all_markets_*.csv rotowire_lineups_*.csv 2>/dev/null | tail -5
