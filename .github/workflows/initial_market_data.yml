@@ -56,6 +56,9 @@ jobs:
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "📅 Collecting initial market data for Week $WEEK"
       
+      - name: Create config folder
+        run: mkdir -p config
+  
       - name: Create Action Network Cookies
         env:
           COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
