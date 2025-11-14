@@ -1,0 +1,241 @@
+name: NFL Weekly Analysis
+
+on:
+  schedule:
+    - cron: '0 22 * * 3'  # Wednesday 6 PM ET (10 PM UTC)
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Clean previous run data
+        run: |
+          rm -f action_all_markets_*.csv
+          rm -f rotowire_lineups_*.csv
+          rm -f week*_*.csv week*_*.txt week*_*.md week*_*.json
+          rm -f sdql_results.csv
+          
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+      
+      - name: Get Week Number
+        id: get_week
+        run: |
+          WEEK=$(python3 -c "from nfl_weekly_analyzer import get_current_nfl_week; print(get_current_nfl_week())")
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+      
+      - name: Detect Actual Week Analyzed
+        id: actual_week
+        run: |
+          # Find which week files were actually generated
+          ACTUAL_WEEK=$(ls week*_executive_summary.txt 2>/dev/null | grep -oP 'week\K[0-9]+' | head -1)
+          if [ -z "$ACTUAL_WEEK" ]; then
+            ACTUAL_WEEK="${{ steps.get_week.outputs.week }}"
+          fi
+          echo "week=$ACTUAL_WEEK" >> $GITHUB_OUTPUT
+          echo "✅ Analyzed week: $ACTUAL_WEEK"
+      
+      - name: Get Timestamp
+        id: timestamp
+        run: |
+          echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
+    
+      - name: Create Action Network Cookies File
+        env:
+          COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
+        run: |
+          echo "$COOKIES" > action_network_cookies.json  
+
+
+      - name: Run NFL Analysis
+        env:
+          GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
+          GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ACTION_NETWORK_EMAIL: ${{ secrets.ACTION_NETWORK_EMAIL }}
+          ACTION_NETWORK_PASSWORD: ${{ secrets.ACTION_NETWORK_PASSWORD }}
+        run: |
+          echo "🏈 Starting NFL Week Analysis..."
+          python3 nfl_weekly_analyzer.py
+
+      - name: Scrape RotoWire Lineups
+        run: python3 rotowire_scraper.py
+
+      # REMOVED OLD generate_ai_summary.py call - Pro Analyzer does this now
+      
+      - name: Upload Analysis Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: nfl-analysis-results
+          path: |
+            week${{ steps.get_week.outputs.week }}_referees.csv
+            week${{ steps.get_week.outputs.week }}_queries.csv
+            week${{ steps.get_week.outputs.week }}_complete_data.csv
+            week${{ steps.get_week.outputs.week }}_enhanced_report.txt
+            week${{ steps.get_week.outputs.week }}_referee_trends.txt
+            week${{ steps.get_week.outputs.week }}_executive_summary.txt
+            week${{ steps.get_week.outputs.week }}_pro_analysis.txt
+            week${{ steps.get_week.outputs.week }}_analytics.csv
+            week${{ steps.get_week.outputs.week }}_analytics.json
+            sdql_results.csv
+            action_all_markets_*.csv
+            rotowire_lineups_*.csv
+          retention-days: 30
+      
+      - name: Create Summary Comment
+        run: |
+          WEEK="${{ steps.actual_week.outputs.week }}"
+
+          {
+            echo "# 🏈 NFL Week $WEEK Analysis Complete!"
+            echo ""
+            echo "✅ Analysis finished at $(date)"
+            echo ""
+            echo "## 🔥 NEW: Pro Analysis Reports"
+            echo "- **Executive Summary**: Quick top plays (START HERE)"
+            echo "- **Pro Analysis**: Full narrative intelligence"
+            echo "- **Analytics CSV/JSON**: All data for modeling"
+            echo ""
+            echo "## 📥 Download Files:"
+            echo "1. Go to Actions tab"
+            echo "2. Click on this workflow run"
+            echo "3. Download 'nfl-analysis-results' artifact"
+            echo ""
+            echo "## 📊 Files Generated:"
+          } >> $GITHUB_STEP_SUMMARY
+
+          FILES=$(ls week${WEEK}_*.txt week${WEEK}_*.csv 2>/dev/null)
+
+          if [ -z "$FILES" ]; then
+            echo "- No files found for week ${WEEK}" >> $GITHUB_STEP_SUMMARY
+          else
+            ls -lh week${WEEK}_*.txt week${WEEK}_*.csv 2>/dev/null | \
+              awk '{print "- " $9 " (" $5 ")"}' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Commit results to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git add week*.csv week*.txt week*.json action_all_markets*.csv rotowire_*.csv sdql_results.csv || true
+          git commit -m "🏈 Week ${{ steps.actual_week.outputs.week }} analysis - $(date +%Y-%m-%d)" || echo "No changes to commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+
+      # -------------------------------------------------------
+      # REQUIRED: PREPARE EMAIL CONTENT (NEW FORMAT)
+      # -------------------------------------------------------
+      - name: Prepare Email Content
+        run: |
+          WEEK="${{ steps.actual_week.outputs.week }}"
+
+          REF_DIGEST=$(cat week${WEEK}_referee_trends.txt)
+          EXEC_SUMMARY=$(cat week${WEEK}_executive_summary.txt)
+          PRO_ANALYSIS=$(cat week${WEEK}_pro_analysis.txt)
+
+          REF_DIGEST_ESCAPED=$(printf '%s\n' "$REF_DIGEST" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+          EXEC_SUMMARY_ESCAPED=$(printf '%s\n' "$EXEC_SUMMARY" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+          PRO_ANALYSIS_ESCAPED=$(printf '%s\n' "$PRO_ANALYSIS" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
+
+          echo "REFEREE_DIGEST<<EOF" >> $GITHUB_ENV
+          echo "$REF_DIGEST_ESCAPED" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "EXEC_SUMMARY<<EOF" >> $GITHUB_ENV
+          echo "$EXEC_SUMMARY_ESCAPED" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "PRO_ANALYSIS<<EOF" >> $GITHUB_ENV
+          echo "$PRO_ANALYSIS_ESCAPED" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      # -------------------------------------------------------
+      # SEND HTML EMAIL (NEW PRO FORMAT)
+      # -------------------------------------------------------
+      - name: Send Email Notification
+        if: success()
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: |
+          python3 << 'PYTHON_EOF'
+          import smtplib
+          from email.mime.multipart import MIMEMultipart
+          from email.mime.text import MIMEText
+          import os
+          
+          week = "${{ steps.actual_week.outputs.week }}"
+          timestamp = "${{ steps.timestamp.outputs.time }}"
+          ref_digest = """${{ env.REFEREE_DIGEST }}"""
+          exec_summary = """${{ env.EXEC_SUMMARY }}"""
+          pro_analysis = """${{ env.PRO_ANALYSIS }}"""
+          
+          html_body = f"""<html>
+          <body style="font-family:Arial, sans-serif; line-height:1.5;">
+          <h1>🏈 NFL Week {week} PRO BETTING ANALYSIS</h1>
+          <p>Analysis completed: <b>{timestamp}</b></p>
+          
+          <div style="background:#e8f4f8; padding:15px; border-left:4px solid #0066cc; margin:20px 0;">
+            <h2 style="margin-top:0;">🔥 NEW: Professional Analysis Engine</h2>
+            <p>This week features our upgraded intelligence system with:</p>
+            <ul>
+              <li><b>Sharp Money Analysis:</b> Spread + Total + Moneyline consensus</li>
+              <li><b>Divergence Detection:</b> Identifies conflicting sharp signals</li>
+              <li><b>Trap Game Alerts:</b> Public vs. sharp money discrepancies</li>
+              <li><b>Multi-Factor Scoring:</b> Ref trends + weather + injuries integrated</li>
+            </ul>
+          </div>
+
+          <h2>⭐ EXECUTIVE SUMMARY (TOP PLAYS)</h2>
+          <pre style="background:#f4f4f4; padding:12px; border-radius:6px; white-space:pre-wrap;">{exec_summary}</pre>
+          
+          <h2>🧑‍⚖️ Referee Trend Digest</h2>
+          <pre style="background:#f4f4f4; padding:12px; border-radius:6px;">{ref_digest}</pre>
+          
+          <h2>📊 FULL PRO ANALYSIS (All Games)</h2>
+          <pre style="white-space:pre-wrap; background:#f4f4f4; padding:12px; border-radius:6px; max-height:600px; overflow-y:auto;">{pro_analysis}</pre>
+          
+          <h3>📥 Download Complete Package</h3>
+          <p><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">Click here to download all CSV/JSON analytics files</a></p>
+          
+          <div style="background:#fff3cd; padding:10px; border-left:4px solid #ffc107; margin:20px 0;">
+            <p><b>💡 Pro Tip:</b> Start with Executive Summary for quick plays, then review Full Pro Analysis for complete context.</p>
+          </div>
+          </body>
+          </html>"""
+          
+          msg = MIMEMultipart('alternative')
+          msg['Subject'] = f"🔥 NFL Week {week} PRO Analysis - Sharp Money Intelligence"
+          msg['From'] = os.getenv('GMAIL_USER')
+          msg['To'] = "lvarughese@gmail.com"
+          
+          html_part = MIMEText(html_body, 'html', 'utf-8')
+          msg.attach(html_part)
+          
+          server = smtplib.SMTP('smtp.gmail.com', 587)
+          server.starttls()
+          server.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
+          server.send_message(msg)
+          server.quit()
+          
+          print("✅ Email sent successfully!")
+          PYTHON_EOF
