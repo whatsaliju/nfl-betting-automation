@@ -53,18 +53,12 @@ jobs:
           print(f"✅ Got {len(df)} games")
           PYTHON_EOF
       
-      - name: Scrape Action Network for Spreads
+      - name: Generate SDQL Queries (using Odds API)
         env:
-          COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: |
-          echo "$COOKIES" > action_network_cookies.json
-          echo "📊 Scraping Action Network for spreads..."
-          python3 action_network_scraper_cookies.py
-      
-      - name: Generate SDQL Queries (using Action Network spreads)
-        run: |
-          echo "🔍 Generating SDQL queries..."
-          python3 query_generator_v2.py ${{ steps.get_week.outputs.week }}
+          echo "🔍 Generating SDQL queries using Odds API..."
+          python3 query_generator.py ${{ steps.get_week.outputs.week }}
       
       - name: Run SDQL Queries
         env:
