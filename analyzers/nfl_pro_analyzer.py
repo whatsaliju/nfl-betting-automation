@@ -505,18 +505,23 @@ def analyze_week(week):
         away_full = TEAM_MAP.get(row.get('away', ''), '')
         home_full = TEAM_MAP.get(row.get('home', ''), '')
         
-        # Sharp Money Analysis
-        sharp_analysis = {}
+        # Sharp Money Analysis - Initialize with defaults first
+        sharp_analysis = {
+            'spread': {'differential': 0, 'score': 0, 'direction': 'NEUTRAL', 'bets_pct': 0, 'money_pct': 0, 'line': '', 'description': 'No data'},
+            'total': {'differential': 0, 'score': 0, 'direction': 'NEUTRAL', 'bets_pct': 0, 'money_pct': 0, 'line': '', 'description': 'No data'},
+            'moneyline': {'differential': 0, 'score': 0, 'direction': 'NEUTRAL', 'bets_pct': 0, 'money_pct': 0, 'line': '', 'description': 'No data'}
+        }
+        
         if not action.empty:
-            for market in ['Spread', 'Total', 'Moneyline']:
+            for market_name in ['Spread', 'Total', 'Moneyline']:
                 market_data = action[
-                    (action['Market'] == market) &
+                    (action['Market'] == market_name) &
                     (action['Matchup'].str.contains(away_full, na=False)) &
                     (action['Matchup'].str.contains(home_full, na=False))
                 ]
-                sharp_analysis[market.lower()] = SharpMoneyAnalyzer.analyze_market(
-                    market_data, market
-                )
+                sharp_analysis[market_name.lower()] = SharpMoneyAnalyzer.analyze_market(
+                    market_data, market_name
+                )      
         
         # Calculate sharp consensus score
         sharp_scores = [v.get('score', 0) for v in sharp_analysis.values()]
