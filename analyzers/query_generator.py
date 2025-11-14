@@ -209,10 +209,21 @@ if __name__ == "__main__":
     ODDS_API_KEY = os.getenv('ODDS_API_KEY', '5f3c8ca6e631e6b59c3a05c291658e22')
     
     import sys
-    week = int(sys.argv[1]) if len(sys.argv) > 1 else 11
+    
+    # Parse arguments: python query_generator.py <referees_csv> <api_key> <output_file>
+    if len(sys.argv) >= 4:
+        referees_csv = sys.argv[1]
+        api_key = sys.argv[2]
+        output_file = sys.argv[3]
+    else:
+        # Fallback for testing
+        week = 11
+        referees_csv = f'data/week{week}/week{week}_referees.csv'
+        api_key = ODDS_API_KEY
+        output_file = f'week{week}_queries.txt'
     
     generate_queries(
-        referees_csv=f'week{week}_referees.csv',
-        api_key=ODDS_API_KEY,
-        output_file=f'week{week}_queries.txt'
+        referees_csv=referees_csv,
+        api_key=api_key,
+        output_file=output_file
     )
