@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime
 import os
 
-def scrape_week_referees(week_number, year=2025):
+def scrape_week_referees(week, year=2025):
     """
     Scrape referee assignments from Football Zebras
     Tries multiple URL formats
@@ -12,12 +12,12 @@ def scrape_week_referees(week_number, year=2025):
     
     # Try different URL patterns (they're inconsistent)
     url_patterns = [
-        f"https://www.footballzebras.com/{year}/11/week-{week_number}-referee-assignments-{year}/",
-        f"https://www.footballzebras.com/{year}/10/week-{week_number}-referee-assignments-{year}/",
-        f"https://www.footballzebras.com/{year}/09/week-{week_number}-referee-assignments-{year}/",
+        f"https://www.footballzebras.com/{year}/11/week-{week}-referee-assignments-{year}/",
+        f"https://www.footballzebras.com/{year}/10/week-{week}-referee-assignments-{year}/",
+        f"https://www.footballzebras.com/{year}/09/week-{week}-referee-assignments-{year}/",
     ]
     
-    print(f"Fetching Week {week_number} referee assignments...")
+    print(f"Fetching Week {week} referee assignments...")
     
     for url in url_patterns:
         try:
@@ -55,7 +55,7 @@ def scrape_week_referees(week_number, year=2025):
                             'matchup': game,
                             'referee': referee,
                             'time': game_time,
-                            'week': week_number
+                            'week': week
                         })
                 
                 if len(games) > 0:
@@ -66,7 +66,7 @@ def scrape_week_referees(week_number, year=2025):
             print(f"❌ Failed: {e}")
             continue
     
-    print(f"❌ Could not find Week {week_number} assignments at any URL")
+    print(f"❌ Could not find Week {week} assignments at any URL")
     return pd.DataFrame()
 
 
@@ -87,9 +87,9 @@ def parse_matchup(matchup):
         return parts[0].strip(), parts[1].strip()
     return None, None
 
-def save_referees(week_number, output_file=None):
+def save_referees(week, output_file=None):
     """Scrape and save referee assignments to CSV"""
-    df = scrape_week_referees(week_number)
+    df = scrape_week_referees(week)
     
     if len(df) == 0:
         print("❌ No data to save")
@@ -102,13 +102,13 @@ def save_referees(week_number, output_file=None):
     
     if output_file is None:
         os.makedirs(f'data/week{week}', exist_ok=True)
-        output_file = f"data/week{week}/week{week}_referees.csv"  # Changed week_number to week, added folder
+        output_file = f"data/week{week}/week{week}_referees.csv"  # Changed to week, added folder
     
     df.to_csv(output_file, index=False)
     print(f"📁 Saved to {output_file}")
     
     print("\n" + "="*60)
-    print(f"WEEK {week_number} REFEREE ASSIGNMENTS")
+    print(f"WEEK {week} REFEREE ASSIGNMENTS")
     print("="*60)
     for _, row in df.iterrows():
         print(f"{row['matchup']:<35} → {row['referee']}")
