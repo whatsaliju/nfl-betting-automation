@@ -56,6 +56,10 @@ jobs:
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "📅 Updating market data for Week $WEEK"
+
+      - name: Create config folder
+        run: mkdir -p config
+
       
       - name: Create Action Network Cookies
         env:
