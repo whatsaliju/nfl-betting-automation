@@ -72,7 +72,7 @@ def scrape_action_injuries(driver):
         print("❌ Error scraping injuries:", e)
 
     df = pd.DataFrame(injuries)
-    output = f"action_injuries_{datetime.now().strftime('%Y-%m-%d_')}.csv"
+    output = f"data/action_injuries_{datetime.now().strftime('%Y-%m-%d_')}.csv"
     df.to_csv(output, index=False)
 
     print(f"✅ Scraped {len(df)} injuries")
@@ -153,7 +153,7 @@ def scrape_action_weather(driver):
         print("❌ Error scraping weather:", e)
 
     df = pd.DataFrame(games)
-    output = f"action_weather_{datetime.now().strftime('%Y-%m-%d_')}.csv"
+    output = f"data/action_weather_{datetime.now().strftime('%Y-%m-%d_')}.csv"
     df.to_csv(output, index=False)
 
     print(f"✅ Scraped {len(df)} weather rows")
