@@ -13,8 +13,9 @@ def generate_referee_digest(week):
         
         # Merge to get game_type and favorite
         data = refs.merge(queries, on=['matchup', 'referee'], how='left')
-        
-        output_file = f"week{week}_referee_trends.txt"
+
+        os.makedirs(f'data/week{week}', exist_ok=True)        
+        output_file = f"data/week{week}/week{week}_referee_trends.txt"
         
         with open(output_file, "w") as f:
             f.write("="*60 + "\n")
