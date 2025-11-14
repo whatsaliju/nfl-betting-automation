@@ -468,7 +468,7 @@ def analyze_week(week):
     
     # Load data
     print("📥 Loading data sources...")
-    queries = safe_load_csv(f"week{week}_referees.csv", required=True)
+    queries = safe_load_csv(f"week{week}_queries.csv", required=True)
     sdql = safe_load_csv("sdql_results.csv")
     
     action_file = find_latest("action_all_markets_")
