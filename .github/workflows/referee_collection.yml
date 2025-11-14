@@ -23,6 +23,14 @@ jobs:
         with:
           python-version: '3.11'
       
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
       - name: Install dependencies
         run: |
           pip install pandas requests beautifulsoup4 selenium lxml
@@ -60,9 +68,8 @@ jobs:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: |
           echo "🔍 Generating SDQL queries using Odds API..."
-          WEEK=${{ steps.get_week.outputs.week }}
-          python3 analyzers/query_generator.py data/week${WEEK}/week${WEEK}_referees.csv $ODDS_API_KEY week${WEEK}_queries.txt
-
+          python3 analyzers/query_generator.py ${{ steps.get_week.outputs.week }}
+      
       - name: Run SDQL Queries
         env:
           GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
