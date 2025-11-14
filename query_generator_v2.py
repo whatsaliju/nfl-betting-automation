@@ -201,14 +201,14 @@ def generate_queries(referees_csv, output_file='week11_queries.txt'):
     print("="*90)
     
     queries_df = pd.DataFrame(queries)
-    csv_file = output_file.replace('.txt', '.csv')
-    week = # (get week from function args)
-    os.makedirs(f'data/week{week}', exist_ok=True)
+        
+    # Extract week number from output_file (e.g., "week11_queries.txt" -> "11")
+    week_num = output_file.split('week')[1].split('_')[0] if 'week' in output_file else '11'
+    os.makedirs(f'data/week{week_num}', exist_ok=True)
     
-    csv_file = output_file.replace('.txt', '.csv')
     # Update paths to include data/week{X}/
-    csv_file = f'data/week{week}/' + csv_file.split('/')[-1]
-    txt_file = f'data/week{week}/' + output_file.split('/')[-1]
+    csv_file = f'data/week{week_num}/' + output_file.replace('.txt', '.csv').split('/')[-1]
+    txt_file = f'data/week{week_num}/' + output_file.split('/')[-1]
     
     queries_df.to_csv(csv_file, index=False)
     with open(txt_file, 'w') as f:
@@ -216,7 +216,7 @@ def generate_queries(referees_csv, output_file='week11_queries.txt'):
             f.write(q['query'] + '\n')
     
     print(f"\n✅ Saved {len(queries)} queries to:")
-    print(f"   - {output_file}")
+    print(f"   - {txt_file}")
     print(f"   - {csv_file}")
     
     return queries_df
