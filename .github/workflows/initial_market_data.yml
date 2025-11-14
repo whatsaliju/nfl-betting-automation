@@ -43,7 +43,7 @@ jobs:
             WEEK=${{ github.event.client_payload.week }}
           else
             # Detect from existing files
-            WEEK=$(ls week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
+            WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "📅 Collecting initial market data for Week $WEEK"
