@@ -1,0 +1,93 @@
+name: 2. Initial Market Data
+
+on:
+  repository_dispatch:
+    types: [referee-data-ready]
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'NFL Week Number'
+        required: true
+        type: number
+
+jobs:
+  collect_initial_market:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: main
+      
+      - name: Pull latest changes
+        run: git pull origin main
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install pandas selenium lxml
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+      
+      - name: Get Week Number
+        id: get_week
+        run: |
+          if [ -n "${{ github.event.inputs.week }}" ]; then
+            WEEK=${{ github.event.inputs.week }}
+          elif [ -n "${{ github.event.client_payload.week }}" ]; then
+            WEEK=${{ github.event.client_payload.week }}
+          else
+            # Detect from existing files
+            WEEK=$(ls week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
+          fi
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "📅 Collecting initial market data for Week $WEEK"
+      
+      - name: Create Action Network Cookies
+        env:
+          COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
+        run: echo "$COOKIES" > action_network_cookies.json
+      
+      - name: Scrape Action Network (All Markets)
+        run: |
+          echo "📊 Scraping Action Network..."
+          python3 action_network_scraper_cookies.py
+      
+      - name: Scrape RotoWire Lineups
+        run: |
+          echo "🏈 Scraping RotoWire lineups & injuries..."
+          python3 rotowire_scraper.py
+      
+      - name: Scrape Action Network Injuries & Weather
+        run: |
+          echo "🩹 Scraping Action Network injuries & weather..."
+          python3 action_network_injuries_weather.py
+      
+      - name: Commit Market Data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add action_all_markets_*.csv \
+                  rotowire_lineups_*.csv \
+                  action_injuries_*.csv \
+                  action_weather_*.csv || true
+          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} initial market data" || echo "No changes"
+          git push
+      
+      - name: Trigger Pro Analysis
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: market-data-ready
+          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "analysis_type": "initial"}'
+      
+      - name: Summary
+        run: |
+          echo "✅ Initial market data collection complete"
+          echo "📁 Market files created:"
+          ls -lh action_all_markets_*.csv rotowire_lineups_*.csv action_injuries_*.csv action_weather_*.csv 2>/dev/null || true
