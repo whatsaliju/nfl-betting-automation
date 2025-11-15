@@ -474,14 +474,39 @@ def analyze_week(week):
     action_file = find_latest("action_all_markets_")
     action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
 
+    # === Detect FINAL games from Action Network ===
+    final_games = set()
+    if not action.empty and "Game Time" in action.columns:
+        final_games = set(
+            action[action["Game Time"].astype(str).str.lower() == "final"]["Matchup"]
+        )
+    
+    def is_final_game(matchup):
+        """Check if a matchup corresponds to a FINAL game"""
+        normalized = matchup.replace("vs", "@").replace("  ", " ").strip()
+        return any(
+            # match Action Network format
+            fg.replace("vs", "@").replace("  ", " ").strip() in normalized
+            or normalized in fg.replace("vs", "@").replace("  ", " ").strip()
+            for fg in final_games
+        )
+    
     # Build kickoff lookup (matchup → kickoff timestamp)
     kickoff_lookup = {}
-    
+
+    # Build kickoff lookup from Action Network timestamps
     if not action.empty:
         for _, row in action.iterrows():
-            matchup = str(row.get("Matchup", "")).strip()
-            kickoff = row.get("Date") or row.get("commence_time") or row.get("start_time") or row.get("EventDateUTC") or row.get("Game Time")
-            kickoff_lookup[matchup] = pd.to_datetime(kickoff, utc=True, errors="coerce")    
+            matchup_key = str(row.get("Matchup", "")).strip()
+            kickoff = (
+                row.get("Date")
+                or row.get("commence_time")
+                or row.get("start_time")
+                or row.get("EventDateUTC")
+                or row.get("Game Time")
+            )
+            kickoff_lookup[matchup_key] = pd.to_datetime(kickoff, utc=True, errors="coerce")
+
     rotowire_file = find_latest("rotowire_lineups_")
     rotowire = safe_load_csv(f"data/{rotowire_file}") if rotowire_file else pd.DataFrame()
     
@@ -505,7 +530,12 @@ def analyze_week(week):
     
     for _, row in final.iterrows():
         matchup = row.get("matchup", "").strip()
-    
+
+        # 💥 First filter: remove games already FINAL (TNF, Saturday, completed games)
+        if is_final_game(matchup):
+            filtered_rows.append(False)
+            continue
+
         # Convert "@"" format to Action format
         temp = matchup.replace("@", "vs").replace("  ", " ")
         parts = [p.strip() for p in temp.split("vs")]
