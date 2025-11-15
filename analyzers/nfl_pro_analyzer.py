@@ -480,16 +480,31 @@ def analyze_week(week):
         final_games = set(
             action[action["Game Time"].astype(str).str.lower() == "final"]["Matchup"]
         )
-    
+
+    def normalize_matchup(s):
+        if not s:
+            return ""
+        s = s.lower()
+        s = s.replace(" at ", " @ ")
+        s = s.replace(" vs ", " @ ")
+        s = s.replace(" vs. ", " @ ")
+        s = s.replace("  ", " ")
+        return s.strip()
+
     def is_final_game(matchup):
         """Check if a matchup corresponds to a FINAL game"""
-        normalized = matchup.replace("vs", "@").replace("  ", " ").strip()
-        return any(
-            # match Action Network format
-            fg.replace("vs", "@").replace("  ", " ").strip() in normalized
-            or normalized in fg.replace("vs", "@").replace("  ", " ").strip()
-            for fg in final_games
-        )
+        norm = normalize_matchup(matchup)
+    
+        for fg in final_games:
+            fg_norm = normalize_matchup(fg)
+            if fg_norm == norm:
+                return True
+            if fg_norm in norm:
+                return True
+            if norm in fg_norm:
+                return True
+    
+        return False
     
     # Build kickoff lookup (matchup → kickoff timestamp)
     kickoff_lookup = {}
