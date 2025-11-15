@@ -8,7 +8,7 @@ on:
       week:
         description: 'NFL Week Number'
         required: true
-        type: number
+        type: string
 
 jobs:
   generate_analysis:
@@ -43,9 +43,11 @@ jobs:
         id: get_week
         run: |
           if [ -n "${{ github.event.inputs.week }}" ]; then
-            WEEK=${{ github.event.inputs.week }}
+            WEEK="${{ github.event.inputs.week }}"
+            WEEK="${WEEK%.*}"
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
-            WEEK=${{ github.event.client_payload.week }}
+            WEEK="${{ github.event.client_payload.week }}"
+            WEEK="${WEEK%.*}"
           else
             # Auto-detect from existing files
             WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
