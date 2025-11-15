@@ -17,7 +17,7 @@ import pandas as pd
 import numpy as np
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import defaultdict
 
 
@@ -473,7 +473,15 @@ def analyze_week(week):
     
     action_file = find_latest("action_all_markets_")
     action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
+
+    # Build kickoff lookup (matchup → kickoff timestamp)
+    kickoff_lookup = {}
     
+    if not action.empty:
+        for _, row in action.iterrows():
+            matchup = str(row.get("Matchup", "")).strip()
+            kickoff = row.get("Date") or row.get("commence_time") or row.get("start_time") or row.get("EventDateUTC") or row.get("Game Time")
+            kickoff_lookup[matchup] = pd.to_datetime(kickoff, utc=True, errors="coerce")    
     rotowire_file = find_latest("rotowire_lineups_")
     rotowire = safe_load_csv(f"data/{rotowire_file}") if rotowire_file else pd.DataFrame()
     
@@ -490,7 +498,56 @@ def analyze_week(week):
     
     # Merge base data
     final = queries.merge(sdql, on='query', how='left') if not sdql.empty else queries
+
+    # 🔥 Filter out games whose kickoff has already passed
+    now = datetime.now(timezone.utc)
+    filtered_rows = []
     
+    for _, row in final.iterrows():
+        matchup = row.get("matchup", "").strip()
+    
+        # Convert "@"" format to Action format
+        temp = matchup.replace("@", "vs").replace("  ", " ")
+        parts = [p.strip() for p in temp.split("vs")]
+    
+        if len(parts) == 2:
+            left, right = parts
+        else:
+            # Fallback: try splitting by space
+            tokens = matchup.replace("@", " ").split()
+            left = tokens[0] if len(tokens) > 0 else ""
+            right = tokens[1] if len(tokens) > 1 else ""
+    
+        # Build possible Action Network matchup keys
+        possible_keys = [
+            f"{left} vs {right}",
+            f"{right} vs {left}",
+            f"{left} {right}",
+            f"{right} {left}",
+            f"{left}",
+            f"{right}"
+        ]
+    
+        kickoff = None
+        for key in possible_keys:
+            if key in kickoff_lookup:
+                kickoff = kickoff_lookup[key]
+                break
+    
+        # If no kickoff found → keep the game
+        if kickoff is None or pd.isna(kickoff):
+            filtered_rows.append(True)
+            continue
+    
+        # If kickoff time is in the past → remove it
+        filtered_rows.append(kickoff > now)
+    
+    before = len(final)
+    final = final[filtered_rows].copy()
+    after = len(final)
+    
+    print(f"🧹 Removed {before - after} already-started games")
+
     # Normalize rotowire
     if not rotowire.empty:
         rotowire['home_std'] = rotowire['home'].map(TEAM_MAP)
