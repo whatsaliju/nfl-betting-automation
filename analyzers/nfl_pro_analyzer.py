@@ -565,12 +565,12 @@ def analyze_week(week):
     
         # Build possible Action Network matchup keys
         possible_keys = [
+            f"{left} @ {right}",
+            f"{right} @ {left}",
             f"{left} vs {right}",
             f"{right} vs {left}",
             f"{left} {right}",
-            f"{right} {left}",
-            f"{left}",
-            f"{right}"
+            f"{right} {left}"
         ]
     
         kickoff = None
