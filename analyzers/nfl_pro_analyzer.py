@@ -895,6 +895,13 @@ class NarrativeEngine:
                 narrative.append(f"  • {factor}")
             narrative.append("")
         
+        # Schedule factors
+        if game_data['schedule_analysis']['factors']:
+            narrative.append("SCHEDULE ANALYSIS:")
+            for factor in game_data['schedule_analysis']['factors']:
+                narrative.append(f"  • {factor}")
+            narrative.append("")
+        
         # Recommendation
         narrative.append("THE VERDICT:")
         narrative.append(f"  Total Score: {game_data['total_score']}/10")
@@ -1133,6 +1140,9 @@ def analyze_week(week):
         }
         game_theory_analysis = GameTheoryAnalyzer.analyze(game_theory_data)
         
+        # Schedule Analysis
+        schedule_analysis = ScheduleAnalyzer.analyze(away_full, home_full, week)
+        
         # Calculate total score
         total_score = (
             sharp_consensus_score +
@@ -1141,7 +1151,8 @@ def analyze_week(week):
             injury_analysis['score'] +
             situational_analysis['score'] +
             statistical_analysis['score'] +
-            game_theory_analysis['score']
+            game_theory_analysis['score'] +
+            schedule_analysis['score']
         )
         
         # Public exposure
@@ -1165,6 +1176,7 @@ def analyze_week(week):
             'situational_analysis': situational_analysis,
             'statistical_analysis': statistical_analysis,
             'game_theory_analysis': game_theory_analysis,
+            'schedule_analysis': schedule_analysis,
             'total_score': total_score,
             'public_exposure': public_exposure,
             'sharp_stories': sharp_stories
@@ -1258,7 +1270,9 @@ def generate_outputs(week, games):
             'statistical_score': game['statistical_analysis']['score'],
             'statistical_edge': game['statistical_analysis']['description'],
             'game_theory_score': game['game_theory_analysis']['score'],
-            'market_dynamics': game['game_theory_analysis']['description']
+            'market_dynamics': game['game_theory_analysis']['description'],
+            'schedule_score': game['schedule_analysis']['score'],
+            'schedule_factors': game['schedule_analysis']['description']
         })
     
     pd.DataFrame(data_rows).to_csv(f"data/week{week}/week{week}_analytics.csv", index=False)
