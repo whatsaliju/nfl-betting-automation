@@ -710,6 +710,7 @@ def analyze_week(week):
             weather_analysis['score'] +
             injury_analysis['score']
         )
+
         
         # Public exposure (from bets %)
         public_exposure = sharp_analysis.get('spread', {}).get('bets_pct', 50)
@@ -720,6 +721,7 @@ def analyze_week(week):
         # Build game analysis
         game_analysis = {
             'matchup': row.get('matchup', f"{away_full} @ {home_full}"),
+            'normalized_matchup': row.get('normalized_matchup'),
             'away': away_full,
             'home': home_full,
             'game_time': row.get('game_time', ''),
@@ -758,12 +760,12 @@ def analyze_week(week):
     
     # Generate outputs
     print(f"\n📝 Generating reports...")
-    generate_outputs(week, games)
+    generate_outputs(week, games, final_games)
     
     print(f"\n✅ Analysis complete!\n")
 
 
-def generate_outputs(week, games):
+def generate_outputs(week, games, final_games):
     """Generate all output files"""
     # --- START CORRECTED FILTERING LOGIC ---
     # Step 1: Define the set of games that must be excluded.
