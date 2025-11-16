@@ -8,7 +8,6 @@ into actionable betting intelligence with narrative analysis.
 Outputs:
 - week{X}_executive_summary.txt (Top plays only)
 - week{X}_pro_analysis.txt (Full narrative breakdowns)
-- week{X}_quick_reference.txt (Bullet points)
 - week{X}_analytics.csv (All data + scores)
 - week{X}_analytics.json (Structured data)
 """
@@ -54,18 +53,41 @@ def safe_load_csv(path, required=False):
 
 
 def find_latest(prefix):
-    # We explicitly search the 'data' subdirectory and return the full path
     directory = 'data'
-    # List files in the 'data' directory
     if os.path.exists(directory):
         matches = [f for f in os.listdir(directory) if f.startswith(prefix)]
         
         if matches:
             latest_filename = sorted(matches)[-1]
-            # Return the full relative path
             return os.path.join(directory, latest_filename)
             
-    return None # Return None if directory doesn't exist or no file is found
+    return None
+
+
+def normalize_matchup(s):
+    """Normalize matchup string for consistent matching"""
+    if not s:
+        return ""
+    s = s.lower().strip()
+
+    # Unify separators
+    s = s.replace(" at ", " @ ")
+    s = s.replace(" vs ", " @ ")
+    s = s.replace(" vs. ", " @ ")
+    s = s.replace("  ", " ")
+    
+    # Split into teams
+    parts = [p.strip() for p in s.split("@")]
+    if len(parts) != 2:
+        return s
+
+    left, right = parts
+
+    # Convert abbreviations to full names
+    left = TEAM_MAP[left.upper()] if left.upper() in TEAM_MAP else left
+    right = TEAM_MAP[right.upper()] if right.upper() in TEAM_MAP else right
+
+    return f"{left.lower()} @ {right.lower()}"
 
 
 # ================================================================
@@ -479,208 +501,97 @@ def analyze_week(week):
     # Load data
     print("📥 Loading data sources...")
     queries = safe_load_csv(f"data/week{week}/week{week}_queries.csv", required=True)
-    # Normalize query matchups
     sdql = safe_load_csv("data/historical/sdql_results.csv")
-    
-    # Standardize query game_time
-    if "game_time" in queries.columns:
-        queries["game_time"] = queries["game_time"].astype(str).str.strip().str.lower()
-
-    
-    
-    
-    # ---------------------------------------------------------------
-    # MATCHUP NORMALIZATION (define BEFORE using it)
-    # ---------------------------------------------------------------
-    def normalize_matchup(s):
-        if not s:
-            return ""
-        s = s.lower().strip()
-    
-        # unify separators
-        s = s.replace(" at ", " @ ")
-        s = s.replace(" vs ", " @ ")
-        s = s.replace(" vs. ", " @ ")
-        s = s.replace("  ", " ")
-        
-        # split into two teams
-        parts = [p.strip() for p in s.split("@")]
-        if len(parts) != 2:
-            return s
-    
-        left, right = parts
-    
-        # convert abbreviations like NE → patriots only if they ARE abbreviations
-        left = TEAM_MAP[left.upper()] if left.upper() in TEAM_MAP else left
-        right = TEAM_MAP[right.upper()] if right.upper() in TEAM_MAP else right
-    
-        # final normalized form
-        return f"{left.lower()} @ {right.lower()}"
-
-    # ---------------------------------------------------------------
-    # LOAD ACTION NETWORK DATA
-    # ---------------------------------------------------------------
-
-    # find_latest now returns the full path (e.g., 'data/action_all_markets_...')
-    action_file_path = find_latest("action_all_markets_") 
-
-    # CORRECT LINE: Pass the full path directly to safe_load_csv
-    action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame()
-
-    print(f"DIAGNOSTIC: Action file loaded: {action_file_path}")
-    print(f"DIAGNOSTIC: Action DF rows: {len(action)}")
-    now = datetime.now(timezone.utc)
-    # Standardize Game Time column casing
-    if "Game Time" in action.columns:
-        action["game_time"] = action["Game Time"]
-    elif "game_time" not in action.columns:
-        action["game_time"] = ""
-
-    # ---------------------------------------------------------------
-    # BUILD KICKOFF LOOKUP (Only for NON-FINAL games)
-    # ---------------------------------------------------------------
-    kickoff_lookup = {}
-    
-    if not action.empty:
-        for _, row in action.iterrows():
-            matchup_key = normalize_matchup(row.get("Matchup", ""))
-
-            kickoff = (
-                row.get("Date")
-                or row.get("commence_time")
-                or row.get("start_time")
-                or row.get("EventDateUTC")
-                or row.get("game_time")
-            )
-            kickoff_lookup[matchup_key] = pd.to_datetime(
-                kickoff, utc=True, errors="coerce"
-            )
-
-    # Debug the Jets @ Patriots game specifically
-    jets_pats_matchup = "jets @ patriots"
-    if jets_pats_matchup in kickoff_lookup:
-        kickoff_time = kickoff_lookup[jets_pats_matchup]
-        print(f"DEBUG: Jets @ Patriots kickoff: {kickoff_time}")
-        print(f"DEBUG: Current time: {now}")
-        print(f"DEBUG: Game started? {kickoff_time <= now}")
-    else:
-        print(f"DEBUG: Jets @ Patriots not found in kickoff_lookup")
-        print(f"DEBUG: Available matchups: {list(kickoff_lookup.keys())}")
-    print(f"DEBUG: Kickoff lookup contents:")
-    for matchup, time in kickoff_lookup.items():
-        print(f"  {matchup}: {time}")
-    # ---------------------------------------------------------------
-    # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
-    # ---------------------------------------------------------------
-    final_games = set()
-    if not action.empty:
-    
-        # Normalize Action matchups
-        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
-
-        # --- DIAGNOSTIC PRINT (ONLY KEEPING NECESSARY ONE) ---
-        # Check raw game_time column before filtering
-        # This will tell us if the raw Action data uses "Final", "FINAL", "Completed", etc.
-        print(f"DIAGNOSTIC: Unique game_time values: {action['game_time'].unique()}")
-        # ------------------------------------
-
-        # Detect FINAL games
-        final_games = set(
-            action[action["game_time"]
-                    .astype(str)
-                    .str.strip() == "Final"]["normalized_matchup"]
-        )
-
-        print(f"🧹 Detected FINAL games: {final_games}")
-
-        # Remove ALL rows (all markets) for FINAL matchups
-        before = len(action)
-        action = action[~action["normalized_matchup"].isin(final_games)].copy()
-        after = len(action)
-        print(f"    → Removed {before - after} FINAL rows from Action data")
-   
-
-
-
-    # Load supplemental data (rest of the code is unchanged here)
-    
-    rotowire_file = find_latest("rotowire_lineups_")
-    rotowire = safe_load_csv(f"data/{rotowire_file}") if rotowire_file else pd.DataFrame()
-    
-    # Load Action Network supplemental data
-    an_injuries_file = find_latest("action_injuries_")
-    an_injuries = safe_load_csv(f"data/{an_injuries_file}") if an_injuries_file else pd.DataFrame()
-    
-    an_weather_file = find_latest("action_weather_")
-    an_weather = safe_load_csv(f"data/{an_weather_file}") if an_weather_file else pd.DataFrame()
     
     if queries.empty:
         print("❌ No games found")
         return
     
+    # Load Action Network data
+    action_file_path = find_latest("action_all_markets_") 
+    action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame()
+
+    # Set up time tracking
+    now = datetime.now(timezone.utc)
+    
+    # Standardize game time column
+    if not action.empty and "Game Time" in action.columns:
+        action["game_time"] = action["Game Time"]
+    
+    # Detect and remove completed games
+    final_games = set()
+    if not action.empty:
+        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
+        
+        # Find games marked as "Final"
+        final_games = set(
+            action[action["game_time"].astype(str).str.strip() == "Final"]["normalized_matchup"]
+        )
+        
+        if final_games:
+            print(f"🧹 Detected {len(final_games)} completed games")
+            # Remove completed games from Action data
+            action = action[~action["normalized_matchup"].isin(final_games)].copy()
+    
+    # Build kickoff time lookup for time-based filtering
+    kickoff_lookup = {}
+    if not action.empty:
+        for _, row in action.iterrows():
+            matchup_key = normalize_matchup(row.get("Matchup", ""))
+            kickoff = (
+                row.get("Date") or row.get("commence_time") or 
+                row.get("start_time") or row.get("EventDateUTC") or 
+                row.get("game_time")
+            )
+            kickoff_lookup[matchup_key] = pd.to_datetime(kickoff, utc=True, errors="coerce")
+
+    # Load supplemental data
+    rotowire_file = find_latest("rotowire_lineups_")
+    rotowire = safe_load_csv(f"data/{rotowire_file}") if rotowire_file else pd.DataFrame()
+    
     # Merge base data
     final = queries.merge(sdql, on='query', how='left') if not sdql.empty else queries
-    
-    # Ensure normalized_matchup exists AFTER merge
     final["normalized_matchup"] = final["matchup"].apply(normalize_matchup)
     
-    # ---------------------------------------------------------------
-    # 🔥 CORE FILTER 1: REMOVE GAMES MARKED AS 'FINAL'
-    # ---------------------------------------------------------------
-    # Remove final games based on normalized matchups (from action data)
-    before_final_filter = len(final)
-    jets_matchup = final[final["normalized_matchup"].str.contains("jets", case=False, na=False)]["normalized_matchup"].iloc[0] if len(final[final["normalized_matchup"].str.contains("jets", case=False, na=False)]) > 0 else "NOT_FOUND"
-    print(f"DEBUG: Jets matchup in final: '{jets_matchup}'")
-    print(f"DEBUG: Jets matchup in final_games: {'jets @ patriots' in final_games}")
+    # Filter out completed games
+    before_filter = len(final)
     final = final[~final["normalized_matchup"].isin(final_games)].copy()
-    after_final_filter = len(final)
-    print(f"🧹 Removed {before_final_filter - after_final_filter} FINAL games from analysis list.")
-
-    print(f"DEBUG: final_games set contains: {final_games}")
-    print(f"DEBUG: Checking if 'jets @ patriots' in final_games: {'jets @ patriots' in final_games}")
-    print(f"DEBUG: Games in final DataFrame:")
-    for idx, row in final.iterrows():
-        print(f"  {row.get('normalized_matchup', 'NO_MATCHUP')}")
-    # ---------------------------------------------------------------
-    # 🔥 CORE FILTER 2: REMOVE GAMES WHOSE KICKOFF HAS PASSED
-    # ---------------------------------------------------------------
+    completed_removed = before_filter - len(final)
     
-    filtered_rows = []
-    
-    for _, row in final.iterrows():
-        matchup_norm = row.get("normalized_matchup", "")
+    # Filter out games that have already started
+    if kickoff_lookup:
+        time_filtered = []
+        for _, row in final.iterrows():
+            kickoff = kickoff_lookup.get(row.get("normalized_matchup", ""))
+            # Keep games with no kickoff time (safer) or future kickoff times
+            if kickoff is None or pd.isna(kickoff) or kickoff > now:
+                time_filtered.append(True)
+            else:
+                time_filtered.append(False)
         
-        # Get kickoff from the lookup built earlier
-        kickoff = kickoff_lookup.get(matchup_norm)
-        
-        # If no kickoff found OR kickoff is invalid → remove it (False) 
-        if kickoff is None or pd.isna(kickoff):
-            filtered_rows.append(True)  
-        else:
-            filtered_rows.append(kickoff > now)
+        before_time = len(final)
+        final = final[time_filtered].copy()
+        started_removed = before_time - len(final)
+    else:
+        started_removed = 0
     
-    before_started = len(final)
-    final = final[filtered_rows].copy()
-    after_started = len(final)
-    
-    print(f"🧹 Removed {before_started - after_started} already-started games (time check).")
+    if completed_removed or started_removed:
+        print(f"🧹 Filtered out {completed_removed} completed + {started_removed} started games")
 
-    # Normalize rotowire
+    # Prepare rotowire data
     if not rotowire.empty:
         rotowire['home_std'] = rotowire['home'].map(TEAM_MAP)
         rotowire['away_std'] = rotowire['away'].map(TEAM_MAP)
         
-    
     # Process each game
     games = []
-    
     print(f"\n🔬 Analyzing {len(final)} games...\n")
     
     for idx, row in final.iterrows():
         away_full = TEAM_MAP.get(row.get('away', ''), '')
         home_full = TEAM_MAP.get(row.get('home', ''), '')
         
-        # Sharp Money Analysis - Initialize with defaults first
+        # Sharp Money Analysis
         sharp_analysis = {
             'spread': {'differential': 0, 'score': 0, 'direction': 'NEUTRAL', 'bets_pct': 0, 'money_pct': 0, 'line': '', 'description': 'No data'},
             'total': {'differential': 0, 'score': 0, 'direction': 'NEUTRAL', 'bets_pct': 0, 'money_pct': 0, 'line': '', 'description': 'No data'},
@@ -690,10 +601,9 @@ def analyze_week(week):
         if not action.empty:
             for market_name in ['Spread', 'Total', 'Moneyline']:
                 market_data = action[
-                    action["normalized_matchup"] == row["normalized_matchup"]
+                    (action["normalized_matchup"] == row["normalized_matchup"]) &
+                    (action["Market"] == market_name)
                 ]
-                market_data = market_data[market_data["Market"] == market_name]
-
                 sharp_analysis[market_name.lower()] = SharpMoneyAnalyzer.analyze_market(
                     market_data, market_name
                 )      
@@ -705,7 +615,7 @@ def analyze_week(week):
         # Referee Analysis
         ref_analysis = RefereeAnalyzer.analyze(row)
         
-        # Weather Analysis
+        # Weather and Injury Analysis
         weather_data = ""
         injury_data = ""
         if not rotowire.empty:
@@ -727,9 +637,8 @@ def analyze_week(week):
             weather_analysis['score'] +
             injury_analysis['score']
         )
-
         
-        # Public exposure (from bets %)
+        # Public exposure
         public_exposure = sharp_analysis.get('spread', {}).get('bets_pct', 50)
         
         # Generate narratives
@@ -761,7 +670,6 @@ def analyze_week(week):
         game_analysis['confidence'] = confidence
         
         games.append(game_analysis)
-        print(f"  ✓ ADDED TO GAMES LIST: {game_analysis['matchup']}")
         print(f"  ✓ {game_analysis['matchup']}: {classification}")
     
     # Sort games by tier
@@ -777,26 +685,21 @@ def analyze_week(week):
     
     # Generate outputs
     print(f"\n📝 Generating reports...")
-    generate_outputs(week, games, final_games)
+    generate_outputs(week, games)
     
     print(f"\n✅ Analysis complete!\n")
 
 
-def generate_outputs(week, games, final_games):
+def generate_outputs(week, games):
     """Generate all output files"""
     
-    # NUCLEAR FILTER: Remove any game with "Jets" in the name
-    games = [game for game in games if "jets" not in game.get('matchup', '').lower()]
-    print(f"🔥 NUCLEAR FILTER: After removing Jets games, {len(games)} games remain")
+    # Create week directory
+    os.makedirs(f"data/week{week}", exist_ok=True)
     
-    # --- START CORRECTED FILTERING LOGIC ---
-    # Step 1: Define the set of games that must be excluded.
-    # (Using 'final_games' which must be accessible in this scope)
-    games_to_exclude = final_games 
     print(f"📝 Generating reports for {len(games)} games...")
     
     # Executive Summary
-    with open(f"week{week}_executive_summary.txt", "w") as f:
+    with open(f"data/week{week}/week{week}_executive_summary.txt", "w") as f:
         f.write(f"NFL WEEK {week} - EXECUTIVE SUMMARY\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S ET')}\n")
         f.write("="*70 + "\n\n")
@@ -818,7 +721,7 @@ def generate_outputs(week, games, final_games):
                     f.write("\n")
     
     # Full Analysis
-    with open(f"week{week}_pro_analysis.txt", "w") as f:
+    with open(f"data/week{week}/week{week}_pro_analysis.txt", "w") as f:
         f.write(f"NFL WEEK {week} - PROFESSIONAL ANALYSIS\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S ET')}\n")
         f.write("="*70 + "\n\n")
@@ -843,10 +746,10 @@ def generate_outputs(week, games, final_games):
             'injury_score': game['injury_analysis']['score']
         })
     
-    pd.DataFrame(data_rows).to_csv(f"week{week}_analytics.csv", index=False)
+    pd.DataFrame(data_rows).to_csv(f"data/week{week}/week{week}_analytics.csv", index=False)
     
     # JSON export
-    with open(f"week{week}_analytics.json", "w") as f:
+    with open(f"data/week{week}/week{week}_analytics.json", "w") as f:
         json.dump(games, f, indent=2, default=str)
     
     print(f"  ✓ week{week}_executive_summary.txt")
