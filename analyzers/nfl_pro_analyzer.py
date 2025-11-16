@@ -581,8 +581,13 @@ def analyze_week(week):
     
     # Merge base data
     final = queries.merge(sdql, on='query', how='left') if not sdql.empty else queries
-    # REMOVE FINAL GAMES FROM final TOO
+    
+    # Ensure normalized_matchup exists AFTER merge
+    final["normalized_matchup"] = final["matchup"].apply(normalize_matchup)
+    
+    # Remove FINAL games
     final = final[~final["normalized_matchup"].isin(final_games)].copy()
+
 
     # 🔥 Filter out games whose kickoff has already passed
     now = datetime.now(timezone.utc)
