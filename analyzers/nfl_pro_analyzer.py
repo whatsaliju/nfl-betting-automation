@@ -479,10 +479,10 @@ def analyze_week(week):
     def normalize_matchup(s):
         if not s:
             return ""
-        s = s.lower()
-        s = s.replace(" at ", " @ ")
-        s = s.replace(" vs ", " @ ")
-        s = s.replace(" vs. ", " @ ")
+        s = s.upper()
+        s = s.replace(" AT ", " @ ")
+        s = s.replace(" VS ", " @ ")
+        s = s.replace(" VS. ", " @ ")
         s = s.replace("  ", " ")
         # expand team abbreviations (NYJ -> jets)
         parts = s.split(" @ ")
@@ -577,6 +577,8 @@ def analyze_week(week):
     
     # Merge base data
     final = queries.merge(sdql, on='query', how='left') if not sdql.empty else queries
+    # REMOVE FINAL GAMES FROM final TOO
+    final = final[~final["normalized_matchup"].isin(final_games)].copy()
 
     # 🔥 Filter out games whose kickoff has already passed
     now = datetime.now(timezone.utc)
