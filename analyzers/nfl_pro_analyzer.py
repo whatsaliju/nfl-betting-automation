@@ -568,7 +568,7 @@ def analyze_week(week):
         print(f"DEBUG: Available matchups: {list(kickoff_lookup.keys())}")
     print(f"DEBUG: Kickoff lookup contents:")
     for matchup, time in kickoff_lookup.items():
-    print(f"  {matchup}: {time}")
+        print(f"  {matchup}: {time}")
     # ---------------------------------------------------------------
     # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
     # ---------------------------------------------------------------
