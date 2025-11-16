@@ -469,19 +469,15 @@ def analyze_week(week):
     # Load data
     print("📥 Loading data sources...")
     queries = safe_load_csv(f"data/week{week}/week{week}_queries.csv", required=True)
-     # Normalize query matchups
+    # Normalize query matchups
     sdql = safe_load_csv("data/historical/sdql_results.csv")
     
-        # Standardize query game_time
+    # Standardize query game_time
     if "game_time" in queries.columns:
         queries["game_time"] = queries["game_time"].astype(str).str.strip().str.lower()
 
-   
     
- 
-
-
-
+    
     
     # ---------------------------------------------------------------
     # MATCHUP NORMALIZATION (define BEFORE using it)
@@ -495,7 +491,7 @@ def analyze_week(week):
         s = s.replace(" at ", " @ ")
         s = s.replace(" vs ", " @ ")
         s = s.replace(" vs. ", " @ ")
-        s = s.replace("  ", " ")
+        s = s.replace("  ", " ")
     
         # split into two teams
         parts = [p.strip() for p in s.split("@")]
@@ -537,9 +533,9 @@ def analyze_week(week):
         # Detect FINAL games
         final_games = set(
             action[action["game_time"]
-                   .astype(str)
-                   .str.strip()
-                   .str.lower() == "final"]["normalized_matchup"]
+                    .astype(str)
+                    .str.strip()
+                    .str.lower() == "final"]["normalized_matchup"]
         )
     
         print(f"🧹 Detected FINAL games: {final_games}")
@@ -548,13 +544,8 @@ def analyze_week(week):
         before = len(action)
         action = action[~action["normalized_matchup"].isin(final_games)].copy()
         after = len(action)
-        print(f"   → Removed {before - after} FINAL rows")
+        print(f"    → Removed {before - after} FINAL rows from Action data")
 
-    # ---------------------------------------------------------------
-    # FINAL GAME CHECK
-    # ---------------------------------------------------------------
-    def is_final_game(matchup):
-        return normalize_matchup(matchup) in final_games
     # ---------------------------------------------------------------
     # BUILD KICKOFF LOOKUP (Only for NON-FINAL games)
     # ---------------------------------------------------------------
@@ -576,16 +567,7 @@ def analyze_week(week):
             )
 
 
-
-    
-
-
-
-
-
-
-
-
+    # Load supplemental data (rest of the code is unchanged here)
     
     rotowire_file = find_latest("rotowire_lineups_")
     rotowire = safe_load_csv(f"data/{rotowire_file}") if rotowire_file else pd.DataFrame()
@@ -607,49 +589,48 @@ def analyze_week(week):
     # Ensure normalized_matchup exists AFTER merge
     final["normalized_matchup"] = final["matchup"].apply(normalize_matchup)
     
-    # Remove FINAL games (after normalizing queries too)
-    final["normalized_matchup"] = final["matchup"].apply(normalize_matchup)
-    
-    # Remove final games based on normalized matchups
+    # ---------------------------------------------------------------
+    # 🔥 CORE FILTER 1: REMOVE GAMES MARKED AS 'FINAL'
+    # ---------------------------------------------------------------
+    # Remove final games based on normalized matchups (from action data)
+    before_final_filter = len(final)
     final = final[~final["normalized_matchup"].isin(final_games)].copy()
+    after_final_filter = len(final)
+    print(f"🧹 Removed {before_final_filter - after_final_filter} FINAL games from analysis list.")
 
 
-    # 🔥 Filter out games whose kickoff has already passed
+    # ---------------------------------------------------------------
+    # 🔥 CORE FILTER 2: REMOVE GAMES WHOSE KICKOFF HAS PASSED
+    # ---------------------------------------------------------------
     now = datetime.now(timezone.utc)
     filtered_rows = []
     
     for _, row in final.iterrows():
-        matchup_norm = row.get("normalized_matchup", "").strip()
-
-        # 💥 First filter: remove games already FINAL (TNF, Saturday, completed games)
-        if is_final_game(matchup_norm):
-            filtered_rows.append(False)
-            continue
-
         matchup_norm = row.get("normalized_matchup", "")
         
+        # Get kickoff from the lookup built earlier
         kickoff = kickoff_lookup.get(matchup_norm)
 
-
-    
-        # If no kickoff found → keep the game
+        # If no kickoff found OR kickoff is invalid → keep the game (assume not started)
         if kickoff is None or pd.isna(kickoff):
             filtered_rows.append(True)
             continue
-    
-        # If kickoff time is in the past → remove it
+        
+        # If kickoff time is in the past → remove it (False)
+        # If kickoff time is in the future → keep it (True)
         filtered_rows.append(kickoff > now)
     
-    before = len(final)
+    before_started = len(final)
     final = final[filtered_rows].copy()
-    after = len(final)
+    after_started = len(final)
     
-    print(f"🧹 Removed {before - after} already-started games")
+    print(f"🧹 Removed {before_started - after_started} already-started games (time check).")
 
     # Normalize rotowire
     if not rotowire.empty:
         rotowire['home_std'] = rotowire['home'].map(TEAM_MAP)
         rotowire['away_std'] = rotowire['away'].map(TEAM_MAP)
+        
     
     # Process each game
     games = []
