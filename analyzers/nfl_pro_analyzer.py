@@ -499,10 +499,11 @@ def analyze_week(week):
     
         # unify separators
         s = s.replace(" at ", " @ ")
+        s = s.replace ("at", "@"
         s = s.replace(" vs ", " @ ")
         s = s.replace(" vs. ", " @ ")
         s = s.replace("  ", " ")
-    
+        
         # split into two teams
         parts = [p.strip() for p in s.split("@")]
         if len(parts) != 2:
