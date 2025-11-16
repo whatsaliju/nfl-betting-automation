@@ -470,7 +470,6 @@ def analyze_week(week):
     print("📥 Loading data sources...")
     queries = safe_load_csv(f"data/week{week}/week{week}_queries.csv", required=True)
     # Normalize query matchups
-    
     sdql = safe_load_csv("data/historical/sdql_results.csv")
     
     # ---------------------------------------------------------------
@@ -515,21 +514,23 @@ def analyze_week(week):
         # final normalized form
         return f"{left.lower()} @ {right.lower()}"
 
-    
     # ---------------------------------------------------------------
     # LOAD ACTION NETWORK DATA
     # ---------------------------------------------------------------
     action_file = find_latest("action_all_markets_")
     action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
-    
-    # Ensure final_games always exists
-    final_games = set()
 
+    # ---------------------------------------------------------------
+    # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
+    # ---------------------------------------------------------------
+    final_games = set()
+    
     if not action.empty:
-        # Normalize Action matchups FIRST
+    
+        # Normalize Action matchups
         action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
     
-        # Identify FINAL games using the real Game Time string
+        # Detect FINAL games
         final_games = set(
             action[action["Game Time"]
                    .astype(str)
@@ -537,16 +538,15 @@ def analyze_week(week):
                    .str.lower() == "final"]["normalized_matchup"]
         )
     
-        print(f"🧹 Found {len(final_games)} FINAL games")
+        print(f"🧹 Detected FINAL games: {final_games}")
     
-        # Remove FINAL rows from Action feed
+        # Remove ALL rows (all markets) for FINAL matchups
         before = len(action)
-        action = action[action["Game Time"]
-                        .astype(str)
-                        .str.strip()
-                        .str.lower() != "final"]
+        action = action[~action["normalized_matchup"].isin(final_games)].copy()
         after = len(action)
         print(f"   → Removed {before - after} FINAL rows")
+
+   
     
     
     # ---------------------------------------------------------------
