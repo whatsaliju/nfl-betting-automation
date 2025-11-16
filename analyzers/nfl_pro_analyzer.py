@@ -557,7 +557,16 @@ def analyze_week(week):
                 kickoff, utc=True, errors="coerce"
             )
 
-
+    # Debug the Jets @ Patriots game specifically
+    jets_pats_matchup = "jets @ patriots"
+    if jets_pats_matchup in kickoff_lookup:
+        kickoff_time = kickoff_lookup[jets_pats_matchup]
+        print(f"DEBUG: Jets @ Patriots kickoff: {kickoff_time}")
+        print(f"DEBUG: Current time: {now}")
+        print(f"DEBUG: Game started? {kickoff_time <= now}")
+    else:
+        print(f"DEBUG: Jets @ Patriots not found in kickoff_lookup")
+        print(f"DEBUG: Available matchups: {list(kickoff_lookup.keys())}")
     
     # ---------------------------------------------------------------
     # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
