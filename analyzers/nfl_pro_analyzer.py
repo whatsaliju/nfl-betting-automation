@@ -54,8 +54,18 @@ def safe_load_csv(path, required=False):
 
 
 def find_latest(prefix):
-    matches = [f for f in os.listdir('.') if f.startswith(prefix)]
-    return sorted(matches)[-1] if matches else None
+    # We explicitly search the 'data' subdirectory and return the full path
+    directory = 'data'
+    # List files in the 'data' directory
+    if os.path.exists(directory):
+        matches = [f for f in os.listdir(directory) if f.startswith(prefix)]
+        
+        if matches:
+            latest_filename = sorted(matches)[-1]
+            # Return the full relative path
+            return os.path.join(directory, latest_filename)
+            
+    return None # Return None if directory doesn't exist or no file is found
 
 
 # ================================================================
@@ -510,44 +520,53 @@ def analyze_week(week):
     # ---------------------------------------------------------------
     # LOAD ACTION NETWORK DATA
     # ---------------------------------------------------------------
-    action_file = find_latest("action_all_markets_")
-    action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
-
-    print(f"DIAGNOSTIC: Action file loaded: {action_file}") # <-- ADD THIS
-    print(f"DIAGNOSTIC: Action DF rows: {len(action)}") # <-- ADD THIS
     
-    # Standardize Game Time column casing
-    if "Game Time" in action.columns:
-        action["game_time"] = action["Game Time"]
-    elif "game_time" not in action.columns:
-        action["game_time"] = ""
+    # find_latest now returns the full path (e.g., 'data/action_all_markets_...')
+    action_file_path = find_latest("action_all_markets_") 
+    
+    # CORRECT LINE: Pass the full path directly to safe_load_csv
+    action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame() 
 
-    
+    print(f"DIAGNOSTIC: Action file loaded: {action_file_path}")
+    print(f"DIAGNOSTIC: Action DF rows: {len(action)}")
+    
+    # Standardize Game Time column casing
+    if "Game Time" in action.columns:
+        action["game_time"] = action["Game Time"]
+    elif "game_time" not in action.columns:
+        action["game_time"] = ""
+
     # ---------------------------------------------------------------
-    # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
-    # ---------------------------------------------------------------
-    final_games = set()
+    # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
+    # ---------------------------------------------------------------
+    final_games = set()
     
     if not action.empty:
-    
-        # Normalize Action matchups
-        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
+    
+        # Normalize Action matchups
+        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
 
-        # --- DIAGNOSTIC PRINT (ADD THIS) ---
-        thursday_matchup = "jets @ patriots" # Adjust this to the correct normalized format for the game that is sticking around
-        # Check raw game_time column before filtering
-        print(f"DIAGNOSTIC: Unique game_time values: {action['game_time'].unique()}") # <-- ADD THIS
-        
-        if thursday_matchup in final_games:
-            print(f"✅ CONFIRM: '{thursday_matchup}' is in final_games set.")
-        else:
-            print(f"❌ ERROR: '{thursday_matchup}' is NOT in final_games set.")
-        
-        # Now, find what the 'final' DataFrame *thinks* the matchup is:
-        game_row = final[final["matchup"].str.contains("jet", case=False, na=False)] 
-        if not game_row.empty:
-            print(f"Queries DF normalized matchup for Thursday game: {game_row['normalized_matchup'].iloc[0]}")
-            print(f"Final Games Set: {final_games}")
+        # --- DIAGNOSTIC PRINT (ONLY KEEPING NECESSARY ONE) ---
+        # Check raw game_time column before filtering
+        # This will tell us if the raw Action data uses "Final", "FINAL", "Completed", etc.
+        print(f"DIAGNOSTIC: Unique game_time values: {action['game_time'].unique()}")
+        # ------------------------------------
+        
+        # Detect FINAL games
+        final_games = set(
+            action[action["game_time"]
+                    .astype(str)
+                    .str.strip()
+                    .str.lower() == "final"]["normalized_matchup"]
+        )
+    
+        print(f"🧹 Detected FINAL games: {final_games}")
+    
+        # Remove ALL rows (all markets) for FINAL matchups
+        before = len(action)
+        action = action[~action["normalized_matchup"].isin(final_games)].copy()
+        after = len(action)
+        print(f"    → Removed {before - after} FINAL rows from Action data")
         # ------------------------------------
             
         # Detect FINAL games
