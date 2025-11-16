@@ -472,16 +472,7 @@ def analyze_week(week):
     # Normalize query matchups
     sdql = safe_load_csv("data/historical/sdql_results.csv")
     
-    # ---------------------------------------------------------------
-    # REMOVE FINAL GAMES FROM QUERIES BASED ON GAME_TIME COLUMN
-    # ---------------------------------------------------------------
-    if "game_time" in queries.columns:
-        before_q = len(queries)
-        queries = queries[
-            queries["game_time"].astype(str).str.strip().str.lower() != "final"
-        ].copy()
-        after_q = len(queries)
-        print(f"🧹 Removed {before_q - after_q} FINAL games from queries")
+ 
 
 
 
@@ -520,6 +511,13 @@ def analyze_week(week):
     action_file = find_latest("action_all_markets_")
     action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
 
+    # Standardize Game Time column casing
+    if "Game Time" in action.columns:
+        action["game_time"] = action["Game Time"]
+    elif "game_time" not in action.columns:
+        action["game_time"] = ""
+
+    
     # ---------------------------------------------------------------
     # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
     # ---------------------------------------------------------------
@@ -532,7 +530,7 @@ def analyze_week(week):
     
         # Detect FINAL games
         final_games = set(
-            action[action["Game Time"]
+            action[action["game_time"]
                    .astype(str)
                    .str.strip()
                    .str.lower() == "final"]["normalized_matchup"]
@@ -546,16 +544,11 @@ def analyze_week(week):
         after = len(action)
         print(f"   → Removed {before - after} FINAL rows")
 
-   
-    
-    
     # ---------------------------------------------------------------
-    # FINAL GAME CHECK (queries)
+    # FINAL GAME CHECK
     # ---------------------------------------------------------------
     def is_final_game(matchup):
         return normalize_matchup(matchup) in final_games
-
-    
     # ---------------------------------------------------------------
     # BUILD KICKOFF LOOKUP (Only for NON-FINAL games)
     # ---------------------------------------------------------------
@@ -570,7 +563,7 @@ def analyze_week(week):
                 or row.get("commence_time")
                 or row.get("start_time")
                 or row.get("EventDateUTC")
-                or row.get("Game Time")
+                or row.get("game_time")
             )
             kickoff_lookup[matchup_key] = pd.to_datetime(
                 kickoff, utc=True, errors="coerce"
@@ -608,8 +601,10 @@ def analyze_week(week):
     # Ensure normalized_matchup exists AFTER merge
     final["normalized_matchup"] = final["matchup"].apply(normalize_matchup)
     
-    # Remove FINAL games
+    # Remove FINAL games (after normalizing queries too)
+    final["normalized_matchup"] = final["matchup"].apply(normalize_matchup)
     final = final[~final["normalized_matchup"].isin(final_games)].copy()
+
 
 
     # 🔥 Filter out games whose kickoff has already passed
