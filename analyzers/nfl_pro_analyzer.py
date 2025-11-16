@@ -515,7 +515,7 @@ def analyze_week(week):
     if not action.empty:
         print("🧹 Removing FINAL games from Action Network feed...")
         before = len(action)
-        action = action[action["Game Time"].astype(str).str.lower() != "final"]
+        action = action[~action["Game Time"].astype(str).str.lower().str.strip().eq("final")]
         after = len(action)
         print(f"   → Removed {before - after} FINAL games")
     
