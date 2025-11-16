@@ -784,6 +784,11 @@ def analyze_week(week):
 
 def generate_outputs(week, games, final_games):
     """Generate all output files"""
+    
+    # NUCLEAR FILTER: Remove any game with "Jets" in the name
+    games = [game for game in games if "jets" not in game.get('matchup', '').lower()]
+    print(f"🔥 NUCLEAR FILTER: After removing Jets games, {len(games)} games remain")
+    
     # --- START CORRECTED FILTERING LOGIC ---
     # Step 1: Define the set of games that must be excluded.
     # (Using 'final_games' which must be accessible in this scope)
