@@ -529,7 +529,7 @@ def analyze_week(week):
 
     print(f"DIAGNOSTIC: Action file loaded: {action_file_path}")
     print(f"DIAGNOSTIC: Action DF rows: {len(action)}")
-
+    now = datetime.now(timezone.utc)
     # Standardize Game Time column casing
     if "Game Time" in action.columns:
         action["game_time"] = action["Game Time"]
@@ -635,7 +635,7 @@ def analyze_week(week):
     # ---------------------------------------------------------------
     # 🔥 CORE FILTER 2: REMOVE GAMES WHOSE KICKOFF HAS PASSED
     # ---------------------------------------------------------------
-    now = datetime.now(timezone.utc)
+    
     filtered_rows = []
     
     for _, row in final.iterrows():
