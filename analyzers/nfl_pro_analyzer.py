@@ -538,6 +538,28 @@ def analyze_week(week):
         action["game_time"] = ""
 
     # ---------------------------------------------------------------
+    # BUILD KICKOFF LOOKUP (Only for NON-FINAL games)
+    # ---------------------------------------------------------------
+    kickoff_lookup = {}
+    
+    if not action.empty:
+        for _, row in action.iterrows():
+            matchup_key = normalize_matchup(row.get("Matchup", ""))
+
+            kickoff = (
+                row.get("Date")
+                or row.get("commence_time")
+                or row.get("start_time")
+                or row.get("EventDateUTC")
+                or row.get("game_time")
+            )
+            kickoff_lookup[matchup_key] = pd.to_datetime(
+                kickoff, utc=True, errors="coerce"
+            )
+
+
+    
+    # ---------------------------------------------------------------
     # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
     # ---------------------------------------------------------------
     final_games = set()
@@ -569,25 +591,6 @@ def analyze_week(week):
         print(f"    → Removed {before - after} FINAL rows from Action data")
    
 
-    # ---------------------------------------------------------------
-    # BUILD KICKOFF LOOKUP (Only for NON-FINAL games)
-    # ---------------------------------------------------------------
-    kickoff_lookup = {}
-    
-    if not action.empty:
-        for _, row in action.iterrows():
-            matchup_key = normalize_matchup(row.get("Matchup", ""))
-
-            kickoff = (
-                row.get("Date")
-                or row.get("commence_time")
-                or row.get("start_time")
-                or row.get("EventDateUTC")
-                or row.get("game_time")
-            )
-            kickoff_lookup[matchup_key] = pd.to_datetime(
-                kickoff, utc=True, errors="coerce"
-            )
 
 
     # Load supplemental data (rest of the code is unchanged here)
