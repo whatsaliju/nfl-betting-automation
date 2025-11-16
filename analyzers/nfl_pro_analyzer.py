@@ -499,7 +499,6 @@ def analyze_week(week):
     
         # unify separators
         s = s.replace(" at ", " @ ")
-        s = s.replace("at", "@")
         s = s.replace(" vs ", " @ ")
         s = s.replace(" vs. ", " @ ")
         s = s.replace("  ", " ")
@@ -587,8 +586,7 @@ def analyze_week(week):
         final_games = set(
             action[action["game_time"]
                     .astype(str)
-                    .str.strip()
-                    .str.lower() == "final"]["normalized_matchup"]
+                    .str.strip() == "Final"]["normalized_matchup"]
         )
 
         print(f"🧹 Detected FINAL games: {final_games}")
