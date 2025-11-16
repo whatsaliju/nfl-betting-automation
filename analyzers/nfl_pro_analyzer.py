@@ -526,9 +526,9 @@ def analyze_week(week):
 
     # CORRECT LINE: Pass the full path directly to safe_load_csv
     action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame()
-
-    print(f"DIAGNOSTIC: Action file loaded: {action_file_path}")
-    print(f"DIAGNOSTIC: Action DF rows: {len(action)}")
+    
+    print(f"DIAGNOSTIC: Action file loaded: {action_file_path}")
+    print(f"DIAGNOSTIC: Action DF rows: {len(action)}")
     
     # Standardize Game Time column casing
     if "Game Time" in action.columns:
