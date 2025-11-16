@@ -529,7 +529,22 @@ def analyze_week(week):
     
         # Normalize Action matchups
         action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
-    
+
+        # --- DIAGNOSTIC PRINT (ADD THIS) ---
+        thursday_matchup = "jets @ patriots" # Adjust this to the correct normalized format for the game that is sticking around
+        
+        if thursday_matchup in final_games:
+            print(f"✅ CONFIRM: '{thursday_matchup}' is in final_games set.")
+        else:
+            print(f"❌ ERROR: '{thursday_matchup}' is NOT in final_games set.")
+        
+        # Now, find what the 'final' DataFrame *thinks* the matchup is:
+        game_row = final[final["matchup"].str.contains("jet", case=False, na=False)] 
+        if not game_row.empty:
+            print(f"Queries DF normalized matchup for Thursday game: {game_row['normalized_matchup'].iloc[0]}")
+            print(f"Final Games Set: {final_games}")
+        # ------------------------------------
+            
         # Detect FINAL games
         final_games = set(
             action[action["game_time"]
