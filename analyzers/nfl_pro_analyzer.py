@@ -566,23 +566,7 @@ def analyze_week(week):
         action = action[~action["normalized_matchup"].isin(final_games)].copy()
         after = len(action)
         print(f"    → Removed {before - after} FINAL rows from Action data")
-        # ------------------------------------
-
-        # Detect FINAL games
-        final_games = set(
-            action[action["game_time"]
-                    .astype(str)
-                    .str.strip()
-                    .str.lower() == "final"]["normalized_matchup"]
-        )
-    
-        print(f"🧹 Detected FINAL games: {final_games}")
-    
-        # Remove ALL rows (all markets) for FINAL matchups
-        before = len(action)
-        action = action[~action["normalized_matchup"].isin(final_games)].copy()
-        after = len(action)
-        print(f"    → Removed {before - after} FINAL rows from Action data")
+   
 
     # ---------------------------------------------------------------
     # BUILD KICKOFF LOOKUP (Only for NON-FINAL games)
