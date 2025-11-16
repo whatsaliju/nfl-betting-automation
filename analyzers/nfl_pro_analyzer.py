@@ -508,7 +508,7 @@ def analyze_week(week):
     final_games = set()
     if not action.empty and "Game Time" in action.columns:
         final_games = set(
-            action[action["Game Time"].astype(str).str.lower() == "final"]["normalized_matchup"]
+             action[action["Game Time"].astype(str).str.lower().str.strip().eq("final")]["normalized_matchup"]
         )
     
     # Remove FINAL games from Action feed
