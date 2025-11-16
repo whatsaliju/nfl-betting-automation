@@ -513,6 +513,9 @@ def analyze_week(week):
     action_file = find_latest("action_all_markets_")
     action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
 
+    print(f"DIAGNOSTIC: Action file loaded: {action_file}") # <-- ADD THIS
+    print(f"DIAGNOSTIC: Action DF rows: {len(action)}") # <-- ADD THIS
+    
     # Standardize Game Time column casing
     if "Game Time" in action.columns:
         action["game_time"] = action["Game Time"]
@@ -532,6 +535,8 @@ def analyze_week(week):
 
         # --- DIAGNOSTIC PRINT (ADD THIS) ---
         thursday_matchup = "jets @ patriots" # Adjust this to the correct normalized format for the game that is sticking around
+        # Check raw game_time column before filtering
+        print(f"DIAGNOSTIC: Unique game_time values: {action['game_time'].unique()}") # <-- ADD THIS
         
         if thursday_matchup in final_games:
             print(f"✅ CONFIRM: '{thursday_matchup}' is in final_games set.")
