@@ -652,7 +652,7 @@ def analyze_week(week):
         # If no kickoff found OR kickoff is invalid → remove it (False) 
         # If kickoff time is in the future → keep it (True)
         if kickoff is None or pd.isna(kickoff):
-            filtered_rows.append(False)  # Remove games with no valid time
+            filtered_rows.append(True)  
         else:
             filtered_rows.append(kickoff > now)
     
