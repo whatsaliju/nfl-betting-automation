@@ -472,19 +472,19 @@ class ClassificationEngine:
     @staticmethod
     def generate_recommendation(classification, game_analysis):
         """Generate specific betting recommendation"""
-        cat = classification[0]
+        cat = classification[0]  # This contains the full string like "🔵 BLUE CHIP"
         sharp = game_analysis['sharp_analysis']
         
         if "BLUE CHIP" in cat:
             return f"Strong play on {sharp['spread']['direction']} side"
-        elif "TARGETED" in cat:
+        elif "TARGETED PLAY" in cat:
             return f"Good value on {sharp['spread']['direction']}"
         elif "TRAP" in cat:
             return "Fade the public, consider opposite side"
         elif "FADE" in cat:
             return "Avoid this game entirely"
         else:
-            return "Wait for better information"
+            return "Analysis inconclusive"
 
 
 # ================================================================
