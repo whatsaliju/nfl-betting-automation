@@ -643,16 +643,10 @@ def analyze_week(week):
         
         # Get kickoff from the lookup built earlier
         kickoff = kickoff_lookup.get(matchup_norm)
-
-        # If no kickoff found OR kickoff is invalid → keep the game (assume not started)
-        if kickoff is None or pd.isna(kickoff):
-            filtered_rows.append(True)
-            continue
         
         # If no kickoff found OR kickoff is invalid → remove it (False) 
-        # If kickoff time is in the future → keep it (True)
         if kickoff is None or pd.isna(kickoff):
-            filtered_rows.append(True)  
+            filtered_rows.append(False)  
         else:
             filtered_rows.append(kickoff > now)
     
