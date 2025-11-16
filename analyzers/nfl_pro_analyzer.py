@@ -336,6 +336,237 @@ class InjuryAnalyzer:
 
 
 # ================================================================
+# SITUATIONAL ANALYZER
+# ================================================================
+
+class SituationalAnalyzer:
+    """Analyzes situational betting factors"""
+    
+    # NFL Division mappings
+    DIVISIONS = {
+        'AFC_EAST': ['Patriots', 'Jets', 'Bills', 'Dolphins'],
+        'AFC_NORTH': ['Steelers', 'Ravens', 'Browns', 'Bengals'],
+        'AFC_SOUTH': ['Texans', 'Colts', 'Titans', 'Jaguars'],
+        'AFC_WEST': ['Chiefs', 'Raiders', 'Broncos', 'Chargers'],
+        'NFC_EAST': ['Cowboys', 'Giants', 'Eagles', 'Commanders'],
+        'NFC_NORTH': ['Packers', 'Bears', 'Lions', 'Vikings'],
+        'NFC_SOUTH': ['Saints', 'Panthers', 'Falcons', 'Buccaneers'],
+        'NFC_WEST': ['49ers', 'Seahawks', 'Rams', 'Cardinals']
+    }
+    
+    # High-profile teams that get public attention
+    PUBLIC_TEAMS = ['Cowboys', 'Packers', 'Steelers', 'Patriots', 'Chiefs']
+    
+    # Teams that struggle with travel/weather
+    DOME_TEAMS = ['Saints', 'Falcons', 'Lions', 'Vikings', 'Cardinals', 'Rams', 'Chargers']
+    WARM_WEATHER_TEAMS = ['Dolphins', 'Buccaneers', 'Jaguars', 'Texans', 'Cardinals', 'Chargers', 'Raiders']
+    
+    @staticmethod
+    def get_team_division(team):
+        """Find which division a team belongs to"""
+        for div, teams in SituationalAnalyzer.DIVISIONS.items():
+            if team in teams:
+                return div
+        return None
+    
+    @staticmethod
+    def is_divisional_game(away_team, home_team):
+        """Check if this is a divisional matchup"""
+        away_div = SituationalAnalyzer.get_team_division(away_team)
+        home_div = SituationalAnalyzer.get_team_division(home_team)
+        return away_div == home_div and away_div is not None
+    
+    @staticmethod
+    def is_primetime(game_time):
+        """Detect primetime games (SNF, MNF, TNF)"""
+        if not game_time or str(game_time).lower() == 'none':
+            return False
+        
+        time_str = str(game_time).lower()
+        # Look for evening games or specific primetime indicators
+        if any(indicator in time_str for indicator in ['8:', '7:', '9:', 'pm', 'snf', 'mnf', 'tnf']):
+            return True
+        return False
+    
+    @staticmethod
+    def has_travel_disadvantage(away_team, home_team, game_time):
+        """Detect challenging travel situations"""
+        factors = []
+        
+        # West coast team traveling east for early games
+        west_coast = ['49ers', 'Seahawks', 'Rams', 'Chargers', 'Raiders', 'Cardinals']
+        east_coast = ['Patriots', 'Jets', 'Bills', 'Dolphins', 'Giants', 'Eagles', 'Commanders', 'Panthers', 'Falcons', 'Buccaneers']
+        
+        if (away_team in west_coast and home_team in east_coast and 
+            game_time and '1:' in str(game_time)):
+            factors.append("West coast early travel")
+        
+        # Altitude advantage (Denver)
+        if home_team == 'Broncos' and away_team not in ['Broncos']:
+            factors.append("Altitude advantage")
+            
+        return factors
+    
+    @staticmethod
+    def has_weather_advantage(away_team, home_team, weather_data):
+        """Detect weather-based advantages"""
+        factors = []
+        weather_str = str(weather_data).lower()
+        
+        if not weather_str or weather_str == 'none':
+            return factors
+        
+        # Dome teams playing in bad weather
+        if (away_team in SituationalAnalyzer.DOME_TEAMS and 
+            any(cond in weather_str for cond in ['rain', 'snow', 'wind', 'cold'])):
+            factors.append("Dome team in bad weather")
+        
+        # Warm weather teams in cold
+        if (away_team in SituationalAnalyzer.WARM_WEATHER_TEAMS and
+            any(cond in weather_str for cond in ['°f', 'cold', 'snow']) and
+            any(str(temp) in weather_str for temp in range(20, 45))):
+            factors.append("Warm weather team in cold")
+            
+        return factors
+    
+    @staticmethod
+    def has_public_bias(away_team, home_team, public_pct):
+        """Detect public betting bias"""
+        factors = []
+        
+        # High-profile teams getting too much public action
+        if public_pct >= 65:
+            if away_team in SituationalAnalyzer.PUBLIC_TEAMS:
+                factors.append(f"Public overexposed on {away_team}")
+            elif home_team in SituationalAnalyzer.PUBLIC_TEAMS:
+                factors.append(f"Public overexposed on {home_team}")
+        
+        return factors
+    
+    @staticmethod
+    def detect_scheduling_edge(week, game_data):
+        """Detect scheduling advantages (would need bye week data)"""
+        factors = []
+        
+        # Placeholder for bye week analysis
+        # Would need historical data about which teams had bye weeks
+        
+        # Thursday games tend to be sloppy
+        if game_data.get('game_time') and 'thu' in str(game_data.get('game_time')).lower():
+            factors.append("Thursday Night Football (typically lower scoring)")
+            
+        return factors
+    
+    @staticmethod
+    def detect_cupcake_games(away_team, home_team, spread_line):
+        """Detect potential cupcake/blowout games"""
+        factors = []
+        
+        if not spread_line:
+            return factors
+            
+        try:
+            # Extract spread value from line (e.g., "-14.5" from "+14.5 (-110) | -14.5 (-105)")
+            import re
+            spread_match = re.search(r'([+-]?\d+\.?\d*)', str(spread_line))
+            if not spread_match:
+                return factors
+                
+            spread = abs(float(spread_match.group(1)))
+            
+            # Large spreads often lead to cupcake scenarios
+            if spread >= 14:
+                factors.append(f"Large spread ({spread}) - potential cupcake game")
+            elif spread >= 10:
+                factors.append(f"Double-digit spread ({spread}) - blowout risk")
+                
+        except (ValueError, AttributeError):
+            pass
+            
+        return factors
+    
+    @staticmethod
+    def detect_let_down_spots(away_team, home_team, week):
+        """Detect potential letdown spots (would need schedule data)"""
+        factors = []
+        
+        # This would ideally check if a team is coming off a big win
+        # or looking ahead to a bigger game next week
+        # For now, we'll add placeholder logic
+        
+        # Teams that might have motivation issues in certain weeks
+        if week >= 15:  # Late season games where playoff spots are locked
+            factors.append("Late season - motivation concerns")
+            
+        return factors
+    
+    @staticmethod
+    def analyze(game_data, week):
+        """Main situational analysis function"""
+        away_team = game_data.get('away', '')
+        home_team = game_data.get('home', '')
+        game_time = game_data.get('game_time', '')
+        weather = game_data.get('weather_analysis', {}).get('description', '')
+        public_pct = game_data.get('public_exposure', 50)
+        spread_line = game_data.get('spread_line', '')  # We'll need to pass this in
+        
+        situational_score = 0
+        factors = []
+        
+        # Divisional game analysis
+        if SituationalAnalyzer.is_divisional_game(away_team, home_team):
+            situational_score += 1  # Slight edge for unders in divisional games
+            factors.append("Divisional matchup (familiarity factor)")
+        
+        # Primetime analysis
+        if SituationalAnalyzer.is_primetime(game_time):
+            situational_score -= 1  # Primetime games often have public overreaction
+            factors.append("Primetime game (public overexposure)")
+        
+        # Travel disadvantages
+        travel_factors = SituationalAnalyzer.has_travel_disadvantage(away_team, home_team, game_time)
+        if travel_factors:
+            situational_score += 1  # Advantage for home team
+            factors.extend(travel_factors)
+        
+        # Weather advantages
+        weather_factors = SituationalAnalyzer.has_weather_advantage(away_team, home_team, weather)
+        if weather_factors:
+            situational_score += 1  # Advantage for home team
+            factors.extend(weather_factors)
+        
+        # Public bias detection
+        public_factors = SituationalAnalyzer.has_public_bias(away_team, home_team, public_pct)
+        if public_factors:
+            situational_score += 1  # Contrarian value
+            factors.extend(public_factors)
+        
+        # Scheduling edges
+        schedule_factors = SituationalAnalyzer.detect_scheduling_edge(week, game_data)
+        if schedule_factors:
+            situational_score += 1
+            factors.extend(schedule_factors)
+        
+        # Cupcake/blowout detection
+        cupcake_factors = SituationalAnalyzer.detect_cupcake_games(away_team, home_team, spread_line)
+        if cupcake_factors:
+            situational_score -= 1  # Negative for betting favorites in cupcakes
+            factors.extend(cupcake_factors)
+        
+        # Letdown spots
+        letdown_factors = SituationalAnalyzer.detect_let_down_spots(away_team, home_team, week)
+        if letdown_factors:
+            situational_score -= 1  # Motivation concerns
+            factors.extend(letdown_factors)
+        
+        return {
+            'score': situational_score,
+            'factors': factors,
+            'description': ', '.join(factors) if factors else 'No significant situational factors'
+        }
+
+
+# ================================================================
 # NARRATIVE ENGINE
 # ================================================================
 
@@ -423,6 +654,13 @@ class NarrativeEngine:
                 narrative.append(f"  • {factor}")
             narrative.append("")
         
+        # Situational factors
+        if game_data['situational_analysis']['factors']:
+            narrative.append("SITUATIONAL FACTORS:")
+            for factor in game_data['situational_analysis']['factors']:
+                narrative.append(f"  • {factor}")
+            narrative.append("")
+        
         # Recommendation
         narrative.append("THE VERDICT:")
         narrative.append(f"  Total Score: {game_data['total_score']}/10")
@@ -472,19 +710,19 @@ class ClassificationEngine:
     @staticmethod
     def generate_recommendation(classification, game_analysis):
         """Generate specific betting recommendation"""
-        cat = classification[0]  # This contains the full string like "🔵 BLUE CHIP"
+        cat = classification[0]
         sharp = game_analysis['sharp_analysis']
         
         if "BLUE CHIP" in cat:
             return f"Strong play on {sharp['spread']['direction']} side"
-        elif "TARGETED PLAY" in cat:
+        elif "TARGETED" in cat:
             return f"Good value on {sharp['spread']['direction']}"
         elif "TRAP" in cat:
             return "Fade the public, consider opposite side"
         elif "FADE" in cat:
             return "Avoid this game entirely"
         else:
-            return "Analysis inconclusive"
+            return "Wait for better information"
 
 
 # ================================================================
@@ -630,12 +868,24 @@ def analyze_week(week):
         weather_analysis = WeatherAnalyzer.analyze(weather_data)
         injury_analysis = InjuryAnalyzer.analyze(injury_data)
         
+        # Situational Analysis (pass game data for context)
+        temp_game_data = {
+            'away': away_full,
+            'home': home_full,
+            'game_time': row.get('game_time', ''),
+            'weather_analysis': weather_analysis,
+            'public_exposure': sharp_analysis.get('spread', {}).get('bets_pct', 50),
+            'spread_line': sharp_analysis.get('spread', {}).get('line', '')
+        }
+        situational_analysis = SituationalAnalyzer.analyze(temp_game_data, week)
+        
         # Calculate total score
         total_score = (
             sharp_consensus_score +
             ref_analysis['ats_score'] +
             weather_analysis['score'] +
-            injury_analysis['score']
+            injury_analysis['score'] +
+            situational_analysis['score']
         )
         
         # Public exposure
@@ -656,6 +906,7 @@ def analyze_week(week):
             'referee_analysis': ref_analysis,
             'weather_analysis': weather_analysis,
             'injury_analysis': injury_analysis,
+            'situational_analysis': situational_analysis,
             'total_score': total_score,
             'public_exposure': public_exposure,
             'sharp_stories': sharp_stories
@@ -743,7 +994,9 @@ def generate_outputs(week, games):
             'ref_ats_pct': game['referee_analysis']['ats_pct'],
             'ref_ou_pct': game['referee_analysis']['ou_pct'],
             'weather_score': game['weather_analysis']['score'],
-            'injury_score': game['injury_analysis']['score']
+            'injury_score': game['injury_analysis']['score'],
+            'situational_score': game['situational_analysis']['score'],
+            'situational_factors': game['situational_analysis']['description']
         })
     
     pd.DataFrame(data_rows).to_csv(f"data/week{week}/week{week}_analytics.csv", index=False)
