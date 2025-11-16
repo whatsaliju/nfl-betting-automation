@@ -567,8 +567,228 @@ class SituationalAnalyzer:
 
 
 # ================================================================
-# NARRATIVE ENGINE
+# STATISTICAL MODELING ANALYZER
 # ================================================================
+
+class StatisticalAnalyzer:
+    """Advanced statistical modeling for team performance"""
+    
+    @staticmethod
+    def calculate_implied_probability(line):
+        """Convert American odds to implied probability"""
+        try:
+            # Extract odds from line format like "+150 | -165"
+            import re
+            odds_match = re.findall(r'([+-]\d+)', str(line))
+            if not odds_match:
+                return 0.5
+            
+            odds = int(odds_match[0])  # Take first odds (away team)
+            
+            if odds > 0:
+                return 100 / (odds + 100)
+            else:
+                return abs(odds) / (abs(odds) + 100)
+        except:
+            return 0.5
+    
+    @staticmethod
+    def estimate_team_rating(team_name, week):
+        """Estimate team strength rating (placeholder - would use historical data)"""
+        # This would ideally use actual team performance metrics
+        # For now, rough estimates based on general team strength
+        strong_teams = ['Chiefs', 'Bills', 'Ravens', '49ers', 'Cowboys', 'Eagles']
+        weak_teams = ['Panthers', 'Cardinals', 'Patriots', 'Broncos']
+        
+        if team_name in strong_teams:
+            return 85
+        elif team_name in weak_teams:
+            return 65
+        else:
+            return 75  # Average
+    
+    @staticmethod
+    def calculate_expected_margin(away_team, home_team, week):
+        """Calculate expected point margin based on team ratings"""
+        away_rating = StatisticalAnalyzer.estimate_team_rating(away_team, week)
+        home_rating = StatisticalAnalyzer.estimate_team_rating(home_team, week)
+        
+        # Home field advantage (~3 points)
+        home_advantage = 3
+        expected_margin = (home_rating + home_advantage) - away_rating
+        
+        return expected_margin
+    
+    @staticmethod
+    def analyze_line_value(away_team, home_team, spread_line, week):
+        """Analyze if the betting line offers value vs. expected margin"""
+        factors = []
+        score = 0
+        
+        try:
+            # Extract spread value
+            import re
+            spread_match = re.search(r'([+-]?\d+\.?\d*)', str(spread_line))
+            if not spread_match:
+                return score, factors
+            
+            market_spread = float(spread_match.group(1))
+            expected_margin = StatisticalAnalyzer.calculate_expected_margin(away_team, home_team, week)
+            
+            # Compare market line to our expectation
+            value_difference = expected_margin - market_spread
+            
+            if abs(value_difference) >= 3:
+                if value_difference > 0:
+                    score += 2
+                    factors.append(f"Statistical value on home team ({value_difference:+.1f} points)")
+                else:
+                    score += 2
+                    factors.append(f"Statistical value on away team ({abs(value_difference):.1f} points)")
+            elif abs(value_difference) >= 1.5:
+                score += 1
+                factors.append(f"Modest statistical edge ({abs(value_difference):.1f} points)")
+                
+        except (ValueError, TypeError):
+            pass
+            
+        return score, factors
+
+
+# ================================================================
+# GAME THEORY ANALYZER
+# ================================================================
+
+class GameTheoryAnalyzer:
+    """Analyze market dynamics and betting psychology"""
+    
+    @staticmethod
+    def analyze_market_efficiency(sharp_edge, public_pct, line_movement=None):
+        """Analyze how efficiently the market is pricing this game"""
+        factors = []
+        score = 0
+        
+        # Large sharp edges suggest market inefficiency
+        if abs(sharp_edge) >= 10:
+            score += 2
+            factors.append(f"Market inefficiency detected ({sharp_edge:+.1f}% sharp edge)")
+        elif abs(sharp_edge) >= 5:
+            score += 1
+            factors.append(f"Market mispricing possible ({sharp_edge:+.1f}% edge)")
+        
+        # Extreme public betting percentages
+        if public_pct >= 80 or public_pct <= 20:
+            score += 1
+            factors.append(f"Extreme public sentiment ({public_pct:.0f}% on one side)")
+        
+        return score, factors
+    
+    @staticmethod
+    def detect_steam_moves(sharp_edge, public_pct):
+        """Detect potential steam move scenarios"""
+        factors = []
+        score = 0
+        
+        # Steam move: Sharp money against public sentiment
+        if sharp_edge > 8 and public_pct > 65:
+            score += 3
+            factors.append("STEAM MOVE: Sharps heavily against public")
+        elif sharp_edge < -8 and public_pct < 35:
+            score += 3
+            factors.append("STEAM MOVE: Sharps heavily against public")
+        elif abs(sharp_edge) >= 5 and ((sharp_edge > 0 and public_pct > 60) or (sharp_edge < 0 and public_pct < 40)):
+            score += 2
+            factors.append("Potential steam move developing")
+            
+        return score, factors
+    
+    @staticmethod
+    def analyze_contrarian_value(public_pct, prime_time, team_popularity):
+        """Identify contrarian betting opportunities"""
+        factors = []
+        score = 0
+        
+        # High public percentage + popular team = contrarian opportunity
+        if public_pct >= 70:
+            score += 1
+            factors.append("High contrarian value (fade the public)")
+            
+            if prime_time:
+                score += 1
+                factors.append("Primetime public overreaction")
+                
+            if team_popularity == "high":
+                score += 1
+                factors.append("Popular team getting overbet")
+        
+        # Low public percentage on popular team = potential value
+        elif public_pct <= 30 and team_popularity == "high":
+            score += 1
+            factors.append("Popular team getting underbet")
+            
+        return score, factors
+    
+    @staticmethod
+    def calculate_kelly_criterion(edge_pct, implied_prob, win_prob):
+        """Calculate optimal bet size using Kelly Criterion"""
+        try:
+            # Convert percentages to decimals
+            edge = edge_pct / 100
+            
+            # Kelly formula: f = (bp - q) / b
+            # where b = odds received, p = probability of winning, q = probability of losing
+            if win_prob > implied_prob and edge > 0:
+                b = (1 - implied_prob) / implied_prob  # Convert to decimal odds
+                p = win_prob
+                q = 1 - p
+                
+                kelly_pct = ((b * p) - q) / b
+                return max(0, min(kelly_pct, 0.25))  # Cap at 25% of bankroll
+            
+        except (ZeroDivisionError, TypeError):
+            pass
+            
+        return 0
+    
+    @staticmethod
+    def analyze(game_data):
+        """Main game theory analysis"""
+        sharp_edge = game_data.get('sharp_analysis', {}).get('spread', {}).get('differential', 0)
+        public_pct = game_data.get('public_exposure', 50)
+        away_team = game_data.get('away', '')
+        home_team = game_data.get('home', '')
+        
+        # Determine team popularity
+        popular_teams = ['Cowboys', 'Packers', 'Steelers', 'Patriots', 'Chiefs']
+        team_popularity = "high" if away_team in popular_teams or home_team in popular_teams else "normal"
+        
+        # Check if primetime
+        game_time = str(game_data.get('game_time', '')).lower()
+        prime_time = any(indicator in game_time for indicator in ['8:', '9:', 'pm', 'snf', 'mnf', 'tnf'])
+        
+        total_score = 0
+        all_factors = []
+        
+        # Market efficiency analysis
+        efficiency_score, efficiency_factors = GameTheoryAnalyzer.analyze_market_efficiency(sharp_edge, public_pct)
+        total_score += efficiency_score
+        all_factors.extend(efficiency_factors)
+        
+        # Steam move detection
+        steam_score, steam_factors = GameTheoryAnalyzer.detect_steam_moves(sharp_edge, public_pct)
+        total_score += steam_score
+        all_factors.extend(steam_factors)
+        
+        # Contrarian value
+        contrarian_score, contrarian_factors = GameTheoryAnalyzer.analyze_contrarian_value(public_pct, prime_time, team_popularity)
+        total_score += contrarian_score
+        all_factors.extend(contrarian_factors)
+        
+        return {
+            'score': total_score,
+            'factors': all_factors,
+            'description': ', '.join(all_factors) if all_factors else 'Standard market dynamics'
+        }
 
 class NarrativeEngine:
     """Generates intelligent narratives from analysis"""
@@ -661,6 +881,20 @@ class NarrativeEngine:
                 narrative.append(f"  • {factor}")
             narrative.append("")
         
+        # Statistical analysis
+        if game_data['statistical_analysis']['factors']:
+            narrative.append("STATISTICAL EDGE:")
+            for factor in game_data['statistical_analysis']['factors']:
+                narrative.append(f"  • {factor}")
+            narrative.append("")
+        
+        # Game theory factors
+        if game_data['game_theory_analysis']['factors']:
+            narrative.append("MARKET DYNAMICS:")
+            for factor in game_data['game_theory_analysis']['factors']:
+                narrative.append(f"  • {factor}")
+            narrative.append("")
+        
         # Recommendation
         narrative.append("THE VERDICT:")
         narrative.append(f"  Total Score: {game_data['total_score']}/10")
@@ -715,14 +949,14 @@ class ClassificationEngine:
         
         if "BLUE CHIP" in cat:
             return f"Strong play on {sharp['spread']['direction']} side"
-        elif "TARGETED" in cat:
+        elif "TARGETED PLAY" in cat:
             return f"Good value on {sharp['spread']['direction']}"
         elif "TRAP" in cat:
             return "Fade the public, consider opposite side"
         elif "FADE" in cat:
             return "Avoid this game entirely"
         else:
-            return "Wait for better information"
+            return "Analysis inconclusive"
 
 
 # ================================================================
@@ -879,13 +1113,35 @@ def analyze_week(week):
         }
         situational_analysis = SituationalAnalyzer.analyze(temp_game_data, week)
         
+        # Statistical Analysis
+        stat_score, stat_factors = StatisticalAnalyzer.analyze_line_value(
+            away_full, home_full, sharp_analysis.get('spread', {}).get('line', ''), week
+        )
+        statistical_analysis = {
+            'score': stat_score,
+            'factors': stat_factors,
+            'description': ', '.join(stat_factors) if stat_factors else 'No statistical edge detected'
+        }
+        
+        # Game Theory Analysis
+        game_theory_data = {
+            'sharp_analysis': sharp_analysis,
+            'public_exposure': sharp_analysis.get('spread', {}).get('bets_pct', 50),
+            'away': away_full,
+            'home': home_full,
+            'game_time': row.get('game_time', '')
+        }
+        game_theory_analysis = GameTheoryAnalyzer.analyze(game_theory_data)
+        
         # Calculate total score
         total_score = (
             sharp_consensus_score +
             ref_analysis['ats_score'] +
             weather_analysis['score'] +
             injury_analysis['score'] +
-            situational_analysis['score']
+            situational_analysis['score'] +
+            statistical_analysis['score'] +
+            game_theory_analysis['score']
         )
         
         # Public exposure
@@ -907,6 +1163,8 @@ def analyze_week(week):
             'weather_analysis': weather_analysis,
             'injury_analysis': injury_analysis,
             'situational_analysis': situational_analysis,
+            'statistical_analysis': statistical_analysis,
+            'game_theory_analysis': game_theory_analysis,
             'total_score': total_score,
             'public_exposure': public_exposure,
             'sharp_stories': sharp_stories
@@ -996,7 +1254,11 @@ def generate_outputs(week, games):
             'weather_score': game['weather_analysis']['score'],
             'injury_score': game['injury_analysis']['score'],
             'situational_score': game['situational_analysis']['score'],
-            'situational_factors': game['situational_analysis']['description']
+            'situational_factors': game['situational_analysis']['description'],
+            'statistical_score': game['statistical_analysis']['score'],
+            'statistical_edge': game['statistical_analysis']['description'],
+            'game_theory_score': game['game_theory_analysis']['score'],
+            'market_dynamics': game['game_theory_analysis']['description']
         })
     
     pd.DataFrame(data_rows).to_csv(f"data/week{week}/week{week}_analytics.csv", index=False)
