@@ -470,17 +470,37 @@ def analyze_week(week):
     print("📥 Loading data sources...")
     queries = safe_load_csv(f"data/week{week}/week{week}_queries.csv", required=True)
     sdql = safe_load_csv("data/historical/sdql_results.csv")
-    
+
+
+
+
+
+
+
+    # ---------------------------------------------------------------
+    # LOAD ACTION NETWORK DATA
+    # ---------------------------------------------------------------
     action_file = find_latest("action_all_markets_")
     action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
-
-    # === Detect FINAL games from Action Network ===
+    
+    # Step 1 — Identify FINAL games BEFORE filtering them out
     final_games = set()
     if not action.empty and "Game Time" in action.columns:
         final_games = set(
             action[action["Game Time"].astype(str).str.lower() == "final"]["Matchup"]
         )
-
+    
+    # Step 2 — Remove them from the Action dataset entirely
+    if not action.empty:
+        print("🧹 Removing FINAL games from Action Network feed...")
+        before = len(action)
+        action = action[action["Game Time"].astype(str).str.lower() != "final"]
+        after = len(action)
+        print(f"   → Removed {before - after} FINAL games")
+    
+    # ---------------------------------------------------------------
+    # MATCHUP NORMALIZATION
+    # ---------------------------------------------------------------
     def normalize_matchup(s):
         if not s:
             return ""
@@ -490,26 +510,23 @@ def analyze_week(week):
         s = s.replace(" vs. ", " @ ")
         s = s.replace("  ", " ")
         return s.strip()
-
-    def is_final_game(matchup):
-        """Check if a matchup corresponds to a FINAL game"""
-        norm = normalize_matchup(matchup)
     
+    def is_final_game(matchup):
+        """Check if a matchup corresponds to a FINAL game."""
+        norm = normalize_matchup(matchup)
+        
         for fg in final_games:
             fg_norm = normalize_matchup(fg)
-            if fg_norm == norm:
-                return True
-            if fg_norm in norm:
-                return True
-            if norm in fg_norm:
+            if fg_norm == norm or fg_norm in norm or norm in fg_norm:
                 return True
     
         return False
     
-    # Build kickoff lookup (matchup → kickoff timestamp)
+    # ---------------------------------------------------------------
+    # BUILD KICKOFF LOOKUP (Only for NON-FINAL games)
+    # ---------------------------------------------------------------
     kickoff_lookup = {}
-
-    # Build kickoff lookup from Action Network timestamps
+    
     if not action.empty:
         for _, row in action.iterrows():
             matchup_key = str(row.get("Matchup", "")).strip()
@@ -520,8 +537,22 @@ def analyze_week(week):
                 or row.get("EventDateUTC")
                 or row.get("Game Time")
             )
-            kickoff_lookup[matchup_key] = pd.to_datetime(kickoff, utc=True, errors="coerce")
+            kickoff_lookup[matchup_key] = pd.to_datetime(
+                kickoff, utc=True, errors="coerce"
+            )
 
+
+
+    
+
+
+
+
+
+
+
+
+    
     rotowire_file = find_latest("rotowire_lineups_")
     rotowire = safe_load_csv(f"data/{rotowire_file}") if rotowire_file else pd.DataFrame()
     
