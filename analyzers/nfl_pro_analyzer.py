@@ -761,7 +761,7 @@ def analyze_week(week):
         game_analysis['confidence'] = confidence
         
         games.append(game_analysis)
-        
+        print(f"  ✓ ADDED TO GAMES LIST: {game_analysis['matchup']}")
         print(f"  ✓ {game_analysis['matchup']}: {classification}")
     
     # Sort games by tier
