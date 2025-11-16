@@ -502,6 +502,9 @@ def analyze_week(week):
     action_file = find_latest("action_all_markets_")
     action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
     
+    # Ensure final_games always exists
+    final_games = set()
+
     if not action.empty:
         # Normalize Action matchups FIRST
         action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
