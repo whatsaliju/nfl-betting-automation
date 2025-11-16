@@ -499,7 +499,7 @@ def analyze_week(week):
     
         # unify separators
         s = s.replace(" at ", " @ ")
-        s = s.replace ("at", "@"
+        s = s.replace("at", "@")
         s = s.replace(" vs ", " @ ")
         s = s.replace(" vs. ", " @ ")
         s = s.replace("  ", " ")
