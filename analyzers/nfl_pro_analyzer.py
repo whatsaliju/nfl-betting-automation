@@ -788,21 +788,7 @@ def generate_outputs(week, games, final_games):
     # Step 1: Define the set of games that must be excluded.
     # (Using 'final_games' which must be accessible in this scope)
     games_to_exclude = final_games 
-
-    # Step 2: Filter the main 'games' list passed into the function.
-    before_filter_count = len(games)
-
-    # The 'games' variable is now replaced with the filtered list
-    games = [
-        game for game in games 
-        if game.get('normalized_matchup') not in games_to_exclude
-    ]
-
-    after_filter_count = len(games)
-    
-    # Print a confirmation message
-    print(f"🧹 Output generation list filtered: Removed {before_filter_count - after_filter_count} FINAL game analysis summaries.")
-    # --- END CORRECTED FILTERING LOGIC ---
+    print(f"📝 Generating reports for {len(games)} games...")
     
     # Executive Summary
     with open(f"week{week}_executive_summary.txt", "w") as f:
