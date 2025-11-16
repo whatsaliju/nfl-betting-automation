@@ -520,12 +520,12 @@ def analyze_week(week):
     # ---------------------------------------------------------------
     # LOAD ACTION NETWORK DATA
     # ---------------------------------------------------------------
-    
+
     # find_latest now returns the full path (e.g., 'data/action_all_markets_...')
-    action_file_path = find_latest("action_all_markets_") 
-    
-    # CORRECT LINE: Pass the full path directly to safe_load_csv
-    action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame() 
+    action_file_path = find_latest("action_all_markets_") 
+
+    # CORRECT LINE: Pass the full path directly to safe_load_csv
+    action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame()
 
     print(f"DIAGNOSTIC: Action file loaded: {action_file_path}")
     print(f"DIAGNOSTIC: Action DF rows: {len(action)}")
