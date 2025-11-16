@@ -629,11 +629,18 @@ def analyze_week(week):
     # ---------------------------------------------------------------
     # Remove final games based on normalized matchups (from action data)
     before_final_filter = len(final)
+    jets_matchup = final[final["normalized_matchup"].str.contains("jets", case=False, na=False)]["normalized_matchup"].iloc[0] if len(final[final["normalized_matchup"].str.contains("jets", case=False, na=False)]) > 0 else "NOT_FOUND"
+    print(f"DEBUG: Jets matchup in final: '{jets_matchup}'")
+    print(f"DEBUG: Jets matchup in final_games: {'jets @ patriots' in final_games}")
     final = final[~final["normalized_matchup"].isin(final_games)].copy()
     after_final_filter = len(final)
     print(f"🧹 Removed {before_final_filter - after_final_filter} FINAL games from analysis list.")
 
-
+    print(f"DEBUG: final_games set contains: {final_games}")
+    print(f"DEBUG: Checking if 'jets @ patriots' in final_games: {'jets @ patriots' in final_games}")
+    print(f"DEBUG: Games in final DataFrame:")
+    for idx, row in final.iterrows():
+        print(f"  {row.get('normalized_matchup', 'NO_MATCHUP')}")
     # ---------------------------------------------------------------
     # 🔥 CORE FILTER 2: REMOVE GAMES WHOSE KICKOFF HAS PASSED
     # ---------------------------------------------------------------
