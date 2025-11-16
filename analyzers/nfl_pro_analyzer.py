@@ -474,6 +474,20 @@ def analyze_week(week):
     sdql = safe_load_csv("data/historical/sdql_results.csv")
     
     # ---------------------------------------------------------------
+    # REMOVE FINAL GAMES FROM QUERIES BASED ON GAME_TIME COLUMN
+    # ---------------------------------------------------------------
+    if "game_time" in queries.columns:
+        before_q = len(queries)
+        queries = queries[
+            queries["game_time"].astype(str).str.strip().str.lower() != "final"
+        ].copy()
+        after_q = len(queries)
+        print(f"🧹 Removed {before_q - after_q} FINAL games from queries")
+
+
+
+    
+    # ---------------------------------------------------------------
     # MATCHUP NORMALIZATION (define BEFORE using it)
     # ---------------------------------------------------------------
     def normalize_matchup(s):
