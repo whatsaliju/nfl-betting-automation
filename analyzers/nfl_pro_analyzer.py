@@ -218,62 +218,81 @@ class RefereeAnalyzer:
 # ================================================================
 
 class WeatherAnalyzer:
-    """Analyzes weather impact"""
+    """Analyzes weather impact with improved parsing"""
     
     @staticmethod
     def analyze(weather_str):
-        s = str(weather_str).lower().strip()
+        """
+        Parse weather from RotoWire format:
+        Example: "47% Rain\n40°  18 mph W Wind"
+        or "Dome\nIn Domed Stadium"
+        """
+        s = str(weather_str).strip()
         
-        if not s or s == 'none':
+        if not s or s.lower() == 'none':
             return {'score': 0, 'factors': [], 'description': 'None'}
         
-        if 'dome' in s:
-            return {'score': 0, 'factors': ['Dome'], 'description': 'Dome (no impact)'}
+        # Dome detection
+        if 'dome' in s.lower():
+            return {'score': 0, 'factors': ['Dome'], 'description': 'Dome (no weather impact)'}
         
         score = 0
         factors = []
         
-        # Precipitation
-        for token in s.split():
-            if token.endswith('%'):
-                try:
-                    precip = int(token.replace('%', ''))
-                    if precip >= 70:
+        # Split by newline (RotoWire format)
+        lines = s.split('\n')
+        
+        # Parse precipitation (first line usually)
+        for line in lines:
+            # Precipitation percentage
+            if '%' in line:
+                import re
+                precip_match = re.search(r'(\d+)%', line)
+                if precip_match:
+                    precip = int(precip_match.group(1))
+                    if precip >= 60:
                         score -= 2
                         factors.append(f"Heavy precipitation ({precip}%)")
-                    elif precip >= 50:
+                    elif precip >= 40:
                         score -= 1
                         factors.append(f"Moderate precipitation ({precip}%)")
-                except:
-                    pass
-        
-        # Wind
-        for token in s.replace(',', ' ').split():
-            try:
-                mph = float(token)
-                if mph >= 20:
-                    score -= 2
-                    factors.append(f"High wind ({mph} mph)")
-                elif mph >= 15:
+                    elif precip >= 20:
+                        factors.append(f"Light precipitation ({precip}%)")
+                
+                # Check for rain/snow keywords
+                if 'rain' in line.lower():
+                    if 'heavy' not in line.lower() and precip < 60:
+                        factors.append("Rain expected")
+                if 'snow' in line.lower():
                     score -= 1
-                    factors.append(f"Windy ({mph} mph)")
-            except:
-                continue
+                    factors.append("Snow expected")
+            
+            # Wind speed
+            if 'mph' in line.lower():
+                import re
+                wind_match = re.search(r'(\d+)\s*mph', line, re.IGNORECASE)
+                if wind_match:
+                    wind = int(wind_match.group(1))
+                    if wind >= 20:
+                        score -= 2
+                        factors.append(f"High wind ({wind} mph)")
+                    elif wind >= 15:
+                        score -= 1
+                        factors.append(f"Windy conditions ({wind} mph)")
+            
+            # Temperature
+            if '°' in line:
+                import re
+                temp_match = re.search(r'(\d+)°', line)
+                if temp_match:
+                    temp = int(temp_match.group(1))
+                    if temp <= 32:
+                        score -= 1
+                        factors.append(f"Freezing temperature ({temp}°F)")
+                    elif temp <= 40:
+                        factors.append(f"Cold weather ({temp}°F)")
         
-        # Temperature
-        if '°' in s:
-            try:
-                temp_str = s.split('°')[0].split()[-1]
-                temp = int(temp_str)
-                if temp <= 32:
-                    score -= 1
-                    factors.append(f"Freezing ({temp}°F)")
-                elif temp <= 40:
-                    factors.append(f"Cold ({temp}°F)")
-            except:
-                pass
-        
-        desc = ' + '.join(factors) if factors else 'Minimal impact'
+        desc = ' | '.join(factors) if factors else 'Good conditions'
         
         return {
             'score': score,
@@ -287,51 +306,137 @@ class WeatherAnalyzer:
 # ================================================================
 
 class InjuryAnalyzer:
-    """Analyzes injury impact"""
+    """Analyzes injury impact from Action Network and RotoWire data"""
     
     @staticmethod
-    def analyze(injury_str):
-        s = str(injury_str).lower().strip()
+    def parse_rotowire_injuries(injury_str):
+        """Parse RotoWire injury format: 'Player (POS)-STATUS, Player (POS)-STATUS'"""
+        s = str(injury_str).strip()
         
-        if not s or s == 'none':
-            return {'score': 0, 'factors': [], 'description': 'None'}
+        if not s or s.lower() == 'none':
+            return []
         
+        injuries = []
+        # Split by comma for multiple injuries
+        parts = s.split(',')
+        for part in parts:
+            part = part.strip()
+            if not part or part.lower() == 'none':
+                continue
+            
+            # Extract position and status
+            # Format: "Player Name (POS)-STATUS"
+            if '(' in part and ')' in part and '-' in part:
+                try:
+                    player_pos = part.split('-')[0].strip()
+                    status = part.split('-')[1].strip()
+                    
+                    # Extract position from parentheses
+                    pos = player_pos[player_pos.find('(')+1:player_pos.find(')')].strip()
+                    
+                    injuries.append({
+                        'player': player_pos.split('(')[0].strip(),
+                        'position': pos,
+                        'status': status
+                    })
+                except:
+                    continue
+        
+        return injuries
+    
+    @staticmethod
+    def match_action_network_injuries(team_name, action_injuries_df):
+        """Match injuries from Action Network by team name"""
+        if action_injuries_df.empty:
+            return []
+        
+        # Match team name (Action Network uses full names like "New England Patriots")
+        team_injuries = action_injuries_df[
+            action_injuries_df['team'].str.contains(team_name, case=False, na=False)
+        ]
+        
+        injuries = []
+        for _, inj in team_injuries.iterrows():
+            injuries.append({
+                'player': inj['player'],
+                'position': inj['pos'],
+                'status': inj['status'],
+                'injury_type': inj.get('injury', 'Unknown')
+            })
+        
+        return injuries
+    
+    @staticmethod
+    def score_injury_impact(injuries):
+        """Calculate injury impact score based on position and status"""
         score = 0
         factors = []
         
-        # Severity
-        if any(x in s for x in ['out', 'o', 'ir']):
-            score -= 1
-            factors.append("Player OUT")
-        elif any(x in s for x in ['doubtful', 'd']):
-            score -= 1
-            factors.append("Player DOUBTFUL")
-        elif any(x in s for x in ['questionable', 'q']):
-            factors.append("Player QUESTIONABLE")
+        for inj in injuries:
+            pos = inj.get('position', '').upper()
+            status = inj.get('status', '').upper()
+            player = inj.get('player', 'Player')
+            
+            # Critical positions
+            if pos == 'QB':
+                if 'OUT' in status or 'O' == status:
+                    score -= 3
+                    factors.append(f"🚨 CRITICAL: {player} (QB) OUT")
+                elif 'DOUBTFUL' in status or 'D' == status:
+                    score -= 2
+                    factors.append(f"⚠️ {player} (QB) DOUBTFUL")
+                elif 'QUESTIONABLE' in status or 'Q' == status:
+                    score -= 1
+                    factors.append(f"⚠️ {player} (QB) QUESTIONABLE")
+            
+            # Impact skill positions
+            elif pos in ['WR', 'RB', 'TE']:
+                if 'OUT' in status or 'O' == status:
+                    score -= 1
+                    factors.append(f"{player} ({pos}) OUT")
+                elif 'DOUBTFUL' in status or 'D' == status:
+                    score -= 1
+                    factors.append(f"{player} ({pos}) DOUBTFUL")
+            
+            # Offensive line
+            elif pos in ['OL', 'T', 'G', 'C']:
+                if 'OUT' in status or 'O' == status:
+                    score -= 1
+                    factors.append(f"{player} ({pos}) OUT")
         
-        # Position impact
-        if any(x in s for x in ['qb', 'quarterback']):
-            score -= 2
-            factors.append("QB injury (critical)")
+        return score, factors
+    
+    @staticmethod
+    def analyze(injury_str, team_name=None, action_injuries_df=None):
+        """
+        Main injury analysis - uses both RotoWire and Action Network data
         
-        if any(x in s for x in ['wr', 'wide receiver']):
-            score -= 1
-            factors.append("WR injury")
+        Args:
+            injury_str: RotoWire injury string
+            team_name: Full team name for Action Network matching
+            action_injuries_df: Action Network injuries DataFrame
+        """
+        all_injuries = []
         
-        if any(x in s for x in ['rb', 'running back']):
-            score -= 1
-            factors.append("RB injury")
+        # Parse RotoWire injuries
+        rotowire_injuries = InjuryAnalyzer.parse_rotowire_injuries(injury_str)
+        all_injuries.extend(rotowire_injuries)
         
-        if any(x in s for x in ['ol', 'tackle', 'guard', 'center']):
-            score -= 1
-            factors.append("OL injury")
+        # Add Action Network injuries if available
+        if team_name and action_injuries_df is not None and not action_injuries_df.empty:
+            an_injuries = InjuryAnalyzer.match_action_network_injuries(team_name, action_injuries_df)
+            # Merge without duplicates (prioritize RotoWire status if same player)
+            for an_inj in an_injuries:
+                if not any(rw['player'].lower() in an_inj['player'].lower() for rw in rotowire_injuries):
+                    all_injuries.append(an_inj)
         
-        desc = ', '.join(factors) if factors else 'Minor/None'
+        # Score the combined injuries
+        score, factors = InjuryAnalyzer.score_injury_impact(all_injuries)
         
         return {
             'score': score,
             'factors': factors,
-            'description': desc
+            'description': ', '.join(factors) if factors else 'No significant injuries'
         }
 
 
@@ -771,15 +876,15 @@ class GameTheoryAnalyzer:
 # ================================================================
 
 class ScheduleAnalyzer:
-    """Advanced scheduling analysis using external schedule data"""
+    """Advanced scheduling analysis"""
     
     @staticmethod
     def analyze(away_team, home_team, week):
-        """Simplified schedule analysis (website integration disabled for now)"""
+        """Simplified schedule analysis"""
         total_score = 0
         all_factors = []
         
-        # Basic travel analysis (not dependent on website data)
+        # Basic travel analysis
         west_teams = ['49ers', 'Seahawks', 'Rams', 'Chargers', 'Raiders', 'Cardinals']
         east_teams = ['Patriots', 'Jets', 'Bills', 'Dolphins', 'Giants', 'Eagles', 'Commanders']
         
@@ -962,20 +1067,26 @@ class ClassificationEngine:
     
     @staticmethod
     def generate_recommendation(classification, game_analysis):
-        """Generate specific betting recommendation"""
-        cat = classification[0]
+        """Generate specific betting recommendation - FIXED"""
+        # classification is already a string like "🔵 BLUE CHIP"
+        cat = classification
+        
         sharp = game_analysis['sharp_analysis']
+        spread_dir = sharp['spread']['direction']
+        total_dir = sharp['total']['direction']
         
         if "BLUE CHIP" in cat:
-            return f"Strong play on {sharp['spread']['direction']} side"
+            return f"✅ STRONG PLAY: {spread_dir} on spread + {total_dir} on total"
         elif "TARGETED PLAY" in cat:
-            return f"Good value on {sharp['spread']['direction']}"
+            return f"✅ GOOD VALUE: {spread_dir} on spread"
+        elif "LEAN" in cat:
+            return f"👀 SLIGHT EDGE: Consider {spread_dir} side"
         elif "TRAP" in cat:
-            return "Fade the public, consider opposite side"
+            return f"🚨 TRAP GAME: Fade the public, consider opposite side"
         elif "FADE" in cat:
-            return "Avoid this game entirely"
+            return "❌ AVOID: Too many negative factors"
         else:
-            return "Analysis inconclusive"
+            return "⚠️ PASS: Analysis inconclusive, too many mixed signals"
 
 
 # ================================================================
@@ -1001,6 +1112,14 @@ def analyze_week(week):
     # Load Action Network data
     action_file_path = find_latest("action_all_markets_") 
     action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame()
+    
+    # Load Action Network injuries - NEW!
+    action_injuries_path = find_latest("action_injuries_")
+    action_injuries = safe_load_csv(action_injuries_path) if action_injuries_path else pd.DataFrame()
+    if not action_injuries.empty:
+        print(f"  ✓ Loaded {len(action_injuries)} injury records from Action Network")
+    else:
+        print(f"  ⚠️ No Action Network injury data")
 
     # Set up time tracking
     now = datetime.now(timezone.utc)
@@ -1038,7 +1157,7 @@ def analyze_week(week):
 
     # Load supplemental data
     rotowire_file = find_latest("rotowire_lineups_")
-    rotowire = safe_load_csv(f"data/{rotowire_file}") if rotowire_file else pd.DataFrame()
+    rotowire = safe_load_csv(rotowire_file) if rotowire_file else pd.DataFrame()
     
     # Merge base data
     final = queries.merge(sdql, on='query', how='left') if not sdql.empty else queries
@@ -1106,9 +1225,10 @@ def analyze_week(week):
         # Referee Analysis
         ref_analysis = RefereeAnalyzer.analyze(row)
         
-        # Weather and Injury Analysis
+        # Weather and Injury Analysis - UPDATED
         weather_data = ""
-        injury_data = ""
+        injury_data_combined = ""
+        
         if not rotowire.empty:
             match = rotowire[
                 (rotowire['away_std'] == away_full) &
@@ -1116,10 +1236,33 @@ def analyze_week(week):
             ]
             if not match.empty:
                 weather_data = match.iloc[0].get('weather', '')
-                injury_data = match.iloc[0].get('injuries', '')
+                injury_data_combined = match.iloc[0].get('injuries', '')
         
+        # Analyze weather
         weather_analysis = WeatherAnalyzer.analyze(weather_data)
-        injury_analysis = InjuryAnalyzer.analyze(injury_data)
+        
+        # Analyze injuries for BOTH teams using Action Network data
+        away_injury_analysis = InjuryAnalyzer.analyze(
+            injury_data_combined,  # RotoWire might have both teams
+            team_name=away_full,
+            action_injuries_df=action_injuries
+        )
+        
+        home_injury_analysis = InjuryAnalyzer.analyze(
+            injury_data_combined,
+            team_name=home_full,
+            action_injuries_df=action_injuries
+        )
+        
+        # Combine injury scores and factors
+        combined_injury_score = away_injury_analysis['score'] + home_injury_analysis['score']
+        combined_injury_factors = away_injury_analysis['factors'] + home_injury_analysis['factors']
+        
+        injury_analysis = {
+            'score': combined_injury_score,
+            'factors': combined_injury_factors,
+            'description': ', '.join(combined_injury_factors) if combined_injury_factors else 'No significant injuries'
+        }
         
         # Situational Analysis
         temp_game_data = {
