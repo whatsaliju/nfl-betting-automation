@@ -648,7 +648,7 @@ def analyze_week(week):
         
         # If no kickoff found OR kickoff is invalid → remove it (False) 
         if kickoff is None or pd.isna(kickoff):
-            filtered_rows.append(False)  
+            filtered_rows.append(True)  
         else:
             filtered_rows.append(kickoff > now)
     
