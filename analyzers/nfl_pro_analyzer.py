@@ -566,7 +566,9 @@ def analyze_week(week):
     else:
         print(f"DEBUG: Jets @ Patriots not found in kickoff_lookup")
         print(f"DEBUG: Available matchups: {list(kickoff_lookup.keys())}")
-    
+    print(f"DEBUG: Kickoff lookup contents:")
+    for matchup, time in kickoff_lookup.items():
+    print(f"  {matchup}: {time}")
     # ---------------------------------------------------------------
     # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
     # ---------------------------------------------------------------
