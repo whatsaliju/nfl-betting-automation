@@ -537,22 +537,22 @@ def analyze_week(week):
         action["game_time"] = ""
 
     # ---------------------------------------------------------------
-    # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
-    # ---------------------------------------------------------------
-    final_games = set()
+    # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
+    # ---------------------------------------------------------------
+    final_games = set()
     if not action.empty:
-        
-        # Normalize Action matchups
+    
+        # Normalize Action matchups
         action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
 
-        # --- DIAGNOSTIC PRINT (ONLY KEEPING NECESSARY ONE) ---
-        # Check raw game_time column before filtering
-        # This will tell us if the raw Action data uses "Final", "FINAL", "Completed", etc.
-        print(f"DIAGNOSTIC: Unique game_time values: {action['game_time'].unique()}")
-        # ------------------------------------
-        
-        # Detect FINAL games
-        final_games = set(
+        # --- DIAGNOSTIC PRINT (ONLY KEEPING NECESSARY ONE) ---
+        # Check raw game_time column before filtering
+        # This will tell us if the raw Action data uses "Final", "FINAL", "Completed", etc.
+        print(f"DIAGNOSTIC: Unique game_time values: {action['game_time'].unique()}")
+        # ------------------------------------
+
+        # Detect FINAL games
+        final_games = set(
             action[action["game_time"]
                     .astype(str)
                     .str.strip()
@@ -561,13 +561,13 @@ def analyze_week(week):
 
         print(f"🧹 Detected FINAL games: {final_games}")
 
-        # Remove ALL rows (all markets) for FINAL matchups
-        before = len(action)
-        action = action[~action["normalized_matchup"].isin(final_games)].copy()
-        after = len(action)
-        print(f"    → Removed {before - after} FINAL rows from Action data")
+        # Remove ALL rows (all markets) for FINAL matchups
+        before = len(action)
+        action = action[~action["normalized_matchup"].isin(final_games)].copy()
+        after = len(action)
+        print(f"    → Removed {before - after} FINAL rows from Action data")
         # ------------------------------------
-            
+
         # Detect FINAL games
         final_games = set(
             action[action["game_time"]
