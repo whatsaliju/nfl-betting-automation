@@ -393,6 +393,11 @@ class SituationalAnalyzer:
         """Detect challenging travel situations"""
         factors = []
         
+        # International game detection (London, Germany, Mexico)
+        time_str = str(game_time).lower()
+        if any(indicator in time_str for indicator in ['9:30', '9:', 'london', 'germany', 'mexico', 'international']):
+            factors.append("International game - travel/time zone factors")
+        
         # West coast team traveling east for early games
         west_coast = ['49ers', 'Seahawks', 'Rams', 'Chargers', 'Raiders', 'Cardinals']
         east_coast = ['Patriots', 'Jets', 'Bills', 'Dolphins', 'Giants', 'Eagles', 'Commanders', 'Panthers', 'Falcons', 'Buccaneers']
