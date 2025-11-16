@@ -531,20 +531,19 @@ def analyze_week(week):
     print(f"DIAGNOSTIC: Action DF rows: {len(action)}")
 
     # Standardize Game Time column casing
-    if "Game Time" in action.columns:
-        action["game_time"] = action["Game Time"]
-    elif "game_time" not in action.columns:
-        action["game_time"] = ""
+    if "Game Time" in action.columns:
+        action["game_time"] = action["Game Time"]
+    elif "game_time" not in action.columns:
+        action["game_time"] = ""
 
     # ---------------------------------------------------------------
     # REMOVE FINAL GAMES COMPLETELY FROM ACTION FEED
     # ---------------------------------------------------------------
     final_games = set()
-    
     if not action.empty:
-    
+        
         # Normalize Action matchups
-        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
+        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
 
         # --- DIAGNOSTIC PRINT (ONLY KEEPING NECESSARY ONE) ---
         # Check raw game_time column before filtering
@@ -554,14 +553,14 @@ def analyze_week(week):
         
         # Detect FINAL games
         final_games = set(
-            action[action["game_time"]
-                    .astype(str)
-                    .str.strip()
-                    .str.lower() == "final"]["normalized_matchup"]
-        )
-    
-        print(f"🧹 Detected FINAL games: {final_games}")
-    
+            action[action["game_time"]
+                    .astype(str)
+                    .str.strip()
+                    .str.lower() == "final"]["normalized_matchup"]
+        )
+
+        print(f"🧹 Detected FINAL games: {final_games}")
+
         # Remove ALL rows (all markets) for FINAL matchups
         before = len(action)
         action = action[~action["normalized_matchup"].isin(final_games)].copy()
