@@ -479,54 +479,58 @@ def analyze_week(week):
     def normalize_matchup(s):
         if not s:
             return ""
-        s = s.upper()
-        s = s.replace(" AT ", " @ ")
-        s = s.replace(" VS ", " @ ")
-        s = s.replace(" VS. ", " @ ")
+        s = s.lower().strip()
+        s = s.replace(" at ", " @ ")
+        s = s.replace(" vs ", " @ ")
+        s = s.replace(" vs. ", " @ ")
         s = s.replace("  ", " ")
-        # expand team abbreviations (NYJ -> jets)
+    
+        # Expand team abbreviations (NYJ -> jets) to match Action feed team names
         parts = s.split(" @ ")
         if len(parts) == 2:
             left, right = parts
             left = TEAM_MAP.get(left.upper(), left).lower()
             right = TEAM_MAP.get(right.upper(), right).lower()
             s = f"{left} @ {right}"
-        return s.strip()
-    queries["normalized_matchup"] = queries["matchup"].apply(normalize_matchup)
-
+    
+        return s
+    
+    
     # ---------------------------------------------------------------
     # LOAD ACTION NETWORK DATA
     # ---------------------------------------------------------------
     action_file = find_latest("action_all_markets_")
     action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
     
-    # Normalize matchups in Action data
     if not action.empty:
+        # Normalize Action matchups FIRST
         action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
     
-    # Identify FINAL games (normalized)
-    final_games = set()
-    if not action.empty and "Game Time" in action.columns:
+        # Identify FINAL games using the real Game Time string
         final_games = set(
-             action[action["Game Time"].astype(str).str.lower().str.strip().eq("final")]["normalized_matchup"]
+            action[action["Game Time"]
+                   .astype(str)
+                   .str.strip()
+                   .str.lower() == "final"]["normalized_matchup"]
         )
     
-    # Remove FINAL games from Action feed
-    if not action.empty:
-        print("🧹 Removing FINAL games from Action Network feed...")
+        print(f"🧹 Found {len(final_games)} FINAL games")
+    
+        # Remove FINAL rows from Action feed
         before = len(action)
-        action = action[~action["Game Time"].astype(str).str.lower().str.strip().eq("final")]
+        action = action[action["Game Time"]
+                        .astype(str)
+                        .str.strip()
+                        .str.lower() != "final"]
         after = len(action)
-        print(f"   → Removed {before - after} FINAL games")
+        print(f"   → Removed {before - after} FINAL rows")
+    
     
     # ---------------------------------------------------------------
-    # FINAL GAME CHECK
+    # FINAL GAME CHECK (queries)
     # ---------------------------------------------------------------
     def is_final_game(matchup):
-        """Check if a matchup corresponds to a FINAL game."""
         return normalize_matchup(matchup) in final_games
-    
-    # ---------------------------------------------------------------
 
     
     # ---------------------------------------------------------------
