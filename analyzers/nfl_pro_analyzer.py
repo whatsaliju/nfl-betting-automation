@@ -480,21 +480,27 @@ def analyze_week(week):
         if not s:
             return ""
         s = s.lower().strip()
+    
+        # unify separators
         s = s.replace(" at ", " @ ")
         s = s.replace(" vs ", " @ ")
         s = s.replace(" vs. ", " @ ")
         s = s.replace("  ", " ")
     
-        # Expand team abbreviations (NYJ -> jets) to match Action feed team names
-        parts = s.split(" @ ")
-        if len(parts) == 2:
-            left, right = parts
-            left = TEAM_MAP.get(left.upper(), left).lower()
-            right = TEAM_MAP.get(right.upper(), right).lower()
-            s = f"{left} @ {right}"
+        # split into two teams
+        parts = [p.strip() for p in s.split("@")]
+        if len(parts) != 2:
+            return s
     
-        return s
+        left, right = parts
     
+        # convert abbreviations like NE → patriots only if they ARE abbreviations
+        left = TEAM_MAP[left.upper()] if left.upper() in TEAM_MAP else left
+        right = TEAM_MAP[right.upper()] if right.upper() in TEAM_MAP else right
+    
+        # final normalized form
+        return f"{left.lower()} @ {right.lower()}"
+
     
     # ---------------------------------------------------------------
     # LOAD ACTION NETWORK DATA
