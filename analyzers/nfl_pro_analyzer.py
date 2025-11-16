@@ -469,37 +469,12 @@ def analyze_week(week):
     # Load data
     print("📥 Loading data sources...")
     queries = safe_load_csv(f"data/week{week}/week{week}_queries.csv", required=True)
+    # Normalize query matchups
+    
     sdql = safe_load_csv("data/historical/sdql_results.csv")
-
-
-
-
-
-
-
-    # ---------------------------------------------------------------
-    # LOAD ACTION NETWORK DATA
-    # ---------------------------------------------------------------
-    action_file = find_latest("action_all_markets_")
-    action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
-    
-    # Step 1 — Identify FINAL games BEFORE filtering them out
-    final_games = set()
-    if not action.empty and "Game Time" in action.columns:
-        final_games = set(
-            action[action["Game Time"].astype(str).str.lower() == "final"]["Matchup"]
-        )
-    
-    # Step 2 — Remove them from the Action dataset entirely
-    if not action.empty:
-        print("🧹 Removing FINAL games from Action Network feed...")
-        before = len(action)
-        action = action[action["Game Time"].astype(str).str.lower() != "final"]
-        after = len(action)
-        print(f"   → Removed {before - after} FINAL games")
     
     # ---------------------------------------------------------------
-    # MATCHUP NORMALIZATION
+    # MATCHUP NORMALIZATION (define BEFORE using it)
     # ---------------------------------------------------------------
     def normalize_matchup(s):
         if not s:
@@ -509,18 +484,50 @@ def analyze_week(week):
         s = s.replace(" vs ", " @ ")
         s = s.replace(" vs. ", " @ ")
         s = s.replace("  ", " ")
+        # expand team abbreviations (NYJ -> jets)
+        parts = s.split(" @ ")
+        if len(parts) == 2:
+            left, right = parts
+            left = TEAM_MAP.get(left.upper(), left).lower()
+            right = TEAM_MAP.get(right.upper(), right).lower()
+            s = f"{left} @ {right}"
         return s.strip()
+    queries["normalized_matchup"] = queries["matchup"].apply(normalize_matchup)
+
+    # ---------------------------------------------------------------
+    # LOAD ACTION NETWORK DATA
+    # ---------------------------------------------------------------
+    action_file = find_latest("action_all_markets_")
+    action = safe_load_csv(f"data/{action_file}") if action_file else pd.DataFrame()
     
+    # Normalize matchups in Action data
+    if not action.empty:
+        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
+    
+    # Identify FINAL games (normalized)
+    final_games = set()
+    if not action.empty and "Game Time" in action.columns:
+        final_games = set(
+            action[action["Game Time"].astype(str).str.lower() == "final"]["normalized_matchup"]
+        )
+    
+    # Remove FINAL games from Action feed
+    if not action.empty:
+        print("🧹 Removing FINAL games from Action Network feed...")
+        before = len(action)
+        action = action[action["Game Time"].astype(str).str.lower() != "final"]
+        after = len(action)
+        print(f"   → Removed {before - after} FINAL games")
+    
+    # ---------------------------------------------------------------
+    # FINAL GAME CHECK
+    # ---------------------------------------------------------------
     def is_final_game(matchup):
         """Check if a matchup corresponds to a FINAL game."""
-        norm = normalize_matchup(matchup)
-        
-        for fg in final_games:
-            fg_norm = normalize_matchup(fg)
-            if fg_norm == norm or fg_norm in norm or norm in fg_norm:
-                return True
+        return normalize_matchup(matchup) in final_games
     
-        return False
+    # ---------------------------------------------------------------
+
     
     # ---------------------------------------------------------------
     # BUILD KICKOFF LOOKUP (Only for NON-FINAL games)
@@ -529,7 +536,8 @@ def analyze_week(week):
     
     if not action.empty:
         for _, row in action.iterrows():
-            matchup_key = str(row.get("Matchup", "")).strip()
+            matchup_key = normalize_matchup(row.get("Matchup", ""))
+
             kickoff = (
                 row.get("Date")
                 or row.get("commence_time")
@@ -575,40 +583,17 @@ def analyze_week(week):
     filtered_rows = []
     
     for _, row in final.iterrows():
-        matchup = row.get("matchup", "").strip()
+        matchup_norm = row.get("normalized_matchup", "").strip()
 
         # 💥 First filter: remove games already FINAL (TNF, Saturday, completed games)
-        if is_final_game(matchup):
+        if is_final_game(matchup_norm):
             filtered_rows.append(False)
             continue
 
-        # Convert "@"" format to Action format
-        temp = matchup.replace("@", "vs").replace("  ", " ")
-        parts = [p.strip() for p in temp.split("vs")]
-    
-        if len(parts) == 2:
-            left, right = parts
-        else:
-            # Fallback: try splitting by space
-            tokens = matchup.replace("@", " ").split()
-            left = tokens[0] if len(tokens) > 0 else ""
-            right = tokens[1] if len(tokens) > 1 else ""
-    
-        # Build possible Action Network matchup keys
-        possible_keys = [
-            f"{left} @ {right}",
-            f"{right} @ {left}",
-            f"{left} vs {right}",
-            f"{right} vs {left}",
-            f"{left} {right}",
-            f"{right} {left}"
-        ]
-    
-        kickoff = None
-        for key in possible_keys:
-            if key in kickoff_lookup:
-                kickoff = kickoff_lookup[key]
-                break
+        matchup_norm = row.get("normalized_matchup", "")
+        kickoff = kickoff_lookup.get(matchup_norm)
+
+
     
         # If no kickoff found → keep the game
         if kickoff is None or pd.isna(kickoff):
