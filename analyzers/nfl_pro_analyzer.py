@@ -469,8 +469,14 @@ def analyze_week(week):
     # Load data
     print("📥 Loading data sources...")
     queries = safe_load_csv(f"data/week{week}/week{week}_queries.csv", required=True)
-    # Normalize query matchups
+     # Normalize query matchups
     sdql = safe_load_csv("data/historical/sdql_results.csv")
+    
+        # Standardize query game_time
+    if "game_time" in queries.columns:
+        queries["game_time"] = queries["game_time"].astype(str).str.strip().str.lower()
+
+   
     
  
 
@@ -603,8 +609,9 @@ def analyze_week(week):
     
     # Remove FINAL games (after normalizing queries too)
     final["normalized_matchup"] = final["matchup"].apply(normalize_matchup)
+    
+    # Remove final games based on normalized matchups
     final = final[~final["normalized_matchup"].isin(final_games)].copy()
-
 
 
     # 🔥 Filter out games whose kickoff has already passed
@@ -620,6 +627,7 @@ def analyze_week(week):
             continue
 
         matchup_norm = row.get("normalized_matchup", "")
+        
         kickoff = kickoff_lookup.get(matchup_norm)
 
 
@@ -662,10 +670,10 @@ def analyze_week(week):
         if not action.empty:
             for market_name in ['Spread', 'Total', 'Moneyline']:
                 market_data = action[
-                    (action['Market'] == market_name) &
-                    (action['Matchup'].str.contains(away_full, na=False)) &
-                    (action['Matchup'].str.contains(home_full, na=False))
+                    action["normalized_matchup"] == row["normalized_matchup"]
                 ]
+                market_data = market_data[market_data["Market"] == market_name]
+
                 sharp_analysis[market_name.lower()] = SharpMoneyAnalyzer.analyze_market(
                     market_data, market_name
                 )      
