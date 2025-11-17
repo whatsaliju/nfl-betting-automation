@@ -1035,13 +1035,6 @@ class NarrativeEngine:
                 narrative.append(f"  • {factor}")
             narrative.append("")
         
-        # Environmental factors
-        if game_data['weather_analysis']['factors']:
-            narrative.append("WEATHER IMPACT:")
-            for factor in game_data['weather_analysis']['factors']:
-                narrative.append(f"  • {factor}")
-            narrative.append("")
-
         # REPLACE your existing injury section with this ENHANCED VERSION:
         # Enhanced Injury Analysis Output
         injury_data = game_data['injury_analysis']
