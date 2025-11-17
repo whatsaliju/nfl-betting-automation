@@ -304,6 +304,52 @@ class WeatherAnalyzer:
 # ================================================================
 # INJURY ANALYZER
 # ================================================================
+class InjuryIntegration:
+    """Integrates injury analysis into game breakdowns."""
+    
+    @staticmethod
+    def analyze_game_injuries(away_full, home_full, week):
+        """Analyze injuries for a specific game."""
+        try:
+            analyzer = InjuryAnalyzer()
+            
+            # Load RotoWire injury data
+            rotowire_file = f"data/rotowire_injuries_week_{week}.csv"
+            injury_data = analyzer.process_rotowire_injuries(rotowire_file)
+            
+            if not injury_data:
+                return {
+                    'away_team': away_full,
+                    'home_team': home_full,
+                    'analysis': 'No significant injury impacts identified',
+                    'recommendations': [],
+                    'injury_score': 0
+                }
+            
+            # Analyze game-level injuries
+            game_analysis = analyzer.analyze_game_injuries(away_full, home_full, injury_data)
+            
+            return {
+                'away_team': away_full,
+                'home_team': home_full,
+                'analysis': game_analysis['game_analysis'],
+                'recommendations': game_analysis['betting_recommendations'],
+                'injury_score': game_analysis['net_impact'],
+                'away_injuries': game_analysis['away_injuries'],
+                'home_injuries': game_analysis['home_injuries'],
+                'injury_edge': game_analysis['injury_edge']
+            }
+            
+        except Exception as e:
+            print(f"⚠️  Error in injury analysis for {away_full} @ {home_full}: {e}")
+            return {
+                'away_team': away_full,
+                'home_team': home_full,
+                'analysis': 'Injury analysis unavailable',
+                'recommendations': [],
+                'injury_score': 0
+            }
+
 
 class InjuryAnalyzer:
     """Analyzes injury impact from Action Network and RotoWire data"""
@@ -1088,6 +1134,70 @@ class ClassificationEngine:
         else:
             return "⚠️ PASS: Analysis inconclusive, too many mixed signals"
 
+ef parse_injury_entry(entry_text, away_team, home_team):
+    """Parse a single injury entry from RotoWire data."""
+    try:
+        # Basic parsing - you can enhance this based on RotoWire format
+        # Example formats: "Josh Allen (Q)", "Ja'Marr Chase (Probable - Ankle)"
+        
+        if '(' in entry_text and ')' in entry_text:
+            player_part = entry_text.split('(')[0].strip()
+            status_part = entry_text.split('(')[1].split(')')[0].strip()
+            
+            # Determine team (simple logic - you can enhance)
+            team = away_team  # Default, could be improved with team matching
+            
+            # Extract injury type if present
+            injury_type = ''
+            if '-' in status_part:
+                parts = status_part.split('-')
+                status = parts[0].strip()
+                injury_type = parts[1].strip()
+            else:
+                status = status_part
+            
+            # Match to whitelist
+            from injury_analyzer import InjuryAnalyzer
+            analyzer = InjuryAnalyzer()
+            player_id = analyzer._match_player_to_whitelist(player_part, team)
+            
+            if player_id:
+                return {
+                    'player_id': player_id,
+                    'status': status,
+                    'injury_type': injury_type,
+                    'team_context': get_team_context(team)
+                }
+    except Exception as e:
+        print(f"⚠️  Error parsing injury entry '{entry_text}': {e}")
+    
+    return None
+
+def match_player_to_whitelist(player_name, team):
+    """Helper to match player to injury whitelist."""
+    try:
+        from injury_analyzer import InjuryAnalyzer
+        analyzer = InjuryAnalyzer()
+        return analyzer._match_player_to_whitelist(player_name, team)
+    except:
+        return None
+
+def get_team_context(team):
+    """Get team context for injury calculations."""
+    # You can expand this with actual team data
+    team_contexts = {
+        # Example team contexts - you can enhance these
+        'Buffalo Bills': {'backup_quality': 'poor_backup', 'scheme_dependency': 'system_dependent'},
+        'Kansas City Chiefs': {'backup_quality': 'good_backup', 'scheme_dependency': 'player_dependent'},
+        'Cincinnati Bengals': {'backup_quality': 'average_backup', 'scheme_dependency': 'player_dependent'},
+        # Add more teams as needed
+    }
+    
+    return team_contexts.get(team, {
+        'backup_quality': 'average_backup',
+        'scheme_dependency': 'player_dependent',
+        'season_importance': 'normal'
+    })
 
 # ================================================================
 # MAIN ANALYSIS ENGINE
@@ -1225,7 +1335,8 @@ def analyze_week(week):
         # Referee Analysis
         ref_analysis = RefereeAnalyzer.analyze(row)
         
-        # Weather and Injury Analysis - UPDATED
+       # REPLACE your existing injury analysis section with this:
+        # Weather and Injury Analysis - ENHANCED VERSION
         weather_data = ""
         injury_data_combined = ""
         
@@ -1238,31 +1349,79 @@ def analyze_week(week):
                 weather_data = match.iloc[0].get('weather', '')
                 injury_data_combined = match.iloc[0].get('injuries', '')
         
-        # Analyze weather
+        # Analyze weather (keep your existing logic)
         weather_analysis = WeatherAnalyzer.analyze(weather_data)
         
-        # Analyze injuries for BOTH teams using Action Network data
-        away_injury_analysis = InjuryAnalyzer.analyze(
-            injury_data_combined,  # RotoWire might have both teams
-            team_name=away_full,
-            action_injuries_df=action_injuries
-        )
-        
-        home_injury_analysis = InjuryAnalyzer.analyze(
-            injury_data_combined,
-            team_name=home_full,
-            action_injuries_df=action_injuries
-        )
-        
-        # Combine injury scores and factors
-        combined_injury_score = away_injury_analysis['score'] + home_injury_analysis['score']
-        combined_injury_factors = away_injury_analysis['factors'] + home_injury_analysis['factors']
-        
-        injury_analysis = {
-            'score': combined_injury_score,
-            'factors': combined_injury_factors,
-            'description': ', '.join(combined_injury_factors) if combined_injury_factors else 'No significant injuries'
-        }
+        # Enhanced Injury Analysis using new comprehensive system
+        try:
+            from injury_analyzer import InjuryAnalyzer
+            injury_analyzer = InjuryAnalyzer()
+            
+            # Process RotoWire injury data for this game
+            game_injuries = []
+            
+            # Parse RotoWire injury data if available
+            if injury_data_combined and pd.notna(injury_data_combined):
+                # Split injury data and process each entry
+                injury_entries = str(injury_data_combined).split(',')
+                for entry in injury_entries:
+                    if entry.strip():
+                        # Parse injury entry (format might be "Player Name (Status)")
+                        parsed_injury = parse_injury_entry(entry.strip(), away_full, home_full)
+                        if parsed_injury:
+                            game_injuries.append(parsed_injury)
+            
+            # Add Action Network injuries if available
+            if not action_injuries.empty:
+                for _, row in action_injuries.iterrows():
+                    if (row.get('team', '').upper() in [away_full.upper(), home_full.upper()]):
+                        parsed_injury = {
+                            'player_id': match_player_to_whitelist(row.get('player', ''), row.get('team', '')),
+                            'status': row.get('status', 'questionable'),
+                            'injury_type': row.get('injury_type', ''),
+                            'team_context': get_team_context(row.get('team', ''))
+                        }
+                        if parsed_injury['player_id']:
+                            game_injuries.append(parsed_injury)
+            
+            # Analyze game-level injuries
+            if game_injuries:
+                injury_game_analysis = injury_analyzer.analyze_game_injuries(away_full, home_full, game_injuries)
+                
+                # Convert to your existing format
+                injury_analysis = {
+                    'score': min(abs(injury_game_analysis['net_impact']) * 10, 15),  # Scale to 0-15
+                    'factors': injury_game_analysis['betting_recommendations'],
+                    'description': injury_game_analysis['game_analysis'],
+                    'edge': injury_game_analysis['injury_edge'],
+                    'away_impact': injury_game_analysis['away_total_impact'],
+                    'home_impact': injury_game_analysis['home_total_impact'],
+                    'net_impact': injury_game_analysis['net_impact']
+                }
+            else:
+                # No injuries found - use your fallback
+                injury_analysis = {
+                    'score': 0,
+                    'factors': [],
+                    'description': 'No significant injuries identified',
+                    'edge': 'NO EDGE',
+                    'away_impact': 0,
+                    'home_impact': 0,
+                    'net_impact': 0
+                }
+                
+        except Exception as e:
+            print(f"⚠️  Enhanced injury analysis failed for {away_full} @ {home_full}: {e}")
+            # Fallback to basic analysis
+            injury_analysis = {
+                'score': 0,
+                'factors': [],
+                'description': 'Injury analysis unavailable',
+                'edge': 'NO EDGE',
+                'away_impact': 0,
+                'home_impact': 0,
+                'net_impact': 0
+            }
         
         # Situational Analysis
         temp_game_data = {
