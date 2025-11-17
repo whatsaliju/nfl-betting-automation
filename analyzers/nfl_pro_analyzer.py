@@ -345,8 +345,7 @@ class InjuryIntegration:
             
         except Exception as e:
             print(f"⚠️  Error in injury analysis for {away_full} @ {home_full}: {e}")
-            import traceback
-            traceback.print_exc()
+            
             return {
                 'away_team': away_full,
                 'home_team': home_full,
@@ -1395,9 +1394,15 @@ def analyze_week(week):
         weather_analysis = WeatherAnalyzer.analyze(weather_data)
         
         # Enhanced Injury Analysis using new comprehensive system
+        #try:
+         #   from injury_analyzer import InjuryAnalyzer
+          #  injury_analyzer = InjuryAnalyzer()
+
+            # Enhanced Injury Analysis using new comprehensive system
         try:
-            from injury_analyzer import InjuryAnalyzer
+            print(f"🔍 Starting injury analysis for {away_full} @ {home_full}")
             injury_analyzer = InjuryAnalyzer()
+            print(f"🔍 InjuryAnalyzer instance created successfully")
             
             # Process RotoWire injury data for this game
             game_injuries = []
