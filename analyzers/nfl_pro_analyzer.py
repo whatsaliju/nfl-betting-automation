@@ -1215,9 +1215,36 @@ def parse_injury_entry(entry_text, away_team, home_team):
 def match_player_to_whitelist(player_name, team):
     """Helper to match player to injury whitelist."""
     try:
-        analyzer = InjuryAnalyzer()
-        return analyzer._match_player_to_whitelist(player_name, team)
-    except:
+        # Load the whitelist directly
+        import json
+        import os
+        
+        whitelist_path = 'config/injury_whitelist.json'
+        if os.path.exists(whitelist_path):
+            with open(whitelist_path, 'r') as f:
+                whitelist = json.load(f)
+            
+            players_dict = {p['id']: p for p in whitelist['injury_whitelist']['players']}
+            
+            # Simple matching - improve this logic as needed
+            name_lower = player_name.lower().strip()
+            
+            for player_id, player_data in players_dict.items():
+                if name_lower in player_data['name'].lower():
+                    # Extract team abbreviation from Action Network full name
+                    team_abbrev = ""
+                    if "Dolphins" in team:
+                        team_abbrev = "MIA"
+                    elif "Commanders" in team:
+                        team_abbrev = "WAS"
+                    # Add more team mappings as needed
+                    
+                    if team_abbrev == player_data['team']:
+                        return player_id
+        
+        return None
+    except Exception as e:
+        print(f"⚠️  Error in player matching: {e}")
         return None
 
 def get_team_context(team):
