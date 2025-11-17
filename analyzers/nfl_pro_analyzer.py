@@ -1507,7 +1507,6 @@ def analyze_week(week):
             # Analyze game-level injuries
             if game_injuries:
             # Try the correct method name from the InjuryAnalyzer class
-            try:
                 injury_game_analysis = injury_analyzer.analyze_game_injuries(away_full, home_full, game_injuries)
                 
                 # Convert to your existing format
