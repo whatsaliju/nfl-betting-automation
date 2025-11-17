@@ -1198,9 +1198,7 @@ def parse_injury_entry(entry_text, away_team, home_team):
                 status = status_part
             
             # Match to whitelist
-            from injury_analyzer import InjuryAnalyzer
-            analyzer = InjuryAnalyzer()
-            player_id = analyzer._match_player_to_whitelist(player_part, team)
+            player_id = match_player_to_whitelist(player_part, team)
             
             if player_id:
                 return {
@@ -1217,7 +1215,6 @@ def parse_injury_entry(entry_text, away_team, home_team):
 def match_player_to_whitelist(player_name, team):
     """Helper to match player to injury whitelist."""
     try:
-        from injury_analyzer import InjuryAnalyzer
         analyzer = InjuryAnalyzer()
         return analyzer._match_player_to_whitelist(player_name, team)
     except:
@@ -1408,16 +1405,16 @@ def analyze_week(week):
             game_injuries = []
             
             # Parse RotoWire injury data if available
-            if injury_data_combined and pd.notna(injury_data_combined):
-                # Split injury data and process each entry
-                injury_entries = str(injury_data_combined).split(',')
-                for entry in injury_entries:
-                    if entry.strip():
-                        # Parse injury entry (format might be "Player Name (Status)")
-                        parsed_injury = parse_injury_entry(entry.strip(), away_full, home_full)
-                        if parsed_injury:
-                            game_injuries.append(parsed_injury)
-            
+            #if injury_data_combined and pd.notna(injury_data_combined):
+           #     # Split injury data and process each entry
+          #      injury_entries = str(injury_data_combined).split(',')
+         #       for entry in injury_entries:
+        #            if entry.strip():
+       #                 # Parse injury entry (format might be "Player Name (Status)")
+      #                  parsed_injury = parse_injury_entry(entry.strip(), away_full, home_full)
+     #                   if parsed_injury:
+    #                        game_injuries.append(parsed_injury)
+   #         
             # Add Action Network injuries if available
             if not action_injuries.empty:
                 for _, row in action_injuries.iterrows():
