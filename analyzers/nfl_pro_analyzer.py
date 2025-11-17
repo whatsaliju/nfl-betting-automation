@@ -1151,28 +1151,142 @@ class ClassificationEngine:
         # Landmine: Mixed signals
         return "⚠️ LANDMINE", "PASS", 3
     
+    # ADD THIS ENHANCED RECOMMENDATION LOGIC TO YOUR ClassificationEngine
+
     @staticmethod
-    def generate_recommendation(classification, game_analysis):
-        """Generate specific betting recommendation - FIXED"""
-        # classification is already a string like "🔵 BLUE CHIP"
+    def generate_enhanced_recommendation(classification, game_analysis):
+        """Generate specific, actionable betting recommendations with lines and teams."""
+        
+        # Get game details
+        away_team = game_analysis.get('away', '')
+        home_team = game_analysis.get('home', '')
+        
+        # Extract line information from sharp analysis
+        sharp = game_analysis['sharp_analysis']
+        spread_line = sharp.get('spread', {}).get('line', '')
+        total_line = sharp.get('total', {}).get('line', '')
+        ml_line = sharp.get('moneyline', {}).get('line', '')
+        
+        spread_dir = sharp['spread']['direction'] 
+        total_dir = sharp['total']['direction']
+        spread_edge = abs(sharp['spread'].get('differential', 0))
+        total_edge = abs(sharp['total'].get('differential', 0))
+        
+        # Parse spread line to get number
+        spread_num = extract_spread_number(spread_line)
+        total_num = extract_total_number(total_line)
+        
         cat = classification
         
-        sharp = game_analysis['sharp_analysis']
-        spread_dir = sharp['spread']['direction']
-        total_dir = sharp['total']['direction']
-        
         if "BLUE CHIP" in cat:
-            return f"✅ STRONG PLAY: {spread_dir} on spread + {total_dir} on total"
+            # Strong plays get both spread and total recommendations
+            primary_rec = generate_primary_bet(spread_dir, away_team, home_team, spread_num)
+            secondary_rec = generate_total_bet(total_dir, total_num) if total_edge >= 10 else None
+            
+            if secondary_rec:
+                return f"✅ STRONG PLAY: {primary_rec} + {secondary_rec}"
+            else:
+                return f"✅ STRONG PLAY: {primary_rec}"
+                
         elif "TARGETED PLAY" in cat:
-            return f"✅ GOOD VALUE: {spread_dir} on spread"
+            # Targeted plays get the strongest single recommendation
+            if spread_edge >= total_edge:
+                return f"✅ TARGETED PLAY: {generate_primary_bet(spread_dir, away_team, home_team, spread_num)}"
+            else:
+                return f"✅ TARGETED PLAY: {generate_total_bet(total_dir, total_num)}"
+                
         elif "LEAN" in cat:
-            return f"👀 SLIGHT EDGE: Consider {spread_dir} side"
+            return f"👀 LEAN: {generate_primary_bet(spread_dir, away_team, home_team, spread_num)} (proceed with caution)"
+            
         elif "TRAP" in cat:
-            return f"🚨 TRAP GAME: Fade the public, consider opposite side"
+            # For trap games, recommend fading the public
+            public_side = "home" if game_analysis.get('public_exposure', 50) > 50 else "away"
+            fade_side = "away" if public_side == "home" else "home"
+            fade_team = away_team if fade_side == "away" else home_team
+            fade_rec = generate_primary_bet(fade_side.upper(), away_team, home_team, spread_num)
+            return f"🚨 TRAP GAME: {fade_rec} (fade the public)"
+            
         elif "FADE" in cat:
-            return "❌ AVOID: Too many negative factors"
+            return "❌ AVOID: Multiple negative factors align"
         else:
-            return "⚠️ PASS: Analysis inconclusive, too many mixed signals"
+            return "⚠️ PASS: Mixed signals, no clear edge identified"
+    
+    
+    def generate_primary_bet(direction, away_team, home_team, spread_num):
+        """Generate specific spread bet recommendation."""
+        if direction == 'AWAY':
+            if spread_num:
+                return f"{away_team} {spread_num}"
+            else:
+                return f"{away_team} +X (check current line)"
+        elif direction == 'HOME': 
+            if spread_num:
+                # Convert to home team spread
+                home_spread = flip_spread(spread_num)
+                return f"{home_team} {home_spread}"
+            else:
+                return f"{home_team} -X (check current line)"
+        else:
+            return f"No clear spread edge"
+    
+    
+    def generate_total_bet(direction, total_num):
+        """Generate specific total bet recommendation."""
+        if direction == 'OVER':
+            if total_num:
+                return f"OVER {total_num}"
+            else:
+                return "OVER X.5 (check current total)"
+        elif direction == 'UNDER':
+            if total_num:
+                return f"UNDER {total_num}"
+            else:
+                return "UNDER X.5 (check current total)"
+        else:
+            return "No clear total edge"
+    
+    
+    def extract_spread_number(line_str):
+        """Extract spread number from line string like 'KC -5.5 | DEN +5.5'."""
+        if not line_str:
+            return None
+        
+        import re
+        # Look for pattern like "-5.5" or "+5.5"
+        match = re.search(r'([+-]?\d+\.?\d*)', str(line_str))
+        if match:
+            return match.group(1)
+        return None
+    
+    
+    def extract_total_number(line_str):
+        """Extract total number from line string like 'O45.5 | U45.5'."""
+        if not line_str:
+            return None
+            
+        import re
+        # Look for number after O or U
+        match = re.search(r'[OU](\d+\.?\d*)', str(line_str))
+        if match:
+            return match.group(1)
+        return None
+    
+    
+    def flip_spread(spread_str):
+        """Convert away spread to home spread. '-5.5' becomes '+5.5'."""
+        if not spread_str:
+            return spread_str
+            
+        if spread_str.startswith('-'):
+            return '+' + spread_str[1:]
+        elif spread_str.startswith('+'):
+            return '-' + spread_str[1:]
+        else:
+            return '-' + spread_str
+    
+    
+    # UPDATE YOUR EXISTING CLASSIFICATION ENGINE:
+    # Replace the old generate_recommendation method with generate_enhanced_recommendation
 
 def parse_injury_entry(entry_text, away_team, home_team):
     """Parse a single injury entry from RotoWire data."""
@@ -1664,7 +1778,7 @@ def analyze_week(week):
         # Classification
         classification, recommendation, confidence = ClassificationEngine.classify(game_analysis)
         game_analysis['classification'] = classification
-        game_analysis['recommendation'] = ClassificationEngine.generate_recommendation(
+        game_analysis['recommendation'] = ClassificationEngine.generate_enhanced_recommendation(
             classification, game_analysis
         )
         game_analysis['confidence'] = confidence
@@ -1689,7 +1803,15 @@ def analyze_week(week):
     
     print(f"\n✅ Analysis complete!\n")
 
-
+    # After generating outputs, log performance tracking
+    try:
+        from performance_tracker import PerformanceTracker
+        tracker = PerformanceTracker()
+        tracker.log_week_recommendations(week, f"data/week{week}/week{week}_analytics.json")
+        print(f"📊 Performance tracking logged for Week {week}")
+    except Exception as e:
+        print(f"⚠️ Performance tracking failed: {e}")
+        
 def generate_outputs(week, games):
     """Generate all output files"""
     
