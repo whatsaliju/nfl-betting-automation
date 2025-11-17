@@ -1540,14 +1540,21 @@ def analyze_week(week):
                     action_injuries_df=action_injuries
                 )
                 # Generate prop recommendations
+          # Analyze game-level injuries
             if game_injuries:
-                injury_analyzer = InjuryAnalyzer()
-                prop_recommendations = injury_analyzer.generate_prop_recommendations(
-                    game_injuries, away_full, home_full
+                # Use the available analyze method for each team
+                away_injury_analysis = injury_analyzer.analyze(
+                    "",  # No RotoWire data 
+                    team_name=away_full,
+                    action_injuries_df=action_injuries
                 )
-                injury_analysis['prop_recommendations'] = prop_recommendations
-            else:
-                injury_analysis['prop_recommendations'] = []
+            
+                home_injury_analysis = injury_analyzer.analyze(
+                    "",  # No RotoWire data
+                    team_name=home_full, 
+                    action_injuries_df=action_injuries
+                )
+            
                 # Combine the results
                 net_impact = home_injury_analysis['score'] - away_injury_analysis['score']
                 all_factors = away_injury_analysis['factors'] + home_injury_analysis['factors']
@@ -1560,7 +1567,12 @@ def analyze_week(week):
                     'home_total_impact': abs(home_injury_analysis['score']),
                     'injury_edge': 'STRONG EDGE' if abs(net_impact) >= 2 else 'MODERATE EDGE' if abs(net_impact) >= 1 else 'NO EDGE'
                 }
-
+                
+                # Generate prop recommendations
+                injury_analyzer = InjuryAnalyzer()
+                prop_recommendations = injury_analyzer.generate_prop_recommendations(
+                    game_injuries, away_full, home_full
+                )
                 
                 # Convert to your existing format
                 injury_analysis = {
@@ -1570,7 +1582,8 @@ def analyze_week(week):
                     'edge': injury_game_analysis['injury_edge'],
                     'away_impact': injury_game_analysis['away_total_impact'],
                     'home_impact': injury_game_analysis['home_total_impact'],
-                    'net_impact': injury_game_analysis['net_impact']
+                    'net_impact': injury_game_analysis['net_impact'],
+                    'prop_recommendations': prop_recommendations
                 }
             else:
                 # No injuries found - use your fallback
@@ -1581,7 +1594,8 @@ def analyze_week(week):
                     'edge': 'NO EDGE',
                     'away_impact': 0,
                     'home_impact': 0,
-                    'net_impact': 0
+                    'net_impact': 0,
+                    'prop_recommendations': []
                 }
                 
         except Exception as e:
