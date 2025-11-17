@@ -1514,8 +1514,32 @@ def analyze_week(week):
                 print(f"🔍 Found {game_match_count} injuries for this game, {len(game_injuries)} matched whitelist")
             # Analyze game-level injuries
             if game_injuries:
-            # Try the correct method name from the InjuryAnalyzer class
-                injury_game_analysis = injury_analyzer.analyze_game_injuries(away_full, home_full, game_injuries)
+                # Use the available analyze method for each team
+                away_injury_analysis = injury_analyzer.analyze(
+                    "",  # No RotoWire data 
+                    team_name=away_full,
+                    action_injuries_df=action_injuries
+                )
+                
+                home_injury_analysis = injury_analyzer.analyze(
+                    "",  # No RotoWire data
+                    team_name=home_full, 
+                    action_injuries_df=action_injuries
+                )
+                
+                # Combine the results
+                net_impact = home_injury_analysis['score'] - away_injury_analysis['score']
+                all_factors = away_injury_analysis['factors'] + home_injury_analysis['factors']
+                
+                injury_game_analysis = {
+                    'game_analysis': f"Away injuries: {away_injury_analysis['description']} | Home injuries: {home_injury_analysis['description']}",
+                    'betting_recommendations': all_factors[:3],  # Top 3 factors
+                    'net_impact': net_impact,
+                    'away_total_impact': abs(away_injury_analysis['score']),
+                    'home_total_impact': abs(home_injury_analysis['score']),
+                    'injury_edge': 'STRONG EDGE' if abs(net_impact) >= 2 else 'MODERATE EDGE' if abs(net_impact) >= 1 else 'NO EDGE'
+                }
+
                 
                 # Convert to your existing format
                 injury_analysis = {
