@@ -1,0 +1,325 @@
+{
+  "injury_rules": {
+    "version": "2025_week_11", 
+    "last_updated": "2025-11-16",
+    "description": "Rules engine for processing NFL injury impacts on betting lines and analysis",
+    
+    // ===== STATUS CLASSIFICATION RULES =====
+    "status_mappings": {
+      "out": {
+        "keywords": ["out", "ruled out", "will not play", "inactive", "ir", "injured reserve"],
+        "confidence": 100,
+        "line_impact_multiplier": 1.0,
+        "analysis_weight": "maximum"
+      },
+      "doubtful": {
+        "keywords": ["doubtful", "unlikely to play", "long shot", "not expected"],
+        "confidence": 85,
+        "line_impact_multiplier": 0.8,
+        "analysis_weight": "high"
+      },
+      "questionable": {
+        "keywords": ["questionable", "q", "game-time decision", "50-50", "limited practice"],
+        "confidence": 50,
+        "line_impact_multiplier": 0.4,
+        "analysis_weight": "medium"
+      },
+      "probable": {
+        "keywords": ["probable", "expected to play", "should play", "full practice"],
+        "confidence": 15,
+        "line_impact_multiplier": 0.1,
+        "analysis_weight": "low"
+      },
+      "healthy": {
+        "keywords": ["healthy", "no injury designation", "full go", "cleared"],
+        "confidence": 0,
+        "line_impact_multiplier": 0.0,
+        "analysis_weight": "none"
+      }
+    },
+
+    // ===== INJURY TYPE SEVERITY MODIFIERS =====
+    "injury_severity": {
+      "high_severity": {
+        "types": ["concussion", "hamstring", "ankle", "knee", "shoulder", "back", "neck", "head"],
+        "multiplier": 1.2,
+        "notes": "Injuries that significantly limit performance even when playing"
+      },
+      "medium_severity": {
+        "types": ["quad", "groin", "calf", "wrist", "hand", "finger", "toe"],
+        "multiplier": 1.0,
+        "notes": "Standard impact injuries"
+      },
+      "low_severity": {
+        "types": ["illness", "rest", "veteran rest", "personal", "non-injury"],
+        "multiplier": 0.5,
+        "notes": "Minimal performance impact when playing"
+      }
+    },
+
+    // ===== POSITION-SPECIFIC IMPACT CALCULATIONS =====
+    "position_impact_rules": {
+      "QB": {
+        "base_multiplier": 3.5,
+        "spread_impact": true,
+        "total_impact": true,
+        "ml_impact": true,
+        "props_affected": ["passing_yards", "passing_tds", "team_total"],
+        "notes": "QBs have maximum line impact across all markets"
+      },
+      "RB": {
+        "base_multiplier": 1.0,
+        "spread_impact": true,
+        "total_impact": false,
+        "ml_impact": true,
+        "props_affected": ["rushing_yards", "rushing_tds", "team_total"],
+        "committee_factor": 0.7,
+        "notes": "Impact reduced if team has viable backup"
+      },
+      "WR": {
+        "base_multiplier": 1.5,
+        "spread_impact": true,
+        "total_impact": true,
+        "ml_impact": true,
+        "props_affected": ["receiving_yards", "receiving_tds", "team_total", "qb_passing"],
+        "wr1_factor": 1.0,
+        "wr2_factor": 0.6,
+        "wr3_factor": 0.3
+      },
+      "TE": {
+        "base_multiplier": 0.8,
+        "spread_impact": true,
+        "total_impact": false,
+        "ml_impact": false,
+        "props_affected": ["receiving_yards", "receiving_tds", "qb_passing"],
+        "elite_factor": 1.5,
+        "notes": "Only elite TEs significantly impact lines"
+      },
+      "LT": {
+        "base_multiplier": 2.0,
+        "spread_impact": true,
+        "total_impact": false,
+        "ml_impact": true,
+        "props_affected": ["qb_sacks_allowed", "rushing_yards", "qb_passing"],
+        "pass_heavy_offense_factor": 1.5,
+        "notes": "Critical for QB protection, especially vs elite pass rushers"
+      },
+      "C": {
+        "base_multiplier": 1.2,
+        "spread_impact": true,
+        "total_impact": false,
+        "ml_impact": false,
+        "props_affected": ["qb_sacks_allowed", "rushing_yards"],
+        "notes": "Anchors offensive line, affects both run and pass"
+      },
+      "CB": {
+        "base_multiplier": 1.0,
+        "spread_impact": false,
+        "total_impact": true,
+        "ml_impact": false,
+        "props_affected": ["opposing_wr_receiving", "total_points"],
+        "cb1_factor": 1.0,
+        "cb2_factor": 0.4,
+        "notes": "Primarily affects totals, especially overs"
+      },
+      "EDGE": {
+        "base_multiplier": 1.8,
+        "spread_impact": true,
+        "total_impact": false,
+        "ml_impact": true,
+        "props_affected": ["qb_sacks", "qb_passing", "opposing_rushing"],
+        "elite_factor": 2.0,
+        "notes": "Elite pass rushers can single-handedly disrupt offenses"
+      },
+      "IDL": {
+        "base_multiplier": 1.0,
+        "spread_impact": false,
+        "total_impact": false,
+        "ml_impact": false,
+        "props_affected": ["opposing_rushing", "qb_sacks"],
+        "elite_factor": 1.5
+      },
+      "LB": {
+        "base_multiplier": 0.5,
+        "spread_impact": false,
+        "total_impact": false,
+        "ml_impact": false,
+        "props_affected": ["opposing_te_receiving", "opposing_rb_receiving"],
+        "coverage_lb_factor": 1.2,
+        "notes": "Impact varies greatly by scheme and coverage responsibilities"
+      }
+    },
+
+    // ===== TEAM CONTEXT MODIFIERS =====
+    "team_context_rules": {
+      "depth_quality": {
+        "elite_backup": 0.3,
+        "good_backup": 0.5,
+        "average_backup": 0.7,
+        "poor_backup": 1.0,
+        "no_backup": 1.5,
+        "notes": "Multiplier for injury impact based on backup quality"
+      },
+      "offensive_scheme": {
+        "system_dependent": 1.3,
+        "player_dependent": 1.0,
+        "scheme_flexible": 0.7,
+        "notes": "How much offense relies on specific player vs system"
+      },
+      "season_context": {
+        "playoff_race": 1.2,
+        "division_race": 1.1,
+        "meaningless_game": 0.8,
+        "notes": "Team motivation affects injury impact"
+      }
+    },
+
+    // ===== MATCHUP CONTEXT RULES =====
+    "matchup_modifiers": {
+      "defensive_strength": {
+        "elite_defense": 1.4,
+        "good_defense": 1.1,
+        "average_defense": 1.0,
+        "poor_defense": 0.8,
+        "notes": "Stronger defenses amplify injury impacts"
+      },
+      "game_script": {
+        "expected_blowout": 0.8,
+        "expected_close": 1.2,
+        "notes": "Close games amplify star player importance"
+      },
+      "weather_factor": {
+        "bad_weather": 1.3,
+        "neutral_weather": 1.0,
+        "dome_game": 0.9,
+        "notes": "Bad weather increases reliance on key players"
+      }
+    },
+
+    // ===== ANALYSIS GENERATION RULES =====
+    "analysis_rules": {
+      "confidence_thresholds": {
+        "high_confidence": {
+          "min_impact": 1.5,
+          "min_certainty": 70,
+          "action": "Strong recommendation"
+        },
+        "medium_confidence": {
+          "min_impact": 0.8,
+          "min_certainty": 50,
+          "action": "Lean or targeted play"
+        },
+        "low_confidence": {
+          "min_impact": 0.3,
+          "min_certainty": 30,
+          "action": "Monitor only"
+        }
+      },
+      
+      "betting_implications": {
+        "spread_adjustment": {
+          "tier_1_out": "2-7 point move expected",
+          "tier_2_out": "1-3 point move expected", 
+          "tier_3_out": "0.5-1.5 point move expected"
+        },
+        "total_adjustment": {
+          "offensive_star": "Lower total, under bias",
+          "defensive_star": "Higher total, over bias"
+        },
+        "prop_implications": {
+          "direct_impact": "Avoid affected player props",
+          "indirect_impact": "Target beneficiary props",
+          "team_impact": "Adjust team totals accordingly"
+        }
+      },
+
+      "alert_triggers": {
+        "line_movement_mismatch": {
+          "description": "Injury suggests line should move but hasn't",
+          "action": "Flag as potential value"
+        },
+        "overreaction": {
+          "description": "Line moved more than injury impact warrants",
+          "action": "Consider fade opportunity"
+        },
+        "late_breaking": {
+          "description": "Injury news after line set",
+          "action": "Quick action opportunity"
+        }
+      }
+    },
+
+    // ===== REPORT FORMATTING RULES =====
+    "report_formatting": {
+      "priority_sections": [
+        "tier_1_injuries",
+        "line_movement_opportunities", 
+        "prop_bet_adjustments",
+        "monitor_list"
+      ],
+      
+      "injury_display_format": {
+        "player_name": "{display_name}",
+        "status": "{status} ({confidence}%)",
+        "impact": "{calculated_impact} point impact",
+        "recommendation": "{betting_action}",
+        "reasoning": "{analysis_summary}"
+      },
+      
+      "classification_colors": {
+        "immediate_action": "🚨 RED",
+        "strong_lean": "🟡 YELLOW", 
+        "monitor": "🔵 BLUE",
+        "no_impact": "⚪ WHITE"
+      }
+    },
+
+    // ===== DATA SOURCE INTEGRATION =====
+    "data_source_rules": {
+      "source_priority": [
+        "team_official",
+        "beat_reporter_tier1", 
+        "action_network",
+        "rotoworld",
+        "fantasy_sites",
+        "social_media"
+      ],
+      
+      "conflicting_reports": {
+        "action": "flag_for_review",
+        "use_most_conservative": true,
+        "notes": "When reports conflict, use most pessimistic for analysis"
+      },
+      
+      "staleness_rules": {
+        "game_day": 2,
+        "day_before": 6,
+        "earlier_week": 24,
+        "max_age_hours": 48,
+        "notes": "Age in hours before injury report considered stale"
+      }
+    },
+
+    // ===== VALIDATION RULES =====
+    "validation_rules": {
+      "required_fields": [
+        "player_id",
+        "injury_status", 
+        "confidence_level",
+        "last_updated"
+      ],
+      
+      "sanity_checks": {
+        "impact_range": "0.0 to 7.0 points",
+        "confidence_range": "0 to 100 percent",
+        "tier_validation": "Must match whitelist tier"
+      },
+      
+      "error_handling": {
+        "missing_player": "skip_with_warning",
+        "invalid_status": "default_to_questionable",
+        "stale_data": "flag_but_include"
+      }
+    }
+  }
+}
