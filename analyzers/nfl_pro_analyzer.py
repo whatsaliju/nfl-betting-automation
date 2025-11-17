@@ -1262,13 +1262,24 @@ def analyze_week(week):
     action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame()
     
     # Load Action Network injuries - NEW!
+    #action_injuries_path = find_latest("action_injuries_")
+    #action_injuries = safe_load_csv(action_injuries_path) if action_injuries_path else pd.DataFrame()
+   # if not action_injuries.empty:
+  #      print(f"  ✓ Loaded {len(action_injuries)} injury records from Action Network")
+ #   else:
+#        print(f"  ⚠️ No Action Network injury data")
+
+    # Load Action Network injuries - NEW!
     action_injuries_path = find_latest("action_injuries_")
     action_injuries = safe_load_csv(action_injuries_path) if action_injuries_path else pd.DataFrame()
     if not action_injuries.empty:
         print(f"  ✓ Loaded {len(action_injuries)} injury records from Action Network")
+        print(f"🔍 Sample Action Network team names:")
+        unique_teams = action_injuries['team'].unique()[:10]  # Show first 10 team names
+        for team in unique_teams:
+            print(f"  - '{team}'")
     else:
         print(f"  ⚠️ No Action Network injury data")
-
     # Set up time tracking
     now = datetime.now(timezone.utc)
     
