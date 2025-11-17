@@ -386,6 +386,49 @@ class InjuryAnalyzer:
         
         return recommendations if recommendations else ["No strong injury-based recommendations"]
     
+    def generate_prop_recommendations(self, game_injuries: List[Dict], away_team: str, home_team: str) -> List[str]:
+        """Generate specific player prop recommendations based on injuries."""
+        prop_recs = []
+        
+        for injury in game_injuries:
+            player_data = self.players_dict.get(injury['player_id'], {})
+            if not player_data:
+                continue
+                
+            position = player_data.get('pos', '')
+            tier = player_data.get('tier', 3)
+            status = injury.get('status', 'questionable').lower()
+            display_name = player_data.get('display_name', 'Player')
+            
+            # QB injury props
+            if position == 'QB' and status in ['out', 'doubtful']:
+                if tier == 1:  # Elite QB
+                    prop_recs.append(f"🚨 AVOID {display_name} passing props - Elite QB out")
+                    prop_recs.append(f"📉 TARGET {player_data['team']} UNDER team total")
+                    prop_recs.append(f"📈 BOOST opposing defense props")
+                
+            # WR injury props  
+            elif position == 'WR' and status in ['out', 'doubtful']:
+                if tier <= 2:  # Elite/Good WR
+                    prop_recs.append(f"🚨 AVOID {display_name} receiving props")
+                    prop_recs.append(f"📈 TARGET other {player_data['team']} WR props")
+                    prop_recs.append(f"📉 FADE {player_data['team']} QB passing yards")
+                    
+            # RB injury props
+            elif position == 'RB' and status in ['out', 'doubtful']:
+                if tier <= 3:  # Significant RB
+                    prop_recs.append(f"🚨 AVOID {display_name} rushing props")
+                    prop_recs.append(f"📈 TARGET backup RB props")
+                    
+            # Elite pass rusher props
+            elif position == 'EDGE' and status in ['out', 'doubtful']:
+                if tier <= 2:
+                    prop_recs.append(f"📈 TARGET opposing QB props (easier matchup)")
+                    prop_recs.append(f"📈 BOOST opposing team total")
+        
+        return prop_recs[:5]  # Return top 5 recommendations
+
+    
     def _calculate_injury_edge(self, net_impact: float) -> str:
         """Calculate and categorize the injury betting edge."""
         abs_impact = abs(net_impact)
