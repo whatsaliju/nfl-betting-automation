@@ -1055,7 +1055,13 @@ class NarrativeEngine:
                 away_team = game_data['away']
                 home_team = game_data['home'] 
                 narrative.append(f"   Team Impacts: {away_team} ({injury_data['away_impact']:.1f}) vs {home_team} ({injury_data['home_impact']:.1f})")
-        
+       
+        # Add prop recommendations if available
+        if injury_analysis.get('prop_recommendations'):
+            narrative.append(f"   Prop Opportunities:")
+            for prop_rec in injury_analysis['prop_recommendations'][:3]:  # Top 3
+                narrative.append(f"     • {prop_rec}")
+       
         # Add specific injury details if available
         if 'away_injuries' in injury_data:
             for inj in injury_data.get('away_injuries', [])[:2]:  # Top 2 away injuries
@@ -1533,7 +1539,15 @@ def analyze_week(week):
                     team_name=home_full, 
                     action_injuries_df=action_injuries
                 )
-                
+                # Generate prop recommendations
+            if game_injuries:
+                injury_analyzer = InjuryAnalyzer()
+                prop_recommendations = injury_analyzer.generate_prop_recommendations(
+                    game_injuries, away_full, home_full
+                )
+                injury_analysis['prop_recommendations'] = prop_recommendations
+            else:
+                injury_analysis['prop_recommendations'] = []
                 # Combine the results
                 net_impact = home_injury_analysis['score'] - away_injury_analysis['score']
                 all_factors = away_injury_analysis['factors'] + home_injury_analysis['factors']
