@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-NFL Professional Betting Analysis Engine - Complete Version
+NFL Professional Betting Analysis Engine - Fixed Version
 ==========================================
 Synthesizes sharp money, referee trends, weather, injuries, situational factors,
 statistical modeling, game theory, and schedule analysis into actionable betting intelligence.
@@ -303,57 +303,6 @@ class WeatherAnalyzer:
 # ================================================================
 # INJURY ANALYZER
 # ================================================================
-class InjuryIntegration:
-    """Integrates injury analysis into game breakdowns."""
-    
-    @staticmethod
-    def analyze_game_injuries(away_full, home_full, week):
-        """Analyze injuries for a specific game."""
-        try:
-            analyzer = InjuryAnalyzer()
-            
-            # Load RotoWire injury data
-            rotowire_file = f"data/rotowire_injuries_week_{week}.csv"
-            # Load RotoWire injury data
-            print(f"🔍 Looking for injury file: {rotowire_file}")
-            print(f"🔍 File exists: {os.path.exists(rotowire_file)}")
-            injury_data = analyzer.process_rotowire_injuries(rotowire_file)
-            print(f"🔍 Injury data loaded: {len(injury_data)} injuries found")
-            
-            if not injury_data:
-                return {
-                    'away_team': away_full,
-                    'home_team': home_full,
-                    'analysis': 'No significant injury impacts identified',
-                    'recommendations': [],
-                    'injury_score': 0
-                }
-            
-            # Analyze game-level injuries
-            game_analysis = analyzer.analyze_game_injuries(away_full, home_full, injury_data)
-            
-            return {
-                'away_team': away_full,
-                'home_team': home_full,
-                'analysis': game_analysis['game_analysis'],
-                'recommendations': game_analysis['betting_recommendations'],
-                'injury_score': game_analysis['net_impact'],
-                'away_injuries': game_analysis['away_injuries'],
-                'home_injuries': game_analysis['home_injuries'],
-                'injury_edge': game_analysis['injury_edge']
-            }
-            
-        except Exception as e:
-            print(f"⚠️  Error in injury analysis for {away_full} @ {home_full}: {e}")
-            
-            return {
-                'away_team': away_full,
-                'home_team': home_full,
-                'analysis': 'Injury analysis unavailable',
-                'recommendations': [],
-                'injury_score': 0
-            }
-
 
 class InjuryAnalyzer:
     """Analyzes injury impact from Action Network and RotoWire data"""
@@ -1035,14 +984,13 @@ class NarrativeEngine:
                 narrative.append(f"  • {factor}")
             narrative.append("")
         
-        # REPLACE your existing injury section with this ENHANCED VERSION:
-        # Enhanced Injury Analysis Output
+        # Enhanced Injury Analysis
         injury_data = game_data['injury_analysis']
         narrative.append("🏥 INJURY ANALYSIS:")
         narrative.append(f"   Impact: {injury_data['description']}")
         
-        # Add injury edge information
-        if 'edge' in injury_data and injury_data['edge'] != 'NO EDGE':
+        # Add injury edge information if available
+        if injury_data.get('edge') and injury_data['edge'] != 'NO EDGE':
             narrative.append(f"   Edge: {injury_data['edge']} ({injury_data.get('net_impact', 0):+.1f} points)")
         
         # Add betting recommendations if available
@@ -1050,31 +998,13 @@ class NarrativeEngine:
             narrative.append(f"   Betting Impact: {' | '.join(injury_data['factors'][:2])}")
         
         # Add team-by-team breakdown if available
-        if 'away_impact' in injury_data and 'home_impact' in injury_data:
+        if injury_data.get('away_impact') is not None and injury_data.get('home_impact') is not None:
             if injury_data['away_impact'] or injury_data['home_impact']:
                 away_team = game_data['away']
                 home_team = game_data['home'] 
                 narrative.append(f"   Team Impacts: {away_team} ({injury_data['away_impact']:.1f}) vs {home_team} ({injury_data['home_impact']:.1f})")
-       
-        # Add prop recommendations if available
-        if injury_data.get('prop_recommendations'):
-            narrative.append(f"   Prop Opportunities:")
-            for prop_rec in injury_analysis['prop_recommendations'][:3]:  # Top 3
-                narrative.append(f"     • {prop_rec}")
-       
-        # Add specific injury details if available
-        if 'away_injuries' in injury_data:
-            for inj in injury_data.get('away_injuries', [])[:2]:  # Top 2 away injuries
-                if inj.get('impact_points', 0) >= 0.5:
-                    narrative.append(f"     • {inj.get('display_name', 'Player')}: {inj.get('analysis', 'Impact analysis')}")
-        
-        if 'home_injuries' in injury_data:
-            for inj in injury_data.get('home_injuries', [])[:2]:  # Top 2 home injuries
-                if inj.get('impact_points', 0) >= 0.5:
-                    narrative.append(f"     • {inj.get('display_name', 'Player')}: {inj.get('analysis', 'Impact analysis')}")
         
         narrative.append("")
-
         
         # Situational factors
         if game_data['situational_analysis']['factors']:
@@ -1126,14 +1056,14 @@ class ClassificationEngine:
         total = game_analysis['total_score']
         sharp_score = game_analysis['sharp_consensus_score']
         ref_score = game_analysis['referee_analysis']['ats_score']
-        injury_score = game_analysis['injury_analysis']['score']  # ADD THIS LINE
+        injury_score = game_analysis['injury_analysis']['score']
         
         # Blue Chip: Strong alignment across all factors
-        if total >= 8 and sharp_score >= 2 and (ref_score >= 2 or injury_score >= 3):  # MODIFY THIS LINE
+        if total >= 8 and sharp_score >= 2 and (ref_score >= 2 or injury_score >= 3):
             return "🔵 BLUE CHIP", "STRONG PLAY", 9
         
         # Targeted Play: Good edge with supporting factors  
-        if total >= 5 and (sharp_score >= 1 or injury_score >= 2):  # MODIFY THIS LINE
+        if total >= 5 and (sharp_score >= 1 or injury_score >= 2):
             return "🎯 TARGETED PLAY", "SOLID EDGE", 7
             
         # Lean: Modest edge
@@ -1151,8 +1081,6 @@ class ClassificationEngine:
         # Landmine: Mixed signals
         return "⚠️ LANDMINE", "PASS", 3
     
-    # ADD THIS ENHANCED RECOMMENDATION LOGIC TO YOUR ClassificationEngine
-
     @staticmethod
     def generate_enhanced_recommendation(classification, game_analysis):
         """Generate specific, actionable betting recommendations with lines and teams."""
@@ -1175,13 +1103,12 @@ class ClassificationEngine:
         # Parse spread line to get number
         spread_num = ClassificationEngine.extract_spread_number(spread_line)
         total_num = ClassificationEngine.extract_total_number(total_line)
-        primary_rec = ClassificationEngine.generate_primary_bet(spread_dir, away_team, home_team, spread_num)
         
         cat = classification
         
         if "BLUE CHIP" in cat:
             # Strong plays get both spread and total recommendations
-            primary_rec = generate_primary_bet(spread_dir, away_team, home_team, spread_num)
+            primary_rec = ClassificationEngine.generate_primary_bet(spread_dir, away_team, home_team, spread_num)
             secondary_rec = ClassificationEngine.generate_total_bet(total_dir, total_num) if total_edge >= 10 else None
             
             if secondary_rec:
@@ -1203,7 +1130,6 @@ class ClassificationEngine:
             # For trap games, recommend fading the public
             public_side = "home" if game_analysis.get('public_exposure', 50) > 50 else "away"
             fade_side = "away" if public_side == "home" else "home"
-            fade_team = away_team if fade_side == "away" else home_team
             fade_rec = ClassificationEngine.generate_primary_bet(fade_side.upper(), away_team, home_team, spread_num)
             return f"🚨 TRAP GAME: {fade_rec} (fade the public)"
             
@@ -1223,7 +1149,7 @@ class ClassificationEngine:
         elif direction == 'HOME': 
             if spread_num:
                 # Convert to home team spread
-                home_spread = flip_spread(spread_num)
+                home_spread = ClassificationEngine.flip_spread(spread_num)
                 return f"{home_team} {home_spread}"
             else:
                 return f"{home_team} -X (check current line)"
@@ -1284,129 +1210,7 @@ class ClassificationEngine:
             return '-' + spread_str[1:]
         else:
             return '-' + spread_str
-    
-    
-    # UPDATE YOUR EXISTING CLASSIFICATION ENGINE:
-    # Replace the old generate_recommendation method with generate_enhanced_recommendation
 
-def parse_injury_entry(entry_text, away_team, home_team):
-    """Parse a single injury entry from RotoWire data."""
-    try:
-        # Basic parsing - you can enhance this based on RotoWire format
-        # Example formats: "Josh Allen (Q)", "Ja'Marr Chase (Probable - Ankle)"
-        
-        if '(' in entry_text and ')' in entry_text:
-            player_part = entry_text.split('(')[0].strip()
-            status_part = entry_text.split('(')[1].split(')')[0].strip()
-            
-            # Determine team (simple logic - you can enhance)
-            team = away_team  # Default, could be improved with team matching
-            
-            # Extract injury type if present
-            injury_type = ''
-            if '-' in status_part:
-                parts = status_part.split('-')
-                status = parts[0].strip()
-                injury_type = parts[1].strip()
-            else:
-                status = status_part
-            
-            # Match to whitelist
-            player_id = match_player_to_whitelist(player_part, team)
-            
-            if player_id:
-                return {
-                    'player_id': player_id,
-                    'status': status,
-                    'injury_type': injury_type,
-                    'team_context': get_team_context(team)
-                }
-    except Exception as e:
-        print(f"⚠️  Error parsing injury entry '{entry_text}': {e}")
-    
-    return None
-
-def match_player_to_whitelist(player_name, team):
-    """Helper to match player to injury whitelist."""
-    try:
-        import json
-        import os
-        
-        whitelist_path = 'config/injury_whitelist.json'
-        
-        if os.path.exists(whitelist_path):
-            with open(whitelist_path, 'r') as f:
-                whitelist = json.load(f)
-            
-            players_dict = {p['id']: p for p in whitelist['injury_whitelist']['players']}
-            
-            # Define name_lower FIRST
-            name_lower = player_name.lower().strip()
-            
-            # DEBUG: Show first few players in whitelist
-            if name_lower == 'tyreek hill':  # Only debug for Tyreek
-                print(f"🔍 First 5 players in whitelist:")
-                for i, (pid, pdata) in enumerate(list(players_dict.items())[:5]):
-                    print(f"  - {pdata['name']} ({pdata['team']})")
-                print(f"🔍 Total players in whitelist: {len(players_dict)}")
-            
-            # Team mapping
-            team_mapping = {
-                "Miami Dolphins": "MIA",
-                "Washington Commanders": "WAS",
-                "Cincinnati Bengals": "CIN", 
-                "Pittsburgh Steelers": "PIT",
-                "Buffalo Bills": "BUF",
-            }
-            
-            team_abbrev = team_mapping.get(team, "")
-            
-            for player_id, player_data in players_dict.items():
-                if name_lower == 'tyreek hill' and 'hill' in player_data['name'].lower():
-                    print(f"🔍 Found Hill in whitelist: {player_data['name']} ({player_data['team']})")
-                
-                player_whitelist_name = player_data['name'].lower()
-                if (name_lower in player_whitelist_name or 
-                    player_whitelist_name in name_lower):
-                    if team_abbrev == player_data['team']:
-                        print(f"✅ MATCH FOUND: {player_id}")
-                        return player_id
-        
-        return None
-    except Exception as e:
-        print(f"⚠️  Error in player matching: {e}")
-        return None
-
-def get_team_context(team):
-    """Get team context for injury calculations."""
-    # You can expand this with actual team data
-    team_contexts = {
-        # QB backup situations
-        'Buffalo Bills': {'backup_quality': 'poor_backup', 'scheme_dependency': 'system_dependent'},
-        'Kansas City Chiefs': {'backup_quality': 'good_backup', 'scheme_dependency': 'player_dependent'},
-        'Cincinnati Bengals': {'backup_quality': 'poor_backup', 'scheme_dependency': 'player_dependent'},
-        'Miami Dolphins': {'backup_quality': 'poor_backup', 'scheme_dependency': 'system_dependent'},
-        'Washington Commanders': {'backup_quality': 'poor_backup', 'scheme_dependency': 'player_dependent'},
-        'Pittsburgh Steelers': {'backup_quality': 'good_backup', 'scheme_dependency': 'scheme_flexible'},
-        'Green Bay Packers': {'backup_quality': 'average_backup', 'scheme_dependency': 'player_dependent'},
-        
-        # Teams with good skill position depth
-        'Detroit Lions': {'backup_quality': 'good_backup', 'scheme_dependency': 'scheme_flexible'},
-        'Philadelphia Eagles': {'backup_quality': 'good_backup', 'scheme_dependency': 'scheme_flexible'},
-        'San Francisco 49ers': {'backup_quality': 'good_backup', 'scheme_dependency': 'system_dependent'},
-        
-        # Teams with poor depth
-        'Carolina Panthers': {'backup_quality': 'poor_backup', 'scheme_dependency': 'player_dependent'},
-        'New York Giants': {'backup_quality': 'poor_backup', 'scheme_dependency': 'player_dependent'},
-        'Arizona Cardinals': {'backup_quality': 'average_backup', 'scheme_dependency': 'player_dependent'},
-        # Add more teams as needed
-    }
-    
-    return team_contexts.get(team, {
-        'backup_quality': 'average_backup',
-        'scheme_dependency': 'player_dependent',
-        'season_importance': 'normal'
-    })
 
 # ================================================================
 # MAIN ANALYSIS ENGINE
@@ -1432,25 +1236,14 @@ def analyze_week(week):
     action_file_path = find_latest("action_all_markets_") 
     action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame()
     
-    # Load Action Network injuries - NEW!
-    #action_injuries_path = find_latest("action_injuries_")
-    #action_injuries = safe_load_csv(action_injuries_path) if action_injuries_path else pd.DataFrame()
-   # if not action_injuries.empty:
-  #      print(f"  ✓ Loaded {len(action_injuries)} injury records from Action Network")
- #   else:
-#        print(f"  ⚠️ No Action Network injury data")
-
-    # Load Action Network injuries - NEW!
+    # Load Action Network injuries
     action_injuries_path = find_latest("action_injuries_")
     action_injuries = safe_load_csv(action_injuries_path) if action_injuries_path else pd.DataFrame()
     if not action_injuries.empty:
         print(f"  ✓ Loaded {len(action_injuries)} injury records from Action Network")
-        print(f"🔍 Sample Action Network team names:")
-        unique_teams = action_injuries['team'].unique()[:10]  # Show first 10 team names
-        for team in unique_teams:
-            print(f"  - '{team}'")
     else:
         print(f"  ⚠️ No Action Network injury data")
+    
     # Set up time tracking
     now = datetime.now(timezone.utc)
     
@@ -1555,8 +1348,7 @@ def analyze_week(week):
         # Referee Analysis
         ref_analysis = RefereeAnalyzer.analyze(row)
         
-       # REPLACE your existing injury analysis section with this:
-        # Weather and Injury Analysis - ENHANCED VERSION
+        # Weather and Injury Analysis
         weather_data = ""
         injury_data_combined = ""
         
@@ -1569,128 +1361,36 @@ def analyze_week(week):
                 weather_data = match.iloc[0].get('weather', '')
                 injury_data_combined = match.iloc[0].get('injuries', '')
         
-        # Analyze weather (keep your existing logic)
+        # Analyze weather
         weather_analysis = WeatherAnalyzer.analyze(weather_data)
         
-        # Enhanced Injury Analysis using new comprehensive system
-        #try:
-         #   from injury_analyzer import InjuryAnalyzer
-          #  injury_analyzer = InjuryAnalyzer()
-
-            # Enhanced Injury Analysis using new comprehensive system
+        # Enhanced Injury Analysis
         try:
-            print(f"🔍 Starting injury analysis for {away_full} @ {home_full}")
-            injury_analyzer = InjuryAnalyzer()
-            print(f"🔍 InjuryAnalyzer instance created successfully")
-            # DEBUG: Check available methods
-            available_methods = [method for method in dir(injury_analyzer) if not method.startswith('_')]
-            print(f"🔍 Available methods: {available_methods}")
+            # Get basic injury analysis for both teams
+            away_injury_analysis = InjuryAnalyzer.analyze(
+                "", team_name=away_full, action_injuries_df=action_injuries
+            )
+            home_injury_analysis = InjuryAnalyzer.analyze(
+                "", team_name=home_full, action_injuries_df=action_injuries
+            )
             
-            # Check specifically for the method we need
-            if hasattr(injury_analyzer, 'analyze_game_injuries'):
-                print(f"✅ analyze_game_injuries method found")
-            else:
-                print(f"❌ analyze_game_injuries method NOT found")
-            # Process RotoWire injury data for this game
-            game_injuries = []
+            # Calculate impacts from the analysis
+            away_impact = abs(away_injury_analysis['score'])
+            home_impact = abs(home_injury_analysis['score']) 
+            net_impact = home_impact - away_impact
             
-            # Parse RotoWire injury data if available
-            #if injury_data_combined and pd.notna(injury_data_combined):
-           #     # Split injury data and process each entry
-          #      injury_entries = str(injury_data_combined).split(',')
-         #       for entry in injury_entries:
-        #            if entry.strip():
-       #                 # Parse injury entry (format might be "Player Name (Status)")
-      #                  parsed_injury = parse_injury_entry(entry.strip(), away_full, home_full)
-     #                   if parsed_injury:
-    #                        game_injuries.append(parsed_injury)
-   #         
-            # Add Action Network injuries if available
-          #  if not action_injuries.empty:
-         #       for _, row in action_injuries.iterrows():
-        #            if (row.get('team', '').upper() in [away_full.upper(), home_full.upper()]):
-       #                 parsed_injury = {
-      #                      'player_id': match_player_to_whitelist(row.get('player', ''), row.get('team', '')),
-     #                       'status': row.get('status', 'questionable'),
-    #                        'injury_type': row.get('injury_type', ''),
-   #                         'team_context': get_team_context(row.get('team', ''))
-  #                      }
- #                       if parsed_injury['player_id']:
-#                            game_injuries.append(parsed_injury)
-            # Add Action Network injuries if available
-            if not action_injuries.empty:
-                print(f"🔍 Processing {len(action_injuries)} Action Network injuries for {away_full} @ {home_full}")
-                game_match_count = 0
-                for _, row in action_injuries.iterrows():
-                    team = row.get('team', '')
-                    player = row.get('player', '')
-                    if (away_full in team or home_full in team or 
-                        team.upper() in [away_full.upper(), home_full.upper()]):
-                        game_match_count += 1
-                        print(f"  ✅ {player} ({team}): {row.get('status', '')}")
-                        parsed_injury = {
-                            'player_id': match_player_to_whitelist(player, team),
-                            'status': row.get('status', 'questionable'),
-                            'injury_type': row.get('injury_type', ''),
-                            'team_context': get_team_context(team)
-                        }
-                        print(f"    🎯 Player ID matched: {parsed_injury['player_id']}")
-                        if parsed_injury['player_id']:
-                            game_injuries.append(parsed_injury)
-                            print(f"    ✅ Added to game_injuries")
-                
-                print(f"🔍 Found {game_match_count} injuries for this game, {len(game_injuries)} matched whitelist")
-            # Analyze game-level injuries
-            if game_injuries:
-                # Use the working basic analysis instead of the missing comprehensive method
-                away_injury_analysis = injury_analyzer.analyze(
-                    "", team_name=away_full, action_injuries_df=action_injuries
-                )
-                home_injury_analysis = injury_analyzer.analyze(
-                    "", team_name=home_full, action_injuries_df=action_injuries
-                )
-                
-                # Calculate impacts from the working analysis
-                away_impact = abs(away_injury_analysis['score'])
-                home_impact = abs(home_injury_analysis['score']) 
-                net_impact = home_impact - away_impact
-                
-                injury_analysis = {
-                    'score': min(away_impact + home_impact, 15),  # Combined impact
-                    'factors': away_injury_analysis['factors'] + home_injury_analysis['factors'],
-                    'description': f"Away: {away_injury_analysis['description']} | Home: {home_injury_analysis['description']}",
-                    'edge': 'STRONG EDGE' if abs(net_impact) >= 3 else 'MODERATE EDGE' if abs(net_impact) >= 1 else 'NO EDGE',
-                    'away_impact': away_impact,
-                    'home_impact': home_impact,
-                    'net_impact': net_impact,
-                    'prop_recommendations': []  # Skip for now
-                }
-            else:
-                # No injuries found - use your fallback
-                injury_analysis = {
-                    'score': 0,
-                    'factors': [],
-                    'description': 'No significant injuries identified',
-                    'edge': 'NO EDGE',
-                    'away_impact': 0,
-                    'home_impact': 0,
-                    'net_impact': 0,
-                    'prop_recommendations': []
-                }
+            injury_analysis = {
+                'score': min(away_impact + home_impact, 15),  # Combined impact, capped at 15
+                'factors': away_injury_analysis['factors'] + home_injury_analysis['factors'],
+                'description': f"Away: {away_injury_analysis['description']} | Home: {home_injury_analysis['description']}",
+                'edge': 'STRONG EDGE' if abs(net_impact) >= 3 else 'MODERATE EDGE' if abs(net_impact) >= 1 else 'NO EDGE',
+                'away_impact': away_impact,
+                'home_impact': home_impact,
+                'net_impact': net_impact
+            }
                 
         except Exception as e:
-            print(f"⚠️  Enhanced injury analysis failed for {away_full} @ {home_full}: {e}")
-            
-            import traceback
-            print(f"🔍 Full traceback:")
-            traceback.print_exc()
-            
-            # Try to get basic injury info at least
-            basic_away = injury_analyzer.analyze("", team_name=away_full, action_injuries_df=action_injuries)
-            basic_home = injury_analyzer.analyze("", team_name=home_full, action_injuries_df=action_injuries) 
-            
-            print(f"🔍 Basic analysis - Away: {basic_away}")
-            print(f"🔍 Basic analysis - Home: {basic_home}")
+            print(f"⚠️  Injury analysis failed for {away_full} @ {home_full}: {e}")
             
             # Fallback to basic analysis
             injury_analysis = {
@@ -1867,9 +1567,9 @@ def generate_outputs(week, games):
             'ref_ou_pct': game['referee_analysis']['ou_pct'],
             'weather_score': game['weather_analysis']['score'],
             'injury_score': game['injury_analysis']['score'],
-            'injury_edge': game['injury_analysis'].get('edge', 'NO EDGE'),           # ADD THIS
-            'injury_net_impact': game['injury_analysis'].get('net_impact', 0),       # ADD THIS
-            'injury_description': game['injury_analysis']['description'],            # ADD THIS
+            'injury_edge': game['injury_analysis'].get('edge', 'NO EDGE'),
+            'injury_net_impact': game['injury_analysis'].get('net_impact', 0),
+            'injury_description': game['injury_analysis']['description'],
             'situational_score': game['situational_analysis']['score'],
             'situational_factors': game['situational_analysis']['description'],
             'statistical_score': game['statistical_analysis']['score'],
