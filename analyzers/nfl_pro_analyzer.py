@@ -1226,6 +1226,9 @@ def match_player_to_whitelist(player_name, team):
             
             players_dict = {p['id']: p for p in whitelist['injury_whitelist']['players']}
             
+            # Define name_lower FIRST
+            name_lower = player_name.lower().strip()
+            
             # DEBUG: Show first few players in whitelist
             if name_lower == 'tyreek hill':  # Only debug for Tyreek
                 print(f"🔍 First 5 players in whitelist:")
@@ -1233,13 +1236,13 @@ def match_player_to_whitelist(player_name, team):
                     print(f"  - {pdata['name']} ({pdata['team']})")
                 print(f"🔍 Total players in whitelist: {len(players_dict)}")
             
-            name_lower = player_name.lower().strip()
-            
             # Team mapping
             team_mapping = {
                 "Miami Dolphins": "MIA",
                 "Washington Commanders": "WAS",
-                # ... rest of mapping
+                "Cincinnati Bengals": "CIN", 
+                "Pittsburgh Steelers": "PIT",
+                "Buffalo Bills": "BUF",
             }
             
             team_abbrev = team_mapping.get(team, "")
