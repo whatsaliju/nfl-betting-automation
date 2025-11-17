@@ -80,15 +80,6 @@ class InjuryAnalyzer:
         
         # Default to questionable if we can't parse
         return 'questionable', 50, 0.5
-        
-        # Check each status mapping
-        for status, mapping in self.rules.get('injury_rules', {}).get('status_mappings', {}).items():
-            for keyword in mapping.get('keywords', []):
-                if keyword in status_lower:
-                    return status, mapping.get('confidence', 0)
-        
-        # Default to questionable if we can't parse
-        return 'questionable', 50
     
     def classify_injury_severity(self, injury_type: str) -> Tuple[str, float]:
         """Classify injury type and return severity level and multiplier."""
