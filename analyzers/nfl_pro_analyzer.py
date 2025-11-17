@@ -348,6 +348,8 @@ class InjuryIntegration:
             
         except Exception as e:
             print(f"⚠️  Error in injury analysis for {away_full} @ {home_full}: {e}")
+            import traceback
+            traceback.print_exc()
             return {
                 'away_team': away_full,
                 'home_team': home_full,
