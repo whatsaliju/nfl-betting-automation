@@ -19,6 +19,9 @@ import json
 from datetime import datetime, timezone
 from collections import defaultdict
 
+from injury_analyzer import InjuryAnalyzer
+print("✅ InjuryAnalyzer imported successfully")  # ADD THIS LINE
+
 # ================================================================
 # CONSTANTS
 # ================================================================
@@ -314,7 +317,11 @@ class InjuryIntegration:
             
             # Load RotoWire injury data
             rotowire_file = f"data/rotowire_injuries_week_{week}.csv"
+            # Load RotoWire injury data
+            print(f"🔍 Looking for injury file: {rotowire_file}")
+            print(f"🔍 File exists: {os.path.exists(rotowire_file)}")
             injury_data = analyzer.process_rotowire_injuries(rotowire_file)
+            print(f"🔍 Injury data loaded: {len(injury_data)} injuries found")
             
             if not injury_data:
                 return {
