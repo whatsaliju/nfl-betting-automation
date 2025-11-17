@@ -17,7 +17,7 @@ import numpy as np
 import os
 import json
 from datetime import datetime, timezone
-from collections import daultdict
+from collections import defaultdict
 from injury_analyzer import InjuryAnalyzer
 
 # ================================================================
