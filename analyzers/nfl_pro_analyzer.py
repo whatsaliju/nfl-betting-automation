@@ -1454,7 +1454,15 @@ def analyze_week(week):
             print(f"🔍 Starting injury analysis for {away_full} @ {home_full}")
             injury_analyzer = InjuryAnalyzer()
             print(f"🔍 InjuryAnalyzer instance created successfully")
+            # DEBUG: Check available methods
+            available_methods = [method for method in dir(injury_analyzer) if not method.startswith('_')]
+            print(f"🔍 Available methods: {available_methods}")
             
+            # Check specifically for the method we need
+            if hasattr(injury_analyzer, 'analyze_game_injuries'):
+                print(f"✅ analyze_game_injuries method found")
+            else:
+                print(f"❌ analyze_game_injuries method NOT found")
             # Process RotoWire injury data for this game
             game_injuries = []
             
