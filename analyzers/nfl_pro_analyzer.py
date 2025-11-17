@@ -1107,7 +1107,7 @@ class NarrativeEngine:
         
         # Recommendation
         narrative.append("THE VERDICT:")
-        narrative.append(f"  Total Score: {game_data['total_score']}/10")
+        narrative.append(f"  Total Score: {game_data['total_score']}")
         narrative.append(f"  Confidence: {game_data['confidence']}")
         narrative.append(f"  Recommendation: {game_data['recommendation']}")
         
