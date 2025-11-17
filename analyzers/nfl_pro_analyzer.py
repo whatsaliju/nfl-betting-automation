@@ -1541,38 +1541,38 @@ def analyze_week(week):
                 )
                 # Generate prop recommendations
           # Analyze game-level injuries
+            # Use the working basic analysis instead of the missing comprehensive method
             if game_injuries:
-                # Use the available analyze method for each team
                 away_injury_analysis = injury_analyzer.analyze(
-                    "",  # No RotoWire data 
-                    team_name=away_full,
-                    action_injuries_df=action_injuries
+                    "", team_name=away_full, action_injuries_df=action_injuries
                 )
-            
                 home_injury_analysis = injury_analyzer.analyze(
-                    "",  # No RotoWire data
-                    team_name=home_full, 
-                    action_injuries_df=action_injuries
+                    "", team_name=home_full, action_injuries_df=action_injuries
                 )
-            
-                # Combine the results
-                net_impact = home_injury_analysis['score'] - away_injury_analysis['score']
-                all_factors = away_injury_analysis['factors'] + home_injury_analysis['factors']
                 
-                injury_game_analysis = {
-                    'game_analysis': f"Away injuries: {away_injury_analysis['description']} | Home injuries: {home_injury_analysis['description']}",
-                    'betting_recommendations': all_factors[:3],  # Top 3 factors
+                # Calculate impacts from the working analysis
+                away_impact = abs(away_injury_analysis['score'])
+                home_impact = abs(home_injury_analysis['score']) 
+                net_impact = home_impact - away_impact
+                
+                injury_analysis = {
+                    'score': min(away_impact + home_impact, 15),  # Combined impact
+                    'factors': away_injury_analysis['factors'] + home_injury_analysis['factors'],
+                    'description': f"Away: {away_injury_analysis['description']} | Home: {home_injury_analysis['description']}",
+                    'edge': 'STRONG EDGE' if abs(net_impact) >= 3 else 'MODERATE EDGE' if abs(net_impact) >= 1 else 'NO EDGE',
+                    'away_impact': away_impact,
+                    'home_impact': home_impact,
                     'net_impact': net_impact,
-                    'away_total_impact': abs(away_injury_analysis['score']),
-                    'home_total_impact': abs(home_injury_analysis['score']),
-                    'injury_edge': 'STRONG EDGE' if abs(net_impact) >= 2 else 'MODERATE EDGE' if abs(net_impact) >= 1 else 'NO EDGE'
+                    'prop_recommendations': []  # Skip for now
                 }
+            else:
+                # Fallback remains the same...
                 
                 # Generate prop recommendations
                 injury_analyzer = InjuryAnalyzer()
-                prop_recommendations = injury_analyzer.generate_prop_recommendations(
-                    game_injuries, away_full, home_full
-                )
+                #prop_recommendations = injury_analyzer.generate_prop_recommendations(
+                #    game_injuries, away_full, home_full
+                #)
                 
                 # Convert to your existing format
                 injury_analysis = {
