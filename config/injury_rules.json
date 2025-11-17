@@ -4,7 +4,6 @@
     "last_updated": "2025-11-16",
     "description": "Rules engine for processing NFL injury impacts on betting lines and analysis",
     
-    // ===== STATUS CLASSIFICATION RULES =====
     "status_mappings": {
       "out": {
         "keywords": ["out", "ruled out", "will not play", "inactive", "ir", "injured reserve"],
@@ -38,7 +37,6 @@
       }
     },
 
-    // ===== INJURY TYPE SEVERITY MODIFIERS =====
     "injury_severity": {
       "high_severity": {
         "types": ["concussion", "hamstring", "ankle", "knee", "shoulder", "back", "neck", "head"],
@@ -57,7 +55,6 @@
       }
     },
 
-    // ===== POSITION-SPECIFIC IMPACT CALCULATIONS =====
     "position_impact_rules": {
       "QB": {
         "base_multiplier": 3.5,
@@ -150,7 +147,6 @@
       }
     },
 
-    // ===== TEAM CONTEXT MODIFIERS =====
     "team_context_rules": {
       "depth_quality": {
         "elite_backup": 0.3,
@@ -174,7 +170,6 @@
       }
     },
 
-    // ===== MATCHUP CONTEXT RULES =====
     "matchup_modifiers": {
       "defensive_strength": {
         "elite_defense": 1.4,
@@ -196,7 +191,6 @@
       }
     },
 
-    // ===== ANALYSIS GENERATION RULES =====
     "analysis_rules": {
       "confidence_thresholds": {
         "high_confidence": {
@@ -249,7 +243,6 @@
       }
     },
 
-    // ===== REPORT FORMATTING RULES =====
     "report_formatting": {
       "priority_sections": [
         "tier_1_injuries",
@@ -274,7 +267,6 @@
       }
     },
 
-    // ===== DATA SOURCE INTEGRATION =====
     "data_source_rules": {
       "source_priority": [
         "team_official",
@@ -300,7 +292,6 @@
       }
     },
 
-    // ===== VALIDATION RULES =====
     "validation_rules": {
       "required_fields": [
         "player_id",
