@@ -1173,8 +1173,9 @@ class ClassificationEngine:
         total_edge = abs(sharp['total'].get('differential', 0))
         
         # Parse spread line to get number
-        spread_num = extract_spread_number(spread_line)
-        total_num = extract_total_number(total_line)
+        spread_num = ClassificationEngine.extract_spread_number(spread_line)
+        total_num = ClassificationEngine.extract_total_number(total_line)
+        primary_rec = ClassificationEngine.generate_primary_bet(spread_dir, away_team, home_team, spread_num)
         
         cat = classification
         
@@ -1211,7 +1212,7 @@ class ClassificationEngine:
         else:
             return "⚠️ PASS: Mixed signals, no clear edge identified"
     
-    
+    @staticmethod
     def generate_primary_bet(direction, away_team, home_team, spread_num):
         """Generate specific spread bet recommendation."""
         if direction == 'AWAY':
@@ -1229,7 +1230,7 @@ class ClassificationEngine:
         else:
             return f"No clear spread edge"
     
-    
+    @staticmethod
     def generate_total_bet(direction, total_num):
         """Generate specific total bet recommendation."""
         if direction == 'OVER':
@@ -1245,7 +1246,7 @@ class ClassificationEngine:
         else:
             return "No clear total edge"
     
-    
+    @staticmethod
     def extract_spread_number(line_str):
         """Extract spread number from line string like 'KC -5.5 | DEN +5.5'."""
         if not line_str:
@@ -1258,7 +1259,7 @@ class ClassificationEngine:
             return match.group(1)
         return None
     
-    
+    @staticmethod
     def extract_total_number(line_str):
         """Extract total number from line string like 'O45.5 | U45.5'."""
         if not line_str:
@@ -1271,7 +1272,7 @@ class ClassificationEngine:
             return match.group(1)
         return None
     
-    
+    @staticmethod
     def flip_spread(spread_str):
         """Convert away spread to home spread. '-5.5' becomes '+5.5'."""
         if not spread_str:
