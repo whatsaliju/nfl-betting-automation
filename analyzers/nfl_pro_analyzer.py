@@ -17,7 +17,7 @@ import numpy as np
 import os
 import json
 from datetime import datetime, timezone
-from collections import defaultdict
+from collections import daultdict
 from injury_analyzer import InjuryAnalyzer
 
 # ================================================================
@@ -1171,7 +1171,7 @@ class ClassificationEngine:
         else:
             return "⚠️ PASS: Analysis inconclusive, too many mixed signals"
 
-ef parse_injury_entry(entry_text, away_team, home_team):
+def parse_injury_entry(entry_text, away_team, home_team):
     """Parse a single injury entry from RotoWire data."""
     try:
         # Basic parsing - you can enhance this based on RotoWire format
