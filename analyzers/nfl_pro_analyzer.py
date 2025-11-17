@@ -1600,6 +1600,18 @@ def analyze_week(week):
                 
         except Exception as e:
             print(f"⚠️  Enhanced injury analysis failed for {away_full} @ {home_full}: {e}")
+            
+            import traceback
+            print(f"🔍 Full traceback:")
+            traceback.print_exc()
+            
+            # Try to get basic injury info at least
+            basic_away = injury_analyzer.analyze("", team_name=away_full, action_injuries_df=action_injuries)
+            basic_home = injury_analyzer.analyze("", team_name=home_full, action_injuries_df=action_injuries) 
+            
+            print(f"🔍 Basic analysis - Away: {basic_away}")
+            print(f"🔍 Basic analysis - Home: {basic_home}")
+            
             # Fallback to basic analysis
             injury_analysis = {
                 'score': 0,
