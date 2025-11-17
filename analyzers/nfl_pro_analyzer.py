@@ -1219,25 +1219,45 @@ def match_player_to_whitelist(player_name, team):
         import os
         
         whitelist_path = 'config/injury_whitelist.json'
-        print(f"🔍 Looking for whitelist at: {whitelist_path}")
-        print(f"🔍 File exists: {os.path.exists(whitelist_path)}")
         
         if os.path.exists(whitelist_path):
             with open(whitelist_path, 'r') as f:
-                content = f.read()
-                print(f"🔍 First 200 chars of file: {content[:200]}")
-                
-            with open(whitelist_path, 'r') as f:
                 whitelist = json.load(f)
             
-            print(f"🔍 Whitelist loaded successfully")
-            return None  # For now, just test the JSON loading
+            players_dict = {p['id']: p for p in whitelist['injury_whitelist']['players']}
+            
+            # Simple matching - improve this logic as needed
+            name_lower = player_name.lower().strip()
+            print(f"🔍 Searching for: '{name_lower}'")
+            
+            # Create team abbreviation mapping
+            team_mapping = {
+                "Miami Dolphins": "MIA",
+                "Washington Commanders": "WAS",
+                "Cincinnati Bengals": "CIN", 
+                "Pittsburgh Steelers": "PIT",
+                "Buffalo Bills": "BUF",
+                # Add more as needed
+            }
+            
+            team_abbrev = team_mapping.get(team, "")
+            print(f"🔍 Team abbrev: {team_abbrev}")
+            
+            for player_id, player_data in players_dict.items():
+                player_whitelist_name = player_data['name'].lower()
+                if (name_lower in player_whitelist_name or 
+                    player_whitelist_name in name_lower):
+                    if team_abbrev == player_data['team']:
+                        print(f"✅ MATCH FOUND: {player_id}")
+                        return player_id
+                    else:
+                        print(f"🔍 Name match but wrong team: {player_data['team']} != {team_abbrev}")
+            
+            print(f"❌ No match found")
         
         return None
     except Exception as e:
         print(f"⚠️  Error in player matching: {e}")
-        import traceback
-        traceback.print_exc()
         return None
 
 def get_team_context(team):
