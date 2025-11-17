@@ -1527,22 +1527,7 @@ def analyze_week(week):
                 print(f"🔍 Found {game_match_count} injuries for this game, {len(game_injuries)} matched whitelist")
             # Analyze game-level injuries
             if game_injuries:
-                # Use the available analyze method for each team
-                away_injury_analysis = injury_analyzer.analyze(
-                    "",  # No RotoWire data 
-                    team_name=away_full,
-                    action_injuries_df=action_injuries
-                )
-                
-                home_injury_analysis = injury_analyzer.analyze(
-                    "",  # No RotoWire data
-                    team_name=home_full, 
-                    action_injuries_df=action_injuries
-                )
-                # Generate prop recommendations
-          # Analyze game-level injuries
-            # Use the working basic analysis instead of the missing comprehensive method
-            if game_injuries:
+                # Use the working basic analysis instead of the missing comprehensive method
                 away_injury_analysis = injury_analyzer.analyze(
                     "", team_name=away_full, action_injuries_df=action_injuries
                 )
@@ -1564,26 +1549,6 @@ def analyze_week(week):
                     'home_impact': home_impact,
                     'net_impact': net_impact,
                     'prop_recommendations': []  # Skip for now
-                }
-            else:
-                # Fallback remains the same...
-                
-                # Generate prop recommendations
-                injury_analyzer = InjuryAnalyzer()
-                #prop_recommendations = injury_analyzer.generate_prop_recommendations(
-                #    game_injuries, away_full, home_full
-                #)
-                
-                # Convert to your existing format
-                injury_analysis = {
-                    'score': min(abs(injury_game_analysis['net_impact']) * 10, 15),  # Scale to 0-15
-                    'factors': injury_game_analysis['betting_recommendations'],
-                    'description': injury_game_analysis['game_analysis'],
-                    'edge': injury_game_analysis['injury_edge'],
-                    'away_impact': injury_game_analysis['away_total_impact'],
-                    'home_impact': injury_game_analysis['home_total_impact'],
-                    'net_impact': injury_game_analysis['net_impact'],
-                    'prop_recommendations': prop_recommendations
                 }
             else:
                 # No injuries found - use your fallback
