@@ -1182,7 +1182,7 @@ class ClassificationEngine:
         if "BLUE CHIP" in cat:
             # Strong plays get both spread and total recommendations
             primary_rec = generate_primary_bet(spread_dir, away_team, home_team, spread_num)
-            secondary_rec = generate_total_bet(total_dir, total_num) if total_edge >= 10 else None
+            secondary_rec = ClassificationEngine.generate_total_bet(total_dir, total_num) if total_edge >= 10 else None
             
             if secondary_rec:
                 return f"✅ STRONG PLAY: {primary_rec} + {secondary_rec}"
@@ -1192,19 +1192,19 @@ class ClassificationEngine:
         elif "TARGETED PLAY" in cat:
             # Targeted plays get the strongest single recommendation
             if spread_edge >= total_edge:
-                return f"✅ TARGETED PLAY: {generate_primary_bet(spread_dir, away_team, home_team, spread_num)}"
+                return f"✅ TARGETED PLAY: {ClassificationEngine.generate_primary_bet(spread_dir, away_team, home_team, spread_num)}"
             else:
-                return f"✅ TARGETED PLAY: {generate_total_bet(total_dir, total_num)}"
+                return f"✅ TARGETED PLAY: {ClassificationEngine.generate_total_bet(total_dir, total_num)}"
                 
         elif "LEAN" in cat:
-            return f"👀 LEAN: {generate_primary_bet(spread_dir, away_team, home_team, spread_num)} (proceed with caution)"
+            return f"👀 LEAN: {ClassificationEngine.generate_primary_bet(spread_dir, away_team, home_team, spread_num)} (proceed with caution)"
             
         elif "TRAP" in cat:
             # For trap games, recommend fading the public
             public_side = "home" if game_analysis.get('public_exposure', 50) > 50 else "away"
             fade_side = "away" if public_side == "home" else "home"
             fade_team = away_team if fade_side == "away" else home_team
-            fade_rec = generate_primary_bet(fade_side.upper(), away_team, home_team, spread_num)
+            fade_rec = ClassificationEngine.generate_primary_bet(fade_side.upper(), away_team, home_team, spread_num)
             return f"🚨 TRAP GAME: {fade_rec} (fade the public)"
             
         elif "FADE" in cat:
