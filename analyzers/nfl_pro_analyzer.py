@@ -1057,7 +1057,7 @@ class NarrativeEngine:
                 narrative.append(f"   Team Impacts: {away_team} ({injury_data['away_impact']:.1f}) vs {home_team} ({injury_data['home_impact']:.1f})")
        
         # Add prop recommendations if available
-        if injury_analysis.get('prop_recommendations'):
+        if injury_data.get('prop_recommendations'):
             narrative.append(f"   Prop Opportunities:")
             for prop_rec in injury_analysis['prop_recommendations'][:3]:  # Top 3
                 narrative.append(f"     • {prop_rec}")
