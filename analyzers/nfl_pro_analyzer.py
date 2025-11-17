@@ -1226,34 +1226,34 @@ def match_player_to_whitelist(player_name, team):
             
             players_dict = {p['id']: p for p in whitelist['injury_whitelist']['players']}
             
-            # Simple matching - improve this logic as needed
-            name_lower = player_name.lower().strip()
-            print(f"🔍 Searching for: '{name_lower}'")
+            # DEBUG: Show first few players in whitelist
+            if name_lower == 'tyreek hill':  # Only debug for Tyreek
+                print(f"🔍 First 5 players in whitelist:")
+                for i, (pid, pdata) in enumerate(list(players_dict.items())[:5]):
+                    print(f"  - {pdata['name']} ({pdata['team']})")
+                print(f"🔍 Total players in whitelist: {len(players_dict)}")
             
-            # Create team abbreviation mapping
+            name_lower = player_name.lower().strip()
+            
+            # Team mapping
             team_mapping = {
                 "Miami Dolphins": "MIA",
                 "Washington Commanders": "WAS",
-                "Cincinnati Bengals": "CIN", 
-                "Pittsburgh Steelers": "PIT",
-                "Buffalo Bills": "BUF",
-                # Add more as needed
+                # ... rest of mapping
             }
             
             team_abbrev = team_mapping.get(team, "")
-            print(f"🔍 Team abbrev: {team_abbrev}")
             
             for player_id, player_data in players_dict.items():
+                if name_lower == 'tyreek hill' and 'hill' in player_data['name'].lower():
+                    print(f"🔍 Found Hill in whitelist: {player_data['name']} ({player_data['team']})")
+                
                 player_whitelist_name = player_data['name'].lower()
                 if (name_lower in player_whitelist_name or 
                     player_whitelist_name in name_lower):
                     if team_abbrev == player_data['team']:
                         print(f"✅ MATCH FOUND: {player_id}")
                         return player_id
-                    else:
-                        print(f"🔍 Name match but wrong team: {player_data['team']} != {team_abbrev}")
-            
-            print(f"❌ No match found")
         
         return None
     except Exception as e:
