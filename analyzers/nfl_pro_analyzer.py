@@ -1116,22 +1116,23 @@ class NarrativeEngine:
 
 class ClassificationEngine:
     """Classifies games into tiers"""
-    
+
     @staticmethod
     def classify(game_analysis):
         """Determine game classification"""
         total = game_analysis['total_score']
         sharp_score = game_analysis['sharp_consensus_score']
         ref_score = game_analysis['referee_analysis']['ats_score']
+        injury_score = game_analysis['injury_analysis']['score']  # ADD THIS LINE
         
         # Blue Chip: Strong alignment across all factors
-        if total >= 8 and sharp_score >= 2 and ref_score >= 2:
+        if total >= 8 and sharp_score >= 2 and (ref_score >= 2 or injury_score >= 3):  # MODIFY THIS LINE
             return "🔵 BLUE CHIP", "STRONG PLAY", 9
         
-        # Targeted Play: Good edge with supporting factors
-        if total >= 5 and sharp_score >= 1:
+        # Targeted Play: Good edge with supporting factors  
+        if total >= 5 and (sharp_score >= 1 or injury_score >= 2):  # MODIFY THIS LINE
             return "🎯 TARGETED PLAY", "SOLID EDGE", 7
-        
+            
         # Lean: Modest edge
         if total >= 3:
             return "📊 LEAN", "SLIGHT EDGE", 5
@@ -1615,6 +1616,9 @@ def generate_outputs(week, games):
             'ref_ou_pct': game['referee_analysis']['ou_pct'],
             'weather_score': game['weather_analysis']['score'],
             'injury_score': game['injury_analysis']['score'],
+            'injury_edge': game['injury_analysis'].get('edge', 'NO EDGE'),           # ADD THIS
+            'injury_net_impact': game['injury_analysis'].get('net_impact', 0),       # ADD THIS
+            'injury_description': game['injury_analysis']['description'],            # ADD THIS
             'situational_score': game['situational_analysis']['score'],
             'situational_factors': game['situational_analysis']['description'],
             'statistical_score': game['statistical_analysis']['score'],
