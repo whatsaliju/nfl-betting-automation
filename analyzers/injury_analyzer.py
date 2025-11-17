@@ -35,12 +35,51 @@ class InjuryAnalyzer:
             print(f"⚠️  Warning: Invalid JSON in {filepath} - using defaults")
             return {}
     
-    def parse_injury_status(self, status_text: str) -> Tuple[str, int]:
-        """Parse injury status text and return normalized status and confidence."""
+    def parse_injury_status(self, status_text: str) -> Tuple[str, int, float]:
+        """Parse injury status text and return normalized status, confidence, and impact multiplier."""
         if not status_text or pd.isna(status_text):
-            return 'healthy', 0
+            return 'healthy', 0, 0.0
         
         status_lower = str(status_text).lower().strip()
+        
+        # Enhanced status mappings with impact multipliers
+        status_mappings = {
+            'out': {
+                'keywords': ['out', 'ruled out', 'will not play', 'inactive', 'ir', 'injured reserve'],
+                'confidence': 100,
+                'impact_multiplier': 1.0,  # Full impact
+                'description': 'Confirmed out'
+            },
+            'doubtful': {
+                'keywords': ['doubtful', 'unlikely to play', 'long shot', 'not expected'],
+                'confidence': 85,
+                'impact_multiplier': 0.85,  # 85% of full impact
+                'description': 'Very unlikely to play'
+            },
+            'questionable': {
+                'keywords': ['questionable', 'q', 'game-time decision', '50-50', 'limited practice'],
+                'confidence': 50,
+                'impact_multiplier': 0.5,  # 50% of full impact
+                'description': 'Uncertain availability'
+            },
+            'probable': {
+                'keywords': ['probable', 'expected to play', 'should play', 'full practice'],
+                'confidence': 15,
+                'impact_multiplier': 0.15,  # 15% of full impact
+                'description': 'Likely to play with limitations'
+            }
+        }
+        
+        # Check each status mapping
+        for status, mapping in status_mappings.items():
+            for keyword in mapping['keywords']:
+                if keyword in status_lower:
+                    return (status, 
+                           mapping['confidence'], 
+                           mapping['impact_multiplier'])
+        
+        # Default to questionable if we can't parse
+        return 'questionable', 50, 0.5
         
         # Check each status mapping
         for status, mapping in self.rules.get('injury_rules', {}).get('status_mappings', {}).items():
@@ -84,7 +123,7 @@ class InjuryAnalyzer:
             }
         
         # Parse status and severity
-        status, status_confidence = self.parse_injury_status(injury_status)
+        status, status_confidence, status_impact_multiplier = self.parse_injury_status(injury_status)
         severity_level, severity_multiplier = self.classify_injury_severity(injury_type)
         
         # Get base impact from player tier
@@ -103,7 +142,7 @@ class InjuryAnalyzer:
         context_multiplier = self._calculate_context_multiplier(team_context or {})
         
         # Calculate final impact
-        raw_impact = tier_impact * position_multiplier * severity_multiplier * status_multiplier
+        raw_impact = tier_impact * position_multiplier * severity_multiplier * status_impact_multiplier
         final_impact = raw_impact * context_multiplier
         
         # Generate analysis and recommendations
