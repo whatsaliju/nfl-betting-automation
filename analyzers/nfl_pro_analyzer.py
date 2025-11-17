@@ -1260,10 +1260,24 @@ def get_team_context(team):
     """Get team context for injury calculations."""
     # You can expand this with actual team data
     team_contexts = {
-        # Example team contexts - you can enhance these
+        # QB backup situations
         'Buffalo Bills': {'backup_quality': 'poor_backup', 'scheme_dependency': 'system_dependent'},
         'Kansas City Chiefs': {'backup_quality': 'good_backup', 'scheme_dependency': 'player_dependent'},
-        'Cincinnati Bengals': {'backup_quality': 'average_backup', 'scheme_dependency': 'player_dependent'},
+        'Cincinnati Bengals': {'backup_quality': 'poor_backup', 'scheme_dependency': 'player_dependent'},
+        'Miami Dolphins': {'backup_quality': 'poor_backup', 'scheme_dependency': 'system_dependent'},
+        'Washington Commanders': {'backup_quality': 'poor_backup', 'scheme_dependency': 'player_dependent'},
+        'Pittsburgh Steelers': {'backup_quality': 'good_backup', 'scheme_dependency': 'scheme_flexible'},
+        'Green Bay Packers': {'backup_quality': 'average_backup', 'scheme_dependency': 'player_dependent'},
+        
+        # Teams with good skill position depth
+        'Detroit Lions': {'backup_quality': 'good_backup', 'scheme_dependency': 'scheme_flexible'},
+        'Philadelphia Eagles': {'backup_quality': 'good_backup', 'scheme_dependency': 'scheme_flexible'},
+        'San Francisco 49ers': {'backup_quality': 'good_backup', 'scheme_dependency': 'system_dependent'},
+        
+        # Teams with poor depth
+        'Carolina Panthers': {'backup_quality': 'poor_backup', 'scheme_dependency': 'player_dependent'},
+        'New York Giants': {'backup_quality': 'poor_backup', 'scheme_dependency': 'player_dependent'},
+        'Arizona Cardinals': {'backup_quality': 'average_backup', 'scheme_dependency': 'player_dependent'},
         # Add more teams as needed
     }
     
