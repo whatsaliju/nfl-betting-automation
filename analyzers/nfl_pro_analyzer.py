@@ -1031,11 +1031,47 @@ class NarrativeEngine:
                 narrative.append(f"  • {factor}")
             narrative.append("")
         
-        if game_data['injury_analysis']['factors']:
-            narrative.append("INJURY CONCERNS:")
-            for factor in game_data['injury_analysis']['factors']:
+        # Environmental factors
+        if game_data['weather_analysis']['factors']:
+            narrative.append("WEATHER IMPACT:")
+            for factor in game_data['weather_analysis']['factors']:
                 narrative.append(f"  • {factor}")
             narrative.append("")
+
+        # REPLACE your existing injury section with this ENHANCED VERSION:
+        # Enhanced Injury Analysis Output
+        injury_data = game_data['injury_analysis']
+        narrative.append("🏥 INJURY ANALYSIS:")
+        narrative.append(f"   Impact: {injury_data['description']}")
+        
+        # Add injury edge information
+        if 'edge' in injury_data and injury_data['edge'] != 'NO EDGE':
+            narrative.append(f"   Edge: {injury_data['edge']} ({injury_data.get('net_impact', 0):+.1f} points)")
+        
+        # Add betting recommendations if available
+        if injury_data.get('factors'):
+            narrative.append(f"   Betting Impact: {' | '.join(injury_data['factors'][:2])}")
+        
+        # Add team-by-team breakdown if available
+        if 'away_impact' in injury_data and 'home_impact' in injury_data:
+            if injury_data['away_impact'] or injury_data['home_impact']:
+                away_team = game_data['away']
+                home_team = game_data['home'] 
+                narrative.append(f"   Team Impacts: {away_team} ({injury_data['away_impact']:.1f}) vs {home_team} ({injury_data['home_impact']:.1f})")
+        
+        # Add specific injury details if available
+        if 'away_injuries' in injury_data:
+            for inj in injury_data.get('away_injuries', [])[:2]:  # Top 2 away injuries
+                if inj.get('impact_points', 0) >= 0.5:
+                    narrative.append(f"     • {inj.get('display_name', 'Player')}: {inj.get('analysis', 'Impact analysis')}")
+        
+        if 'home_injuries' in injury_data:
+            for inj in injury_data.get('home_injuries', [])[:2]:  # Top 2 home injuries
+                if inj.get('impact_points', 0) >= 0.5:
+                    narrative.append(f"     • {inj.get('display_name', 'Player')}: {inj.get('analysis', 'Impact analysis')}")
+        
+        narrative.append("")
+
         
         # Situational factors
         if game_data['situational_analysis']['factors']:
