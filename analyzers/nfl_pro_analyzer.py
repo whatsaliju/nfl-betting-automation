@@ -1445,7 +1445,8 @@ def analyze_week(week):
                 for _, row in action_injuries.iterrows():
                     team = row.get('team', '')
                     player = row.get('player', '')
-                    if (team.upper() in [away_full.upper(), home_full.upper()]):
+                    if (away_full in team or home_full in team or 
+                        team.upper() in [away_full.upper(), home_full.upper()]):
                         game_match_count += 1
                         print(f"  ✅ {player} ({team}): {row.get('status', '')}")
                         parsed_injury = {
