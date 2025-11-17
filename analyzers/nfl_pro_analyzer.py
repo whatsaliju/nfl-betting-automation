@@ -1416,18 +1416,39 @@ def analyze_week(week):
     #                        game_injuries.append(parsed_injury)
    #         
             # Add Action Network injuries if available
+          #  if not action_injuries.empty:
+         #       for _, row in action_injuries.iterrows():
+        #            if (row.get('team', '').upper() in [away_full.upper(), home_full.upper()]):
+       #                 parsed_injury = {
+      #                      'player_id': match_player_to_whitelist(row.get('player', ''), row.get('team', '')),
+     #                       'status': row.get('status', 'questionable'),
+    #                        'injury_type': row.get('injury_type', ''),
+   #                         'team_context': get_team_context(row.get('team', ''))
+  #                      }
+ #                       if parsed_injury['player_id']:
+#                            game_injuries.append(parsed_injury)
+            # Add Action Network injuries if available
             if not action_injuries.empty:
+                print(f"🔍 Processing {len(action_injuries)} Action Network injuries for {away_full} @ {home_full}")
+                game_match_count = 0
                 for _, row in action_injuries.iterrows():
-                    if (row.get('team', '').upper() in [away_full.upper(), home_full.upper()]):
+                    team = row.get('team', '')
+                    player = row.get('player', '')
+                    if (team.upper() in [away_full.upper(), home_full.upper()]):
+                        game_match_count += 1
+                        print(f"  ✅ {player} ({team}): {row.get('status', '')}")
                         parsed_injury = {
-                            'player_id': match_player_to_whitelist(row.get('player', ''), row.get('team', '')),
+                            'player_id': match_player_to_whitelist(player, team),
                             'status': row.get('status', 'questionable'),
                             'injury_type': row.get('injury_type', ''),
-                            'team_context': get_team_context(row.get('team', ''))
+                            'team_context': get_team_context(team)
                         }
+                        print(f"    🎯 Player ID matched: {parsed_injury['player_id']}")
                         if parsed_injury['player_id']:
                             game_injuries.append(parsed_injury)
-            
+                            print(f"    ✅ Added to game_injuries")
+                
+                print(f"🔍 Found {game_match_count} injuries for this game, {len(game_injuries)} matched whitelist")
             # Analyze game-level injuries
             if game_injuries:
                 injury_game_analysis = injury_analyzer.analyze_game_injuries(away_full, home_full, game_injuries)
