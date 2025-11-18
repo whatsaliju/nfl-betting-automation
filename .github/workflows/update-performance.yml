@@ -1,0 +1,234 @@
+name: 5. Update Performance Tracker
+on:
+  workflow_dispatch:  # Manual trigger - you run this after games complete
+    inputs:
+      week:
+        description: 'NFL Week Number'
+        required: true
+        default: '12'
+        type: string
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'log_only'
+        type: choice
+        options:
+        - log_only
+        - log_and_update
+        - update_only
+      game_results:
+        description: 'Game results (JSON format) - only needed for updates'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  update-performance:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas numpy
+    
+    - name: Log Week Recommendations
+      if: contains(github.event.inputs.action, 'log')
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from analyzers.performance_tracker import PerformanceTracker
+        
+        week = int('${{ github.event.inputs.week }}')
+        tracker = PerformanceTracker()
+        
+        print(f'📊 Logging Week {week} recommendations...')
+        try:
+            tracker.log_week_recommendations(week, f'data/week{week}/week{week}_analytics.json')
+            print('✅ Recommendations logged successfully')
+        except Exception as e:
+            print(f'⚠️ Error logging recommendations: {e}')
+            print(f'Make sure data/week{week}/week{week}_analytics.json exists')
+        "
+    
+    - name: Update Game Results (Generic)
+      if: contains(github.event.inputs.action, 'update')
+      run: |
+        python -c "
+        import sys, json
+        sys.path.append('.')
+        from analyzers.performance_tracker import PerformanceTracker
+        
+        week = int('${{ github.event.inputs.week }}')
+        tracker = PerformanceTracker()
+        
+        # Get game results input
+        results_input = '''${{ github.event.inputs.game_results }}'''.strip()
+        
+        if not results_input:
+            print('⚠️ No game results provided. Please provide results in JSON format.')
+            print('Example format:')
+            print('[')
+            print('  [\"Team1 at Team2\", \"Score\", true, \"Notes\"],')
+            print('  [\"Team3 at Team4\", \"Score\", false, \"Notes\"]')
+            print(']')
+            exit(0)
+        
+        try:
+            # Parse JSON results
+            results = json.loads(results_input)
+            
+            print(f'🔄 Updating Week {week} game results...')
+            
+            wins = 0
+            total = 0
+            
+            for result in results:
+                game, score, won, notes = result
+                try:
+                    tracker.update_results(week, game, score, won=won)
+                    status = '✅' if won else '❌'
+                    print(f'  {status} {game}: {notes}')
+                    if won:
+                        wins += 1
+                    total += 1
+                except Exception as e:
+                    print(f'  ⚠️ Error updating {game}: {e}')
+            
+            win_rate = (wins/total*100) if total > 0 else 0
+            print(f'\\n📊 Week {week} Final Record: {wins}-{total-wins} ({win_rate:.1f}% win rate)')
+            
+        except json.JSONDecodeError as e:
+            print(f'⚠️ Invalid JSON format: {e}')
+            print('Please provide results in valid JSON format')
+        except Exception as e:
+            print(f'⚠️ Error processing results: {e}')
+        "
+    
+    - name: Generate Performance Report
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from analyzers.performance_tracker import PerformanceTracker
+        
+        week = int('${{ github.event.inputs.week }}')
+        tracker = PerformanceTracker()
+        
+        print(f'📈 Generating performance analysis (last 3 weeks)...')
+        report = tracker.generate_performance_report(weeks_back=3)
+        print('\\n' + '='*60)
+        print(report)
+        print('='*60)
+        
+        # Also save report to file for email
+        with open(f'week{week}_performance_report.txt', 'w') as f:
+            f.write(f'NFL Week {week} Performance Update\\n')
+            f.write('='*50 + '\\n\\n')
+            f.write(report)
+        
+        print(f'\\n📄 Report saved to week{week}_performance_report.txt')
+        "
+    
+    - name: Email Performance Report
+      if: contains(github.event.inputs.action, 'update')
+      env:
+        EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      run: |
+        python -c "
+        import sys, os, smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.base import MIMEBase
+        from email import encoders
+        sys.path.append('.')
+        
+        week = int('${{ github.event.inputs.week }}')
+        
+        # Read the performance report
+        try:
+            with open(f'week{week}_performance_report.txt', 'r') as f:
+                report = f.read()
+        except:
+            report = 'Performance report not available'
+        
+        # Email setup
+        email_addr = os.getenv('EMAIL_ADDRESS')
+        email_pass = os.getenv('EMAIL_PASSWORD')
+        
+        if email_addr and email_pass:
+            try:
+                msg = MIMEMultipart()
+                msg['From'] = email_addr
+                msg['To'] = email_addr
+                msg['Subject'] = f'📊 NFL Week {week} Performance Update'
+                
+                body = f'''
+        NFL Performance Tracker Update
+        ==============================
+        
+        Week {week} results have been processed.
+        
+        {report}
+        
+        Full historical data: data/historical/betting_results.csv
+        Analytics data: data/week{week}/week{week}_analytics.json
+                '''
+                
+                msg.attach(MIMEText(body, 'plain'))
+                
+                # Attach CSV if available
+                csv_path = 'data/historical/betting_results.csv'
+                if os.path.exists(csv_path):
+                    with open(csv_path, 'rb') as f:
+                        part = MIMEBase('application', 'octet-stream')
+                        part.set_payload(f.read())
+                    
+                    encoders.encode_base64(part)
+                    part.add_header(
+                        'Content-Disposition',
+                        f'attachment; filename= betting_results.csv'
+                    )
+                    msg.attach(part)
+                
+                # Send email
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(email_addr, email_pass)
+                server.sendmail(email_addr, email_addr, msg.as_string())
+                server.quit()
+                
+                print('📧 Performance report emailed successfully')
+                
+            except Exception as e:
+                print(f'📧 Email failed: {e}')
+        else:
+            print('📧 Email credentials not configured')
+        "
+    
+    - name: Commit Updated Performance Data
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Check if there are changes to commit
+        if [ -n "$(git status --porcelain)" ]; then
+          git add data/historical/ week${{ github.event.inputs.week }}_performance_report.txt
+          git commit -m "Update performance tracking - Week ${{ github.event.inputs.week }} (${{ github.event.inputs.action }})"
+          git push
+          echo "✅ Performance data committed and pushed"
+        else
+          echo "ℹ️ No changes to commit"
+        fi
