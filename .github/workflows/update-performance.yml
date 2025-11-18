@@ -1,0 +1,173 @@
+name: Update Performance Tracker
+on:
+  workflow_dispatch:  # Manual trigger - you run this after games complete
+    inputs:
+      week:
+        description: 'NFL Week Number'
+        required: true
+        default: '11'
+        type: string
+      update_results:
+        description: 'Update game results (true/false)'
+        required: true
+        default: 'true'
+        type: boolean
+
+jobs:
+  update-performance:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas numpy
+    
+    - name: Log Week Recommendations
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from analyzers.performance_tracker import PerformanceTracker
+        
+        week = int('${{ github.event.inputs.week }}')
+        tracker = PerformanceTracker()
+        
+        print(f'📊 Logging Week {week} recommendations...')
+        try:
+            tracker.log_week_recommendations(week, f'data/week{week}/week{week}_analytics.json')
+            print('✅ Recommendations logged successfully')
+        except Exception as e:
+            print(f'⚠️ Error logging recommendations: {e}')
+        "
+    
+    - name: Update Game Results (Week 11 Example)
+      if: github.event.inputs.week == '11' && github.event.inputs.update_results == 'true'
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from analyzers.performance_tracker import PerformanceTracker
+        
+        tracker = PerformanceTracker()
+        
+        print('🔄 Updating Week 11 game results...')
+        
+        # Update all Week 11 results
+        results = [
+            ('Seahawks @ Rams', 'LAR 26-20', False, 'Seahawks +3 lost, UNDER 48.5 hit'),
+            ('Chiefs @ Broncos', 'DEN 16-14', False, 'Chiefs -3.5 lost to upset'),
+            ('Bears @ Vikings', 'MIN 30-27 (57 total)', True, 'OVER 48 hit easily'),
+            ('Lions @ Eagles', 'PHI 24-21', False, 'Lions +2.5 lost'),
+            ('Cowboys @ Raiders', 'LV 19-17 (49 total)', False, 'OVER 49.5 lost by 0.5'),
+        ]
+        
+        for game, result, won, notes in results:
+            try:
+                tracker.update_results(11, game, result, won=won)
+                status = '✅' if won else '❌'
+                print(f'  {status} {game}: {notes}')
+            except Exception as e:
+                print(f'  ⚠️ Error updating {game}: {e}')
+        
+        print('\\n📊 Week 11 Final Record: 1-5 (16.7% win rate)')
+        "
+    
+    - name: Generate Performance Report
+      run: |
+        python -c "
+        import sys
+        sys.path.append('.')
+        from analyzers.performance_tracker import PerformanceTracker
+        
+        tracker = PerformanceTracker()
+        
+        print('📈 Generating performance analysis...')
+        report = tracker.generate_performance_report(weeks_back=2)
+        print('\\n' + '='*60)
+        print(report)
+        print('='*60)
+        "
+    
+    - name: Email Performance Report (Optional)
+      if: github.event.inputs.update_results == 'true'
+      env:
+        EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      run: |
+        python -c "
+        import sys, os, smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        sys.path.append('.')
+        from analyzers.performance_tracker import PerformanceTracker
+        
+        # Generate report
+        tracker = PerformanceTracker()
+        week = int('${{ github.event.inputs.week }}')
+        report = tracker.generate_performance_report(weeks_back=2)
+        
+        # Email setup (only if credentials provided)
+        email_addr = os.getenv('EMAIL_ADDRESS')
+        email_pass = os.getenv('EMAIL_PASSWORD')
+        
+        if email_addr and email_pass:
+            try:
+                msg = MIMEMultipart()
+                msg['From'] = email_addr
+                msg['To'] = email_addr  # Send to yourself
+                msg['Subject'] = f'📊 NFL Week {week} Performance Report'
+                
+                body = f'''
+        NFL Performance Tracker Update
+        ==============================
+        
+        Week {week} results have been updated in the system.
+        
+        {report}
+        
+        Full data available in your GitHub repository at:
+        data/historical/betting_results.csv
+                '''
+                
+                msg.attach(MIMEText(body, 'plain'))
+                
+                # Send email
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(email_addr, email_pass)
+                server.sendmail(email_addr, email_addr, msg.as_string())
+                server.quit()
+                
+                print('📧 Performance report emailed successfully')
+                
+            except Exception as e:
+                print(f'📧 Email failed (optional): {e}')
+        else:
+            print('📧 Email credentials not configured - report generated above')
+        "
+    
+    - name: Commit Updated Performance Data
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Check if there are changes to commit
+        if [ -n "$(git status --porcelain)" ]; then
+          git add data/historical/
+          git commit -m "Update performance tracking - Week ${{ github.event.inputs.week }}"
+          git push
+          echo "✅ Performance data committed and pushed"
+        else
+          echo "ℹ️ No changes to commit"
+        fi
