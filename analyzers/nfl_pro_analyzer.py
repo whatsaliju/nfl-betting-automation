@@ -1657,9 +1657,9 @@ def analyze_week(week):
     if not action.empty:
         action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
         
-        # Find games marked as "Final"
+        # Better filtering that catches all completed games
         final_games = set(
-            action[action["game_time"].astype(str).str.strip() == "Final"]["normalized_matchup"]
+            action[action["game_time"].astype(str).str.contains("Final", na=False)]["normalized_matchup"]
         )
         
         if final_games:
