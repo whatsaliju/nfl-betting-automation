@@ -2,7 +2,7 @@ name: 1. Referee Data Collection
 
 on:
   schedule:
-    - cron: '0 22 * * 3'  # Wednesday 6 PM ET (10 PM UTC)
+    - cron: '0 22 * * 3'
   workflow_dispatch:
     inputs:
       week:
@@ -47,15 +47,22 @@ jobs:
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "📅 NFL Week: $WEEK"
-      
+
+      - name: Normalize week input
+        id: clean_week
+        run: |
+          WEEK="${{ steps.get_week.outputs.week }}"
+          WEEK="${WEEK%.*}"
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+
       - name: Scrape Referee Assignments
         run: |
-          echo "🏈 Scraping Week ${{ steps.get_week.outputs.week }} referee assignments..."
+          echo "🏈 Scraping Week ${{ steps.clean_week.outputs.week }} referee assignments..."
           python3 << 'PYTHON_EOF'
           import sys
           sys.path.append('scrapers')
           from football_zebras_scraper import save_referees
-          week = ${{ steps.get_week.outputs.week }}
+          week = int("${{ steps.clean_week.outputs.week }}")
           df = save_referees(week)
           if df is None or len(df) == 0:
               print("❌ No referee assignments found")
@@ -68,7 +75,7 @@ jobs:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: |
           echo "🔍 Generating SDQL queries using Odds API..."
-          python3 analyzers/query_generator.py ${{ steps.get_week.outputs.week }}
+          python3 analyzers/query_generator.py ${{ steps.clean_week.outputs.week }}
       
       - name: Run SDQL Queries
         env:
@@ -81,7 +88,7 @@ jobs:
           sys.path.append('scrapers')
           from sdql_test import run_sdql_queries
           
-          week = ${{ steps.get_week.outputs.week }}
+          week = int("${{ steps.clean_week.outputs.week }}")
           with open(f'data/week{week}/week{week}_queries.txt', 'r') as f:
               queries = [line.strip() for line in f if line.strip()]
           
@@ -101,8 +108,7 @@ jobs:
           import sys
           sys.path.append('analyzers')
           from referee_trend_generator import generate_referee_digest
-          week = ${{ steps.get_week.outputs.week }}
-          generate_referee_digest(week)
+          generate_referee_digest(int("${{ steps.clean_week.outputs.week }}"))
           PYTHON_EOF
       
       - name: Commit Referee Data
@@ -110,9 +116,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main || true
-          git add data/week${{ steps.get_week.outputs.week }}/ \
+          git add data/week${{ steps.clean_week.outputs.week }}/ \
                   data/historical/sdql_results.csv || true
-          git commit -m "🏈 Week ${{ steps.get_week.outputs.week }} referee data collection" || echo "No changes"
+          git commit -m "🏈 Week ${{ steps.clean_week.outputs.week }} referee data collection" || echo "No changes"
           git push
       
       - name: Trigger Initial Market Data Workflow
@@ -120,10 +126,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: referee-data-ready
-          client-payload: '{"week": "${{ steps.get_week.outputs.week }}"}'
+          client-payload: '{"week": "${{ steps.clean_week.outputs.week }}"}'
       
       - name: Summary
         run: |
-          echo "✅ Referee data collection complete for Week ${{ steps.get_week.outputs.week }}"
+          echo "✅ Referee data collection complete for Week ${{ steps.clean_week.outputs.week }}"
           echo "📁 Files created:"
-          ls -lh data/week${{ steps.get_week.outputs.week }}/*.csv data/week${{ steps.get_week.outputs.week }}/*.txt data/historical/sdql_results.csv
+          ls -lh data/week${{ steps.clean_week.outputs.week }}/*.csv data/week${{ steps.clean_week.outputs.week }}/*.txt data/historical/sdql_results.csv
