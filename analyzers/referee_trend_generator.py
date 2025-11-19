@@ -4,6 +4,7 @@ Referee Trend Digest Generator
 Creates quick referee-only summaries for each matchup.
 """
 import pandas as pd
+import os
 
 def generate_referee_digest(week):
     try:
