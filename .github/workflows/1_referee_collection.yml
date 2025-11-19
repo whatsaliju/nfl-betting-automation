@@ -54,6 +54,9 @@ jobs:
           WEEK="${{ steps.get_week.outputs.week }}"
           WEEK="${WEEK%.*}"
           echo "week=$WEEK" >> $GITHUB_OUTPUT
+      - name: Ensure week directory exists
+        run: |
+          mkdir -p data/week${{ steps.clean_week.outputs.week }}
 
       - name: Scrape Referee Assignments
         run: |
