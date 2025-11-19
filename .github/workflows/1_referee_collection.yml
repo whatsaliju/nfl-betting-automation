@@ -88,6 +88,7 @@ jobs:
           echo "📈 Running SDQL historical queries..."
           python3 << PYTHON_EOF
           import sys
+          import os # <--- ADDED
           sys.path.append('scrapers')
           from sdql_test import run_sdql_queries
           
@@ -96,13 +97,14 @@ jobs:
               queries = [line.strip() for line in f if line.strip()]
           
           run_sdql_queries(
-              email="$GIMMETHEDOG_EMAIL",
-              password="$GIMMETHEDOG_PASSWORD",
+              email=os.environ.get("GIMMETHEDOG_EMAIL"), # <--- CORRECTED
+              password=os.environ.get("GIMMETHEDOG_PASSWORD"), # <--- CORRECTED
               queries=queries,
               headless=True
           )
           print("✅ SDQL queries complete")
           PYTHON_EOF
+
       
       - name: Generate Referee Trends Digest
         run: |
