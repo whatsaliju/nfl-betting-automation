@@ -86,7 +86,7 @@ jobs:
           GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
         run: |
           echo "📈 Running SDQL historical queries..."
-          python3 << 'PYTHON_EOF'
+          python3 << PYTHON_EOF
           import sys
           sys.path.append('scrapers')
           from sdql_test import run_sdql_queries
