@@ -61,7 +61,7 @@ jobs:
       - name: Scrape Referee Assignments
         run: |
           echo "🏈 Scraping Week ${{ steps.clean_week.outputs.week }} referee assignments..."
-          python3 << 'PYTHON_EOF'
+          python3 << PYTHON_EOF
           import sys
           sys.path.append('scrapers')
           from football_zebras_scraper import save_referees
@@ -107,7 +107,7 @@ jobs:
       - name: Generate Referee Trends Digest
         run: |
           echo "📋 Generating referee trends digest..."
-          python3 << 'PYTHON_EOF'
+          python3 << PYTHON_EOF
           import sys
           sys.path.append('analyzers')
           from referee_trend_generator import generate_referee_digest
