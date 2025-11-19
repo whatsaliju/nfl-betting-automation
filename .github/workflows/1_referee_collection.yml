@@ -41,7 +41,7 @@ jobs:
         id: get_week
         run: |
           if [ -n "${{ github.event.inputs.week }}" ]; then
-            WEEK=${{ github.event.inputs.week }}
+            WEEK="${{ github.event.inputs.week }}"
           else
             WEEK=$(python3 -c "from datetime import datetime; start=datetime(2025,9,5); days=(datetime.now()-start).days; week=min((days//7)+1+(1 if datetime.now().weekday()>=1 else 0),18); print(week)")
           fi
