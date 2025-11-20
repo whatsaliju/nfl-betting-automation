@@ -13,6 +13,16 @@ import json
 from datetime import datetime
 import os, sys
 
+# --- Dynamic Week Number Extraction ---
+if len(sys.argv) < 2:
+    print("❌ Error: Week number argument missing.")
+    # Exit cleanly if running in an automated environment without the required argument
+    sys.exit(1)
+
+# The week number (e.g., '12') is the first argument after the script name (sys.argv[0])
+WEEK_NUMBER = sys.argv[1]
+print(f"✅ Target Week set to: {WEEK_NUMBER}")
+
 # Set this to your cookies JSON file path
 COOKIES_FILE = os.environ.get("ACTION_NETWORK_COOKIES", "config/action_network_cookies.json")
 
@@ -257,13 +267,16 @@ if sport_select:
     time.sleep(3)
 
 if week_select:
+    target_value = f"Week {WEEK_NUMBER}" # e.g., "Week 12"
+    
     try:
-        week_select.select_by_value("Week 11")
-        print("✅ Set week to Week 11")
+        week_select.select_by_value(target_value)
+        print(f"✅ Set week to {target_value}")
         time.sleep(3)
-    except:
+    except Exception as e:
         current_week = week_select.first_selected_option.text
-        print(f"ℹ️ Using current selection: {current_week}")
+        print(f"⚠️ Could not set week to {target_value}. Using current selection: {current_week}")
+        # If this continues to fail, check the exact value needed, e.g., week_select.select_by_value(WEEK_NUMBER)
         time.sleep(3)
 
 # --- Scrape all markets ---
