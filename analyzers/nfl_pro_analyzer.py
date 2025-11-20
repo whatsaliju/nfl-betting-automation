@@ -411,17 +411,17 @@ class RefereeAnalyzer:
 
 
 # ================================================================
-# WEATHER ANALYZER
+# WEATHER ANALYZER (FIXED)
 # ================================================================
 
 class WeatherAnalyzer:
-    """Analyzes weather impact with improved parsing"""
+    """Analyzes weather impact with improved parsing and scoring for heat/cold/wind"""
     
     @staticmethod
     def analyze(weather_str):
         """
         Parse weather from RotoWire format:
-        Example: "47% Rain\n40°  18 mph W Wind"
+        Example: "47% Rain\n40°  18 mph W Wind"
         or "Dome\nIn Domed Stadium"
         """
         s = str(weather_str).strip()
@@ -439,7 +439,6 @@ class WeatherAnalyzer:
         # Split by newline (RotoWire format)
         lines = s.split('\n')
         
-        # Parse precipitation (first line usually)
         for line in lines:
             # Precipitation percentage
             if '%' in line:
@@ -477,7 +476,7 @@ class WeatherAnalyzer:
                         score -= 1
                         factors.append(f"Windy conditions ({wind} mph)")
             
-            # Temperature
+            # Temperature (Enhanced with Extreme Heat)
             if '°' in line:
                 import re
                 temp_match = re.search(r'(\d+)°', line)
@@ -488,6 +487,9 @@ class WeatherAnalyzer:
                         factors.append(f"Freezing temperature ({temp}°F)")
                     elif temp <= 40:
                         factors.append(f"Cold weather ({temp}°F)")
+                    elif temp >= 90:
+                        score -= 1  # Extreme heat can impact offensive pace
+                        factors.append(f"Extreme heat ({temp}°F)")
         
         desc = ' | '.join(factors) if factors else 'Good conditions'
         
@@ -560,27 +562,32 @@ class InjuryAnalyzer:
         injuries = []
         # Split by comma for multiple injuries
         parts = s.split(',')
+        
+        # Use regex for robust parsing of "Player Name (POS)-STATUS"
+        import re
+        # Pattern captures: (Player Name) (POS) (STATUS)
+        injury_pattern = re.compile(r'(.+?)\s*\((.+?)\)\s*-\s*(.+)', re.IGNORECASE)
+
         for part in parts:
             part = part.strip()
             if not part or part.lower() == 'none':
                 continue
             
-            # Extract position and status
-            # Format: "Player Name (POS)-STATUS"
-            if '(' in part and ')' in part and '-' in part:
+            match = injury_pattern.match(part)
+            
+            if match:
                 try:
-                    player_pos = part.split('-')[0].strip()
-                    status = part.split('-')[1].strip()
-                    
-                    # Extract position from parentheses
-                    pos = player_pos[player_pos.find('(')+1:player_pos.find(')')].strip()
-                    
+                    player_name = match.group(1).strip()
+                    pos = match.group(2).strip()
+                    status = match.group(3).strip()
+
                     injuries.append({
-                        'player': player_pos.split('(')[0].strip(),
+                        'player': player_name,
                         'position': pos,
                         'status': status
                     })
                 except:
+                    # Skip malformed entry
                     continue
         
         return injuries
