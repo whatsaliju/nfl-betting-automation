@@ -37,12 +37,25 @@ options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) App
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--disable-blink-features=AutomationControlled")
-options.binary_location = "/usr/bin/chromium-browser"
-service = Service("/usr/bin/chromedriver")
+
+# --- Use paths from the browser-actions/setup-chrome action ---
+CHROMIUM_PATH = os.environ.get("CHROME_PATH")
+CHROMEDRIVER_PATH = os.environ.get("CHROMEDRIVER_PATH")
+
+if CHROMIUM_PATH:
+    options.binary_location = CHROMIUM_PATH
+
+if CHROMEDRIVER_PATH:
+    service = Service(CHROMEDRIVER_PATH)
+else:
+    # Fallback to the default system path if the env var isn't set
+    service = Service("/usr/bin/chromedriver") 
+
 driver = webdriver.Chrome(service=service, options=options)
 driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
 print("🍪 Cookie-based authentication approach")
+
 
 # Load cookies if they exist
 if os.path.exists(COOKIES_FILE):
