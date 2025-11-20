@@ -576,7 +576,7 @@ jobs:
             data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_referee_trends.txt
           retention-days: 30
       
-      - name: Commit Analysis Files
+      - name: Commit Pro Analysis
         run: |
           # 1. Configuration
           git config user.name "github-actions[bot]"
@@ -584,16 +584,31 @@ jobs:
           
           # 2. Stage ALL changes (-A) and attempt the initial commit.
           git add -A || true 
-          git commit -m "📊 Week 12 pro analysis - Initial Analysis" || echo "No changes to commit"
-      
-          # 3. Defensive Cleanup: Stage any files the commit missed, and incorporate 
-          # them into the previous commit using --amend. This ensures the workspace is clean.
+          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} pro analysis - Initial Analysis" || echo "No changes to commit (Proceeding to pull)"
+          
+          # 3. Defensive Cleanup: Amend any new changes to ensure a clean commit.
           git add -A
           git commit --amend --no-edit || true
       
-          # 4. Integrate remote changes (Fixes the original 'rejected' error)
-          # This applies your single, clean commit on top of the remote's latest changes.
-          git pull --rebase origin main 
+          # 4. Integrate remote changes with conflict handling
+          # Fetch latest remote state
+          git fetch origin
+          
+          # Attempt rebase; if it fails (due to conflicts), execute the block in curly braces
+          git rebase origin/main || {
+              echo "Rebase conflict detected. Resolving generated files automatically."
+              
+              # Resolve: Tell Git to take OUR version of the generated files
+              git checkout --ours data/week12/week12_executive_summary.txt || true
+              git checkout --ours data/week12/week12_pro_analysis.txt || true
+              
+              # Stage the resolved files
+              git add data/week12/week12_executive_summary.txt
+              git add data/week12/week12_pro_analysis.txt
+              
+              # Continue the rebase (this now completes the rebase operation)
+              git rebase --continue
+          }
           
           # 5. Push the resulting changes
           git push
