@@ -2054,13 +2054,29 @@ def analyze_week(week):
         game_theory_analysis = GameTheoryAnalyzer.analyze(game_theory_data)
         
         # Schedule Analysis
-        # TEMPORARY FIX: Pass default values (7 days rest) to satisfy the function arguments
-        schedule_analysis = ScheduleAnalyzer.analyze(
-            away_team=away_full,
-            home_team=home_full,
-            away_rest_days=7,  # Default value
-            home_rest_days=7   # Default value
-        )
+        # Ensure we have TLAs for the schedule lookup
+        away_tla = row.get('away', '')
+        home_tla = row.get('home', '')
+        
+        # Schedule Analysis
+        # We replace the call to the undefined ScheduleAnalyzer.analyze 
+        # with the fully defined calculate_schedule_score function, which handles
+        # the rest day lookup internally using the team TLAs.
+        try:
+            schedule_score, schedule_desc = calculate_schedule_score(
+                week, home_tla, away_tla
+            )
+            schedule_analysis = {
+                'score': schedule_score,
+                'description': schedule_desc
+            }
+        except Exception as e:
+            # Fallback in case of missing week data
+            schedule_analysis = {
+                'score': 0,
+                'description': f"Schedule analysis failed: {e}"
+            }
+            # print(f"⚠️ Schedule analysis failed for {away_tla} @ {home_tla}: {e}")
         
         # Calculate total score
         total_score = (
