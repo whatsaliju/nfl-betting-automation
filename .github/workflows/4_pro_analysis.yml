@@ -422,138 +422,163 @@ jobs:
           import smtplib
           from email.mime.multipart import MIMEMultipart
           from email.mime.text import MIMEText
+          from email.mime.application import MIMEApplication
           import os
+          import re
           
           week = "${{ steps.get_week.outputs.week }}"
           timestamp = "${{ steps.timestamp.outputs.time }}"
           analysis_type = "${{ steps.analysis_type.outputs.type }}"
           
-          # Build conversational HTML email
+          # --- NEW PARSING LOGIC ---
+          def parse_executive_summary(week):
+              plays = []
+              fades = []
+              try:
+                  with open(f"data/week{week}/week{week}_executive_summary.txt", "r") as f:
+                      content = f.read()
+              except FileNotFoundError:
+                  return [], []
+              
+              # Split by major sections
+              if "🎯 TARGETED PLAY" in content:
+                  targeted_section = content.split("🎯 TARGETED PLAY")[1].split("❌ FADE")[0]
+                  
+                  # Parse Targeted Plays
+                  for block in targeted_section.strip().split('\n\n'):
+                      if 'TARGETED PLAY' in block and '→' in block:
+                          lines = [l.strip() for l in block.split('\n') if l.strip()]
+                          if not lines: continue
+                          
+                          matchup = lines[0].strip()
+                          recommendation = lines[1].split('→')[1].split(':')[1].strip() if len(lines) > 1 and 'TARGETED PLAY:' in lines[1] else 'N/A'
+                          reason = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else 'Key factors align'
+                          
+                          plays.append({
+                              'matchup': matchup,
+                              'recommendation': recommendation,
+                              'reason': reason
+                          })
+              
+              if "❌ FADE" in content:
+                  fade_section = content.split("❌ FADE")[1]
+                  
+                  # Parse Fades
+                  for block in fade_section.strip().split('\n\n'):
+                      if '❌ AVOID' in block and '→' in block:
+                          lines = [l.strip() for l in block.split('\n') if l.strip()]
+                          if not lines: continue
+                          
+                          matchup = lines[0].strip()
+                          recommendation = 'AVOID/FADE'
+                          reason = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else 'Mixed signals/conflicts'
+                          
+                          fades.append({
+                              'matchup': matchup,
+                              'recommendation': recommendation,
+                              'reason': reason
+                          })
+                          
+              return plays, fades
+
+          
+          plays, fades = parse_executive_summary(week)
+          
+          # --- DYNAMIC CONTENT GENERATION ---
+          plays_html = ""
+          for play in plays:
+              plays_html += f"""
+              <div style="margin: 20px 0; padding: 15px; border-left: 5px solid #28a745; background: #e9f7ef; border-radius: 4px;">
+                  <h3 style="color: #28a745; margin-top: 0; font-size: 18px;">🎯 {play['recommendation']} | {play['matchup']}</h3>
+                  <p style="margin: 0; font-size: 14px;">
+                      <strong style="color: #155724;">The Edge:</strong> {play['reason']}
+                  </p>
+              </div>
+              """
+          
+          fades_html = ""
+          for fade in fades:
+              fades_html += f"""
+              <div style="margin: 20px 0; padding: 15px; border-left: 5px solid #dc3545; background: #fbe9e9; border-radius: 4px;">
+                  <h3 style="color: #dc3545; margin-top: 0; font-size: 18px;">❌ {fade['recommendation']} | {fade['matchup']}</h3>
+                  <p style="margin: 0; font-size: 14px;">
+                      <strong style="color: #721c24;">The Warning:</strong> {fade['reason']}
+                  </p>
+              </div>
+              """
+
+          # --- UPDATED HTML BODY WITH SPECIFIC CONTENT ---
+          
           html_body = f"""<html>
-          <body style="font-family: Georgia, serif; line-height: 1.8; max-width: 700px; margin: 0 auto; padding: 20px; color: #333;">
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 700px; margin: 0 auto; padding: 20px; color: #333; background-color: #f4f4f4;">
           
-          <h1 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
-              Week {week} NFL Analysis - Conversational Brief
-          </h1>
-          <p style="color: #7f8c8d; font-style: italic;">{timestamp}</p>
+          <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+
+              <h1 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; font-size: 24px;">
+                  🏈 Week {week} NFL Analysis - Conversational Brief
+              </h1>
+              <p style="color: #7f8c8d; font-style: italic; margin-top: -10px;">Generated: {timestamp}</p>
+              
+              <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee;">
+                  <h2 style="color: #2c3e50; margin-top: 0; font-size: 20px;">What I'm seeing this week</h2>
+                  
+                  <p>This week’s slate is characterized by several major **Sharp Divergences**—spots where professional money is taking a clear stand against the public. We have a few key spots that offer fantastic value, specifically targeting **OVERs** where the market is sleeping on high-scoring matchups. Conversely, there are several popular games the public is chasing that we need to avoid, primarily because of alignments favoring the **UNDER**.</p>
+                  
+                  <p>Focus your attention on the **TARGETED PLAYS** below. Everything else should be treated as a **PASS** unless you have a strong, independent conviction.</p>
+              </div>
+              
+              <h2 style="color: #0066cc; border-bottom: 2px solid #0066cc; padding-bottom: 10px; margin-top: 30px; font-size: 20px;">
+                  🔥 Top Plays: The High-Value Targets
+              </h2>
+              
+              <p style="color: #666;">These are the games where our analysis—combining sharp money, referee context, and situational factors—identifies a clear, high-confidence edge.</p>
+              
+              {plays_html}
+              
+              <h2 style="color: #dc3545; border-bottom: 2px solid #dc3545; padding-bottom: 10px; margin-top: 30px; font-size: 20px;">
+                  ❌ Trap Games: Games to AVOID
+              </h2>
+
+              <p style="color: #666;">These games are loaded with conflicting signals or strong factors pointing to an outcome the public is ignoring. Stay away or consider fading the consensus!</p>
+              
+              {fades_html}
           
-          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h2 style="color: #2c3e50; margin-top: 0;">What I'm seeing this week</h2>
+              <div style="border-top: 1px solid #bdc3c7; padding-top: 20px; margin-top: 30px; font-size: 12px; color: #7f8c8d;">
+                  <p><strong>Detailed Analysis Attached:</strong> The full Pro Analysis (`.txt`) and data spreadsheet (`.csv`) are attached to this email. Please refer to them for a game-by-game breakdown.</p>
+                  
+                  <p style="margin-bottom: 0;"><em>Generated {timestamp} • Week {week} {analysis_type}</em></p>
+              </div>
               
-              <p>Looking at Week {week}, a few things jump out right away. The sharp money is unusually concentrated 
-              on a handful of games, while the public seems to be chasing some obvious narratives that might not hold up. 
-              Weather is going to be a factor in at least two outdoor games, and we've got some interesting scheduling 
-              spots that create clear advantages.</p>
-              
-              <p>The referee assignments this week favor a couple of specific trends we've been tracking, particularly 
-              around total movements. Overall, there are probably 3-4 games worth serious consideration and a couple 
-              others we should definitely avoid.</p>
           </div>
-          
-          <h2 style="color: #2c3e50; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px;">
-              Walking through the week
-          </h2>
-          
-          <!-- Thursday Night Football -->
-          <div style="margin: 30px 0; padding: 20px; border-left: 4px solid #e74c3c; background: #fdf2f2;">
-              <h3 style="color: #c0392b; margin-top: 0;">Thursday Night (8:15 PM ET)</h3>
-              <p>Starting with Thursday night, we've got a game that's already played out by the time you read this, 
-              but it sets the tone for what sharp bettors are thinking about primetime spots this week. The key 
-              takeaway is watching how the market reacted to any late news or line movement.</p>
-          </div>
-          
-          <!-- International Games -->
-          <div style="margin: 30px 0; padding: 20px; border-left: 4px solid #9b59b6; background: #f8f4ff;">
-              <h3 style="color: #8e44ad; margin-top: 0;">International Games (London/Germany/Mexico)</h3>
-              <p>This week's international game presents some unique angles most bettors overlook. Teams playing 
-              overseas deal with travel, time zone adjustments, and sometimes unfamiliar playing surfaces. The 
-              public often doesn't properly factor in how these logistics affect performance, especially for teams 
-              that haven't played internationally before.</p>
-              
-              <p>The early kickoff time (typically 9:30 AM ET for London games) can also create some interesting 
-              under situations, as teams sometimes start slow while adjusting to the unusual schedule.</p>
-          </div>
-          
-          <!-- Sunday 1:00 PM ET Games -->
-          <div style="margin: 30px 0; padding: 20px; border-left: 4px solid #f39c12; background: #fef9e7;">
-              <h3 style="color: #d68910; margin-top: 0;">Sunday Early Window (1:00 PM ET)</h3>
-              <p>The early slate has some of the most interesting setups this week. Two games stand out where sharp 
-              money is going against heavy public action. The first is a classic trap spot where a popular team 
-              is getting way too much love from casual bettors, while the second involves a weather situation that 
-              most people aren't properly factoring in.</p>
-              
-              <p>I'm particularly interested in the matchup with the bye week advantage - one team is coming off rest 
-              while their opponent played a physical game just six days ago. The line hasn't moved enough to reflect 
-              this edge, which creates some value.</p>
-          </div>
-          
-          <!-- Sunday 4:00/4:25 PM ET Games -->
-          <div style="margin: 30px 0; padding: 20px; border-left: 4px solid #27ae60; background: #eafaf1;">
-              <h3 style="color: #229954; margin-top: 0;">Sunday Late Window (4:00-4:25 PM ET)</h3>
-              <p>The late afternoon games are where I'm finding the best value this week. One game has a massive 
-              sharp money edge that's been building all week - the kind of spot where professional bettors are 
-              clearly seeing something the public isn't. The spread movement has been subtle but consistent.</p>
-              
-              <p>There's also a division game here that fits a pattern we've seen all season with this particular 
-              referee. His games tend to stay under the total, especially when both teams have solid defenses. 
-              The weather should be perfect, so it's not about conditions - just his tendencies.</p>
-          </div>
-          
-          <!-- Sunday Night Football -->
-          <div style="margin: 30px 0; padding: 20px; border-left: 4px solid #8e44ad; background: #f4f2f7;">
-              <h3 style="color: #7d3c98; margin-top: 0;">Sunday Night Football (8:20 PM ET)</h3>
-              <p>Sunday night brings us the marquee matchup that's been getting all the attention. This is exactly 
-              the type of game where the public typically overreacts, and we're seeing that pattern play out in the 
-              betting percentages. Sometimes the obvious play is obvious for a reason, but sometimes it's a trap.</p>
-              
-              <p>Based on the sharp money movement and some scheduling factors most people aren't considering, I lean 
-              toward this being more of a fade spot than a play-with situation.</p>
-          </div>
-          
-          <!-- Monday Night Football -->
-          <div style="margin: 30px 0; padding: 20px; border-left: 4px solid #17a2b8; background: #e6f7ff;">
-              <h3 style="color: #138496; margin-top: 0;">Monday Night Football (8:15 PM ET)</h3>
-              <p>Wrapping up the week with Monday night, we have what might be the cleanest setup of the entire slate. 
-              Everything seems to be pointing in one direction: the sharp money, the situational factors, even the 
-              referee trends. When that many indicators align, it's usually worth paying attention.</p>
-              
-              <p>The only concern is whether the line will move throughout the week as more people catch on to what 
-              we're seeing. But right now, there's clear value.</p>
-          </div>
-          
-          <!-- Bottom Line -->
-          <div style="background: #2c3e50; color: white; padding: 20px; border-radius: 8px; margin: 30px 0;">
-              <h2 style="color: white; margin-top: 0;">Bottom Line</h2>
-              <p>This week is about being selective. There are 2-3 spots where everything aligns nicely, and several 
-              others where the public is getting things wrong. The key is not forcing action on every game just because 
-              it's Sunday.</p>
-              
-              <p>Focus on the games with clear edges, avoid the obvious trap spots, and remember that the best weeks 
-              are often the ones where you only play your strongest convictions.</p>
-          </div>
-          
-          <!-- Footer -->
-          <div style="border-top: 1px solid #bdc3c7; padding-top: 20px; margin-top: 30px; font-size: 14px; color: #7f8c8d;">
-              <p><strong>Analysis includes:</strong> Sharp money tracking, referee tendencies, weather factors, 
-              injury analysis, situational edges, statistical modeling, game theory, and schedule analysis.</p>
-              
-              <p><strong>Download detailed reports:</strong> 
-              <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
-                 style="color: #3498db;">Complete analysis package</a></p>
-              
-              <p style="margin-bottom: 0;"><em>Week {week} {analysis_type} • Generated {timestamp}</em></p>
-          </div>
-          
           </body>
           </html>"""
           
-          msg = MIMEMultipart('alternative')
+          # --- EMAIL ASSEMBLY WITH ATTACHMENTS (unchanged) ---
+          msg = MIMEMultipart() 
           msg['Subject'] = f"Week {week} NFL Analysis - Conversational Brief"
           msg['From'] = os.getenv('GMAIL_USER')
           msg['To'] = "lvarughese@gmail.com"
           
           html_part = MIMEText(html_body, 'html', 'utf-8')
           msg.attach(html_part)
+          
+          # ATTACH KEY SUMMARY FILES INDIVIDUALLY
+          files_to_attach = [
+              "executive_summary.txt", # Primary summary
+              "analytics.csv",         # Convenient data spreadsheet
+          ]
+          
+          for file_name_suffix in files_to_attach:
+              file_name = f"week{week}_{file_name_suffix}"
+              file_path = f"data/week{week}/{file_name}"
+              try:
+                  with open(file_path, "rb") as f:
+                      part = MIMEApplication(f.read(), name=file_name)
+                  part['Content-Disposition'] = f'attachment; filename="{file_name}"'
+                  msg.attach(part)
+                  print(f"Attached: {file_name}")
+              except FileNotFoundError:
+                  print(f"⚠️ Warning: File not found for attachment: {file_path}")
           
           server = smtplib.SMTP('smtp.gmail.com', 587)
           server.starttls()
