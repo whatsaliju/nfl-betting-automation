@@ -106,27 +106,50 @@ jobs:
           # --- EMAIL CONTENT GENERATION (Plain and HTML) ---
           
           def generate_email_content(week, analysis_type, timestamp):
-              # Load the executive summary text for plain text body
               summary_file = f"data/week{week}/week{week}_executive_summary.txt"
               try:
                   with open(summary_file, 'r') as f:
                       summary_text = f.read()
               except FileNotFoundError:
                   summary_text = f"Executive summary for Week {week} not found."
-
+                  
+              # --- NEW: Generate STYLED HTML Summary ---
+              # Copy the raw text to apply color replacements
+              styled_summary_html_content = summary_text
+              
+              # Define keyword replacements with inline HTML styles (color/bolding)
+              replacements = {
+                  "🔵 BLUE CHIP": '<strong style="color: #007bff;">🔵 BLUE CHIP</strong>',
+                  "🎯 TARGETED PLAY": '<strong style="color: #ffc107;">🎯 TARGETED PLAY</strong>',
+                  "❌ FADE": '<strong style="color: #dc3545;">❌ FADE</strong>',
+                  "✅ STRONG PLAY": '<strong style="color: #28a745;">✅ STRONG PLAY</strong>',
+                  "📈 DIVERGENCE": '<span style="color: #17a2b8;">📈 DIVERGENCE</span>',
+                  "⚠️ LANDMINE": '<span style="color: #ffc107;">⚠️ LANDMINE</span>',
+                  "⚠️ AVOID": '<span style="color: #dc3545;">❌ AVOID</span>',
+                  "======================================================================": "",
+                  "----------------------------------------------------------------------": "",
+              }
+              
+              # Apply replacements to the raw text, line by line
+              for key, value in replacements.items():
+                  styled_summary_html_content = styled_summary_html_content.replace(key, value)
+                  
+              # Wrap the styled content in a pre tag to preserve the original line breaks and spacing
+              styled_summary_html = f"""<pre style="white-space: pre-wrap; word-wrap: break-word; font-family: 'Courier New', monospace; background: #FDFEFE; padding: 15px; border-radius: 5px; border: 1px solid #D5DBDB; font-size: 14px;">{styled_summary_html_content}</pre>"""
+              
               # Generate Plain Text Body
               plain_body = f"""
               NFL WEEK {week} - ENHANCED PROFESSIONAL ANALYSIS
-
+              
               Date Generated: {timestamp}
               Analysis Type: {analysis_type}
-
+              
               ======================================================================
               EXECUTIVE SUMMARY
               ======================================================================
-
+              
               {summary_text}
-
+              
               ======================================================================
               ATTACHMENTS:
               - Full Pro Analysis (week{week}_pro_analysis.txt)
@@ -135,7 +158,7 @@ jobs:
               
               All files are attached individually for easy access.
               """
-
+              
               # Generate HTML Body (More structured for Pro Email)
               html_body = f"""
               <html>
@@ -150,8 +173,7 @@ jobs:
                   
                   <div style="background: #ECF0F1; padding: 20px; border-radius: 8px; margin: 25px 0;">
                       <h2 style="color: #2C3E50; margin-top: 0; font-size: 22px;">Executive Summary</h2>
-                      <pre style="white-space: pre-wrap; word-wrap: break-word; font-family: 'Courier New', monospace; background: #FDFEFE; padding: 15px; border-radius: 5px; border: 1px solid #D5DBDB; font-size: 14px;">{summary_text}</pre>
-                  </div>
+                      {styled_summary_html} </div>
                   
                   <h2 style="color: #2ECC71; margin-top: 30px; border-bottom: 1px solid #BDC3C7; padding-bottom: 5px; font-size: 20px;">
                       Data Attachments
@@ -176,7 +198,7 @@ jobs:
 
           plain_body, html_body = generate_email_content(week, analysis_type, timestamp)
 
-          # --- CRITICAL FIX: MIME STRUCTURE ---
+          # --- CRITICAL FIX: MIME STRUCTURE (For attachments) ---
           # 1. Main container is 'mixed' (default) to hold attachments
           msg = MIMEMultipart() 
           msg['Subject'] = f"Week {week} NFL Pro Analysis & Data Package"
@@ -206,7 +228,6 @@ jobs:
               file_path = f"data/week{week}/{file_name}"
               try:
                   with open(file_path, "rb") as f:
-                      # Using fully qualified name to avoid NameError
                       part = email.mime.application.MIMEApplication(f.read(), name=file_name)
                   part['Content-Disposition'] = f'attachment; filename="{file_name}"'
                   # 4. Attach files directly to the main message
@@ -233,7 +254,7 @@ jobs:
           import smtplib
           from email.mime.multipart import MIMEMultipart
           from email.mime.text import MIMEText
-          # --- FIX: Changed import to use fully qualified name ---
+          # FIX: Use fully qualified import for reliable scope access
           import email.mime.application 
           import os
           import re
@@ -242,52 +263,126 @@ jobs:
           timestamp = "${{ steps.timestamp.outputs.time }}"
           analysis_type = "${{ steps.analysis_type.outputs.type }}"
           
-          # --- NEW PARSING LOGIC (omitted for brevity) ---
+          # --- HELPER FUNCTION TO PULL SCORES AND SHARP MONEY STORY ---
+          def get_game_data(week, matchup):
+              score = 'N/A'
+              confidence = 'N/A'
+              story = 'No major divergence identified.' 
+              
+              # Fetching pro analysis content
+              try:
+                  with open(f"data/week{week}/week{week}_pro_analysis.txt", "r") as f:
+                      content = f.read()
+              except FileNotFoundError:
+                  return score, confidence, story
+
+              # Escape special characters for regex search
+              escaped_matchup = re.escape(matchup)
+              
+              # Regex to capture the SHARP MONEY STORY block and the THE VERDICT scores
+              # Finds ===Matchup===... SHARP MONEY STORY: (Story content)... THE VERDICT: Total Score: X, Confidence: Y
+              matchup_pattern = re.compile(
+                  rf"==={escaped_matchup}===\n.*?SHARP MONEY STORY:\n(.*?)\n\n.*?THE VERDICT:\n\s*Total Score: (\S+)\n\s*Confidence: (\S+)", 
+                  re.DOTALL
+              )
+              match = matchup_pattern.search(content)
+
+              if match:
+                  story = match.group(1).strip()
+                  score = match.group(2)
+                  confidence = match.group(3)
+                  
+                  # Clean up story text by replacing newlines/tabs with single space
+                  story = re.sub(r'[\n\t\r]', ' ', story).strip()
+                  # Remove list markers and excess whitespace
+                  story = re.sub(r'•\s*', '', story)
+                  story = re.sub(r'\s{2,}', ' ', story)
+              
+              return score, confidence, story
+
+          
+          # --- MAIN PARSING LOGIC ---
           def parse_executive_summary(week):
-              # ... (Your parsing logic here) ...
               plays = []
               fades = []
-              # Fetching file content to ensure the new code has it available
               try:
                   with open(f"data/week{week}/week{week}_executive_summary.txt", "r") as f:
                       content = f.read()
               except FileNotFoundError:
                   return [], []
               
+              # Parse Targeted Plays
               if "🎯 TARGETED PLAY" in content:
                   targeted_section = content.split("🎯 TARGETED PLAY")[1].split("❌ FADE")[0]
+                  
                   for block in targeted_section.strip().split('\n\n'):
                       if 'TARGETED PLAY' in block and '→' in block:
                           lines = [l.strip() for l in block.split('\n') if l.strip()]
                           if not lines: continue
+                          
                           matchup = lines[0].strip()
                           recommendation = lines[1].split('→')[1].split(':')[1].strip() if len(lines) > 1 and 'TARGETED PLAY:' in lines[1] else 'N/A'
                           reason = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else 'Key factors align'
-                          plays.append({'matchup': matchup, 'recommendation': recommendation, 'reason': reason})
+                          
+                          score, confidence, story = get_game_data(week, matchup)
+                          
+                          plays.append({
+                              'matchup': matchup,
+                              'recommendation': recommendation,
+                              'reason': reason,
+                              'score': score,
+                              'confidence': confidence,
+                              'story': story
+                          })
               
+              # Parse Fades
               if "❌ FADE" in content:
                   fade_section = content.split("❌ FADE")[1]
+                  
                   for block in fade_section.strip().split('\n\n'):
                       if '❌ AVOID' in block and '→' in block:
                           lines = [l.strip() for l in block.split('\n') if l.strip()]
                           if not lines: continue
+                          
                           matchup = lines[0].strip()
                           recommendation = 'AVOID/FADE'
                           reason = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else 'Mixed signals/conflicts'
-                          fades.append({'matchup': matchup, 'recommendation': recommendation, 'reason': reason})
+                          
+                          score, confidence, story = get_game_data(week, matchup)
+                          
+                          fades.append({
+                              'matchup': matchup,
+                              'recommendation': recommendation,
+                              'reason': reason,
+                              'score': score,
+                              'confidence': confidence,
+                              'story': story
+                          })
+                          
               return plays, fades
 
           
           plays, fades = parse_executive_summary(week)
           
-          # --- DYNAMIC CONTENT GENERATION (omitted for brevity) ---
+          # --- DYNAMIC CONTENT GENERATION ---
           plays_html = ""
           for play in plays:
               plays_html += f"""
               <div style="margin: 20px 0; padding: 15px; border-left: 5px solid #28a745; background: #e9f7ef; border-radius: 4px;">
                   <h3 style="color: #28a745; margin-top: 0; font-size: 18px;">🎯 {play['recommendation']} | {play['matchup']}</h3>
+                  
+                  <p style="margin: 0 0 10px 0; font-size: 14px; color: #007bff; font-weight: bold;">
+                      Market Narrative: 
+                      <span style="font-weight: normal; color: #495057;">{play['story']}</span>
+                  </p>
+
                   <p style="margin: 0; font-size: 14px;">
                       <strong style="color: #155724;">The Edge:</strong> {play['reason']}
+                  </p>
+                  <p style="margin: 5px 0 0 0; font-size: 14px; color: #333;">
+                      <strong style="color: #0066cc;">Total Score:</strong>&nbsp;{play['score']}
+                      &bull;
+                      <strong style="color: #0066cc;">Confidence:</strong>&nbsp;{play['confidence']}/10
                   </p>
               </div>
               """
@@ -297,16 +392,29 @@ jobs:
               fades_html += f"""
               <div style="margin: 20px 0; padding: 15px; border-left: 5px solid #dc3545; background: #fbe9e9; border-radius: 4px;">
                   <h3 style="color: #dc3545; margin-top: 0; font-size: 18px;">❌ {fade['recommendation']} | {fade['matchup']}</h3>
+                  
+                  <p style="margin: 0 0 10px 0; font-size: 14px; color: #721c24; font-weight: bold;">
+                      Market Narrative: 
+                      <span style="font-weight: normal; color: #495057;">{fade['story']}</span>
+                  </p>
+
                   <p style="margin: 0; font-size: 14px;">
                       <strong style="color: #721c24;">The Warning:</strong> {fade['reason']}
                   </p>
+                  <p style="margin: 5px 0 0 0; font-size: 14px; color: #333;">
+                      <strong style="color: #0066cc;">Total Score:</strong>&nbsp;{fade['score']}
+                      &bull;
+                      <strong style="color: #0066cc;">Confidence:</strong>&nbsp;{fade['confidence']}/10
+                  </p>
               </div>
               """
-              
+
+          # --- HTML BODY ---
           html_body = f"""<html>
           <body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 700px; margin: 0 auto; padding: 20px; color: #333; background-color: #f4f4f4;">
           
           <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+
               <h1 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; font-size: 24px;">
                   🏈 Week {week} NFL Analysis - Conversational Brief
               </h1>
@@ -324,7 +432,7 @@ jobs:
                   🔥 Top Plays: The High-Value Targets
               </h2>
               
-              <p style="color: #666;">These are the games where our analysis—combining sharp money, referee context, and situational factors—identifies a clear, high-confidence edge.</p>
+              <p style="color: #666;">These are the games where our analysis—combining sharp money, referee context, and situational factors—identifies a clear, high-confidence edge. **Read the Market Narrative for the 'Why'.**</p>
               
               {plays_html}
               
@@ -332,7 +440,7 @@ jobs:
                   ❌ Trap Games: Games to AVOID
               </h2>
 
-              <p style="color: #666;">These games are loaded with conflicting signals or strong factors pointing to an outcome the public is ignoring. Stay away or consider fading the consensus!</p>
+              <p style="color: #666;">These games are loaded with conflicting signals or strong factors pointing to an outcome the public is ignoring. Stay away or consider fading the consensus! **The narrative explains the risk.**</p>
               
               {fades_html}
           
@@ -346,12 +454,14 @@ jobs:
           </body>
           </html>"""
           
-          # --- EMAIL ASSEMBLY WITH ATTACHMENTS ---
+          # --- EMAIL ASSEMBLY WITH ATTACHMENTS (MIME Structure Fix) ---
+          # 1. Main container is 'mixed' (default) to hold attachments
           msg = MIMEMultipart() 
           msg['Subject'] = f"Week {week} NFL Analysis - Conversational Brief"
           msg['From'] = os.getenv('GMAIL_USER')
           msg['To'] = "lvarughese@gmail.com"
           
+          # 2. Attach the HTML body directly
           html_part = MIMEText(html_body, 'html', 'utf-8')
           msg.attach(html_part)
           
@@ -366,9 +476,10 @@ jobs:
               file_path = f"data/week{week}/{file_name}"
               try:
                   with open(file_path, "rb") as f:
-                      # --- FIX: USE FULLY QUALIFIED NAME HERE ---
+                      # Using fully qualified name to avoid NameError
                       part = email.mime.application.MIMEApplication(f.read(), name=file_name)
                   part['Content-Disposition'] = f'attachment; filename="{file_name}"'
+                  # 3. Attach files directly to the main message
                   msg.attach(part)
                   print(f"Attached: {file_name}")
               except FileNotFoundError:
