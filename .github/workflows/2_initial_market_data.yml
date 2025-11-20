@@ -74,7 +74,7 @@ jobs:
       - name: Scrape Action Network (All Markets)
         run: |
           echo "📊 Scraping Action Network..."
-          python3 scrapers/action_network_scraper_cookies.py
+          python3 scrapers/action_network_scraper_cookies.py ${{ steps.get_week.outputs.week }}
       
       - name: Scrape RotoWire Lineups
         run: |
