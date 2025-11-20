@@ -1395,10 +1395,6 @@ class GameTheoryAnalyzer:
         }
 
 # ================================================================
-# SCHEDULE ANALYZER CLASS (Integrating all factors: Rest, Hangover, Travel)
-# ================================================================
-
-# ================================================================
 # SCHEDULE ANALYZER CLASS (Ensure these parameter names match your call)
 # ================================================================
 
