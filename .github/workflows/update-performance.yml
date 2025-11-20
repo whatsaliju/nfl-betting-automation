@@ -65,56 +65,68 @@ jobs:
     - name: Update Game Results (Generic)
       if: contains(github.event.inputs.action, 'update')
       run: |
-        python -c "
-        import sys, json
+        # Execute the Python script using a Here Document (<<EOF)
+        python <<EOF
+        import sys, json, os
         sys.path.append('.')
         from analyzers.performance_tracker import PerformanceTracker
         
+        # GitHub context variables are safe to inject here
         week = int('${{ github.event.inputs.week }}')
         tracker = PerformanceTracker()
         
-        # Get game results input
-        results_input = '''${{ github.event.inputs.game_results }}'''.strip()
+        results_input = ''
+        results_file_path = f'data/week{week}/game_results.json'
+        source_description = ''
+        
+        # 1. Get results from file or input
+        if os.path.exists(results_file_path):
+            with open(results_file_path, 'r') as f:
+                results_input = f.read()
+            source_description = f'Detected and using game results from file: {results_file_path}'
+        else:
+            # Fallback to manual input
+            results_input = '''${{ github.event.inputs.game_results }}'''.strip()
+            if results_input:
+                source_description = 'Using game results from manual workflow input.'
         
         if not results_input:
-            print('⚠️ No game results provided. Please provide results in JSON format.')
-            print('Example format:')
-            print('[')
-            print('  [\"Team1 at Team2\", \"Score\", true, \"Notes\"],')
-            print('  [\"Team3 at Team4\", \"Score\", false, \"Notes\"]')
-            print(']')
-            exit(0)
+            print('⚠️ No game results provided. Skipping update.')
+            sys.exit(0)
         
+        # 2. Parse and Update Results
+        print(f'📄 {source_description}')
         try:
-            # Parse JSON results
-            results = json.loads(results_input)
+            results_list = json.loads(results_input)
             
-            print(f'🔄 Updating Week {week} game results...')
+            if not isinstance(results_list, list):
+                raise ValueError('Parsed JSON is not a list of results.')
             
-            wins = 0
-            total = 0
-            
-            for result in results:
-                game, score, won, notes = result
-                try:
-                    tracker.update_results(week, game, score, won=won)
-                    status = '✅' if won else '❌'
-                    print(f'  {status} {game}: {notes}')
-                    if won:
-                        wins += 1
-                    total += 1
-                except Exception as e:
-                    print(f'  ⚠️ Error updating {game}: {e}')
-            
-            win_rate = (wins/total*100) if total > 0 else 0
-            print(f'\\n📊 Week {week} Final Record: {wins}-{total-wins} ({win_rate:.1f}% win rate)')
-            
-        except json.JSONDecodeError as e:
-            print(f'⚠️ Invalid JSON format: {e}')
-            print('Please provide results in valid JSON format')
+            print(f'🔄 Processing {len(results_list)} game results for Week {week}...')
+            updated_count = 0
+            for result in results_list:
+                # Check for mandatory keys
+                if all(k in result for k in ['game', 'actual_result', 'won']):
+                    # Call the tracker method for each game
+                    tracker.update_results(
+                        week=week,
+                        game=result['game'],
+                        actual_result=result['actual_result'],
+                        won=result['won'],
+                        closing_line=result.get('closing_line') # Use .get() for optional fields
+                    )
+                    updated_count += 1
+                else:
+                    print(f'⚠️ Skipped result missing key field (game, actual_result, or won): {result}')
+            print(f'✅ Successfully updated {updated_count} game records.')
+        
+        except json.JSONDecodeError:
+            print('❌ ERROR: Failed to parse results input as JSON. Check file/input format.')
+            sys.exit(1)
         except Exception as e:
-            print(f'⚠️ Error processing results: {e}')
-        "
+            print(f'❌ An unexpected error occurred during update: {e}')
+            sys.exit(1)
+        EOF
     
     - name: Generate Performance Report
       run: |
