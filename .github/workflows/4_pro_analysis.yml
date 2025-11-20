@@ -580,8 +580,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/week${{ steps.get_week.outputs.week }}/ || true
-          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} pro analysis - ${{ steps.analysis_type.outputs.type }}" || echo "No changes"
+          
+          # 1. Add and commit local changes (only runs if changes exist)
+          git add data/week12/ || true
+          git commit -m "📊 Week 12 pro analysis - Initial Analysis" || echo "No changes to commit"
+          
+          # 2. Integrate remote changes first (The fix for the rejection error)
+          #    --rebase is used to maintain a clean linear commit history
+          git pull --rebase origin main
+          
+          # 3. Push the changes to the remote repository
           git push
       
       - name: Summary
