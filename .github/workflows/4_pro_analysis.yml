@@ -93,7 +93,7 @@ jobs:
           import smtplib
           from email.mime.multipart import MIMEMultipart
           from email.mime.text import MIMEText
-          # --- FIX: Import the full module for reliable scope access ---
+          # FIX: Use fully qualified import for reliable scope access
           import email.mime.application 
           import os
           import re
@@ -176,17 +176,22 @@ jobs:
 
           plain_body, html_body = generate_email_content(week, analysis_type, timestamp)
 
-          # --- EMAIL ASSEMBLY WITH ATTACHMENTS ---
-          msg = MIMEMultipart('alternative') 
+          # --- CRITICAL FIX: MIME STRUCTURE ---
+          # 1. Main container is 'mixed' (default) to hold attachments
+          msg = MIMEMultipart() 
           msg['Subject'] = f"Week {week} NFL Pro Analysis & Data Package"
           msg['From'] = os.getenv('GMAIL_USER')
           msg['To'] = "lvarughese@gmail.com"
           
-          # Attach both Plain Text and HTML versions
+          # 2. Body container is 'alternative' to hold plain/html
+          body = MIMEMultipart('alternative')
           plain_part = MIMEText(plain_body, 'plain', 'utf-8')
           html_part = MIMEText(html_body, 'html', 'utf-8')
-          msg.attach(plain_part)
-          msg.attach(html_part)
+          body.attach(plain_part)
+          body.attach(html_part)
+          
+          # 3. Attach the entire body container to the main message
+          msg.attach(body)
           
           # ATTACH ALL FOUR ANALYSIS FILES INDIVIDUALLY
           files_to_attach = [
@@ -201,10 +206,11 @@ jobs:
               file_path = f"data/week{week}/{file_name}"
               try:
                   with open(file_path, "rb") as f:
-                      # --- FIX: USE FULLY QUALIFIED NAME HERE ---
+                      # Using fully qualified name to avoid NameError
                       part = email.mime.application.MIMEApplication(f.read(), name=file_name)
                   part['Content-Disposition'] = f'attachment; filename="{file_name}"'
-                  msg.attach(part)
+                  # 4. Attach files directly to the main message
+                  msg.attach(part) 
                   print(f"Attached: {file_name}")
               except FileNotFoundError:
                   print(f"⚠️ Warning: File not found for attachment: {file_path}")
