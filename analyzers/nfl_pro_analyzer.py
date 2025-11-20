@@ -1317,37 +1317,62 @@ class GameTheoryAnalyzer:
 
 
 # ================================================================
-# SCHEDULE ANALYZER
+# SCHEDULE ANALYZER (ENHANCED)
+# Assumes 'away_rest_days' and 'home_rest_days' are available from data
 # ================================================================
 
 class ScheduleAnalyzer:
-    """Advanced scheduling analysis"""
-    
+    """
+    Analyzes game timing, rest, and travel to detect scheduling disadvantages.
+    """
+
     @staticmethod
-    def analyze(away_team, home_team, week):
-        """Simplified schedule analysis"""
-        total_score = 0
-        all_factors = []
+    def analyze(away_team, home_team, away_rest_days, home_rest_days):
+        score = 0
+        factors = []
         
-        # Basic travel analysis
-        west_teams = ['49ers', 'Seahawks', 'Rams', 'Chargers', 'Raiders', 'Cardinals']
-        east_teams = ['Patriots', 'Jets', 'Bills', 'Dolphins', 'Giants', 'Eagles', 'Commanders']
+        # --- Standard rest period is 7 days ---
         
-        if away_team in west_teams and home_team in east_teams:
-            all_factors.append("West coast team traveling east")
-            total_score += 1
+        # 1. Short Rest Penalty
+        # Short rest (e.g., 4 days for Thursday Night Football) is a major disadvantage
+        if away_rest_days < 7:
+            score -= 1
+            factors.append(f"Away team ({away_team}) on short rest ({away_rest_days} days)")
+        if home_rest_days < 7:
+            score += 1 # A disadvantage for the home team is a small advantage for the away team
+            factors.append(f"Home team ({home_team}) on short rest ({home_rest_days} days)")
+            
+        # 2. Rest Disparity (Differential)
+        # Check if one team has significantly more rest than the other
+        rest_diff = away_rest_days - home_rest_days
         
-        # Late season motivation factors
-        if week >= 15:
-            all_factors.append("Late season - playoff implications")
-        
+        if rest_diff >= 3:
+            # Away team has 3+ more days of rest (e.g., away post-bye vs home short rest)
+            score += 1
+            factors.append(f"Away team ({away_team}) has significant rest advantage (+{rest_diff} days)")
+        elif rest_diff <= -3:
+            # Home team has 3+ more days of rest
+            score -= 1
+            factors.append(f"Home team ({home_team}) has significant rest advantage ({-rest_diff} days)")
+            
+        # 3. Post-Bye/Long Rest Advantage
+        # Teams coming off a true "long rest" (9+ days) get a small bump
+        # We don't need a separate check for bye week, as it results in >7 rest days
+        if away_rest_days >= 9 and home_rest_days < 9:
+            score += 0.5
+            factors.append(f"Away team ({away_team}) off extended rest/bye week")
+        if home_rest_days >= 9 and away_rest_days < 9:
+            score -= 0.5
+            factors.append(f"Home team ({home_team}) off extended rest/bye week")
+
+        # --- Finalizing Analysis ---
+        desc = ' | '.join(factors) if factors else 'No significant scheduling factors'
+
         return {
-            'score': total_score,
-            'factors': all_factors,
-            'description': ', '.join(all_factors) if all_factors else 'No significant scheduling factors'
+            'score': round(score, 1),
+            'factors': factors,
+            'description': desc
         }
-
-
 # ================================================================
 # NARRATIVE ENGINE
 # ================================================================
