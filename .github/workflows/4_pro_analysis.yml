@@ -403,6 +403,24 @@ jobs:
           html_part = MIMEText(html_body, 'html', 'utf-8')
           msg.attach(html_part)
           
+          # ATTACH KEY SUMMARY FILES INDIVIDUALLY
+          files_to_attach = [
+              "executive_summary.txt", # Primary summary
+              "analytics.csv",         # Convenient data spreadsheet
+          ]
+          
+          for file_name_suffix in files_to_attach:
+              file_name = f"week{week}_{file_name_suffix}"
+              file_path = f"data/week{week}/{file_name}"
+              try:
+                  with open(file_path, "rb") as f:
+                      part = MIMEApplication(f.read(), name=file_name)
+                  part['Content-Disposition'] = f'attachment; filename="{file_name}"'
+                  msg.attach(part)
+                  print(f"Attached: {file_name}")
+              except FileNotFoundError:
+                  print(f"⚠️ Warning: File not found for attachment: {file_path}")
+          
           server = smtplib.SMTP('smtp.gmail.com', 587)
           server.starttls()
           server.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
