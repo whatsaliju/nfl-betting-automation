@@ -481,7 +481,6 @@ jobs:
               escaped_matchup = re.escape(matchup)
               
               # Regex to capture the SHARP MONEY STORY block and the THE VERDICT scores
-              # Finds ===Matchup===... SHARP MONEY STORY: (Story content)... THE VERDICT: Total Score: X, Confidence: Y
               matchup_pattern = re.compile(
                   rf"==={escaped_matchup}===\n.*?SHARP MONEY STORY:\n(.*?)\n\n.*?THE VERDICT:\n\s*Total Score: (\S+)\n\s*Confidence: (\S+)", 
                   re.DOTALL
@@ -498,7 +497,7 @@ jobs:
                   # Remove list markers and excess whitespace
                   story = re.sub(r'•\s*', '', story)
                   story = re.sub(r'\s{2,}', ' ', story)
-              
+                  
               return score, confidence, story
               
           # --- MAIN PARSING LOGIC (CORRECTED FADES SECTION - ROBUST FIX) ---
@@ -512,7 +511,7 @@ jobs:
               except FileNotFoundError:
                   return [], []
               
-              # Parse Targeted Plays (No change needed here)
+              # Parse Targeted Plays
               if "🎯 TARGETED PLAY" in content:
                   targeted_section = content.split("🎯 TARGETED PLAY")[1].split("❌ FADE")[0]
                   
@@ -542,11 +541,9 @@ jobs:
                   fade_section = content.split("❌ FADE")[1]
                   
                   # 2. FIX: Safely remove the separator line and clean the content before splitting.
-                  # This prevents the separator line from being incorrectly parsed as the first matchup.
                   separator = "----------------------------------------------------------------------"
                   
                   # Clean the section by removing the separator line and surrounding whitespace
-                  # if the separator is the first thing after the "❌ FADE" marker.
                   if fade_section.strip().startswith(separator):
                       fade_section = fade_section.strip().replace(separator, '', 1).strip()
                   else:
@@ -559,7 +556,7 @@ jobs:
                       # Check if the block contains the warning and is not empty
                       if '❌ AVOID' in block and '→' in block:
                           lines = [l.strip() for l in block.split('\n') if l.strip()]
-                          if len(lines) < 3: continue # Ensure we have Matchup, Warning, Divergence lines
+                          if len(lines) < 3: continue 
                           
                           # Now, lines[0] is guaranteed to be the matchup name
                           matchup = lines[0].strip()
@@ -589,6 +586,10 @@ jobs:
               return plays, fades 
           # --- END OF MAIN PARSING LOGIC ---
 
+          # ----------------------------------------------------------------------
+          # ✅ FIX: This line resolves the "NameError: name 'plays' is not defined"
+          # ----------------------------------------------------------------------
+          plays, fades = parse_executive_summary(week)
           
           # --- DYNAMIC CONTENT GENERATION ---
           plays_html = ""
@@ -669,7 +670,7 @@ jobs:
               <p style="color: #666;">These games are loaded with conflicting signals or strong factors pointing to an outcome the public is ignoring. Stay away or consider fading the consensus! **The narrative explains the risk.**</p>
               
               {fades_html}
-          
+              
               <div style="border-top: 1px solid #bdc3c7; padding-top: 20px; margin-top: 30px; font-size: 12px; color: #7f8c8d;">
                   <p><strong>Detailed Analysis Attached:</strong> The full Pro Analysis (`.txt`) and data spreadsheet (`.csv`) are attached to this email. Please refer to them for a game-by-game breakdown.</p>
                   
