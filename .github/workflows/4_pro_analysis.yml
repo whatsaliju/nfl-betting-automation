@@ -578,18 +578,24 @@ jobs:
       
       - name: Commit Analysis Files
         run: |
+          # 1. Configuration
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 1. Add and commit local changes (only runs if changes exist)
-          git add data/week12/ || true
+          # 2. Stage ALL changes (-A) and attempt the initial commit.
+          git add -A || true 
           git commit -m "📊 Week 12 pro analysis - Initial Analysis" || echo "No changes to commit"
+      
+          # 3. Defensive Cleanup: Stage any files the commit missed, and incorporate 
+          # them into the previous commit using --amend. This ensures the workspace is clean.
+          git add -A
+          git commit --amend --no-edit || true
+      
+          # 4. Integrate remote changes (Fixes the original 'rejected' error)
+          # This applies your single, clean commit on top of the remote's latest changes.
+          git pull --rebase origin main 
           
-          # 2. Integrate remote changes first (The fix for the rejection error)
-          #    --rebase is used to maintain a clean linear commit history
-          git pull --rebase origin main
-          
-          # 3. Push the changes to the remote repository
+          # 5. Push the resulting changes
           git push
       
       - name: Summary
