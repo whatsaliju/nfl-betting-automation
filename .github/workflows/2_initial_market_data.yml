@@ -94,7 +94,14 @@ jobs:
                   data/rotowire_lineups_*.csv \
                   data/action_injuries_*.csv \
                   data/action_weather_*.csv || true
-          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} initial market data" || echo "No changes"
+          
+          # 1. Commit changes
+          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} initial market data" || echo "No changes to commit"
+          
+          # 2. FIX: Pull remote changes and reapply your commit cleanly
+          git pull --rebase origin main
+          
+          # 3. Push the resulting changes
           git push
       
       - name: Trigger Pro Analysis
