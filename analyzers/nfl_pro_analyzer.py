@@ -1931,7 +1931,13 @@ def analyze_week(week):
         game_theory_analysis = GameTheoryAnalyzer.analyze(game_theory_data)
         
         # Schedule Analysis
-        schedule_analysis = ScheduleAnalyzer.analyze(away_full, home_full, week)
+        # TEMPORARY FIX: Pass default values (7 days rest) to satisfy the function arguments
+        schedule_analysis = ScheduleAnalyzer.analyze(
+            away_team=away_full,
+            home_team=home_full,
+            away_rest_days=7,  # Default value
+            home_rest_days=7   # Default value
+        )
         
         # Calculate total score
         total_score = (
