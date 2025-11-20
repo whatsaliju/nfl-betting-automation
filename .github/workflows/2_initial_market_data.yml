@@ -36,11 +36,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       
-      - name: Install dependencies
-        run: |
-          pip install pandas selenium lxml
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
+      - name: Install Python Dependencies
+        run: pip install pandas selenium lxml
+      
+      - name: Install Google Chrome and ChromeDriver for Scraping
+        uses: browser-actions/setup-chrome@latest
+        with:
+          # Installs the stable version of Chrome/Chromium, bypassing the unreliable apt/snap package
+          chrome-version: 'stable' 
+          # Automatically installs all required Linux libraries (e.g., libnss3)
+          install-dependencies: true
+          # Automatically installs the compatible ChromeDriver executable
+          install-chromedriver: true 
       
       - name: Get Week Number
         id: get_week
