@@ -97,6 +97,7 @@ jobs:
           import re
           import json
           
+          
           week = "${{ steps.get_week.outputs.week }}"
           timestamp = "${{ steps.timestamp.outputs.time }}"
           analysis_type = "${{ steps.analysis_type.outputs.type }}"
@@ -397,6 +398,15 @@ jobs:
           
           msg = MIMEMultipart('alternative')
           msg['Subject'] = f"🏈 Week {week} Enhanced Analysis - {len(blue_chip)} Blue Chip + {len(targeted)} Targeted Plays"
+          msg['From'] = os.getenv('GMAIL_USER')
+          msg['To'] = "lvarughese@gmail.com"
+          
+          html_part = MIMEText(html_body, 'html', 'utf-8')
+          msg.attach(html_part)
+          
+          # --- EMAIL ASSEMBLY WITH ATTACHMENTS (unchanged) ---
+          msg = MIMEMultipart() 
+          msg['Subject'] = f"Week {week} NFL Analysis - Conversational Brief"
           msg['From'] = os.getenv('GMAIL_USER')
           msg['To'] = "lvarughese@gmail.com"
           
