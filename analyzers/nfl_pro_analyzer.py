@@ -2058,25 +2058,25 @@ def analyze_week(week):
         away_tla = row.get('away', '')
         home_tla = row.get('home', '')
         
-        # Schedule Analysis
-        # We replace the call to the undefined ScheduleAnalyzer.analyze 
-        # with the fully defined calculate_schedule_score function, which handles
-        # the rest day lookup internally using the team TLAs.
         try:
+            # Use the correct function to get the score and full description
             schedule_score, schedule_desc = calculate_schedule_score(
                 week, home_tla, away_tla
             )
+            
+            # Structure the result to match the engine's expected format (including 'factors')
             schedule_analysis = {
                 'score': schedule_score,
-                'description': schedule_desc
+                'description': schedule_desc, # Full narrative/description
+                'factors': [schedule_desc] # The factors list is required by the NarrativeEngine
             }
         except Exception as e:
             # Fallback in case of missing week data
             schedule_analysis = {
                 'score': 0,
-                'description': f"Schedule analysis failed: {e}"
+                'description': f"Schedule analysis failed: {e}",
+                'factors': [] # Must include an empty list for compatibility
             }
-            # print(f"⚠️ Schedule analysis failed for {away_tla} @ {home_tla}: {e}")
         
         # Calculate total score
         total_score = (
