@@ -502,17 +502,18 @@ jobs:
               return score, confidence, story
 
           
-          # --- MAIN PARSING LOGIC ---
+          # --- MAIN PARSING LOGIC (CORRECTED FADES SECTION) ---
           def parse_executive_summary(week):
               plays = []
               fades = []
               try:
+                  # NOTE: Assumes files are in data/week{week}/...
                   with open(f"data/week{week}/week{week}_executive_summary.txt", "r") as f:
                       content = f.read()
               except FileNotFoundError:
                   return [], []
               
-              # Parse Targeted Plays
+              # Parse Targeted Plays (No change needed here)
               if "🎯 TARGETED PLAY" in content:
                   targeted_section = content.split("🎯 TARGETED PLAY")[1].split("❌ FADE")[0]
                   
@@ -536,42 +537,56 @@ jobs:
                               'story': story
                           })
               
-              # Parse Fades
+              # Parse Fades (THE CORRECTED LOGIC IS HERE)
               if "❌ FADE" in content:
                   fade_section = content.split("❌ FADE")[1]
                   
-                  for block in fade_section.strip().split('\n\n'):
-                      # Only process blocks that look like a full game entry
+                  # Split the section by double newline, which separates game entries
+                  blocks = fade_section.strip().split('\n\n')
+          
+                  # === FIX: Remove the leading separator line from the first block ===
+                  first_block_lines = [l.strip() for l in blocks[0].split('\n') if l.strip()]
+                  
+                  # If the first line is clearly a separator, remove it
+                  if first_block_lines and first_block_lines[0].startswith('---'):
+                      first_block_lines.pop(0)
+          
+                  # Update the first block with the cleaned lines
+                  blocks[0] = '\n'.join(first_block_lines)
+                  # =================================================================
+                  
+                  for block in blocks:
+                      # Check if the block contains the warning and is not empty
                       if '❌ AVOID' in block and '→' in block:
                           lines = [l.strip() for l in block.split('\n') if l.strip()]
-                          if len(lines) < 3: continue # Ensure we have Matchup, AVOID, and Divergence lines
+                          if len(lines) < 3: continue # Ensure we have Matchup, Warning, Divergence lines
                           
+                          # Now, lines[0] is guaranteed to be the matchup name
                           matchup = lines[0].strip()
                           recommendation = 'AVOID/FADE'
                           
-                          # Capture both the primary AVOID text and the divergence, then combine them
-                          primary_warning = lines[1].split('→')[1].strip() if '→' in lines[1] else '❌ AVOID: Multiple negative factors align'
-                          divergence_detail = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else ''
+                          # Capture the primary AVOID text from lines[1]
+                          primary_warning = lines[1].split('→')[1].strip() if len(lines) > 1 and '→' in lines[1] else '❌ AVOID: Multiple negative factors align'
                           
-                          # Combine the primary warning and divergence into the 'reason' field for the HTML body
+                          # Capture the divergence detail from lines[2]
+                          divergence_detail = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else 'Mixed signals/conflicts'
+                          
+                          # Combine them for the 'The Warning' field
                           reason = f"{primary_warning} — {divergence_detail}"
                           
+                          # Fetch the data using the now-correct 'matchup' name
                           score, confidence, story = get_game_data(week, matchup)
                           
                           fades.append({
                               'matchup': matchup,
                               'recommendation': recommendation,
-                              'reason': reason, # This now contains the full warning and divergence
+                              'reason': reason,
                               'score': score,
                               'confidence': confidence,
                               'story': story
                           })
                           
-              return plays, fades
-
-          
-          plays, fades = parse_executive_summary(week)
-          
+              return plays, fades  
           # --- DYNAMIC CONTENT GENERATION ---
           plays_html = ""
           for play in plays:
