@@ -34,6 +34,44 @@ TEAM_MAP = {
     "DAL": "Cowboys", "LV": "Raiders"
 }
 
+# ================================================================
+# SCHEDULE-SPECIFIC CONSTANTS (Derived from 2025 NFL Schedule)
+# ================================================================
+
+# Simplified map for time zone logic (Used to calculate W2E/E2W travel fatigue)
+TEAM_TIME_ZONES = {
+    'SEA': 'PST', 'SF': 'PST', 'LAR': 'PST', 'LV': 'PST', 'LAC': 'PST', 'ARI': 'MST',
+    'DEN': 'MST', 'KC': 'CST', 'DAL': 'CST', 'HOU': 'CST', 'CHI': 'CST', 'MIN': 'CST',
+    'GB': 'CST', 'NO': 'CST', 'TEN': 'CST', 'IND': 'EST', 'JAX': 'EST', 'MIA': 'EST',
+    'BUF': 'EST', 'NE': 'EST', 'NYJ': 'EST', 'NYG': 'EST', 'PHI': 'EST', 'WAS': 'EST',
+    'BAL': 'EST', 'CIN': 'EST', 'CLE': 'EST', 'PIT': 'EST', 'ATL': 'EST', 'CAR': 'EST',
+    'TB': 'EST', 'DET': 'EST'
+}
+
+# Teams playing in an international game (Week N) and playing *again* the following week (Week N+1)
+# (i.e., they did not have a Week N+1 bye)
+INTERNATIONAL_HANGOVER_WEEKS = {
+    # Week 1 (Sao Paulo): KC vs LAC[cite: 1]. No Week 2 byes.
+    2: ['KC', 'LAC'],
+
+    # Week 4 (Dublin): MIN vs PIT[cite: 8]. PIT has a Week 5 bye[cite: 10].
+    5: ['MIN'],
+
+    # Week 5 (Tottenham): MIN vs CLE[cite: 9]. MIN has a Week 6 bye[cite: 11].
+    6: ['CLE'],
+
+    # Week 6 (Tottenham): DEN vs NYJ[cite: 10]. (Assuming no Week 7 byes for these teams)
+    7: ['DEN', 'NYJ'],
+
+    # Week 7 (Wembley): LAR vs JAX[cite: 12]. (Assuming no Week 8 byes for these teams)
+    8: ['LAR', 'JAX'],
+
+    # Week 10 (Madrid): WAS vs MIA[cite: 19]. (Assuming no Week 11 byes for these teams)
+    11: ['WAS', 'MIA'],
+}
+
+# NOTE: The last international game (Week 12 in Germany) is not visible in the provided schedule, 
+# so its subsequent hangover week (Week 13) is not included here.
 
 # ================================================================
 # UTILITY FUNCTIONS
@@ -1315,63 +1353,98 @@ class GameTheoryAnalyzer:
             'description': ', '.join(all_factors) if all_factors else 'Standard market dynamics'
         }
 
-
 # ================================================================
-# SCHEDULE ANALYZER (ENHANCED)
-# Assumes 'away_rest_days' and 'home_rest_days' are available from data
+# SCHEDULE ANALYZER CLASS (Integrating all factors: Rest, Hangover, Travel)
 # ================================================================
 
 class ScheduleAnalyzer:
-    """
-    Analyzes game timing, rest, and travel to detect scheduling disadvantages.
-    """
+    """Analyzes non-standard rest, international hangover, and travel fatigue."""
+
+    # Penalty constants (Negative score favors the opponent)
+    REST_ADVANTAGE_SCORE = 1.5      # Penalty for 3-day short rest (e.g., 7 days vs 4 days)
+    MAJOR_REST_ADVANTAGE_SCORE = 3.0 # Advantage for mini-bye (10+ days rest)
+    W2E_TRAVEL_PENALTY = -2.0       # Penalty for West Coast team traveling East
+    INTERNATIONAL_HANGOVER_PENALTY = -4.0 # Strongest penalty for international trip return
 
     @staticmethod
-    def analyze(away_team, home_team, away_rest_days, home_rest_days):
+    def is_significant_travel(team_tla: str, opponent_tla: str):
+        """Checks for major time zone travel (W2E or E2W) for the current week's travel."""
+        from_zone = TEAM_TIME_ZONES.get(team_tla)
+        to_zone = TEAM_TIME_ZONES.get(opponent_tla)
+
+        if not from_zone or not to_zone or from_zone == to_zone:
+            return False
+
+        # PST (West) to EST (East) is a 3-hour difference and a major factor
+        if from_zone == 'PST' and to_zone == 'EST':
+            return True
+        
+        # EST (East) to PST (West) is also a significant disruption
+        if from_zone == 'EST' and to_zone == 'PST':
+            return True
+        
+        return False
+
+    @staticmethod
+    def analyze(away_team_tla: str, home_team_tla: str, away_rest_days: int, home_rest_days: int, current_week: int):
         score = 0
         factors = []
         
-        # --- Standard rest period is 7 days ---
-        
-        # 1. Short Rest Penalty
-        # Short rest (e.g., 4 days for Thursday Night Football) is a major disadvantage
-        if away_rest_days < 7:
-            score -= 1
-            factors.append(f"Away team ({away_team}) on short rest ({away_rest_days} days)")
-        if home_rest_days < 7:
-            score += 1 # A disadvantage for the home team is a small advantage for the away team
-            factors.append(f"Home team ({home_team}) on short rest ({home_rest_days} days)")
-            
-        # 2. Rest Disparity (Differential)
-        # Check if one team has significantly more rest than the other
-        rest_diff = away_rest_days - home_rest_days
-        
-        if rest_diff >= 3:
-            # Away team has 3+ more days of rest (e.g., away post-bye vs home short rest)
-            score += 1
-            factors.append(f"Away team ({away_team}) has significant rest advantage (+{rest_diff} days)")
-        elif rest_diff <= -3:
-            # Home team has 3+ more days of rest
-            score -= 1
-            factors.append(f"Home team ({home_team}) has significant rest advantage ({-rest_diff} days)")
-            
-        # 3. Post-Bye/Long Rest Advantage
-        # Teams coming off a true "long rest" (9+ days) get a small bump
-        # We don't need a separate check for bye week, as it results in >7 rest days
-        if away_rest_days >= 9 and home_rest_days < 9:
-            score += 0.5
-            factors.append(f"Away team ({away_team}) off extended rest/bye week")
-        if home_rest_days >= 9 and away_rest_days < 9:
-            score -= 0.5
-            factors.append(f"Home team ({home_team}) off extended rest/bye week")
+        # 1. REST DAY DISPARITY (Core Logic)
+        rest_diff = away_rest_days - home_rest_days # Positive diff means AWAY has more rest
 
-        # --- Finalizing Analysis ---
-        desc = ' | '.join(factors) if factors else 'No significant scheduling factors'
+        # Short rest for Home team (Away team advantage)
+        if rest_diff >= 3: 
+            score += ScheduleAnalyzer.REST_ADVANTAGE_SCORE
+            factors.append(f"{away_team_tla} has +{rest_diff} rest advantage (Short week for {home_team_tla})")
+        # Short rest for Away team (Home team advantage)
+        elif rest_diff <= -3: 
+            score -= ScheduleAnalyzer.REST_ADVANTAGE_SCORE
+            factors.append(f"{home_team_tla} has {-rest_diff} rest advantage (Short week for {away_team_tla})")
+        
+        # Mini-bye advantage (Home team mini-bye is a score *against* the away team)
+        if away_rest_days >= 10 and home_rest_days < 10: 
+            score += ScheduleAnalyzer.MAJOR_REST_ADVANTAGE_SCORE
+            factors.append(f"{away_team_tla} coming off a mini-bye ({away_rest_days} days rest)")
+        elif home_rest_days >= 10 and away_rest_days < 10: 
+            score -= ScheduleAnalyzer.MAJOR_REST_ADVANTAGE_SCORE
+            factors.append(f"{home_team_tla} coming off a mini-bye ({home_rest_days} days rest)")
 
+        # 2. INTERNATIONAL HANGOVER (Strongest Situational Penalty)
+        teams_returning = INTERNATIONAL_HANGOVER_WEEKS.get(current_week, [])
+        
+        if away_team_tla in teams_returning:
+            # Penalty applied to the Away team
+            score += ScheduleAnalyzer.INTERNATIONAL_HANGOVER_PENALTY 
+            factors.append(f"International Hangover penalty for {away_team_tla}")
+        
+        # Note: If Home team is returning, they get the penalty, giving an advantage to the Away team (positive score)
+        if home_team_tla in teams_returning:
+            # Penalty applied to the Home team
+            score -= ScheduleAnalyzer.INTERNATIONAL_HANGOVER_PENALTY 
+            factors.append(f"International Hangover penalty for {home_team_tla}")
+
+        # 3. SIGNIFICANT TIME ZONE TRAVEL FATIGUE (Current Week Travel)
+        
+        # Away Team Travel Penalty: West to East (W2E) for 3+ hours
+        if away_team_tla in ['SF', 'LAR', 'SEA', 'LV', 'LAC'] and \
+           home_team_tla in ['NE', 'NYJ', 'NYG', 'PHI', 'WAS', 'BAL', 'PIT', 'BUF', 'MIA'] and \
+           ScheduleAnalyzer.is_significant_travel(away_team_tla, home_team_tla):
+            score += ScheduleAnalyzer.W2E_TRAVEL_PENALTY # Negative score to away team
+            factors.append(f"{away_team_tla} faces W2E time-zone travel fatigue")
+        
+        # The opposite (East to West) is a known factor but typically less severe for betting models 
+        # than W2E for an early kickoff, so we only include the most critical W2E factor.
+
+        # Final formatting
+        final_description = ', '.join(factors) if factors else "No significant scheduling factors"
+        
         return {
             'score': round(score, 1),
             'factors': factors,
-            'description': desc
+            'description': final_description,
+            'away_rest_days': away_rest_days,
+            'home_rest_days': home_rest_days
         }
 # ================================================================
 # NARRATIVE ENGINE
