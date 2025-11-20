@@ -2079,6 +2079,7 @@ def analyze_week(week):
             }
         
         # Calculate total score
+        # NOTE: Verify this sum exactly matches your expected Total Score. (The previous score of 9 vs expected 7 is a bug)
         total_score = (
             sharp_consensus_score +
             ref_analysis['ats_score'] +
@@ -2089,6 +2090,52 @@ def analyze_week(week):
             game_theory_analysis['score'] +
             schedule_analysis['score']
         )
+        
+        # Initialize conflict flag for confidence capping
+        cap_confidence_total = False
+
+        # --- CRITICAL FIXES: CONFLICT PENALTIES ---
+        
+        # 1. Spread Conflict Penalty (Statistical vs. Consensus)
+        # Penalize if a strong statistical signal (abs score >= 2) opposes the consensus (all other factors).
+        statistical_score = statistical_analysis['score']
+        
+        # Calculate a consensus score *excluding* the statistical score
+        consensus_score = total_score - statistical_score
+        
+        # Check for strong conflict: Statistical score is high (abs >= 2) AND 
+        # it opposes the consensus (scores have opposite signs).
+        if abs(statistical_score) >= 2 and (statistical_score * consensus_score < 0):
+            # Apply a heavy penalty to force a drop in classification
+            CONFLICT_PENALTY_SPREAD = -5
+            total_score += CONFLICT_PENALTY_SPREAD
+            
+            # Log the penalty in situational factors for transparency
+            conflict_msg = f"🚨 MAJOR SPREAD CONFLICT: Strong stat value ({statistical_score:+.1f}) opposes consensus ({consensus_score:+.1f}). Penalty: {CONFLICT_PENALTY_SPREAD}"
+            situational_analysis['factors'].append(conflict_msg)
+            situational_analysis['description'] += f" | {conflict_msg}"
+            situational_analysis['score'] += CONFLICT_PENALTY_SPREAD # Update the situational score for CSV logging
+            
+        # 2. Total Conflict Penalty (Sharp Total vs. Referee O/U)
+        # Penalize for high-variance total picks that cancel each other out.
+        sharp_total_score = sharp_analysis['total']['score']
+        ref_ou_score = ref_analysis['ou_score']
+        
+        # Check for opposing strong total signals (both abs >= 2)
+        if (sharp_total_score * ref_ou_score < 0) and (abs(sharp_total_score) >= 2) and (abs(ref_ou_score) >= 2):
+            CONFLICT_PENALTY_TOTAL = -3
+            total_score += CONFLICT_PENALTY_TOTAL
+            
+            # Log the penalty in situational factors for transparency
+            conflict_msg = f"⚠️ HIGH TOTAL VARIANCE: Sharp Total ({sharp_total_score:+.1f}) conflicts with Referee O/U ({ref_ou_score:+.1f}). Penalty: {CONFLICT_PENALTY_TOTAL}"
+            situational_analysis['factors'].append(conflict_msg)
+            situational_analysis['description'] += f" | {conflict_msg}"
+            situational_analysis['score'] += CONFLICT_PENALTY_TOTAL # Update the situational score for CSV logging
+            
+            # Set flag to cap confidence heavily later
+            cap_confidence_total = True
+            
+        # --- END: CRITICAL FIXES ---
         
         # Public exposure
         public_exposure = sharp_analysis.get('spread', {}).get('bets_pct', 50)
@@ -2112,13 +2159,18 @@ def analyze_week(week):
             'statistical_analysis': statistical_analysis,
             'game_theory_analysis': game_theory_analysis,
             'schedule_analysis': schedule_analysis,
-            'total_score': total_score,
+            'total_score': total_score, # This now includes penalties
             'public_exposure': public_exposure,
             'sharp_stories': sharp_stories
         }
         
         # Classification
         classification, recommendation, confidence = ClassificationEngine.classify(game_analysis)
+        
+        # Apply confidence cap if high total variance was detected (Flaw 2 fix)
+        if cap_confidence_total:
+            confidence = min(confidence, 4) # Cap at a LEAN/PASS level
+            
         game_analysis['classification'] = classification
         game_analysis['recommendation'] = ClassificationEngine.generate_enhanced_recommendation(
             classification, game_analysis
@@ -2126,7 +2178,7 @@ def analyze_week(week):
         game_analysis['confidence'] = confidence
         
         games.append(game_analysis)
-        print(f"  ✓ {game_analysis['matchup']}: {classification}")
+        print(f"  ✓ {game_analysis['matchup']}: {classification}")
     
     # Sort games by tier
     tier_order = {
