@@ -541,20 +541,27 @@ jobs:
                   fade_section = content.split("❌ FADE")[1]
                   
                   for block in fade_section.strip().split('\n\n'):
+                      # Only process blocks that look like a full game entry
                       if '❌ AVOID' in block and '→' in block:
                           lines = [l.strip() for l in block.split('\n') if l.strip()]
-                          if not lines: continue
+                          if len(lines) < 3: continue # Ensure we have Matchup, AVOID, and Divergence lines
                           
                           matchup = lines[0].strip()
                           recommendation = 'AVOID/FADE'
-                          reason = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else 'Mixed signals/conflicts'
+                          
+                          # Capture both the primary AVOID text and the divergence, then combine them
+                          primary_warning = lines[1].split('→')[1].strip() if '→' in lines[1] else '❌ AVOID: Multiple negative factors align'
+                          divergence_detail = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else ''
+                          
+                          # Combine the primary warning and divergence into the 'reason' field for the HTML body
+                          reason = f"{primary_warning} — {divergence_detail}"
                           
                           score, confidence, story = get_game_data(week, matchup)
                           
                           fades.append({
                               'matchup': matchup,
                               'recommendation': recommendation,
-                              'reason': reason,
+                              'reason': reason, # This now contains the full warning and divergence
                               'score': score,
                               'confidence': confidence,
                               'story': story
