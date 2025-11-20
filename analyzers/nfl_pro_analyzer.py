@@ -1357,18 +1357,24 @@ class GameTheoryAnalyzer:
 # SCHEDULE ANALYZER CLASS (Integrating all factors: Rest, Hangover, Travel)
 # ================================================================
 
+# ================================================================
+# SCHEDULE ANALYZER CLASS (Ensure these parameter names match your call)
+# ================================================================
+
 class ScheduleAnalyzer:
     """Analyzes non-standard rest, international hangover, and travel fatigue."""
 
     # Penalty constants (Negative score favors the opponent)
-    REST_ADVANTAGE_SCORE = 1.5      # Penalty for 3-day short rest (e.g., 7 days vs 4 days)
-    MAJOR_REST_ADVANTAGE_SCORE = 3.0 # Advantage for mini-bye (10+ days rest)
-    W2E_TRAVEL_PENALTY = -2.0       # Penalty for West Coast team traveling East
-    INTERNATIONAL_HANGOVER_PENALTY = -4.0 # Strongest penalty for international trip return
+    REST_ADVANTAGE_SCORE = 1.5      
+    MAJOR_REST_ADVANTAGE_SCORE = 3.0 
+    W2E_TRAVEL_PENALTY = -2.0       
+    INTERNATIONAL_HANGOVER_PENALTY = -4.0 
 
     @staticmethod
     def is_significant_travel(team_tla: str, opponent_tla: str):
         """Checks for major time zone travel (W2E or E2W) for the current week's travel."""
+        # **NOTE:** This method uses the TLA (three-letter acronym) because the 
+        # TEAM_TIME_ZONES constant uses them.
         from_zone = TEAM_TIME_ZONES.get(team_tla)
         to_zone = TEAM_TIME_ZONES.get(opponent_tla)
 
@@ -1386,56 +1392,63 @@ class ScheduleAnalyzer:
         return False
 
     @staticmethod
-    def analyze(away_team_tla: str, home_team_tla: str, away_rest_days: int, home_rest_days: int, current_week: int):
+    # 🚨 CRITICAL CHANGE: Parameters must be named exactly 'away_team' and 'home_team'
+    def analyze(away_team: str, home_team: str, away_rest_days: int, home_rest_days: int, current_week: int):
+        """Calculates a schedule score based on rest, hangover, and travel."""
+        
+        # We need the TLA for the TIME_ZONES lookup, assuming the calling function
+        # passes the full team names (e.g., 'Bills', 'Texans')
+        # NOTE: This requires a reverse lookup if your calling function passes full names.
+        # If your calling function passes TLAs ('BUF', 'HOU'), you can skip the lookup.
+        # Assuming the calling function passes TLAs for simplicity for now.
+        
+        # If your calling function passes TLAs (like 'BUF', 'HOU'):
+        away_tla = away_team
+        home_tla = home_team
+        
+        # If your calling function passes Full Names (like 'Bills', 'Texans'), 
+        # you need a reverse map here, or adjust the calling function.
+        
         score = 0
         factors = []
         
         # 1. REST DAY DISPARITY (Core Logic)
         rest_diff = away_rest_days - home_rest_days # Positive diff means AWAY has more rest
 
-        # Short rest for Home team (Away team advantage)
+        # Apply rest advantage/disadvantage
         if rest_diff >= 3: 
             score += ScheduleAnalyzer.REST_ADVANTAGE_SCORE
-            factors.append(f"{away_team_tla} has +{rest_diff} rest advantage (Short week for {home_team_tla})")
-        # Short rest for Away team (Home team advantage)
+            factors.append(f"{away_team} has +{rest_diff} rest advantage (Short week for {home_team})")
         elif rest_diff <= -3: 
             score -= ScheduleAnalyzer.REST_ADVANTAGE_SCORE
-            factors.append(f"{home_team_tla} has {-rest_diff} rest advantage (Short week for {away_team_tla})")
+            factors.append(f"{home_team} has {-rest_diff} rest advantage (Short week for {away_team})")
         
-        # Mini-bye advantage (Home team mini-bye is a score *against* the away team)
+        # Apply mini-bye advantage (10+ days rest)
         if away_rest_days >= 10 and home_rest_days < 10: 
             score += ScheduleAnalyzer.MAJOR_REST_ADVANTAGE_SCORE
-            factors.append(f"{away_team_tla} coming off a mini-bye ({away_rest_days} days rest)")
+            factors.append(f"{away_team} coming off a mini-bye ({away_rest_days} days rest)")
         elif home_rest_days >= 10 and away_rest_days < 10: 
             score -= ScheduleAnalyzer.MAJOR_REST_ADVANTAGE_SCORE
-            factors.append(f"{home_team_tla} coming off a mini-bye ({home_rest_days} days rest)")
+            factors.append(f"{home_team} coming off a mini-bye ({home_rest_days} days rest)")
 
         # 2. INTERNATIONAL HANGOVER (Strongest Situational Penalty)
         teams_returning = INTERNATIONAL_HANGOVER_WEEKS.get(current_week, [])
         
-        if away_team_tla in teams_returning:
-            # Penalty applied to the Away team
+        if away_tla in teams_returning:
             score += ScheduleAnalyzer.INTERNATIONAL_HANGOVER_PENALTY 
-            factors.append(f"International Hangover penalty for {away_team_tla}")
+            factors.append(f"International Hangover penalty for {away_team}")
         
-        # Note: If Home team is returning, they get the penalty, giving an advantage to the Away team (positive score)
-        if home_team_tla in teams_returning:
-            # Penalty applied to the Home team
+        if home_tla in teams_returning:
             score -= ScheduleAnalyzer.INTERNATIONAL_HANGOVER_PENALTY 
-            factors.append(f"International Hangover penalty for {home_team_tla}")
+            factors.append(f"International Hangover penalty for {home_team}")
 
         # 3. SIGNIFICANT TIME ZONE TRAVEL FATIGUE (Current Week Travel)
         
-        # Away Team Travel Penalty: West to East (W2E) for 3+ hours
-        if away_team_tla in ['SF', 'LAR', 'SEA', 'LV', 'LAC'] and \
-           home_team_tla in ['NE', 'NYJ', 'NYG', 'PHI', 'WAS', 'BAL', 'PIT', 'BUF', 'MIA'] and \
-           ScheduleAnalyzer.is_significant_travel(away_team_tla, home_team_tla):
-            score += ScheduleAnalyzer.W2E_TRAVEL_PENALTY # Negative score to away team
-            factors.append(f"{away_team_tla} faces W2E time-zone travel fatigue")
+        # West-to-East (W2E) penalty
+        if ScheduleAnalyzer.is_significant_travel(away_tla, home_tla) and away_tla in ['SF', 'LAR', 'SEA', 'LV', 'LAC']:
+            score += ScheduleAnalyzer.W2E_TRAVEL_PENALTY 
+            factors.append(f"{away_team} faces W2E time-zone travel fatigue")
         
-        # The opposite (East to West) is a known factor but typically less severe for betting models 
-        # than W2E for an early kickoff, so we only include the most critical W2E factor.
-
         # Final formatting
         final_description = ', '.join(factors) if factors else "No significant scheduling factors"
         
