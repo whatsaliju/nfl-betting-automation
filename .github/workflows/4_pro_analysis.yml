@@ -500,9 +500,8 @@ jobs:
                   story = re.sub(r'\s{2,}', ' ', story)
               
               return score, confidence, story
-
-          
-          # --- MAIN PARSING LOGIC (CORRECTED FADES SECTION) ---
+              
+          # --- MAIN PARSING LOGIC (CORRECTED FADES SECTION - ROBUST FIX) ---
           def parse_executive_summary(week):
               plays = []
               fades = []
@@ -539,21 +538,22 @@ jobs:
               
               # Parse Fades (THE CORRECTED LOGIC IS HERE)
               if "❌ FADE" in content:
+                  # 1. Capture the section after the FADE marker
                   fade_section = content.split("❌ FADE")[1]
                   
-                  # Split the section by double newline, which separates game entries
-                  blocks = fade_section.strip().split('\n\n')
-          
-                  # === FIX: Remove the leading separator line from the first block ===
-                  first_block_lines = [l.strip() for l in blocks[0].split('\n') if l.strip()]
+                  # 2. FIX: Safely remove the separator line and clean the content before splitting.
+                  # This prevents the separator line from being incorrectly parsed as the first matchup.
+                  separator = "----------------------------------------------------------------------"
                   
-                  # If the first line is clearly a separator, remove it
-                  if first_block_lines and first_block_lines[0].startswith('---'):
-                      first_block_lines.pop(0)
-          
-                  # Update the first block with the cleaned lines
-                  blocks[0] = '\n'.join(first_block_lines)
-                  # =================================================================
+                  # Clean the section by removing the separator line and surrounding whitespace
+                  # if the separator is the first thing after the "❌ FADE" marker.
+                  if fade_section.strip().startswith(separator):
+                      fade_section = fade_section.strip().replace(separator, '', 1).strip()
+                  else:
+                      fade_section = fade_section.strip()
+                      
+                  # 3. Split the clean section by double newline, which separates game entries
+                  blocks = [block.strip() for block in fade_section.split('\n\n') if block.strip()]
                   
                   for block in blocks:
                       # Check if the block contains the warning and is not empty
@@ -586,7 +586,10 @@ jobs:
                               'story': story
                           })
                           
-              return plays, fades  
+              return plays, fades 
+          # --- END OF MAIN PARSING LOGIC ---
+
+          
           # --- DYNAMIC CONTENT GENERATION ---
           plays_html = ""
           for play in plays:
