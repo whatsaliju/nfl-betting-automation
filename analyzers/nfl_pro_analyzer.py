@@ -34,6 +34,28 @@ TEAM_MAP = {
     "DAL": "Cowboys", "LV": "Raiders"
 }
 
+# --- DATA CONSTANT: SCHEDULE REST DATA ---
+# This dictionary holds the rest days for each team entering a specific week.
+# This data MUST be updated for each week's analysis. (Example data for Week 12)
+SCHEDULE_REST_DATA_2025 = {
+    12: {
+        'SEA': 7, 'TEN': 10,  # Titans coming off a bye (10 days)
+        'NE': 7, 'CIN': 7,
+        'MIN': 7, 'GB': 7,
+        'PHI': 7, 'BUF': 7,
+        'NO': 7, 'ATL': 7,
+        'MIA': 7, 'NYG': 7,
+        'IND': 7, 'JAX': 10, # Jaguars coming off a bye (10 days)
+        'PIT': 7, 'DAL': 7,
+        'KC': 7, 'LV': 7,
+        'DEN': 7, 'LAC': 7,
+        'CLE': 7, 'WSH': 7,
+        'SF': 7, 'CAR': 7,
+        'TB': 7, 'LAR': 7,
+        'NYJ': 7, 'BAL': 7,
+        'HOU': 7, 'ARI': 7,
+    }
+}
 # ================================================================
 # REST DAYS DATA (W1-W12)
 # Generated from 2025-nfl-schedule-by-week.pdf
@@ -117,7 +139,41 @@ INTERNATIONAL_HANGOVER_WEEKS = {
 # ================================================================
 # UTILITY FUNCTIONS
 # ================================================================
+# --- UTILITY FUNCTION: CALCULATE SCHEDULE SCORE ---
+def calculate_schedule_score(week, home_tla, away_tla):
+    """
+    Calculates a score based on the rest day differential between the two teams.
+    A positive score favors the Home team (or punishes the Away team).
+    """
+    
+    # Use the dummy data constant defined above
+    rest_data = SCHEDULE_REST_DATA_2025.get(week, {})
+    
+    # Retrieve rest days, defaulting to 7 if data is missing
+    home_rest = rest_data.get(home_tla, 7)
+    away_rest = rest_data.get(away_tla, 7)
+    
+    rest_differential = home_rest - away_rest # Positive means Home team has more rest
+    
+    score = 0
+    description = "Neutral schedule situation (standard rest)."
+    
+    if rest_differential > 2:
+        score = 1
+        description = f"Schedule Edge: HOME team ({home_tla}) has a significant rest advantage (+{rest_differential} days)."
+    elif rest_differential < -2:
+        score = -1
+        description = f"Schedule Edge: AWAY team ({away_tla}) has a significant rest advantage (+{abs(rest_differential)} days)."
+    elif rest_differential != 0:
+        # For minor rest differences (1 or 2 days)
+        team_with_rest = home_tla if rest_differential > 0 else away_tla
+        score = 0.5 if rest_differential > 0 else -0.5
+        description = f"Minor rest advantage for {team_with_rest} ({abs(rest_differential)} days)."
 
+    # If both teams are coming off a bye (10 days) or a TNF game (3 days), the diff is 0, keeping the score 0.
+
+    return score, description
+    
 def safe_load_csv(path, required=False):
     try:
         if os.path.exists(path):
