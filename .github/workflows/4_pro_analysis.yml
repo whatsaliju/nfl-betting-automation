@@ -482,9 +482,11 @@ jobs:
               
               # Regex to capture the SHARP MONEY STORY block and the THE VERDICT scores
               matchup_pattern = re.compile(
-                  rf"==={escaped_matchup}===\n.*?SHARP MONEY STORY:\n(.*?)\n\n.*?THE VERDICT:\n\s*Total Score: (\S+)\n\s*Confidence: (\S+)", 
+                  # Match heading, skip all text non-greedily, then find SHARP MONEY STORY
+                  rf"==={re.escape(matchup)}===\s*.*?SHARP MONEY STORY:\s*(.*?)\s*THE VERDICT:\s*Total Score: (\S+)\s*Confidence: (\S+)",
                   re.DOTALL
               )
+
               match = matchup_pattern.search(content)
 
               if match:
