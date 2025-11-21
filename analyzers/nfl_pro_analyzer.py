@@ -35,68 +35,37 @@ TEAM_MAP = {
 }
 
 # --- DATA CONSTANT: SCHEDULE REST DATA ---
-# This dictionary holds the rest days for each team entering a specific week.
-# This data MUST be updated for each week's analysis. (Example data for Week 12)
-SCHEDULE_REST_DATA_2025 = {
-    12: {
-        'SEA': 7, 'TEN': 10,  # Titans coming off a bye (10 days)
-        'NE': 7, 'CIN': 7,
-        'MIN': 7, 'GB': 7,
-        'PHI': 7, 'BUF': 7,
-        'NO': 7, 'ATL': 7,
-        'MIA': 7, 'NYG': 7,
-        'IND': 7, 'JAX': 10, # Jaguars coming off a bye (10 days)
-        'PIT': 7, 'DAL': 7,
-        'KC': 7, 'LV': 7,
-        'DEN': 7, 'LAC': 7,
-        'CLE': 7, 'WSH': 7,
-        'SF': 7, 'CAR': 7,
-        'TB': 7, 'LAR': 7,
-        'NYJ': 7, 'BAL': 7,
-        'HOU': 7, 'ARI': 7,
-    }
-}
-# ================================================================
-# REST DAYS DATA (W1-W12)
-# Generated from 2025-nfl-schedule-by-week.pdf
-# Format: (Week, AWAY_TLA, HOME_TLA): {'away_rest_days': N, 'home_rest_days': N}
+# This dictionary holds the rest days for all teams entering each week of the 2025 NFL season.
+# NEW FORMAT: {Week: {Team_TLA: Rest_Days}}
+# This format allows the calculate_schedule_score function to look up rest days directly by TLA.
 # ================================================================
 
 SCHEDULE_REST_DATA_2025 = {
-    # --- Previously Calculated Weeks (W1-W12) ---
-    'W1': {3: ['DAL', 'PHI'], 4: ['KC', 'LAC'], 6: ['ATL', 'NO', 'TB', 'CAR', 'JAX', 'CIN', 'CLE', 'MIA', 'IND', 'NE', 'LV', 'ARI', 'PIT', 'NYJ', 'NYG', 'WAS', 'DEN', 'LAR', 'SEA', 'TEN', 'HOU'], 7: ['BUF', 'BAL'], 14: ['CHI', 'DET', 'GB', 'MIN', 'SF']},
-    'W2': {3: ['LAR', 'ARI'], 4: ['KC', 'LAC'], 6: ['CAR', 'ATL', 'TB', 'NO', 'MIN', 'GB', 'DET', 'CHI', 'TEN', 'SEA', 'NYJ', 'BUF', 'WAS', 'NYG', 'DAL', 'PHI', 'NE', 'MIA', 'CLE', 'CIN', 'BAL', 'PIT', 'JAX', 'IND'], 7: ['HOU', 'SF'], 14: ['DEN', 'LV']},
-    'W3': {3: ['BAL', 'CIN'], 4: ['HOU', 'TB'], 5: ['LAC', 'LV'], 6: ['ARI', 'SEA', 'IND', 'JAX', 'CAR', 'TEN', 'NE', 'MIA', 'BUF', 'NYJ', 'GB', 'MIN', 'DAL', 'NYG', 'WAS', 'PHI', 'PIT', 'CLE', 'ATL', 'NO'], 7: ['DET', 'CHI'], 14: ['KC', 'DEN']},
-    'W4': {3: ['SEA', 'ARI'], 4: ['BUF', 'NYJ'], 5: ['JAX', 'TEN'], 6: ['MIN', 'GB', 'DET', 'CHI', 'CLE', 'PIT', 'CIN', 'BAL', 'NO', 'ATL', 'TB', 'CAR', 'PHI', 'WAS', 'NYG', 'DAL', 'IND', 'HOU', 'NE', 'MIA'], 7: ['LV', 'LAC'], 14: ['LAR', 'SF']},
-    'W5': {3: ['SF', 'LAR'], 4: ['BUF', 'MIA'], 5: ['NYG', 'BAL'], 6: ['GB', 'MIN', 'DET', 'CIN', 'PIT', 'CLE', 'PHI', 'DAL', 'WAS', 'JAX', 'IND', 'HOU', 'TEN', 'SEA', 'ARI', 'NO', 'ATL', 'TB'], 7: ['NE', 'NYJ'], 14: ['CAR', 'CHI']},
-    'W6': {3: ['NYG', 'PHI'], 4: ['BAL', 'CIN'], 6: ['IND', 'HOU', 'TEN', 'JAX', 'MIA', 'NE', 'NYJ', 'BUF', 'CLE', 'PIT', 'ARI', 'SEA', 'LAR', 'SF', 'NO', 'ATL', 'TB', 'CAR'], 7: ['DAL', 'WAS'], 14: ['DEN', 'LV']},
-    'W7': {3: ['MIN', 'LAC'], 4: ['KC', 'SF'], 5: ['NE', 'PIT'], 6: ['PHI', 'DAL', 'WAS', 'NYG', 'BUF', 'NYJ', 'MIA', 'ATL', 'NO', 'TB', 'CAR', 'LAR', 'SEA', 'ARI', 'DEN', 'LV', 'GB', 'DET', 'CHI'], 7: ['CLE', 'CIN', 'BAL'], 14: ['IND', 'HOU', 'JAX', 'TEN']},
-    'W8': {3: ['NO', 'ATL'], 4: ['TEN', 'LAC'], 5: ['JAX', 'HOU'], 6: ['MIA', 'NE', 'NYJ', 'BUF', 'CIN', 'CLE', 'PIT', 'BAL', 'MIN', 'GB', 'DET', 'CHI', 'ARI', 'SEA', 'SF', 'LAR', 'WAS', 'DAL', 'NYG', 'PHI'], 7: ['IND', 'KC'], 14: ['CAR', 'TB']},
-    'W9': {3: ['LAR', 'SEA'], 4: ['MIA', 'BAL'], 5: ['PIT', 'CLE'], 6: ['NE', 'BUF', 'NYJ', 'CIN', 'IND', 'JAX', 'HOU', 'TEN', 'ARI', 'SF', 'DAL', 'PHI', 'NYG', 'WAS', 'DEN', 'KC', 'LV', 'LAC'], 7: ['ATL', 'NO'], 14: ['CHI', 'DET', 'GB', 'MIN']},
-    'W10': {3: ['LV', 'DEN'], 4: ['CIN', 'PIT'], 6: ['CLE', 'BAL', 'BUF', 'MIA', 'NE', 'NYJ', 'JAX', 'HOU', 'IND', 'TEN', 'SEA', 'LAR', 'ARI', 'SF', 'WAS', 'PHI', 'NYG', 'DAL', 'ATL', 'TB', 'CAR', 'NO'], 7: ['KC', 'LAC'], 14: ['MIN', 'GB']},
-    'W11': {3: ['NE', 'NYJ'], 4: ['LAR', 'SF'], 5: ['KC', 'JAX'], 6: ['DAL', 'PHI', 'WAS', 'NYG', 'MIN', 'GB', 'DET', 'CHI', 'TEN', 'HOU', 'IND', 'ARI', 'SEA', 'LV', 'DEN', 'LAC', 'CAR', 'NO', 'ATL', 'TB'], 7: ['CIN', 'PIT', 'CLE', 'BAL', 'BUF', 'MIA'], 14: ['NONE']},
-    'W12': {3: ['BUF', 'HOU'], 4: ['BAL', 'NYJ'], 5: ['MIA', 'NE'], 6: ['CIN', 'PIT', 'CLE', 'IND', 'JAX', 'TEN', 'LV', 'DEN', 'DAL', 'PHI', 'NYG', 'WAS', 'CHI', 'DET', 'GB', 'MIN', 'NO', 'ATL', 'ARI', 'SEA', 'TB', 'LAR'], 7: ['KC', 'LAC'], 14: ['CAR', 'SF']},
+    # --- Calculated Weeks (W1-W18) ---
+    'W1': {'DAL': 3, 'PHI': 3, 'KC': 4, 'LAC': 4, 'ATL': 6, 'NO': 6, 'TB': 6, 'CAR': 6, 'JAX': 6, 'CIN': 6, 'CLE': 6, 'MIA': 6, 'IND': 6, 'NE': 6, 'LV': 6, 'ARI': 6, 'PIT': 6, 'NYJ': 6, 'NYG': 6, 'WAS': 6, 'DEN': 6, 'LAR': 6, 'SEA': 6, 'TEN': 6, 'HOU': 6, 'BUF': 7, 'BAL': 7, 'CHI': 14, 'DET': 14, 'GB': 14, 'MIN': 14, 'SF': 14},
+    'W2': {'LAR': 3, 'ARI': 3, 'KC': 4, 'LAC': 4, 'CAR': 6, 'ATL': 6, 'TB': 6, 'NO': 6, 'MIN': 6, 'GB': 6, 'DET': 6, 'CHI': 6, 'TEN': 6, 'SEA': 6, 'NYJ': 6, 'BUF': 6, 'WAS': 6, 'NYG': 6, 'DAL': 6, 'PHI': 6, 'NE': 6, 'MIA': 6, 'CLE': 6, 'CIN': 6, 'BAL': 6, 'PIT': 6, 'JAX': 6, 'IND': 6, 'HOU': 7, 'SF': 7, 'DEN': 14, 'LV': 14},
+    'W3': {'BAL': 3, 'CIN': 3, 'HOU': 4, 'TB': 4, 'LAC': 5, 'LV': 5, 'ARI': 6, 'SEA': 6, 'IND': 6, 'JAX': 6, 'CAR': 6, 'TEN': 6, 'NE': 6, 'MIA': 6, 'BUF': 6, 'NYJ': 6, 'GB': 6, 'MIN': 6, 'DAL': 6, 'NYG': 6, 'WAS': 6, 'PHI': 6, 'PIT': 6, 'CLE': 6, 'ATL': 6, 'NO': 6, 'DET': 7, 'CHI': 7, 'KC': 14, 'DEN': 14},
+    'W4': {'SEA': 3, 'ARI': 3, 'BUF': 4, 'NYJ': 4, 'JAX': 5, 'TEN': 5, 'MIN': 6, 'GB': 6, 'DET': 6, 'CHI': 6, 'CLE': 6, 'PIT': 6, 'CIN': 6, 'BAL': 6, 'NO': 6, 'ATL': 6, 'TB': 6, 'CAR': 6, 'PHI': 6, 'WAS': 6, 'NYG': 6, 'DAL': 6, 'IND': 6, 'HOU': 6, 'NE': 6, 'MIA': 6, 'LV': 7, 'LAC': 7, 'LAR': 14, 'SF': 14},
+    'W5': {'SF': 3, 'LAR': 3, 'BUF': 4, 'MIA': 4, 'NYG': 5, 'BAL': 5, 'GB': 6, 'MIN': 6, 'DET': 6, 'CIN': 6, 'PIT': 6, 'CLE': 6, 'PHI': 6, 'DAL': 6, 'WAS': 6, 'JAX': 6, 'IND': 6, 'HOU': 6, 'TEN': 6, 'SEA': 6, 'ARI': 6, 'NO': 6, 'ATL': 6, 'TB': 6, 'NE': 7, 'NYJ': 7, 'CAR': 14, 'CHI': 14},
+    'W6': {'NYG': 3, 'PHI': 3, 'BAL': 4, 'CIN': 4, 'IND': 6, 'HOU': 6, 'TEN': 6, 'JAX': 6, 'MIA': 6, 'NE': 6, 'NYJ': 6, 'BUF': 6, 'CLE': 6, 'PIT': 6, 'ARI': 6, 'SEA': 6, 'LAR': 6, 'SF': 6, 'NO': 6, 'ATL': 6, 'TB': 6, 'CAR': 6, 'DAL': 7, 'WAS': 7, 'DEN': 14, 'LV': 14},
+    'W7': {'MIN': 3, 'LAC': 3, 'KC': 4, 'SF': 4, 'NE': 5, 'PIT': 5, 'PHI': 6, 'DAL': 6, 'WAS': 6, 'NYG': 6, 'BUF': 6, 'NYJ': 6, 'MIA': 6, 'ATL': 6, 'NO': 6, 'TB': 6, 'CAR': 6, 'LAR': 6, 'SEA': 6, 'ARI': 6, 'DEN': 6, 'LV': 6, 'GB': 6, 'DET': 6, 'CHI': 6, 'CLE': 7, 'CIN': 7, 'BAL': 7, 'IND': 14, 'HOU': 14, 'JAX': 14, 'TEN': 14},
+    'W8': {'NO': 3, 'ATL': 3, 'TEN': 4, 'LAC': 4, 'JAX': 5, 'HOU': 5, 'MIA': 6, 'NE': 6, 'NYJ': 6, 'BUF': 6, 'CIN': 6, 'CLE': 6, 'PIT': 6, 'BAL': 6, 'MIN': 6, 'GB': 6, 'DET': 6, 'CHI': 6, 'ARI': 6, 'SEA': 6, 'SF': 6, 'LAR': 6, 'WAS': 6, 'DAL': 6, 'NYG': 6, 'PHI': 6, 'IND': 7, 'KC': 7, 'CAR': 14, 'TB': 14},
+    'W9': {'LAR': 3, 'SEA': 3, 'MIA': 4, 'BAL': 4, 'PIT': 5, 'CLE': 5, 'NE': 6, 'BUF': 6, 'NYJ': 6, 'CIN': 6, 'IND': 6, 'JAX': 6, 'HOU': 6, 'TEN': 6, 'ARI': 6, 'SF': 6, 'DAL': 6, 'PHI': 6, 'NYG': 6, 'WAS': 6, 'DEN': 6, 'KC': 6, 'LV': 6, 'LAC': 6, 'ATL': 7, 'NO': 7, 'CHI': 14, 'DET': 14, 'GB': 14, 'MIN': 14},
+    'W10': {'LV': 3, 'DEN': 3, 'CIN': 4, 'PIT': 4, 'CLE': 6, 'BAL': 6, 'BUF': 6, 'MIA': 6, 'NE': 6, 'NYJ': 6, 'JAX': 6, 'HOU': 6, 'IND': 6, 'TEN': 6, 'SEA': 6, 'LAR': 6, 'ARI': 6, 'SF': 6, 'WAS': 6, 'PHI': 6, 'NYG': 6, 'DAL': 6, 'ATL': 6, 'TB': 6, 'CAR': 6, 'NO': 6, 'KC': 7, 'LAC': 7, 'MIN': 14, 'GB': 14},
+    'W11': {'NE': 3, 'NYJ': 3, 'LAR': 4, 'SF': 4, 'KC': 5, 'JAX': 5, 'DAL': 6, 'PHI': 6, 'WAS': 6, 'NYG': 6, 'MIN': 6, 'GB': 6, 'DET': 6, 'CHI': 6, 'TEN': 6, 'HOU': 6, 'IND': 6, 'ARI': 6, 'SEA': 6, 'LV': 6, 'DEN': 6, 'LAC': 6, 'CAR': 6, 'NO': 6, 'ATL': 6, 'TB': 6, 'CIN': 7, 'PIT': 7, 'CLE': 7, 'BAL': 7, 'BUF': 7, 'MIA': 7},
+    'W12': {'BUF': 3, 'HOU': 3, 'BAL': 4, 'NYJ': 4, 'MIA': 5, 'NE': 5, 'CIN': 6, 'PIT': 6, 'CLE': 6, 'IND': 6, 'JAX': 6, 'TEN': 6, 'LV': 6, 'DEN': 6, 'DAL': 6, 'PHI': 6, 'NYG': 6, 'WAS': 6, 'CHI': 6, 'DET': 6, 'GB': 6, 'MIN': 6, 'NO': 6, 'ATL': 6, 'ARI': 6, 'SEA': 6, 'TB': 6, 'LAR': 6, 'KC': 7, 'LAC': 7, 'CAR': 14, 'SF': 14},
     
-    # --- Newly Calculated Weeks (W13-W18) ---
-    # W13 Notes: Includes Thanksgiving (Rest 3) and Black Friday (Rest 4) games.
-    'W13': {3: ['BAL', 'CIN', 'DAL', 'DET', 'GB', 'KC'], 4: ['CHI', 'PHI'], 5: ['CAR', 'SF'], 6: ['ARI', 'ATL', 'CLE', 'DEN', 'IND', 'JAX', 'LAC', 'LAR', 'LV', 'MIA', 'MIN', 'NO', 'PIT', 'SEA', 'TB', 'TEN', 'WAS', 'NYJ'], 7: ['NE', 'NYG'], 9: ['BUF', 'HOU']},
-    
-    # W14 Notes: Bye Weeks for CAR, NE, NYG, SF (Rest 14). DAL/DET play TNF (Rest 7).
-    'W14': {7: ['ARI', 'ATL', 'CLE', 'DAL', 'DEN', 'DET', 'HOU', 'IND', 'JAX', 'LAC', 'LAR', 'LV', 'MIA', 'MIN', 'NO', 'NYJ', 'PIT', 'SEA', 'TB', 'TEN', 'WAS', 'BUF'], 8: ['CHI'], 9: ['PHI'], 10: ['BAL', 'CIN', 'GB', 'KC'], 14: ['CAR', 'NE', 'NYG', 'SF']},
-    
-    # W15 Notes: No Byes. ATL/TB play TNF (Rest 3). Teams coming off a Week 14 bye get 12 or 14 days rest.
-    'W15': {3: ['ATL', 'TB'], 5: ['LAC', 'PHI'], 7: ['ARI', 'BAL', 'BUF', 'CIN', 'CLE', 'DEN', 'HOU', 'IND', 'JAX', 'KC', 'LAR', 'LV', 'MIN', 'NO', 'NYJ', 'SEA', 'TEN', 'WAS'], 8: ['MIA', 'PIT'], 9: ['DAL', 'DET'], 12: ['NE', 'NYG'], 14: ['CAR', 'SF']},
-    
-    # W16 Notes: No Byes. LAR/SEA play TNF (Rest 3). ATL/TB coming off a short TNF week get 9 days rest.
-    'W16': {3: ['LAR', 'SEA'], 5: ['MIA', 'PIT'], 7: ['ARI', 'BAL', 'BUF', 'CAR', 'CIN', 'CLE', 'DAL', 'DEN', 'DET', 'HOU', 'JAX', 'KC', 'LAC', 'LV', 'MIN', 'NE', 'NO', 'NYG', 'NYJ', 'PHI', 'TEN', 'WAS'], 8: ['IND', 'SF'], 9: ['ATL', 'TB']},
-    
-    # W17 Notes: Christmas Day TNF game (Rest 3). LAR gets 11 days rest (from W16 Thu) for MNF.
-    'W17': {3: ['DEN', 'KC'], 5: ['IND', 'SF'], 7: ['ARI', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE', 'DAL', 'DET', 'GB', 'HOU', 'JAX', 'LAC', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG', 'NYJ', 'PHI', 'PIT', 'TB', 'TEN', 'WAS'], 8: ['ATL'], 9: ['SEA'], 11: ['LAR']},
-    
-    # W18 Notes: Final week (all divisional games). DEN/KC coming off a short TNF week get 10 days rest.
-    # Assumes all TBD Saturday/SNF games are filled by teams in the Rest 7 pool.
-    'W18': {5: ['ATL', 'LAR'], 7: ['ARI', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE', 'DAL', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'LAC', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG', 'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WAS'], 10: ['DEN', 'KC']}
+    # --- Corrected Weeks (W13-W18) ---
+    'W13': {'BAL': 3, 'CIN': 3, 'DAL': 3, 'DET': 3, 'GB': 3, 'KC': 3, 'CHI': 4, 'PHI': 4, 'CAR': 5, 'SF': 5, 'ARI': 6, 'ATL': 6, 'CLE': 6, 'DEN': 6, 'IND': 6, 'JAX': 6, 'LAC': 6, 'LAR': 6, 'LV': 6, 'MIA': 6, 'MIN': 6, 'NO': 6, 'PIT': 6, 'SEA': 6, 'TB': 6, 'TEN': 6, 'WAS': 6, 'NYJ': 6, 'NE': 7, 'NYG': 7, 'BUF': 10, 'HOU': 10},
+    'W14': {'ARI': 7, 'ATL': 7, 'CLE': 7, 'DAL': 7, 'DEN': 7, 'DET': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NO': 7, 'NYJ': 7, 'PIT': 7, 'SEA': 7, 'TB': 7, 'TEN': 7, 'WAS': 7, 'BUF': 7, 'CHI': 8, 'PHI': 8, 'BAL': 10, 'CIN': 10, 'GB': 10, 'KC': 10, 'CAR': 14, 'NE': 14, 'NYG': 14, 'SF': 14},
+    'W15': {'ATL': 3, 'TB': 3, 'LAC': 5, 'PHI': 5, 'ARI': 7, 'BAL': 7, 'BUF': 7, 'CIN': 7, 'CLE': 7, 'DEN': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 'LAR': 7, 'LV': 7, 'MIN': 7, 'NO': 7, 'NYJ': 7, 'SEA': 7, 'TEN': 7, 'WAS': 7, 'MIA': 8, 'PIT': 8, 'DAL': 9, 'DET': 9, 'CAR': 14, 'NE': 14, 'NYG': 14, 'SF': 14},
+    'W16': {'LAR': 3, 'SEA': 3, 'MIA': 5, 'PIT': 5, 'ARI': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CIN': 7, 'CLE': 7, 'DAL': 7, 'DEN': 7, 'DET': 7, 'HOU': 7, 'JAX': 7, 'KC': 7, 'LAC': 7, 'LV': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 'NYJ': 7, 'PHI': 7, 'TEN': 7, 'WAS': 7, 'IND': 7, 'SF': 7, 'ATL': 9, 'TB': 9},
+    'W17': {'DEN': 3, 'KC': 3, 'IND': 5, 'SF': 5, 'ARI': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 'DAL': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'JAX': 7, 'LAC': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 'NYJ': 7, 'PHI': 7, 'PIT': 7, 'TB': 7, 'TEN': 7, 'WAS': 7, 'ATL': 8, 'SEA': 8, 'LAR': 11},
+    'W18': {'ATL': 5, 'LAR': 5, 'ARI': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 'DAL': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'LAC': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7, 'DEN': 10, 'KC': 10}
 }
+
+
+
 # ================================================================
 # SCHEDULE-SPECIFIC CONSTANTS (Derived from 2025 NFL Schedule)
 # ================================================================
