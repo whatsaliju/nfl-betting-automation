@@ -1,447 +1,300 @@
-#!/usr/bin/env python3
-"""
-Enhanced NFL Betting Performance Tracker - F-String Free Version
-================================================================
-Automatically updates results by fetching current NFL scores and calculates
-recommendation success rates with ROI tracking. Compatible with GitHub Actions.
-"""
+name: 5. Enhanced Performance Tracker
+on:
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'NFL Week Number'
+        required: true
+        default: '12'
+        type: string
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+        - auto        # Log + update + report (most common)
+        - log_only    # Just log recommendations
+        - update_only # Just update results
+        - report_only # Just generate report
+      analytics_file:
+        description: 'Analytics file path (optional - auto-detects if blank)'
+        required: false
+        default: ''
+        type: string
 
-import pandas as pd
-import json
-import os
-import requests
-from datetime import datetime, timedelta
-from typing import Dict, List, Tuple, Optional
-import numpy as np
-import re
-
-
-class EnhancedPerformanceTracker:
-    """Enhanced tracker with automated result updates - no f-strings."""
+jobs:
+  update-performance:
+    runs-on: ubuntu-latest
     
-    def __init__(self):
-        self.results_file = "data/historical/betting_results.csv"
-        self.analysis_file = "data/historical/performance_analysis.json"
-        self.ensure_files_exist()
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     
-    def ensure_files_exist(self):
-        """Create tracking files if they don't exist."""
-        os.makedirs("data/historical", exist_ok=True)
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas numpy requests
+    
+    - name: Process Week Performance
+      env:
+        WEEK: ${{ github.event.inputs.week }}
+        ACTION: ${{ github.event.inputs.action }}
+        ANALYTICS_FILE: ${{ github.event.inputs.analytics_file }}
+      run: |
+        python <<EOF
+        import sys, os
+        sys.path.append('.')
+        from analyzers.performance_tracker import EnhancedPerformanceTracker
         
-        if not os.path.exists(self.results_file):
-            df = pd.DataFrame(columns=[
-                'week', 'season', 'game', 'recommendation', 'classification',
-                'bet_type', 'predicted_side', 'actual_result', 'won', 'confidence',
-                'total_score', 'sharp_score', 'referee_score', 'weather_score',
-                'injury_score', 'situational_score', 'line_at_recommendation',
-                'closing_line', 'line_movement', 'edge_identified',
-                'recommendation_date', 'result_date', 'final_score', 'spread_result',
-                'total_result', 'push'
-            ])
-            df.to_csv(self.results_file, index=False)
-    
-    def fetch_week_scores(self, week: int, season: int = 2024) -> Dict[str, Dict]:
-        """Fetch NFL scores for a specific week using ESPN API."""
+        # Get inputs
+        week = int(os.getenv('WEEK'))
+        action = os.getenv('ACTION')
+        analytics_file = os.getenv('ANALYTICS_FILE').strip() or None
+        
+        print('🏈 Processing Week ' + str(week) + ' - Action: ' + action)
+        print('=' * 50)
+        
+        # Initialize tracker
+        tracker = EnhancedPerformanceTracker()
+        
         try:
-            url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
-            
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            
-            data = response.json()
-            games = {}
-            
-            for game in data.get('events', []):
-                if game.get('status', {}).get('type', {}).get('completed', False):
-                    competitors = game.get('competitions', [{}])[0].get('competitors', [])
-                    
-                    if len(competitors) >= 2:
-                        away_team = competitors[0]['team']['displayName']
-                        home_team = competitors[1]['team']['displayName']
-                        away_score = int(competitors[0].get('score', 0))
-                        home_score = int(competitors[1].get('score', 0))
-                        
-                        matchup = away_team + " @ " + home_team
-                        
-                        games[matchup] = {
-                            'away_team': away_team,
-                            'home_team': home_team,
-                            'away_score': away_score,
-                            'home_score': home_score,
-                            'total_score': away_score + home_score,
-                            'winner': away_team if away_score > home_score else home_team,
-                            'margin': abs(away_score - home_score),
-                            'final_score': away_team + " " + str(away_score) + "-" + str(home_score) + " " + home_team
-                        }
-            
-            return games
-            
-        except Exception as e:
-            print("⚠️ Error fetching scores: " + str(e))
-            return {}
-    
-    def update_week_results_auto(self, week: int, season: int = 2025) -> Dict:
-        """Automatically update results for a week using live scores."""
-        try:
-            df = pd.read_csv(self.results_file)
-            week_bets = df[(df['week'] == week) & (df['season'] == season)].copy()
-            
-            if week_bets.empty:
-                return {'error': 'No recommendations found for Week ' + str(week)}
-            
-            scores = self.fetch_week_scores(week, season)
-            
-            if not scores:
-                return {'error': 'Could not fetch current NFL scores'}
-            
-            results_summary = {
-                'updated_games': 0,
-                'total_bets': len(week_bets),
-                'wins': 0,
-                'losses': 0,
-                'pushes': 0,
-                'details': []
-            }
-            
-            for idx, row in week_bets.iterrows():
-                matched_score = self._match_game_to_score(row['game'], scores)
+            if action == 'auto':
+                # Full automatic processing using the public method
+                print('🔄 Running full automatic processing...')
                 
-                if matched_score:
-                    bet_result = self._evaluate_bet(row, matched_score)
+                # Log recommendations if analytics file exists
+                if analytics_file:
+                    tracker.log_week_recommendations(week, analytics_file)
+                else:
+                    # Try to find analytics file automatically
+                    possible_files = [
+                        'data/week' + str(week) + '/week' + str(week) + '_analytics.json',
+                        'week' + str(week) + '_analytics.json'
+                    ]
                     
-                    df.at[idx, 'actual_result'] = matched_score['final_score']
-                    df.at[idx, 'won'] = bet_result['won']
-                    df.at[idx, 'push'] = bet_result['push']
-                    df.at[idx, 'final_score'] = str(matched_score['away_score']) + "-" + str(matched_score['home_score'])
-                    df.at[idx, 'spread_result'] = bet_result['spread_analysis']
-                    df.at[idx, 'total_result'] = bet_result['total_analysis']
-                    df.at[idx, 'result_date'] = datetime.now().isoformat()
+                    found_file = None
+                    for file_path in possible_files:
+                        if os.path.exists(file_path):
+                            found_file = file_path
+                            break
                     
-                    results_summary['updated_games'] += 1
-                    if bet_result['push']:
-                        results_summary['pushes'] += 1
-                    elif bet_result['won']:
-                        results_summary['wins'] += 1
+                    if found_file:
+                        print('📋 Found analytics file: ' + found_file)
+                        tracker.log_week_recommendations(week, found_file)
                     else:
-                        results_summary['losses'] += 1
+                        print('📋 No analytics file found, skipping recommendation logging')
+                
+                # Update results with live scores
+                print('🔄 Updating results with live NFL scores...')
+                results = tracker.update_week_results_auto(week, season=2025)
+                
+                if 'error' in results:
+                    print('⚠️ Auto-update failed: ' + str(results.get('error', 'Unknown error')))
+                    print('💡 You may need to update results manually')
+                else:
+                    print('✅ Updated ' + str(results.get('updated_games', 0)) + ' games')
+                    wins = results.get('wins', 0)
+                    losses = results.get('losses', 0)
+                    pushes = results.get('pushes', 0)
                     
-                    results_summary['details'].append({
-                        'game': row['game'],
-                        'recommendation': row['recommendation'],
-                        'result': 'WIN' if bet_result['won'] else 'PUSH' if bet_result['push'] else 'LOSS',
-                        'final_score': matched_score['final_score'],
-                        'analysis': bet_result['analysis']
-                    })
-            
-            df.to_csv(self.results_file, index=False)
-            
-            completed_bets = results_summary['wins'] + results_summary['losses']
-            if completed_bets > 0:
-                results_summary['win_rate'] = round(results_summary['wins'] / completed_bets * 100, 1)
-            else:
-                results_summary['win_rate'] = 0
-            
-            return results_summary
-            
-        except Exception as e:
-            print("⚠️ Error updating results: " + str(e))
-            return {'error': str(e)}
-    
-    def _match_game_to_score(self, bet_game: str, scores: Dict) -> Optional[Dict]:
-        """Match a betting game string to actual NFL scores."""
-        bet_game_clean = bet_game.lower().replace(' at ', ' @ ')
-        
-        for score_game, score_data in scores.items():
-            if bet_game_clean == score_game.lower():
-                return score_data
-        
-        bet_teams = re.findall(r'(\w+)', bet_game_clean)
-        for score_game, score_data in scores.items():
-            score_teams = [score_data['away_team'].lower(), score_data['home_team'].lower()]
-            
-            matches = 0
-            for bet_team in bet_teams:
-                for score_team in score_teams:
-                    if bet_team in score_team or score_team in bet_team:
-                        matches += 1
-                        break
-            
-            if matches >= 2:
-                return score_data
-        
-        return None
-    
-    def _evaluate_bet(self, bet_row: pd.Series, game_result: Dict) -> Dict:
-        """Evaluate if a bet won based on the game result."""
-        result = {
-            'won': False,
-            'push': False,
-            'analysis': '',
-            'spread_analysis': '',
-            'total_analysis': ''
-        }
-        
-        bet_type = bet_row.get('bet_type', 'spread')
-        predicted_side = bet_row.get('predicted_side', 'unknown')
-        recommendation = bet_row.get('recommendation', '')
-        
-        spread_match = re.search(r'[-+]?\d+\.?5?', recommendation)
-        total_match = re.search(r'(?:OVER|UNDER)\s+(\d+\.?5?)', recommendation)
-        
-        away_score = game_result['away_score']
-        home_score = game_result['home_score']
-        total_score = game_result['total_score']
-        margin = away_score - home_score
-        
-        analysis_parts = []
-        
-        if 'spread' in bet_type.lower() or any(word in recommendation.lower() for word in ['away on spread', 'home on spread']):
-            if spread_match:
-                spread = float(spread_match.group())
+                    if wins + losses > 0:
+                        record_str = '📊 Record: ' + str(wins) + '-' + str(losses)
+                        if pushes > 0:
+                            record_str += '-' + str(pushes)
+                        print(record_str)
+                        
+                        win_rate = results.get('win_rate', 0)
+                        print('📈 Win Rate: ' + str(round(win_rate, 1)) + '%')
                 
-                if 'away on spread' in recommendation.lower():
-                    covered = margin > abs(spread) if spread < 0 else margin > -abs(spread)
-                    result['spread_analysis'] = "Away " + ('+' if margin > 0 else '') + str(margin) + " vs spread " + str(spread)
+                # Generate report
+                report = tracker.generate_week_results_report(week)
+                print('\n' + report)
+                
+            elif action == 'log_only':
+                print('📋 Logging recommendations only...')
+                if analytics_file and os.path.exists(analytics_file):
+                    tracker.log_week_recommendations(week, analytics_file)
+                else:
+                    print('⚠️ Analytics file not found: ' + str(analytics_file))
                     
-                elif 'home on spread' in recommendation.lower():
-                    covered = margin < -abs(spread) if spread > 0 else margin < abs(spread)
-                    result['spread_analysis'] = "Home " + ('+' if -margin > 0 else '') + str(-margin) + " vs spread " + str(-spread)
+            elif action == 'update_only':
+                print('🔄 Updating results only...')
+                results = tracker.update_week_results_auto(week, season=2025)
                 
+                if 'error' not in results:
+                    print('✅ Updated ' + str(results.get('updated_games', 0)) + ' games')
+                    
+                # Show updated report
+                report = tracker.generate_week_results_report(week)
+                print('\n' + report)
+                
+            elif action == 'report_only':
+                print('📊 Generating report only...')
+                report = tracker.generate_week_results_report(week)
+                print('\n' + report)
+            
+            # Save report to file for email
+            report_filename = 'week' + str(week) + '_performance_report.txt'
+            with open(report_filename, 'w') as f:
+                f.write('NFL Week ' + str(week) + ' Performance Update\n')
+                f.write('=' * 50 + '\n\n')
+                if 'report' in locals():
+                    f.write(report)
                 else:
-                    covered = False
-                    result['spread_analysis'] = "Could not determine spread direction"
-                
-                if abs(margin) == abs(spread):
-                    result['push'] = True
-                    analysis_parts.append("PUSH on spread (" + str(margin) + " vs " + str(spread) + ")")
-                else:
-                    result['won'] = covered
-                    analysis_parts.append(('WON' if covered else 'LOST') + " spread bet")
-            else:
-                analysis_parts.append("Spread bet - could not extract line from recommendation")
-        
-        if 'total' in bet_type.lower() or any(word in recommendation.lower() for word in ['over', 'under']):
-            if total_match:
-                total_line = float(total_match.group(1))
-                
-                if 'over' in recommendation.lower():
-                    covered = total_score > total_line
-                    result['total_analysis'] = "Total " + str(total_score) + " vs O" + str(total_line)
-                elif 'under' in recommendation.lower():
-                    covered = total_score < total_line
-                    result['total_analysis'] = "Total " + str(total_score) + " vs U" + str(total_line)
-                else:
-                    covered = False
-                    result['total_analysis'] = "Could not determine O/U direction"
-                
-                if total_score == total_line:
-                    result['push'] = True
-                    analysis_parts.append("PUSH on total (" + str(total_score) + " vs " + str(total_line) + ")")
-                else:
-                    if 'spread' in result and result.get('won', False):
-                        result['won'] = result['won'] and covered
-                    else:
-                        result['won'] = covered
-                    analysis_parts.append(('WON' if covered else 'LOST') + " total bet")
-            else:
-                analysis_parts.append("Total bet - could not extract line from recommendation")
-        
-        result['analysis'] = '; '.join(analysis_parts) if analysis_parts else 'Could not analyze bet'
-        
-        return result
-    
-    def log_week_recommendations(self, week: int, analytics_json_path: str):
-        """Log all recommendations for a week from analytics JSON - with duplicate checking."""
-        try:
-            # Check for existing recommendations first
-            df = pd.read_csv(self.results_file)
-            existing = df[(df['week'] == week) & (df['season'] == 2025)]
+                    f.write('Report generation was not requested for this action.')
             
-            if not existing.empty:
-                print("📋 Week " + str(week) + " recommendations already logged (" + str(len(existing)) + " games)")
-                print("    Skipping duplicate logging to avoid duplicates")
-                return
-            
-            with open(analytics_json_path, 'r') as f:
-                games = json.load(f)
-            
-            new_records = []
-            
-            for game in games:
-                if game['classification'] in ['⚠️ LANDMINE', '⌛ FADE']:
-                    continue
-                
-                rec = game['recommendation']
-                bet_info = self._parse_recommendation(rec)
-                
-                if not bet_info:
-                    continue
-                
-                record = {
-                    'week': week,
-                    'season': 2025,
-                    'game': game['matchup'],
-                    'recommendation': rec,
-                    'classification': game['classification'],
-                    'bet_type': bet_info['bet_type'],
-                    'predicted_side': bet_info['predicted_side'],
-                    'actual_result': None,
-                    'won': None,
-                    'confidence': game.get('confidence', 0),
-                    'total_score': game.get('total_score', 0),
-                    'sharp_score': game.get('sharp_consensus_score', 0),
-                    'referee_score': game.get('referee_analysis', {}).get('ats_score', 0),
-                    'weather_score': game.get('weather_analysis', {}).get('score', 0),
-                    'injury_score': game.get('injury_analysis', {}).get('score', 0),
-                    'situational_score': game.get('situational_analysis', {}).get('score', 0),
-                    'line_at_recommendation': bet_info.get('line', 'Unknown'),
-                    'closing_line': None,
-                    'line_movement': None,
-                    'edge_identified': self._calculate_edge_strength(game),
-                    'recommendation_date': datetime.now().isoformat(),
-                    'result_date': None,
-                    'final_score': None,
-                    'spread_result': None,
-                    'total_result': None,
-                    'push': None
-                }
-                
-                new_records.append(record)
-            
-            if new_records:
-                df = pd.DataFrame(new_records)
-                existing_df = pd.read_csv(self.results_file)
-                combined_df = pd.concat([existing_df, df], ignore_index=True)
-                combined_df.to_csv(self.results_file, index=False)
-                
-                print("✅ Logged " + str(len(new_records)) + " recommendations for Week " + str(week))
+            print('\n📄 Report saved to ' + report_filename)
             
         except Exception as e:
-            print("⚠️ Error logging recommendations: " + str(e))
+            print('❌ Error processing Week ' + str(week) + ': ' + str(e))
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
+        EOF
     
-    def _parse_recommendation(self, recommendation: str) -> Dict:
-        """Parse recommendation string to extract bet details."""
-        if not recommendation or 'PASS' in recommendation:
-            return None
+    - name: Generate Multi-Week Analysis
+      if: contains(github.event.inputs.action, 'auto') || contains(github.event.inputs.action, 'report')
+      run: |
+        python <<EOF
+        import sys
+        sys.path.append('.')
+        from analyzers.performance_tracker import EnhancedPerformanceTracker
         
-        bet_info = {'bet_type': 'spread', 'predicted_side': 'unknown'}
+        tracker = EnhancedPerformanceTracker()
         
-        if 'spread' in recommendation.lower() and ('over' in recommendation.lower() or 'under' in recommendation.lower()):
-            bet_info['bet_type'] = 'combination'
-            
-        if 'AWAY on spread' in recommendation:
-            bet_info.update({'bet_type': 'spread', 'predicted_side': 'away'})
-        elif 'HOME on spread' in recommendation:
-            bet_info.update({'bet_type': 'spread', 'predicted_side': 'home'})
-        elif 'OVER' in recommendation:
-            bet_info.update({'bet_type': 'total', 'predicted_side': 'over'})
-        elif 'UNDER' in recommendation:
-            bet_info.update({'bet_type': 'total', 'predicted_side': 'under'})
+        print('\n📈 MULTI-WEEK ANALYSIS (Last 4 Weeks)')
+        print('=' * 60)
         
-        return bet_info
+        # Analyze performance across last 4 weeks
+        analysis = tracker.analyze_performance(weeks_back=4)
+        
+        if 'overall' in analysis:
+            overall = analysis['overall']
+            print('Total Recommendations: ' + str(overall.get('total_recommendations', 0)))
+            print('Completed Bets: ' + str(overall.get('completed_bets', 0)))
+            print('Win Rate: ' + str(overall.get('win_rate', 0)) + '%')
+            print('Pending Results: ' + str(overall.get('pending_results', 0)))
+        
+        if 'by_classification' in analysis:
+            print('\nPerformance by Classification:')
+            for tier, stats in analysis['by_classification'].items():
+                win_rate = stats.get('win_rate', 0)
+                count = stats.get('count', 0)
+                print('  ' + tier + ': ' + str(win_rate) + '% (' + str(count) + ' bets)')
+        
+        if 'insights' in analysis:
+            insights = analysis['insights']
+            print('\nKey Insights:')
+            print('  Best Factor: ' + str(insights.get('best_performing_factor', 'N/A')))
+            print('  Most Reliable: ' + str(insights.get('most_reliable_classification', 'N/A')))
+        EOF
     
-    def _calculate_edge_strength(self, game: Dict) -> float:
-        """Calculate overall edge strength for the recommendation."""
-        sharp_edge = abs(game.get('sharp_analysis', {}).get('spread', {}).get('differential', 0))
-        injury_edge = abs(game.get('injury_analysis', {}).get('net_impact', 0))
-        total_score = game.get('total_score', 0)
+    - name: Email Performance Report
+      if: contains(github.event.inputs.action, 'auto') || contains(github.event.inputs.action, 'update')
+      env:
+        EMAIL_ADDRESS: ${{ secrets.GMAIL_USERNAME }}
+        EMAIL_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+      run: |
+        python <<EOF
+        import sys, os, smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.base import MIMEBase
+        from email import encoders
+        from datetime import datetime
         
-        edge_strength = (sharp_edge * 0.4) + (injury_edge * 0.3) + (total_score * 0.3)
-        return round(edge_strength, 2)
-    
-    def generate_week_results_report(self, week: int) -> str:
-        """Generate a formatted report for a specific week's results."""
+        week = int('${{ github.event.inputs.week }}')
+        action = '${{ github.event.inputs.action }}'
+        
+        # Read the performance report
         try:
-            df = pd.read_csv(self.results_file)
-            week_df = df[df['week'] == week].copy()
-            
-            if week_df.empty:
-                return "📊 Week " + str(week) + " Results: No bets found"
-            
-            completed_df = week_df.dropna(subset=['won'])
-            
-            report = []
-            report.append("📊 WEEK " + str(week) + " BETTING RESULTS")
-            report.append("=" * 50)
-            
-            if completed_df.empty:
-                report.append("🔍 No completed games yet - results pending")
-                return "\n".join(report)
-            
-            wins = completed_df['won'].sum()
-            pushes = completed_df['push'].sum() if 'push' in completed_df.columns else 0
-            total_completed = len(completed_df)
-            losses = total_completed - wins - pushes
-            win_rate = (wins / (wins + losses) * 100) if (wins + losses) > 0 else 0
-            
-            report.append("")
-            report.append("📈 OVERALL PERFORMANCE:")
-            report.append("   Record: " + str(int(wins)) + "-" + str(int(losses)) + ("" if pushes == 0 else "-" + str(int(pushes))))
-            report.append("   Win Rate: " + str(round(win_rate, 1)) + "%")
-            report.append("   Total Recommendations: " + str(len(week_df)))
-            report.append("   Pending Results: " + str(len(week_df) - total_completed))
-            
-            if not completed_df.empty:
-                report.append("")
-                report.append("🎯 PERFORMANCE BY TIER:")
-                for classification in completed_df['classification'].unique():
-                    tier_df = completed_df[completed_df['classification'] == classification]
-                    tier_wins = int(tier_df['won'].sum())
-                    tier_total = len(tier_df)
-                    tier_rate = (tier_wins / tier_total * 100) if tier_total > 0 else 0
-                    report.append("   " + str(classification) + ": " + str(tier_wins) + "/" + str(tier_total) + " (" + str(round(tier_rate, 1)) + "%)")
-            
-            report.append("")
-            report.append("📋 GAME-BY-GAME RESULTS:")
-            for _, row in completed_df.iterrows():
-                result_icon = "✅" if row['won'] else "🟡" if row.get('push', False) else "❌"
-                result_text = "WIN" if row['won'] else "PUSH" if row.get('push', False) else "LOSS"
-                
-                report.append("   " + result_icon + " " + str(row['game']))
-                report.append("      Bet: " + str(row['recommendation']))
-                report.append("      Result: " + result_text + " - " + str(row.get('final_score', 'Score unavailable')))
-                if row.get('spread_result') or row.get('total_result'):
-                    analysis = []
-                    if row.get('spread_result'):
-                        analysis.append(str(row['spread_result']))
-                    if row.get('total_result'):
-                        analysis.append(str(row['total_result']))
-                    report.append("      Analysis: " + '; '.join(analysis))
-                report.append("")
-            
-            return "\n".join(report)
-            
-        except Exception as e:
-            return "⚠️ Error generating report: " + str(e)
-
-
-def main():
-    """Example usage for Week 12."""
-    tracker = EnhancedPerformanceTracker()
-    
-    print("🔄 Updating Week 12 results automatically...")
-    results = tracker.update_week_results_auto(week=12)
-    
-    if 'error' in results:
-        print("⚠️ " + str(results['error']))
-        print("\n💡 You can still update manually using:")
-        print("tracker.update_results(12, 'Game Name', 'Final Score', won=True/False)")
-    else:
-        updated_count = results['updated_games']
-        wins = results['wins'] 
-        losses = results['losses']
-        pushes = results.get('pushes', 0)
-        win_rate = results.get('win_rate', 0)
+            report_file = 'week' + str(week) + '_performance_report.txt'
+            with open(report_file, 'r') as f:
+                report = f.read()
+        except:
+            report = 'Performance report not available'
         
-        print("✅ Updated " + str(updated_count) + " games")
-        record_str = "📊 Week 12 Record: " + str(wins) + "-" + str(losses)
-        if pushes > 0:
-            record_str += "-" + str(pushes)
-        print(record_str)
-        print("📈 Win Rate: " + str(win_rate) + "%")
+        # Email setup
+        email_addr = os.getenv('EMAIL_ADDRESS')
+        email_pass = os.getenv('EMAIL_PASSWORD')
+        
+        if email_addr and email_pass:
+            try:
+                msg = MIMEMultipart()
+                msg['From'] = email_addr
+                msg['To'] = email_addr
+                
+                # Build subject safely
+                subject = '🏈 Week ' + str(week) + ' Performance Update (' + action + ')'
+                msg['Subject'] = subject
+                
+                # Build email body safely without f-strings
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+                body = "NFL Performance Tracker Update\n"
+                body += "==============================\n\n"
+                body += "Week: " + str(week) + "\n"
+                body += "Action: " + action + "\n"
+                body += "Updated: " + timestamp + "\n\n"
+                body += report + "\n\n"
+                body += "📊 Data Files:\n"
+                body += "- Historical Results: data/historical/betting_results.csv\n"
+                body += "- Week Analytics: data/week" + str(week) + "/week" + str(week) + "_analytics.json\n\n"
+                body += "🔄 Next Steps:\n"
+                body += "- Review performance trends\n"
+                body += "- Check for any manual corrections needed\n"
+                body += "- Prepare for next week's analysis\n"
+                
+                msg.attach(MIMEText(body, 'plain'))
+                
+                # Attach CSV if available
+                csv_path = 'data/historical/betting_results.csv'
+                if os.path.exists(csv_path):
+                    with open(csv_path, 'rb') as f:
+                        part = MIMEBase('application', 'octet-stream')
+                        part.set_payload(f.read())
+                    
+                    encoders.encode_base64(part)
+                    filename = 'betting_results_week' + str(week) + '.csv'
+                    part.add_header(
+                        'Content-Disposition',
+                        'attachment; filename=' + filename
+                    )
+                    msg.attach(part)
+                
+                # Send email
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(email_addr, email_pass)
+                server.sendmail(email_addr, email_addr, msg.as_string())
+                server.quit()
+                
+                print('📧 Performance report emailed successfully')
+                
+            except Exception as e:
+                print('📧 Email failed: ' + str(e))
+        else:
+            print('📧 Email credentials not configured')
+        EOF
     
-    print("\n" + tracker.generate_week_results_report(12))
-
-
-if __name__ == "__main__":
-    main()
+    - name: Commit Updated Performance Data
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Check if there are changes to commit
+        if [ -n "$(git status --porcelain)" ]; then
+          git add data/historical/ week${{ github.event.inputs.week }}_performance_report.txt
+          git commit -m "📊 Performance update: Week ${{ github.event.inputs.week }} (${{ github.event.inputs.action }})"
+          git push
+          echo "✅ Performance data committed and pushed"
+        else
+          echo "ℹ️ No changes to commit"
+        fi
