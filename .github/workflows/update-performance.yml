@@ -59,7 +59,7 @@ jobs:
         action = os.getenv('ACTION')
         analytics_file = os.getenv('ANALYTICS_FILE').strip() or None
         
-        print(f'🏈 Processing Week {week} - Action: {action}')
+        print('🏈 Processing Week ' + str(week) + ' - Action: ' + action)
         print('=' * 50)
         
         # Initialize tracker
@@ -76,8 +76,8 @@ jobs:
                 else:
                     # Try to find analytics file automatically
                     possible_files = [
-                        f'data/week{week}/week{week}_analytics.json',
-                        f'week{week}_analytics.json'
+                        'data/week' + str(week) + '/week' + str(week) + '_analytics.json',
+                        'week' + str(week) + '_analytics.json'
                     ]
                     
                     found_file = None
@@ -87,65 +87,74 @@ jobs:
                             break
                     
                     if found_file:
-                        print(f'📋 Found analytics file: {found_file}')
+                        print('📋 Found analytics file: ' + found_file)
                         tracker.log_week_recommendations(week, found_file)
                     else:
-                        print(f'📋 No analytics file found, skipping recommendation logging')
+                        print('📋 No analytics file found, skipping recommendation logging')
                 
                 # Update results with live scores
                 print('🔄 Updating results with live NFL scores...')
                 results = tracker.update_week_results_auto(week, season=2025)
                 
                 if 'error' in results:
-                    print(f'⚠️ Auto-update failed: {results["error"]}')
+                    print('⚠️ Auto-update failed: ' + str(results.get('error', 'Unknown error')))
                     print('💡 You may need to update results manually')
                 else:
-                    print(f'✅ Updated {results["updated_games"]} games')
-                    if results.get('wins', 0) + results.get('losses', 0) > 0:
-                        print(f'📊 Record: {results["wins"]}-{results["losses"]}' + 
-                              (f'-{results["pushes"]}' if results.get("pushes", 0) > 0 else ''))
-                        print(f'📈 Win Rate: {results.get("win_rate", 0):.1f}%')
+                    print('✅ Updated ' + str(results.get('updated_games', 0)) + ' games')
+                    wins = results.get('wins', 0)
+                    losses = results.get('losses', 0)
+                    pushes = results.get('pushes', 0)
+                    
+                    if wins + losses > 0:
+                        record_str = '📊 Record: ' + str(wins) + '-' + str(losses)
+                        if pushes > 0:
+                            record_str += '-' + str(pushes)
+                        print(record_str)
+                        
+                        win_rate = results.get('win_rate', 0)
+                        print('📈 Win Rate: ' + str(round(win_rate, 1)) + '%')
                 
                 # Generate report
                 report = tracker.generate_week_results_report(week)
-                print(f'\n{report}')
+                print('\n' + report)
                 
             elif action == 'log_only':
                 print('📋 Logging recommendations only...')
                 if analytics_file and os.path.exists(analytics_file):
                     tracker.log_week_recommendations(week, analytics_file)
                 else:
-                    print(f'⚠️ Analytics file not found: {analytics_file}')
+                    print('⚠️ Analytics file not found: ' + str(analytics_file))
                     
             elif action == 'update_only':
                 print('🔄 Updating results only...')
                 results = tracker.update_week_results_auto(week, season=2025)
                 
                 if 'error' not in results:
-                    print(f'✅ Updated {results["updated_games"]} games')
+                    print('✅ Updated ' + str(results.get('updated_games', 0)) + ' games')
                     
                 # Show updated report
                 report = tracker.generate_week_results_report(week)
-                print(f'\n{report}')
+                print('\n' + report)
                 
             elif action == 'report_only':
                 print('📊 Generating report only...')
                 report = tracker.generate_week_results_report(week)
-                print(f'\n{report}')
+                print('\n' + report)
             
             # Save report to file for email
-            with open(f'week{week}_performance_report.txt', 'w') as f:
-                f.write(f'NFL Week {week} Performance Update\n')
+            report_filename = 'week' + str(week) + '_performance_report.txt'
+            with open(report_filename, 'w') as f:
+                f.write('NFL Week ' + str(week) + ' Performance Update\n')
                 f.write('=' * 50 + '\n\n')
                 if 'report' in locals():
                     f.write(report)
                 else:
                     f.write('Report generation was not requested for this action.')
             
-            print(f'\n📄 Report saved to week{week}_performance_report.txt')
+            print('\n📄 Report saved to ' + report_filename)
             
         except Exception as e:
-            print(f'❌ Error processing Week {week}: {e}')
+            print('❌ Error processing Week ' + str(week) + ': ' + str(e))
             import traceback
             traceback.print_exc()
             sys.exit(1)
@@ -169,21 +178,23 @@ jobs:
         
         if 'overall' in analysis:
             overall = analysis['overall']
-            print(f'Total Recommendations: {overall["total_recommendations"]}')
-            print(f'Completed Bets: {overall["completed_bets"]}')
-            print(f'Win Rate: {overall["win_rate"]}%')
-            print(f'Pending Results: {overall["pending_results"]}')
+            print('Total Recommendations: ' + str(overall.get('total_recommendations', 0)))
+            print('Completed Bets: ' + str(overall.get('completed_bets', 0)))
+            print('Win Rate: ' + str(overall.get('win_rate', 0)) + '%')
+            print('Pending Results: ' + str(overall.get('pending_results', 0)))
         
         if 'by_classification' in analysis:
-            print(f'\nPerformance by Classification:')
+            print('\nPerformance by Classification:')
             for tier, stats in analysis['by_classification'].items():
-                print(f'  {tier}: {stats["win_rate"]}% ({stats["count"]} bets)')
+                win_rate = stats.get('win_rate', 0)
+                count = stats.get('count', 0)
+                print('  ' + tier + ': ' + str(win_rate) + '% (' + str(count) + ' bets)')
         
         if 'insights' in analysis:
             insights = analysis['insights']
-            print(f'\nKey Insights:')
-            print(f'  Best Factor: {insights["best_performing_factor"]}')
-            print(f'  Most Reliable: {insights["most_reliable_classification"]}')
+            print('\nKey Insights:')
+            print('  Best Factor: ' + str(insights.get('best_performing_factor', 'N/A')))
+            print('  Most Reliable: ' + str(insights.get('most_reliable_classification', 'N/A')))
         EOF
     
     - name: Email Performance Report
