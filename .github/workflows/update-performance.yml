@@ -67,42 +67,70 @@ jobs:
         
         try:
             if action == 'auto':
-                # Full automatic processing
+                # Full automatic processing using the public method
                 print('🔄 Running full automatic processing...')
                 
-                # 1. Log recommendations if analytics file exists
-                log_result = tracker._log_recommendations(week, analytics_file, 2025)
-                for msg in log_result.get('messages', []):
-                    print(f'   {msg}')
+                # Log recommendations if analytics file exists
+                if analytics_file:
+                    tracker.log_week_recommendations(week, analytics_file)
+                else:
+                    # Try to find analytics file automatically
+                    possible_files = [
+                        f'data/week{week}/week{week}_analytics.json',
+                        f'week{week}_analytics.json'
+                    ]
+                    
+                    found_file = None
+                    for file_path in possible_files:
+                        if os.path.exists(file_path):
+                            found_file = file_path
+                            break
+                    
+                    if found_file:
+                        print(f'📋 Found analytics file: {found_file}')
+                        tracker.log_week_recommendations(week, found_file)
+                    else:
+                        print(f'📋 No analytics file found, skipping recommendation logging')
                 
-                # 2. Update results with live scores
-                update_result = tracker._update_results(week, 2025)
-                for msg in update_result.get('messages', []):
-                    print(f'   {msg}')
+                # Update results with live scores
+                print('🔄 Updating results with live NFL scores...')
+                results = tracker.update_week_results_auto(week, season=2025)
                 
-                # 3. Generate report
-                report = tracker._generate_report(week)
+                if 'error' in results:
+                    print(f'⚠️ Auto-update failed: {results["error"]}')
+                    print('💡 You may need to update results manually')
+                else:
+                    print(f'✅ Updated {results["updated_games"]} games')
+                    if results.get('wins', 0) + results.get('losses', 0) > 0:
+                        print(f'📊 Record: {results["wins"]}-{results["losses"]}' + 
+                              (f'-{results["pushes"]}' if results.get("pushes", 0) > 0 else ''))
+                        print(f'📈 Win Rate: {results.get("win_rate", 0):.1f}%')
+                
+                # Generate report
+                report = tracker.generate_week_results_report(week)
                 print(f'\n{report}')
                 
             elif action == 'log_only':
                 print('📋 Logging recommendations only...')
-                result = tracker._log_recommendations(week, analytics_file, 2025)
-                for msg in result.get('messages', []):
-                    print(f'   {msg}')
+                if analytics_file and os.path.exists(analytics_file):
+                    tracker.log_week_recommendations(week, analytics_file)
+                else:
+                    print(f'⚠️ Analytics file not found: {analytics_file}')
                     
             elif action == 'update_only':
                 print('🔄 Updating results only...')
-                result = tracker._update_results(week, 2025)
-                for msg in result.get('messages', []):
-                    print(f'   {msg}')
+                results = tracker.update_week_results_auto(week, season=2025)
+                
+                if 'error' not in results:
+                    print(f'✅ Updated {results["updated_games"]} games')
                     
                 # Show updated report
-                report = tracker._generate_report(week)
+                report = tracker.generate_week_results_report(week)
                 print(f'\n{report}')
                 
             elif action == 'report_only':
                 print('📊 Generating report only...')
-                report = tracker._generate_report(week)
+                report = tracker.generate_week_results_report(week)
                 print(f'\n{report}')
             
             # Save report to file for email
@@ -177,7 +205,8 @@ jobs:
         
         # Read the performance report
         try:
-            with open(f'week{week}_performance_report.txt', 'r') as f:
+            report_file = 'week' + str(week) + '_performance_report.txt'
+            with open(report_file, 'r') as f:
                 report = f.read()
         except:
             report = 'Performance report not available'
@@ -191,24 +220,26 @@ jobs:
                 msg = MIMEMultipart()
                 msg['From'] = email_addr
                 msg['To'] = email_addr
-                msg['Subject'] = f'🏈 Week {week} Performance Update ({action})'
                 
-                body = f'''NFL Performance Tracker Update
-                Week: {week}
-                Action: {action}
-                Updated: {datetime.now().strftime("%Y-%m-%d %H:%M")}
-
-                {report}
-
-                📊 Data Files:
-                - Historical Results: data/historical/betting_results.csv
-                - Week Analytics: data/week{week}/week{week}_analytics.json
+                # Build subject safely
+                subject = '🏈 Week ' + str(week) + ' Performance Update (' + action + ')'
+                msg['Subject'] = subject
                 
-                🔄 Next Steps:
-                - Review performance trends
-                - Check for any manual corrections needed
-                - Prepare for next week's analysis
-                '''
+                # Build email body safely without f-strings
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+                body = "NFL Performance Tracker Update\n"
+                body += "==============================\n\n"
+                body += "Week: " + str(week) + "\n"
+                body += "Action: " + action + "\n"
+                body += "Updated: " + timestamp + "\n\n"
+                body += report + "\n\n"
+                body += "📊 Data Files:\n"
+                body += "- Historical Results: data/historical/betting_results.csv\n"
+                body += "- Week Analytics: data/week" + str(week) + "/week" + str(week) + "_analytics.json\n\n"
+                body += "🔄 Next Steps:\n"
+                body += "- Review performance trends\n"
+                body += "- Check for any manual corrections needed\n"
+                body += "- Prepare for next week's analysis\n"
                 
                 msg.attach(MIMEText(body, 'plain'))
                 
@@ -220,9 +251,10 @@ jobs:
                         part.set_payload(f.read())
                     
                     encoders.encode_base64(part)
+                    filename = 'betting_results_week' + str(week) + '.csv'
                     part.add_header(
                         'Content-Disposition',
-                        f'attachment; filename=betting_results_week{week}.csv'
+                        'attachment; filename=' + filename
                     )
                     msg.attach(part)
                 
@@ -236,7 +268,7 @@ jobs:
                 print('📧 Performance report emailed successfully')
                 
             except Exception as e:
-                print(f'📧 Email failed: {e}')
+                print('📧 Email failed: ' + str(e))
         else:
             print('📧 Email credentials not configured')
         EOF
