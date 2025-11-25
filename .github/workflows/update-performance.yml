@@ -160,43 +160,6 @@ jobs:
             sys.exit(1)
         EOF
     
-    - name: Generate Multi-Week Analysis
-      if: contains(github.event.inputs.action, 'auto') || contains(github.event.inputs.action, 'report')
-      run: |
-        python <<EOF
-        import sys
-        sys.path.append('.')
-        from analyzers.performance_tracker import EnhancedPerformanceTracker
-        
-        tracker = EnhancedPerformanceTracker()
-        
-        print('\n📈 MULTI-WEEK ANALYSIS (Last 4 Weeks)')
-        print('=' * 60)
-        
-        # Analyze performance across last 4 weeks
-        analysis = tracker.analyze_performance(weeks_back=4)
-        
-        if 'overall' in analysis:
-            overall = analysis['overall']
-            print('Total Recommendations: ' + str(overall.get('total_recommendations', 0)))
-            print('Completed Bets: ' + str(overall.get('completed_bets', 0)))
-            print('Win Rate: ' + str(overall.get('win_rate', 0)) + '%')
-            print('Pending Results: ' + str(overall.get('pending_results', 0)))
-        
-        if 'by_classification' in analysis:
-            print('\nPerformance by Classification:')
-            for tier, stats in analysis['by_classification'].items():
-                win_rate = stats.get('win_rate', 0)
-                count = stats.get('count', 0)
-                print('  ' + tier + ': ' + str(win_rate) + '% (' + str(count) + ' bets)')
-        
-        if 'insights' in analysis:
-            insights = analysis['insights']
-            print('\nKey Insights:')
-            print('  Best Factor: ' + str(insights.get('best_performing_factor', 'N/A')))
-            print('  Most Reliable: ' + str(insights.get('most_reliable_classification', 'N/A')))
-        EOF
-    
     - name: Email Performance Report
       if: contains(github.event.inputs.action, 'auto') || contains(github.event.inputs.action, 'update')
       env:
