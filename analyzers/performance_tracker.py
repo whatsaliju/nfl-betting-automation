@@ -272,19 +272,20 @@ class EnhancedPerformanceTracker:
                 classification = game['classification']
                 recommendation = game.get('recommendation', '')
                 
-                # Skip avoid classifications (handle Unicode escapes and actual emojis)
+                # Skip avoid classifications (handle all variations)
                 avoid_classifications = [
-                    '⚠️ LANDMINE', '\u26a0\ufe0f LANDMINE', 
-                    '❌ FADE', '\u274c FADE',
+                    '⚠️ LANDMINE', '\u26a0\ufe0f LANDMINE', 'LANDMINE',
+                    '❌ FADE', '\u274c FADE', 'FADE', 
+                    '🚨 TRAP GAME', 'TRAP GAME',
                     '⌛ FADE', '\u23f3 FADE',
-                    'LANDMINE', 'FADE', 'AVOID'
+                    'AVOID'
                 ]
                 
                 if classification in avoid_classifications:
                     continue
                 
                 # Also skip if recommendation contains avoid words
-                if any(word in recommendation.upper() for word in ['PASS:', 'AVOID:', 'FADE']):
+                if any(word in recommendation.upper() for word in ['PASS:', 'AVOID:', 'FADE', 'TRAP']):
                     continue
                 
                 rec = game['recommendation']
