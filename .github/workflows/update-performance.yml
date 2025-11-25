@@ -194,23 +194,21 @@ jobs:
                 msg['Subject'] = f'🏈 Week {week} Performance Update ({action})'
                 
                 body = f'''NFL Performance Tracker Update
-==============================
+                Week: {week}
+                Action: {action}
+                Updated: {datetime.now().strftime("%Y-%m-%d %H:%M")}
 
-Week: {week}
-Action: {action}
-Updated: {datetime.now().strftime("%Y-%m-%d %H:%M")}
+                {report}
 
-{report}
-
-📊 Data Files:
-- Historical Results: data/historical/betting_results.csv
-- Week Analytics: data/week{week}/week{week}_analytics.json
-
-🔄 Next Steps:
-- Review performance trends
-- Check for any manual corrections needed
-- Prepare for next week's analysis
-'''
+                📊 Data Files:
+                - Historical Results: data/historical/betting_results.csv
+                - Week Analytics: data/week{week}/week{week}_analytics.json
+                
+                🔄 Next Steps:
+                - Review performance trends
+                - Check for any manual corrections needed
+                - Prepare for next week's analysis
+                '''
                 
                 msg.attach(MIMEText(body, 'plain'))
                 
