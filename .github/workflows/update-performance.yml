@@ -1,6 +1,6 @@
-name: 5. Update Performance Tracker
+name: 5. Enhanced Performance Tracker
 on:
-  workflow_dispatch:  # Manual trigger - you run this after games complete
+  workflow_dispatch:
     inputs:
       week:
         description: 'NFL Week Number'
@@ -10,14 +10,15 @@ on:
       action:
         description: 'Action to perform'
         required: true
-        default: 'log_only'
+        default: 'auto'
         type: choice
         options:
-        - log_only
-        - log_and_update
-        - update_only
-      game_results:
-        description: 'Game results (JSON format) - only needed for updates'
+        - auto        # Log + update + report (most common)
+        - log_only    # Just log recommendations
+        - update_only # Just update results
+        - report_only # Just generate report
+      analytics_file:
+        description: 'Analytics file path (optional - auto-detects if blank)'
         required: false
         default: ''
         type: string
@@ -40,134 +41,139 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas numpy
+        pip install pandas numpy requests
     
-    - name: Log Week Recommendations
-      if: contains(github.event.inputs.action, 'log')
+    - name: Process Week Performance
+      env:
+        WEEK: ${{ github.event.inputs.week }}
+        ACTION: ${{ github.event.inputs.action }}
+        ANALYTICS_FILE: ${{ github.event.inputs.analytics_file }}
       run: |
-        python -c "
-        import sys
-        sys.path.append('.')
-        from analyzers.performance_tracker import PerformanceTracker
-        
-        week = int('${{ github.event.inputs.week }}')
-        tracker = PerformanceTracker()
-        
-        print(f'📊 Logging Week {week} recommendations...')
-        try:
-            tracker.log_week_recommendations(week, f'data/week{week}/week{week}_analytics.json')
-            print('✅ Recommendations logged successfully')
-        except Exception as e:
-            print(f'⚠️ Error logging recommendations: {e}')
-            print(f'Make sure data/week{week}/week{week}_analytics.json exists')
-        "
-    
-    - name: Update Game Results (Generic)
-      if: contains(github.event.inputs.action, 'update')
-      run: |
-        # Execute the Python script using a Here Document (<<EOF)
         python <<EOF
-        import sys, json, os
+        import sys, os
         sys.path.append('.')
-        from analyzers.performance_tracker import PerformanceTracker
+        from analyzers.performance_tracker import EnhancedPerformanceTracker
         
-        # GitHub context variables are safe to inject here
-        week = int('${{ github.event.inputs.week }}')
-        tracker = PerformanceTracker()
+        # Get inputs
+        week = int(os.getenv('WEEK'))
+        action = os.getenv('ACTION')
+        analytics_file = os.getenv('ANALYTICS_FILE').strip() or None
         
-        results_input = ''
-        results_file_path = f'data/week{week}/game_results.json'
-        source_description = ''
+        print(f'🏈 Processing Week {week} - Action: {action}')
+        print('=' * 50)
         
-        # 1. Get results from file or input
-        if os.path.exists(results_file_path):
-            with open(results_file_path, 'r') as f:
-                results_input = f.read()
-            source_description = f'Detected and using game results from file: {results_file_path}'
-        else:
-            # Fallback to manual input
-            results_input = '''${{ github.event.inputs.game_results }}'''.strip()
-            if results_input:
-                source_description = 'Using game results from manual workflow input.'
+        # Initialize tracker
+        tracker = EnhancedPerformanceTracker()
         
-        if not results_input:
-            print('⚠️ No game results provided. Skipping update.')
-            sys.exit(0)
-        
-        # 2. Parse and Update Results
-        print(f'📄 {source_description}')
         try:
-            results_list = json.loads(results_input)
+            if action == 'auto':
+                # Full automatic processing
+                print('🔄 Running full automatic processing...')
+                
+                # 1. Log recommendations if analytics file exists
+                log_result = tracker._log_recommendations(week, analytics_file, 2025)
+                for msg in log_result.get('messages', []):
+                    print(f'   {msg}')
+                
+                # 2. Update results with live scores
+                update_result = tracker._update_results(week, 2025)
+                for msg in update_result.get('messages', []):
+                    print(f'   {msg}')
+                
+                # 3. Generate report
+                report = tracker._generate_report(week)
+                print(f'\n{report}')
+                
+            elif action == 'log_only':
+                print('📋 Logging recommendations only...')
+                result = tracker._log_recommendations(week, analytics_file, 2025)
+                for msg in result.get('messages', []):
+                    print(f'   {msg}')
+                    
+            elif action == 'update_only':
+                print('🔄 Updating results only...')
+                result = tracker._update_results(week, 2025)
+                for msg in result.get('messages', []):
+                    print(f'   {msg}')
+                    
+                # Show updated report
+                report = tracker._generate_report(week)
+                print(f'\n{report}')
+                
+            elif action == 'report_only':
+                print('📊 Generating report only...')
+                report = tracker._generate_report(week)
+                print(f'\n{report}')
             
-            if not isinstance(results_list, list):
-                raise ValueError('Parsed JSON is not a list of results.')
-            
-            print(f'🔄 Processing {len(results_list)} game results for Week {week}...')
-            updated_count = 0
-            for result in results_list:
-                # Check for mandatory keys
-                if all(k in result for k in ['game', 'actual_result', 'won']):
-                    # Call the tracker method for each game
-                    tracker.update_results(
-                        week=week,
-                        game=result['game'],
-                        actual_result=result['actual_result'],
-                        won=result['won'],
-                        closing_line=result.get('closing_line') # Use .get() for optional fields
-                    )
-                    updated_count += 1
+            # Save report to file for email
+            with open(f'week{week}_performance_report.txt', 'w') as f:
+                f.write(f'NFL Week {week} Performance Update\n')
+                f.write('=' * 50 + '\n\n')
+                if 'report' in locals():
+                    f.write(report)
                 else:
-                    print(f'⚠️ Skipped result missing key field (game, actual_result, or won): {result}')
-            print(f'✅ Successfully updated {updated_count} game records.')
-        
-        except json.JSONDecodeError:
-            print('❌ ERROR: Failed to parse results input as JSON. Check file/input format.')
-            sys.exit(1)
+                    f.write('Report generation was not requested for this action.')
+            
+            print(f'\n📄 Report saved to week{week}_performance_report.txt')
+            
         except Exception as e:
-            print(f'❌ An unexpected error occurred during update: {e}')
+            print(f'❌ Error processing Week {week}: {e}')
+            import traceback
+            traceback.print_exc()
             sys.exit(1)
         EOF
     
-    - name: Generate Performance Report
+    - name: Generate Multi-Week Analysis
+      if: contains(github.event.inputs.action, 'auto') || contains(github.event.inputs.action, 'report')
       run: |
-        python -c "
+        python <<EOF
         import sys
         sys.path.append('.')
-        from analyzers.performance_tracker import PerformanceTracker
+        from analyzers.performance_tracker import EnhancedPerformanceTracker
         
-        week = int('${{ github.event.inputs.week }}')
-        tracker = PerformanceTracker()
+        tracker = EnhancedPerformanceTracker()
         
-        print(f'📈 Generating performance analysis (last 3 weeks)...')
-        report = tracker.generate_performance_report(weeks_back=3)
-        print('\\n' + '='*60)
-        print(report)
-        print('='*60)
+        print('\n📈 MULTI-WEEK ANALYSIS (Last 4 Weeks)')
+        print('=' * 60)
         
-        # Also save report to file for email
-        with open(f'week{week}_performance_report.txt', 'w') as f:
-            f.write(f'NFL Week {week} Performance Update\\n')
-            f.write('='*50 + '\\n\\n')
-            f.write(report)
+        # Analyze performance across last 4 weeks
+        analysis = tracker.analyze_performance(weeks_back=4)
         
-        print(f'\\n📄 Report saved to week{week}_performance_report.txt')
-        "
+        if 'overall' in analysis:
+            overall = analysis['overall']
+            print(f'Total Recommendations: {overall["total_recommendations"]}')
+            print(f'Completed Bets: {overall["completed_bets"]}')
+            print(f'Win Rate: {overall["win_rate"]}%')
+            print(f'Pending Results: {overall["pending_results"]}')
+        
+        if 'by_classification' in analysis:
+            print(f'\nPerformance by Classification:')
+            for tier, stats in analysis['by_classification'].items():
+                print(f'  {tier}: {stats["win_rate"]}% ({stats["count"]} bets)')
+        
+        if 'insights' in analysis:
+            insights = analysis['insights']
+            print(f'\nKey Insights:')
+            print(f'  Best Factor: {insights["best_performing_factor"]}')
+            print(f'  Most Reliable: {insights["most_reliable_classification"]}')
+        EOF
     
     - name: Email Performance Report
-      if: contains(github.event.inputs.action, 'update')
+      if: contains(github.event.inputs.action, 'auto') || contains(github.event.inputs.action, 'update')
       env:
         EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
         EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       run: |
-        python -c "
+        python <<EOF
         import sys, os, smtplib
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
         from email.mime.base import MIMEBase
         from email import encoders
-        sys.path.append('.')
+        from datetime import datetime
         
         week = int('${{ github.event.inputs.week }}')
+        action = '${{ github.event.inputs.action }}'
         
         # Read the performance report
         try:
@@ -185,19 +191,26 @@ jobs:
                 msg = MIMEMultipart()
                 msg['From'] = email_addr
                 msg['To'] = email_addr
-                msg['Subject'] = f'📊 NFL Week {week} Performance Update'
+                msg['Subject'] = f'🏈 Week {week} Performance Update ({action})'
                 
-                body = f'''
-        NFL Performance Tracker Update
-        ==============================
-        
-        Week {week} results have been processed.
-        
-        {report}
-        
-        Full historical data: data/historical/betting_results.csv
-        Analytics data: data/week{week}/week{week}_analytics.json
-                '''
+                body = f'''NFL Performance Tracker Update
+==============================
+
+Week: {week}
+Action: {action}
+Updated: {datetime.now().strftime("%Y-%m-%d %H:%M")}
+
+{report}
+
+📊 Data Files:
+- Historical Results: data/historical/betting_results.csv
+- Week Analytics: data/week{week}/week{week}_analytics.json
+
+🔄 Next Steps:
+- Review performance trends
+- Check for any manual corrections needed
+- Prepare for next week's analysis
+'''
                 
                 msg.attach(MIMEText(body, 'plain'))
                 
@@ -211,7 +224,7 @@ jobs:
                     encoders.encode_base64(part)
                     part.add_header(
                         'Content-Disposition',
-                        f'attachment; filename= betting_results.csv'
+                        f'attachment; filename=betting_results_week{week}.csv'
                     )
                     msg.attach(part)
                 
@@ -228,7 +241,7 @@ jobs:
                 print(f'📧 Email failed: {e}')
         else:
             print('📧 Email credentials not configured')
-        "
+        EOF
     
     - name: Commit Updated Performance Data
       run: |
@@ -238,7 +251,7 @@ jobs:
         # Check if there are changes to commit
         if [ -n "$(git status --porcelain)" ]; then
           git add data/historical/ week${{ github.event.inputs.week }}_performance_report.txt
-          git commit -m "Update performance tracking - Week ${{ github.event.inputs.week }} (${{ github.event.inputs.action }})"
+          git commit -m "📊 Performance update: Week ${{ github.event.inputs.week }} (${{ github.event.inputs.action }})"
           git push
           echo "✅ Performance data committed and pushed"
         else
