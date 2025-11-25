@@ -41,27 +41,114 @@ TEAM_MAP = {
 # ================================================================
 
 SCHEDULE_REST_DATA_2025 = {
-    # --- Calculated Weeks (W1-W18) ---
-    'W1': {'DAL': 3, 'PHI': 3, 'KC': 4, 'LAC': 4, 'ATL': 6, 'NO': 6, 'TB': 6, 'CAR': 6, 'JAX': 6, 'CIN': 6, 'CLE': 6, 'MIA': 6, 'IND': 6, 'NE': 6, 'LV': 6, 'ARI': 6, 'PIT': 6, 'NYJ': 6, 'NYG': 6, 'WAS': 6, 'DEN': 6, 'LAR': 6, 'SEA': 6, 'TEN': 6, 'HOU': 6, 'BUF': 7, 'BAL': 7, 'CHI': 14, 'DET': 14, 'GB': 14, 'MIN': 14, 'SF': 14},
-    'W2': {'LAR': 3, 'ARI': 3, 'KC': 4, 'LAC': 4, 'CAR': 6, 'ATL': 6, 'TB': 6, 'NO': 6, 'MIN': 6, 'GB': 6, 'DET': 6, 'CHI': 6, 'TEN': 6, 'SEA': 6, 'NYJ': 6, 'BUF': 6, 'WAS': 6, 'NYG': 6, 'DAL': 6, 'PHI': 6, 'NE': 6, 'MIA': 6, 'CLE': 6, 'CIN': 6, 'BAL': 6, 'PIT': 6, 'JAX': 6, 'IND': 6, 'HOU': 7, 'SF': 7, 'DEN': 14, 'LV': 14},
-    'W3': {'BAL': 3, 'CIN': 3, 'HOU': 4, 'TB': 4, 'LAC': 5, 'LV': 5, 'ARI': 6, 'SEA': 6, 'IND': 6, 'JAX': 6, 'CAR': 6, 'TEN': 6, 'NE': 6, 'MIA': 6, 'BUF': 6, 'NYJ': 6, 'GB': 6, 'MIN': 6, 'DAL': 6, 'NYG': 6, 'WAS': 6, 'PHI': 6, 'PIT': 6, 'CLE': 6, 'ATL': 6, 'NO': 6, 'DET': 7, 'CHI': 7, 'KC': 14, 'DEN': 14},
-    'W4': {'SEA': 3, 'ARI': 3, 'BUF': 4, 'NYJ': 4, 'JAX': 5, 'TEN': 5, 'MIN': 6, 'GB': 6, 'DET': 6, 'CHI': 6, 'CLE': 6, 'PIT': 6, 'CIN': 6, 'BAL': 6, 'NO': 6, 'ATL': 6, 'TB': 6, 'CAR': 6, 'PHI': 6, 'WAS': 6, 'NYG': 6, 'DAL': 6, 'IND': 6, 'HOU': 6, 'NE': 6, 'MIA': 6, 'LV': 7, 'LAC': 7, 'LAR': 14, 'SF': 14},
-    'W5': {'SF': 3, 'LAR': 3, 'BUF': 4, 'MIA': 4, 'NYG': 5, 'BAL': 5, 'GB': 6, 'MIN': 6, 'DET': 6, 'CIN': 6, 'PIT': 6, 'CLE': 6, 'PHI': 6, 'DAL': 6, 'WAS': 6, 'JAX': 6, 'IND': 6, 'HOU': 6, 'TEN': 6, 'SEA': 6, 'ARI': 6, 'NO': 6, 'ATL': 6, 'TB': 6, 'NE': 7, 'NYJ': 7, 'CAR': 14, 'CHI': 14},
-    'W6': {'NYG': 3, 'PHI': 3, 'BAL': 4, 'CIN': 4, 'IND': 6, 'HOU': 6, 'TEN': 6, 'JAX': 6, 'MIA': 6, 'NE': 6, 'NYJ': 6, 'BUF': 6, 'CLE': 6, 'PIT': 6, 'ARI': 6, 'SEA': 6, 'LAR': 6, 'SF': 6, 'NO': 6, 'ATL': 6, 'TB': 6, 'CAR': 6, 'DAL': 7, 'WAS': 7, 'DEN': 14, 'LV': 14},
-    'W7': {'MIN': 3, 'LAC': 3, 'KC': 4, 'SF': 4, 'NE': 5, 'PIT': 5, 'PHI': 6, 'DAL': 6, 'WAS': 6, 'NYG': 6, 'BUF': 6, 'NYJ': 6, 'MIA': 6, 'ATL': 6, 'NO': 6, 'TB': 6, 'CAR': 6, 'LAR': 6, 'SEA': 6, 'ARI': 6, 'DEN': 6, 'LV': 6, 'GB': 6, 'DET': 6, 'CHI': 6, 'CLE': 7, 'CIN': 7, 'BAL': 7, 'IND': 14, 'HOU': 14, 'JAX': 14, 'TEN': 14},
-    'W8': {'NO': 3, 'ATL': 3, 'TEN': 4, 'LAC': 4, 'JAX': 5, 'HOU': 5, 'MIA': 6, 'NE': 6, 'NYJ': 6, 'BUF': 6, 'CIN': 6, 'CLE': 6, 'PIT': 6, 'BAL': 6, 'MIN': 6, 'GB': 6, 'DET': 6, 'CHI': 6, 'ARI': 6, 'SEA': 6, 'SF': 6, 'LAR': 6, 'WAS': 6, 'DAL': 6, 'NYG': 6, 'PHI': 6, 'IND': 7, 'KC': 7, 'CAR': 14, 'TB': 14},
-    'W9': {'LAR': 3, 'SEA': 3, 'MIA': 4, 'BAL': 4, 'PIT': 5, 'CLE': 5, 'NE': 6, 'BUF': 6, 'NYJ': 6, 'CIN': 6, 'IND': 6, 'JAX': 6, 'HOU': 6, 'TEN': 6, 'ARI': 6, 'SF': 6, 'DAL': 6, 'PHI': 6, 'NYG': 6, 'WAS': 6, 'DEN': 6, 'KC': 6, 'LV': 6, 'LAC': 6, 'ATL': 7, 'NO': 7, 'CHI': 14, 'DET': 14, 'GB': 14, 'MIN': 14},
-    'W10': {'LV': 3, 'DEN': 3, 'CIN': 4, 'PIT': 4, 'CLE': 6, 'BAL': 6, 'BUF': 6, 'MIA': 6, 'NE': 6, 'NYJ': 6, 'JAX': 6, 'HOU': 6, 'IND': 6, 'TEN': 6, 'SEA': 6, 'LAR': 6, 'ARI': 6, 'SF': 6, 'WAS': 6, 'PHI': 6, 'NYG': 6, 'DAL': 6, 'ATL': 6, 'TB': 6, 'CAR': 6, 'NO': 6, 'KC': 7, 'LAC': 7, 'MIN': 14, 'GB': 14},
-    'W11': {'NE': 3, 'NYJ': 3, 'LAR': 4, 'SF': 4, 'KC': 5, 'JAX': 5, 'DAL': 6, 'PHI': 6, 'WAS': 6, 'NYG': 6, 'MIN': 6, 'GB': 6, 'DET': 6, 'CHI': 6, 'TEN': 6, 'HOU': 6, 'IND': 6, 'ARI': 6, 'SEA': 6, 'LV': 6, 'DEN': 6, 'LAC': 6, 'CAR': 6, 'NO': 6, 'ATL': 6, 'TB': 6, 'CIN': 7, 'PIT': 7, 'CLE': 7, 'BAL': 7, 'BUF': 7, 'MIA': 7},
-    'W12': {'BUF': 3, 'HOU': 3, 'BAL': 4, 'NYJ': 4, 'MIA': 5, 'NE': 5, 'CIN': 6, 'PIT': 6, 'CLE': 6, 'IND': 6, 'JAX': 6, 'TEN': 6, 'LV': 6, 'DEN': 6, 'DAL': 6, 'PHI': 6, 'NYG': 6, 'WAS': 6, 'CHI': 6, 'DET': 6, 'GB': 6, 'MIN': 6, 'NO': 6, 'ATL': 6, 'ARI': 6, 'SEA': 6, 'TB': 6, 'LAR': 6, 'KC': 7, 'LAC': 7, 'CAR': 14, 'SF': 14},
-    
-    # --- Corrected Weeks (W13-W18) ---
-    'W13': {'BAL': 3, 'CIN': 3, 'DAL': 3, 'DET': 3, 'GB': 3, 'KC': 3, 'CHI': 4, 'PHI': 4, 'CAR': 5, 'SF': 5, 'ARI': 6, 'ATL': 6, 'CLE': 6, 'DEN': 6, 'IND': 6, 'JAX': 6, 'LAC': 6, 'LAR': 6, 'LV': 6, 'MIA': 6, 'MIN': 6, 'NO': 6, 'PIT': 6, 'SEA': 6, 'TB': 6, 'TEN': 6, 'WAS': 6, 'NYJ': 6, 'NE': 7, 'NYG': 7, 'BUF': 10, 'HOU': 10},
-    'W14': {'ARI': 7, 'ATL': 7, 'CLE': 7, 'DAL': 7, 'DEN': 7, 'DET': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NO': 7, 'NYJ': 7, 'PIT': 7, 'SEA': 7, 'TB': 7, 'TEN': 7, 'WAS': 7, 'BUF': 7, 'CHI': 8, 'PHI': 8, 'BAL': 10, 'CIN': 10, 'GB': 10, 'KC': 10, 'CAR': 14, 'NE': 14, 'NYG': 14, 'SF': 14},
-    'W15': {'ATL': 3, 'TB': 3, 'LAC': 5, 'PHI': 5, 'ARI': 7, 'BAL': 7, 'BUF': 7, 'CIN': 7, 'CLE': 7, 'DEN': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 'LAR': 7, 'LV': 7, 'MIN': 7, 'NO': 7, 'NYJ': 7, 'SEA': 7, 'TEN': 7, 'WAS': 7, 'MIA': 8, 'PIT': 8, 'DAL': 9, 'DET': 9, 'CAR': 14, 'NE': 14, 'NYG': 14, 'SF': 14},
-    'W16': {'LAR': 3, 'SEA': 3, 'MIA': 5, 'PIT': 5, 'ARI': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CIN': 7, 'CLE': 7, 'DAL': 7, 'DEN': 7, 'DET': 7, 'HOU': 7, 'JAX': 7, 'KC': 7, 'LAC': 7, 'LV': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 'NYJ': 7, 'PHI': 7, 'TEN': 7, 'WAS': 7, 'IND': 7, 'SF': 7, 'ATL': 9, 'TB': 9},
-    'W17': {'DEN': 3, 'KC': 3, 'IND': 5, 'SF': 5, 'ARI': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 'DAL': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'JAX': 7, 'LAC': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 'NYJ': 7, 'PHI': 7, 'PIT': 7, 'TB': 7, 'TEN': 7, 'WAS': 7, 'ATL': 8, 'SEA': 8, 'LAR': 11},
-    'W18': {'ATL': 5, 'LAR': 5, 'ARI': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 'DAL': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'LAC': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7, 'DEN': 10, 'KC': 10}
+    'W1': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W2': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 9, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 9, 'JAX': 7, 'KC': 8, 
+        'LAC': 8, 'LAR': 7, 'LV': 9, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W3': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 14, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 14, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W4': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W5': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W6': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W7': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W8': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W9': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W10': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W11': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W12': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 18, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 3, 'IND': 14, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 4, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W13': {
+        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 14, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W14': {
+        'ARI': 7, 'ATL': 7, 'BAL': 14, 'BUF': 7, 'CAR': 14, 'CHI': 7, 'CIN': 14, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 14, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 14, 
+        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 14, 'NO': 7, 'NYG': 14, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 14, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W15': {
+        'ARI': 7, 'ATL': 3, 'BAL': 7, 'BUF': 7, 'CAR': 14, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 9, 'DEN': 7, 'DET': 9, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 5, 'LAR': 7, 'LV': 7, 'MIA': 8, 'MIN': 7, 'NE': 14, 'NO': 7, 'NYG': 14, 
+        'NYJ': 7, 'PHI': 5, 'PIT': 8, 'SEA': 7, 'SF': 14, 'TB': 3, 'TEN': 7, 'WAS': 7
+    },
+    'W16': {
+        'ARI': 7, 'ATL': 9, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
+        'LAC': 7, 'LAR': 3, 'LV': 7, 'MIA': 5, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 5, 'SEA': 3, 'SF': 7, 'TB': 9, 'TEN': 7, 'WAS': 7
+    },
+    'W17': {
+        'ARI': 7, 'ATL': 8, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 3, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 5, 'JAX': 7, 'KC': 3, 
+        'LAC': 7, 'LAR': 11, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 8, 'SF': 5, 'TB': 7, 'TEN': 7, 'WAS': 7
+    },
+    'W18': {
+        'ARI': 7, 'ATL': 5, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
+        'DAL': 7, 'DEN': 10, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 10, 
+        'LAC': 7, 'LAR': 5, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
+        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
+    }
 }
 
 
