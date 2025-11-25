@@ -177,8 +177,8 @@ jobs:
     - name: Email Performance Report
       if: contains(github.event.inputs.action, 'auto') || contains(github.event.inputs.action, 'update')
       env:
-        EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
-        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        EMAIL_ADDRESS: ${{ secrets.GMAIL_USERNAME }}
+        EMAIL_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
       run: |
         python <<EOF
         import sys, os, smtplib
