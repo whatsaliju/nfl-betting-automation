@@ -55,7 +55,7 @@ print("🍪 Cookie-based authentication approach")
 if os.path.exists(COOKIES_FILE):
     print(f"✅ Found cookies file: {COOKIES_FILE}")
     driver.get("https://www.actionnetwork.com")
-     try:
+    try:
         with open(COOKIES_FILE, 'r') as f:
             cookies = json.load(f)
         # NEW, ROBUST COOKIE LOADING CODE
