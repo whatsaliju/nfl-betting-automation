@@ -55,15 +55,28 @@ print("🍪 Cookie-based authentication approach")
 if os.path.exists(COOKIES_FILE):
     print(f"✅ Found cookies file: {COOKIES_FILE}")
     driver.get("https://www.actionnetwork.com")
-    time.sleep(2)
-    try:
+     try:
         with open(COOKIES_FILE, 'r') as f:
             cookies = json.load(f)
-        for cookie in cookies:
-            cookie.pop('sameSite', None)
-            cookie.pop('httpOnly', None)
-            try:
-                driver.add_cookie(cookie)
+        # NEW, ROBUST COOKIE LOADING CODE
+        for cookie in cookies:
+            # --- START FIX: ESSENTIAL ROBUSTNESS ---
+            if 'expiry' in cookie:
+                try:
+                    # Convert to int, as drivers require it.
+                    cookie['expiry'] = int(cookie['expiry'])
+                except (ValueError, TypeError):
+                    # If conversion fails, remove it to prevent hard failure
+                    cookie.pop('expiry', None) 
+            if 'domain' not in cookie:
+                cookie['domain'] = '.actionnetwork.com'
+            if 'path' not in cookie:
+                cookie['path'] = '/'
+            # --- END FIX ---
+            cookie.pop('sameSite', None)
+            cookie.pop('httpOnly', None)
+            try:
+                driver.add_cookie(cookie)
             except Exception as e:
                 print(f"  ⚠️ Could not add cookie {cookie.get('name')}: {e}")
         print(f"✅ Loaded {len(cookies)} cookies")
@@ -301,14 +314,14 @@ for val, label in markets:
         market_select.select_by_value(val)
         print(f"✅ Dropdown selection changed to: {val}")
         
-        # 3. The magic: Wait for the OLD table to disappear (become stale)
-        if old_table_body:
-            print("⏳ Waiting for old table data to be cleared...")
-            wait.until(EC.staleness_of(old_table_body))
-
-        # 4. Wait for the NEW table rows to be present in the DOM
-        print("⏳ Waiting for new table data to load...")
-        wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "table tbody tr")))
+        # NEW, ROBUST SYNCHRONIZATION CODE
+        # We replace the brittle staleness check with a robust dynamic wait.
+        # We wait for an actual game element to be present, which signals data has arrived.
+        print("⏳ Waiting for new table data to load...")
+        wait.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "table tbody tr .public-betting__game-info"))
+        )
+        print("✅ Market data loaded dynamically.")
         
         # 5. Now it's safe to scrape
         market_data = scrape_current_market(label)
