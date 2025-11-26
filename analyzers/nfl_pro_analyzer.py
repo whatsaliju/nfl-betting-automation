@@ -603,13 +603,23 @@ class RefereeAnalyzer:
         return 0
     
     @staticmethod
+    @staticmethod
     def analyze(ref_data):
-        ats_pct = float(str(ref_data.get('ats_pct', '50')).replace('%', ''))
-        ou_pct = float(str(ref_data.get('ou_pct', '50')).replace('%', ''))
-        
+        # Check for and safely access 'ats_pct' attribute (Fixes AttributeError)
+        if hasattr(ref_data, 'ats_pct'):
+            ats_pct = float(str(ref_data.ats_pct).replace('%', ''))
+        else:
+            ats_pct = 50.0 # Default if column is missing
+    
+        # Check for and safely access 'ou_pct' attribute (Fixes AttributeError)
+        if hasattr(ref_data, 'ou_pct'):
+            ou_pct = float(str(ref_data.ou_pct).replace('%', ''))
+        else:
+            ou_pct = 50.0 # Default if column is missing
+    
         ats_score = RefereeAnalyzer.score_ats(ats_pct)
         ou_score = RefereeAnalyzer.score_ou(ou_pct)
-        
+    
         # Determine tendency
         if ats_pct >= 55:
             ats_tend = "STRONG FAVORITE COVERAGE"
@@ -617,14 +627,14 @@ class RefereeAnalyzer:
             ats_tend = "DOG-FRIENDLY"
         else:
             ats_tend = "NEUTRAL"
-        
+    
         if ou_pct >= 55:
             ou_tend = "OVER TENDENCY"
         elif ou_pct <= 45:
             ou_tend = "UNDER TENDENCY"
         else:
             ou_tend = "NEUTRAL TOTAL"
-        
+    
         return {
             'ats_pct': ats_pct,
             'ou_pct': ou_pct,
@@ -632,7 +642,8 @@ class RefereeAnalyzer:
             'ou_score': ou_score,
             'ats_tendency': ats_tend,
             'ou_tendency': ou_tend,
-            'referee': ref_data.get('referee', 'Unknown')
+            # FINAL CORRECTION: Use getattr() for the namedtuple
+            'referee': getattr(ref_data, 'referee', 'Unknown')
         }
 
 
