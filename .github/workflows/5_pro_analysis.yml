@@ -2,14 +2,18 @@ name: 5. Pro Analysis & Email
 
 on:
   repository_dispatch:
-    types: [initial-market-data]
+    types: [initial-market-data, final-lineup-data-ready]
   workflow_dispatch:
     inputs:
       week:
         description: 'NFL Week Number'
         required: true
         type: string
-
+      analysis_type:
+        description: 'Type of analysis (e.g., initial, final_lineups)'
+        required: false
+        default: 'default'
+        type: string
 jobs:
   generate_analysis:
     runs-on: ubuntu-latest
