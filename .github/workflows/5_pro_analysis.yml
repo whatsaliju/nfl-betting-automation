@@ -2,7 +2,7 @@ name: 5. Pro Analysis & Email
 
 on:
   repository_dispatch:
-    types: [initial-market-data, final-lineup-data-ready]
+    types: [initial-market-data, final-lineup-data-ready] # Listen for both types
   workflow_dispatch:
     inputs:
       week:
@@ -10,10 +10,11 @@ on:
         required: true
         type: string
       analysis_type:
-        description: 'Type of analysis (e.g., initial, final_lineups)'
+        description: 'Type of analysis (e.g., initial, final_lineups, default)'
         required: false
         default: 'default'
         type: string
+
 jobs:
   generate_analysis:
     runs-on: ubuntu-latest
@@ -23,7 +24,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: main
-      
+          
       - name: Pull latest changes
         run: git pull origin main
         
@@ -31,7 +32,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
+          
       - name: Cache Python dependencies
         uses: actions/cache@v3
         with:
@@ -60,26 +61,41 @@ jobs:
           echo "📅 Generating analysis for Week $WEEK"
       
       - name: Get Analysis Type
-        id: analysis_type
-        run: |
-          # First, try to get from workflow_dispatch inputs
+        id: analysis_type
+        run: |
+          # Priority 1: workflow_dispatch input
           TYPE="${{ github.event.inputs.analysis_type }}"
-          # If not from inputs, then try client_payload (from repository_dispatch)
-          if [ -z "$TYPE" ] || [ "$TYPE" == "null" ]; then # Check for empty or "null" string
+          
+          # Priority 2: repository_dispatch client_payload
+          # Check for empty string "null" from workflow_dispatch default if not provided
+          if [ -z "$TYPE" ] || [ "$TYPE" == "null" ] || [ "$TYPE" == "default" ]; then
             TYPE="${{ github.event.client_payload.analysis_type }}"
+          fi
+
+          # Ensure TYPE is set to a default if still empty/null
+          if [ -z "$TYPE" ] || [ "$TYPE" == "null" ]; then
+            TYPE="default"
           fi
 
           FLIPS="${{ github.event.client_payload.line_flips }}" # Line flips will only come from repository_dispatch
 
+          # --- UPDATED LOGIC FOR ANALYSIS TYPE ---
           if [ "$TYPE" = "initial" ]; then
-            echo "type=Initial Analysis" >> $GITHUB_OUTPUT
-            echo "subject_prefix=🏈 Initial" >> $GITHUB_OUTPUT
-          elif [ "$TYPE" = "final_lineups" ]; then # Add a specific case for final lineups
+            echo "type=Initial Market Analysis" >> $GITHUB_OUTPUT
+            echo "subject_prefix=🏈 Initial Market" >> $GITHUB_OUTPUT
+            echo "intro_text=Here's your initial market analysis for Week ${{ steps.get_week.outputs.week }}, hot off the press! We've crunched the early numbers and identified the biggest opportunities and potential traps as lines open." >> $GITHUB_OUTPUT
+          elif [ "$TYPE" = "final_lineups" ]; then # This is the key addition
             echo "type=Final Lineup Analysis" >> $GITHUB_OUTPUT
             echo "subject_prefix=🚨 Final Lineup" >> $GITHUB_OUTPUT
-          else # Default for manual or other types
+            echo "intro_text=The final lineups are in, and so is your updated analysis for Week ${{ steps.get_week.outputs.week }}! This report incorporates all the latest player news and how it impacts the market." >> $GITHUB_OUTPUT
+          elif [ "$TYPE" = "default" ]; then # Explicitly handle default (manual or other updates)
             echo "type=Updated Analysis" >> $GITHUB_OUTPUT
             echo "subject_prefix=📊 Updated" >> $GITHUB_OUTPUT
+            echo "intro_text=Here's an updated analysis for Week ${{ steps.get_week.outputs.week }}, reflecting the latest market movements and data changes." >> $GITHUB_OUTPUT
+          else # Fallback for any unexpected type
+            echo "type=General Analysis" >> $GITHUB_OUTPUT
+            echo "subject_prefix=📈 General" >> $GITHUB_OUTPUT
+            echo "intro_text=Here's your general analysis for Week ${{ steps.get_week.outputs.week }}." >> $GITHUB_OUTPUT
           fi
 
           if [ -n "$FLIPS" ] && [ "$FLIPS" != "0" ]; then
@@ -106,16 +122,17 @@ jobs:
           import smtplib
           from email.mime.multipart import MIMEMultipart
           from email.mime.text import MIMEText
-          import email.mime.application # CRITICAL: For attaching files correctly
+          import email.mime.application
           import os
           import re
           import json
           
           week = "${{ steps.get_week.outputs.week }}"
           timestamp = "${{ steps.timestamp.outputs.time }}"
-          analysis_type = "${{ steps.analysis_type.outputs.type }}"
+          analysis_type = "${{ steps.analysis_type.outputs.type }}" # From Get Analysis Type step
+          subject_prefix = "${{ steps.analysis_type.outputs.subject_prefix }}" # From Get Analysis Type step
           flip_alert = "${{ steps.analysis_type.outputs.flip_alert }}"
-          
+
           # Load detailed pro analysis
           try:
               with open(f"data/week{week}/week{week}_pro_analysis.txt", "r") as f:
@@ -177,7 +194,7 @@ jobs:
                           elif "MARKET DYNAMICS:" in line:
                               current_section = "market"
                           elif "THE VERDICT:" in line:
-                              current_section = "verdict"
+                              current_section = "verdict" # Stop parsing bullet points after verdict
                           
                           # Extract bullet points/data
                           elif (line.startswith("•") or line.startswith("→") or line.startswith("-")) and current_section and current_section != "verdict":
@@ -195,7 +212,7 @@ jobs:
                                   game['market'].append(content_line)
                               
                               # Specific handling for non-list items
-                              elif current_section == "weather" and content_line:
+                              elif current_section == "weather" and content_line and not game['weather']: # Only set if not already set
                                   game['weather'] = content_line
                               elif current_section == "injury" and "Impact:" in line:
                                   game['injury'] = line.split("Impact:")[-1].strip()
@@ -264,7 +281,7 @@ jobs:
                   <div style="background: white; padding: 10px 15px; border-radius: 5px; margin: 10px 0;">
                       <h4 style="margin: 0 0 5px 0; color: #e65100; font-size: 15px;">💰 Sharp Money Analysis</h4>
                   """
-                  for story in game['sharp_stories'][:3]:  # Top 3 stories
+                  for story in game['sharp_stories'][:3]: # Top 3 stories
                       sharp_html += f"<p style='margin: 3px 0; font-size: 13px;'>• {story}</p>"
                   sharp_html += "</div>"
 
@@ -358,383 +375,67 @@ jobs:
                       <div style="font-weight:bold;">🎯 TARGETED</div>
                       <div style="font-size:12px; color:#666;">Good Value Plays</div>
                   </div>
-                  <div style="text-align:center; padding:15px; background:white; border-radius:5px; border-left: 4px solid #f44336;">
-                      <div style="font-size:24px; font-weight:bold; color:#f44336;">{len(traps)}</div>
-                      <div style="font-weight:bold;">❌ FADES/TRAPS</div>
-                      <div style="font-size:12px; color:#666;">Fade the Public</div>
-                  </div>
-                  <div style="text-align:center; padding:15px; background:white; border-radius:5px; border-left: 4px solid #666;">
-                      <div style="font-size:24px; font-weight:bold; color:#666;">{total_games}</div>
-                      <div style="font-weight:bold;">📈 TOTAL GAMES</div>
-                      <div style="font-size:12px; color:#666;">Full Analysis</div>
-                  </div>
-              </div>
-          </div>
-          
-          <div style="margin: 30px 0;">
-              <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
-                  🎯 Complete Game-by-Game Analysis
-              </h2>
-              <p style="color: #7f8c8d; margin-bottom: 25px;">
-                  Comprehensive breakdown of all {total_games} games with sharp money analysis, referee trends, 
-                  situational factors, and confidence scores.
-              </p>
-              {game_cards_html}
-          </div>
-          
-          <div style="text-align:center; padding:25px; background:#f8f9fa; border-radius:8px; margin:30px 0;">
-              <h3 style="margin-top:0; color:#2c3e50;">📁 Complete Analysis Package (Attached)</h3>
-              <p style="color:#666; margin: 10px 0;">The following files are attached to this email:</p>
-              
-              <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0;">
-                  <span style="background: #e8f5e8; padding: 8px 12px; border-radius: 5px; font-size: 14px;">
-                      📊 week{week}_analytics.csv
-                  </span>
-                  <span style="background: #fff3e0; padding: 8px 12px; border-radius: 5px; font-size: 14px;">
-                      📝 week{week}_pro_analysis.txt
-                  </span>
-                  <span style="background: #f3e5f5; padding: 8px 12px; border-radius: 5px; font-size: 14px;">
-                      🤖 week{week}_analytics.json
-                  </span>
-                   <span style="background: #e1f5fe; padding: 8px 12px; border-radius: 5px; font-size: 14px;">
-                      📄 week{week}_executive_summary.txt
-                  </span>
-              </div>
-              
-              <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" class="download-link">
-                  🔽 Go to GitHub Run (If Attachments Fail)
-              </a>
-          </div>
-          
-          <div style="border-top:1px solid #ddd; padding-top:15px; margin-top:30px; font-size:12px; color:#666;">
-              <p><b>🤖 Analysis Engine:</b> 8-layer system covering sharp money, referee trends, weather, injuries, situational factors, statistical modeling, game theory, and schedule analysis</p>
-              <p><b>📊 Data Sources:</b> Action Network, Football Zebras, RotoWire, SDQL Historical Database</p>
-              <p><b>⏰ Generated:</b> {timestamp} | Week {week} {analysis_type}</p>
-          </div>
-          
-          </div>
-          </body>
-          </html>"""
-          
-          
-          # --- EMAIL ASSEMBLY (CRITICAL FIX: MIME Structure for Attachments) ---
-          # 1. Main container is 'mixed' (default) to hold attachments
-          msg = MIMEMultipart() 
-          msg['Subject'] = f"Week {week} NFL Pro Analysis & Data Package"
-          msg['From'] = os.getenv('GMAIL_USER')
-          msg['To'] = "lvarughese@gmail.com"
-          
-          # 2. Attach the HTML body directly
-          html_part = MIMEText(html_body, 'html', 'utf-8')
-          msg.attach(html_part)
-          
-          # ATTACH ALL FOUR ANALYSIS FILES INDIVIDUALLY
-          files_to_attach = [
-              "executive_summary.txt",
-              "pro_analysis.txt",
-              "analytics.csv",
-              "analytics.json",
-          ]
-          
-          for file_name_suffix in files_to_attach:
-              file_name = f"week{week}_{file_name_suffix}"
-              file_path = f"data/week{week}/{file_name}"
-              try:
-                  with open(file_path, "rb") as f:
-                      # CRITICAL: Use email.mime.application for proper attachment
-                      part = email.mime.application.MIMEApplication(f.read(), name=file_name)
-                  part['Content-Disposition'] = f'attachment; filename="{file_name}"'
-                  # 3. Attach files directly to the main message
-                  msg.attach(part) 
-                  print(f"Attached: {file_name}")
-              except FileNotFoundError:
-                  print(f"⚠️ Warning: File not found for attachment: {file_path}")
-          
-          server = smtplib.SMTP('smtp.gmail.com', 587)
-          server.starttls()
-          server.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
-          server.send_message(msg)
-          server.quit()
-          
-          print(f"✅ Enhanced professional email sent: Week {week}")
-          PYTHON_EOF
-      
-      - name: Send Conversational Analysis Email
-        env:
-          GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-        run: |
-          python3 << 'PYTHON_EOF'
-          import smtplib
-          from email.mime.multipart import MIMEMultipart
-          from email.mime.text import MIMEText
-          # FIX: Use fully qualified import for reliable scope access
-          import email.mime.application 
-          import os
-          import re
-          
-          week = "${{ steps.get_week.outputs.week }}"
-          timestamp = "${{ steps.timestamp.outputs.time }}"
-          analysis_type = "${{ steps.analysis_type.outputs.type }}"
-          
-          # --- HELPER FUNCTION TO PULL SCORES AND SHARP MONEY STORY ---
-          def get_game_data(week, matchup):
-              score = 'N/A'
-              confidence = 'N/A'
-              story = 'No major divergence identified.' 
-              
-              # Fetching pro analysis content
-              try:
-                  with open(f"data/week{week}/week{week}_pro_analysis.txt", "r") as f:
-                      content = f.read()
-              except FileNotFoundError:
-                  return score, confidence, story
+                  <div style="text-align:center; padding:15px; background:white; border-radius:5px; border-left: 4(total_games)} games.
 
-              # Escape special characters for regex search
-              escaped_matchup = re.escape(matchup)
-              
-              # Regex to capture the SHARP MONEY STORY block and the THE VERDICT scores
-              matchup_pattern = re.compile(
-                  # Match heading, skip all text non-greedily, then find SHARP MONEY STORY
-                  rf"==={re.escape(matchup)}===\s*.*?SHARP MONEY STORY:\s*(.*?)\s*THE VERDICT:\s*Total Score: (\S+)\s*Confidence: (\S+)",
-                  re.DOTALL
-              )
+                  """ if total_games > 0 else "<p>No games analyzed in this report.</p>"
 
-              match = matchup_pattern.search(content)
+            conversational_body = f"""
+            <html>
+            <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9f9f9;">
+                <div style="max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
+                    <div style="background-color: #0056b3; color: white; padding: 25px; text-align: center;">
+                        <h1 style="margin: 0; font-size: 24px;">👋 Quick Hit: Week {week} NFL {analysis_type}</h1>
+                        <p style="margin: 5px 0 0; font-size: 14px; opacity: 0.9;">Generated: {timestamp}</p>
+                    </div>
+                    <div style="padding: 25px;">
+                        <p style="font-size: 15px; color: #555;">Hi Team,</p>
+                        <p style="font-size: 15px; color: #555;">{intro_text}</p>
+                        
+                        {flip_section_conversational}
 
-              if match:
-                  story = match.group(1).strip()
-                  score = match.group(2)
-                  confidence = match.group(3)
-                  
-                  # Clean up story text by replacing newlines/tabs with single space
-                  story = re.sub(r'[\n\t\r]', ' ', story).strip()
-                  # Remove list markers and excess whitespace
-                  story = re.sub(r'•\s*', '', story)
-                  story = re.sub(r'\s{2,}', ' ', story)
-                  
-              return score, confidence, story
-              
-          # --- MAIN PARSING LOGIC (CORRECTED FADES SECTION - ROBUST FIX) ---
-          def parse_executive_summary(week):
-              plays = []
-              fades = []
-              try:
-                  # NOTE: Assumes files are in data/week{week}/...
-                  with open(f"data/week{week}/week{week}_executive_summary.txt", "r") as f:
-                      content = f.read()
-              except FileNotFoundError:
-                  return [], []
-              
-              # Parse Targeted Plays
-              if "🎯 TARGETED PLAY" in content:
-                  targeted_section = content.split("🎯 TARGETED PLAY")[1].split("❌ FADE")[0]
-                  
-                  for block in targeted_section.strip().split('\n\n'):
-                      if 'TARGETED PLAY' in block and '→' in block:
-                          lines = [l.strip() for l in block.split('\n') if l.strip()]
-                          if not lines: continue
-                          
-                          matchup = lines[0].strip()
-                          recommendation = lines[1].split('→')[1].split(':')[1].strip() if len(lines) > 1 and 'TARGETED PLAY:' in lines[1] else 'N/A'
-                          reason = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else 'Key factors align'
-                          
-                          score, confidence, story = get_game_data(week, matchup)
-                          
-                          plays.append({
-                              'matchup': matchup,
-                              'recommendation': recommendation,
-                              'reason': reason,
-                              'score': score,
-                              'confidence': confidence,
-                              'story': story
-                          })
-              
-              # Parse Fades (THE CORRECTED LOGIC IS HERE)
-              if "❌ FADE" in content:
-                  # 1. Capture the section after the FADE marker
-                  fade_section = content.split("❌ FADE")[1]
-                  
-                  # 2. FIX: Safely remove the separator line and clean the content before splitting.
-                  separator = "----------------------------------------------------------------------"
-                  
-                  # Clean the section by removing the separator line and surrounding whitespace
-                  if fade_section.strip().startswith(separator):
-                      fade_section = fade_section.strip().replace(separator, '', 1).strip()
-                  else:
-                      fade_section = fade_section.strip()
-                      
-                  # 3. Split the clean section by double newline, which separates game entries
-                  blocks = [block.strip() for block in fade_section.split('\n\n') if block.strip()]
-                  
-                  for block in blocks:
-                      # Check if the block contains the warning and is not empty
-                      if '❌ AVOID' in block and '→' in block:
-                          lines = [l.strip() for l in block.split('\n') if l.strip()]
-                          if len(lines) < 3: continue 
-                          
-                          # Now, lines[0] is guaranteed to be the matchup name
-                          matchup = lines[0].strip()
-                          recommendation = 'AVOID/FADE'
-                          
-                          # Capture the primary AVOID text from lines[1]
-                          primary_warning = lines[1].split('→')[1].strip() if len(lines) > 1 and '→' in lines[1] else '❌ AVOID: Multiple negative factors align'
-                          
-                          # Capture the divergence detail from lines[2]
-                          divergence_detail = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else 'Mixed signals/conflicts'
-                          
-                          # Combine them for the 'The Warning' field
-                          reason = f"{primary_warning} — {divergence_detail}"
-                          
-                          # Fetch the data using the now-correct 'matchup' name
-                          score, confidence, story = get_game_data(week, matchup)
-                          
-                          fades.append({
-                              'matchup': matchup,
-                              'recommendation': recommendation,
-                              'reason': reason,
-                              'score': score,
-                              'confidence': confidence,
-                              'story': story
-                          })
-                          
-              return plays, fades 
-          # --- END OF MAIN PARSING LOGIC ---
+                        <h2 style="color: #0056b3; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 25px; font-size: 20px;">🎯 My Top Plays for Week {week}</h2>
+                        {plays_intro}
+                        {plays_html_conversational}
 
-          # ----------------------------------------------------------------------
-          # ✅ FIX: This line resolves the "NameError: name 'plays' is not defined"
-          # ----------------------------------------------------------------------
-          plays, fades = parse_executive_summary(week)
-          
-          # --- DYNAMIC CONTENT GENERATION ---
-          plays_html = ""
-          for play in plays:
-              plays_html += f"""
-              <div style="margin: 20px 0; padding: 15px; border-left: 5px solid #28a745; background: #e9f7ef; border-radius: 4px;">
-                  <h3 style="color: #28a745; margin-top: 0; font-size: 18px;">🎯 {play['recommendation']} | {play['matchup']}</h3>
-                  
-                  <p style="margin: 0 0 10px 0; font-size: 14px; color: #007bff; font-weight: bold;">
-                      Market Narrative: 
-                      <span style="font-weight: normal; color: #495057;">{play['story']}</span>
-                  </p>
+                        <h2 style="color: #d9534f; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 30px; font-size: 20px;">❌ Games to Fade / Avoid</h2>
+                        {fades_intro}
+                        {fades_html_conversational}
 
-                  <p style="margin: 0; font-size: 14px;">
-                      <strong style="color: #155724;">The Edge:</strong> {play['reason']}
-                  </p>
-                  <p style="margin: 5px 0 0 0; font-size: 14px; color: #333;">
-                      <strong style="color: #0066cc;">Total Score:</strong>&nbsp;{play['score']}
-                      &bull;
-                      <strong style="color: #0066cc;">Confidence:</strong>&nbsp;{play['confidence']}/10
-                  </p>
-              </div>
-              """
-          
-          fades_html = ""
-          for fade in fades:
-              fades_html += f"""
-              <div style="margin: 20px 0; padding: 15px; border-left: 5px solid #dc3545; background: #fbe9e9; border-radius: 4px;">
-                  <h3 style="color: #dc3545; margin-top: 0; font-size: 18px;">❌ {fade['recommendation']} | {fade['matchup']}</h3>
-                  
-                  <p style="margin: 0 0 10px 0; font-size: 14px; color: #721c24; font-weight: bold;">
-                      Market Narrative: 
-                      <span style="font-weight: normal; color: #495057;">{fade['story']}</span>
-                  </p>
-
-                  <p style="margin: 0; font-size: 14px;">
-                      <strong style="color: #721c24;">The Warning:</strong> {fade['reason']}
-                  </p>
-                  <p style="margin: 5px 0 0 0; font-size: 14px; color: #333;">
-                      <strong style="color: #0066cc;">Total Score:</strong>&nbsp;{fade['score']}
-                      &bull;
-                      <strong style="color: #0066cc;">Confidence:</strong>&nbsp;{fade['confidence']}/10
-                  </p>
-              </div>
-              """
-
-          # --- HTML BODY ---
-          html_body = f"""<html>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 700px; margin: 0 auto; padding: 20px; color: #333; background-color: #f4f4f4;">
-          
-          <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
-
-              <h1 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; font-size: 24px;">
-                  🏈 Week {week} NFL Analysis - Conversational Brief
-              </h1>
-              <p style="color: #7f8c8d; font-style: italic; margin-top: -10px;">Generated: {timestamp}</p>
-              
-              <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee;">
-                  <h2 style="color: #2c3e50; margin-top: 0; font-size: 20px;">What I'm seeing this week</h2>
-                  
-                  <p>This week’s slate is characterized by several major **Sharp Divergences**—spots where professional money is taking a clear stand against the public. We have a few key spots that offer fantastic value, specifically targeting **OVERs** where the market is sleeping on high-scoring matchups. Conversely, there are several popular games the public is chasing that we need to avoid, primarily because of alignments favoring the **UNDER**.</p>
-                  
-                  <p>Focus your attention on the **TARGETED PLAYS** below. Everything else should be treated as a **PASS** unless you have a strong, independent conviction.</p>
-              </div>
-              
-              <h2 style="color: #0066cc; border-bottom: 2px solid #0066cc; padding-bottom: 10px; margin-top: 30px; font-size: 20px;">
-                  🔥 Top Plays: The High-Value Targets
-              </h2>
-              
-              <p style="color: #666;">These are the games where our analysis—combining sharp money, referee context, and situational factors—identifies a clear, high-confidence edge. **Read the Market Narrative for the 'Why'.**</p>
-              
-              {plays_html}
-              
-              <h2 style="color: #dc3545; border-bottom: 2px solid #dc3545; padding-bottom: 10px; margin-top: 30px; font-size: 20px;">
-                  ❌ Trap Games: Games to AVOID
-              </h2>
-
-              <p style="color: #666;">These games are loaded with conflicting signals or strong factors pointing to an outcome the public is ignoring. Stay away or consider fading the consensus! **The narrative explains the risk.**</p>
-              
-              {fades_html}
-              
-              <div style="border-top: 1px solid #bdc3c7; padding-top: 20px; margin-top: 30px; font-size: 12px; color: #7f8c8d;">
-                  <p><strong>Detailed Analysis Attached:</strong> The full Pro Analysis (`.txt`) and data spreadsheet (`.csv`) are attached to this email. Please refer to them for a game-by-game breakdown.</p>
-                  
-                  <p style="margin-bottom: 0;"><em>Generated {timestamp} • Week {week} {analysis_type}</em></p>
-              </div>
-              
-          </div>
-          </body>
-          </html>"""
-          
-          # --- EMAIL ASSEMBLY WITH ATTACHMENTS (MIME Structure Fix) ---
-          # 1. Main container is 'mixed' (default) to hold attachments
-          msg = MIMEMultipart() 
-          msg['Subject'] = f"Week {week} NFL Analysis - Conversational Brief"
-          msg['From'] = os.getenv('GMAIL_USER')
-          msg['To'] = "lvarughese@gmail.com"
-          
-          # 2. Attach the HTML body directly
-          html_part = MIMEText(html_body, 'html', 'utf-8')
-          msg.attach(html_part)
-          
-          # ATTACH KEY SUMMARY FILES INDIVIDUALLY
-          files_to_attach = [
-              "executive_summary.txt", # Primary summary
-              "analytics.csv",         # Convenient data spreadsheet
-          ]
-          
-          for file_name_suffix in files_to_attach:
-              file_name = f"week{week}_{file_name_suffix}"
-              file_path = f"data/week{week}/{file_name}"
-              try:
-                  with open(file_path, "rb") as f:
-                      # Using fully qualified name to avoid NameError
-                      part = email.mime.application.MIMEApplication(f.read(), name=file_name)
-                  part['Content-Disposition'] = f'attachment; filename="{file_name}"'
-                  # 3. Attach files directly to the main message
-                  msg.attach(part)
-                  print(f"Attached: {file_name}")
-              except FileNotFoundError:
-                  print(f"⚠️ Warning: File not found for attachment: {file_path}")
-          
-          server = smtplib.SMTP('smtp.gmail.com', 587)
-          server.starttls()
-          server.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
-          server.send_message(msg)
-          server.quit()
-          
-          print(f"✅ Conversational email sent: Week {week}")
-          PYTHON_EOF
+                        <p style="margin-top: 30px; font-size: 14px; color: #777;">
+                            For the full, detailed breakdown, including all game cards and comprehensive data files, please refer to the attached **Professional Analysis & Data Package**.
+                        </p>
+                        <p style="font-size: 14px; color: #777;">
+                            Good luck this week!
+                        </p>
+                        <p style="font-size: 14px; color: #777; margin-top: 20px;">Best,</p>
+                        <p style="font-size: 14px; color: #777;">Your NFL Analysis Bot</p>
+                    </div>
+                    <div style="background-color: #f0f0f0; padding: 15px; text-align: center; font-size: 12px; color: #777; border-top: 1px solid #e7e7e7;">
+                        <p style="margin: 0;">Automated NFL Analysis System | Week {week} {analysis_type} | {timestamp}</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            # --- EMAIL ASSEMBLY FOR CONVERSATIONAL EMAIL ---
+            msg_conv = MIMEMultipart()
+            msg_conv['Subject'] = f"Quick Hit: {subject_prefix} Week {week} NFL Plays & Fades" # Use dynamic subject prefix
+            msg_conv['From'] = os.getenv('GMAIL_USER')
+            msg_conv['To'] = "lvarughese@gmail.com" # Can be different recipient for conversational
+            
+            msg_conv.attach(MIMEText(conversational_body, 'html', 'utf-8'))
+            
+            # No attachments for conversational email, just plain text if needed
+            
+            server_conv = smtplib.SMTP('smtp.gmail.com', 587)
+            server_conv.starttls()
+            server_conv.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
+            server_conv.send_message(msg_conv)
+            server_conv.quit()
+            
+            print(f"✅ Conversational email sent: Week {week}")
+            PYTHON_EOF
       
       - name: Upload Analysis Artifacts
         uses: actions/upload-artifact@v4
@@ -755,35 +456,55 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
           # 2. Stage ALL changes (-A) and attempt the initial commit.
+          # Use "|| true" to prevent the step from failing if there are no changes to commit initially.
           git add -A || true 
-          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} pro analysis - Initial Analysis" || echo "No changes to commit (Proceeding to pull)"
+          # Use dynamic analysis_type for the commit message
+          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} pro analysis - ${{ steps.analysis_type.outputs.type }}" || echo "No new analysis changes to commit initially."
           
           # 3. Defensive Cleanup: Amend any new changes to ensure a clean commit.
+          # This is important if initial commit found no changes but new files were generated,
+          # or if changes were introduced between git add and git commit.
+          # The --allow-empty flag ensures this step doesn't fail even if no changes are detected for amendment.
           git add -A
-          git commit --amend --no-edit || true
+          git commit --amend --no-edit --allow-empty || true 
       
           # 4. Integrate remote changes with conflict handling
           # Fetch latest remote state
           git fetch origin
           
-          # Attempt rebase; if it fails (due to conflicts), execute the block in curly braces
+          # Attempt rebase; if it fails (due to conflicts), execute the block in curly braces.
+          # This handles cases where changes were pushed to 'main' by another workflow or directly
+          # while this workflow was running.
           git rebase origin/main || {
-              echo "Rebase conflict detected. Resolving generated files automatically."
+              echo "Rebase conflict detected. Attempting to resolve generated files automatically."
               
-              # Resolve: Tell Git to take OUR version of the generated files
-              git checkout --ours data/week12/week12_executive_summary.txt || true
-              git checkout --ours data/week12/week12_pro_analysis.txt || true
+              # Resolve: For generated files, we typically want to take 'OURS' (the version generated by this workflow)
+              # and discard 'THEIRS' (any conflicting version from the remote).
+              # CRITICAL FIX: Dynamically specify the week number for all generated files.
+              git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_executive_summary.txt || true
+              git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_pro_analysis.txt || true
+              git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.csv || true
+              git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.json || true
+              git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_referee_trends.txt || true
               
-              # Stage the resolved files
-              git add data/week12/week12_executive_summary.txt
-              git add data/week12/week12_pro_analysis.txt
+              # Stage the resolved files so Git knows they've been handled.
+              git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_executive_summary.txt
+              git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_pro_analysis.txt
+              git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.csv
+              git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.json
+              git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_referee_trends.txt
               
-              # Continue the rebase (this now completes the rebase operation)
-              git rebase --continue
+              # Continue the rebase, completing the operation now that conflicts are resolved.
+              git rebase --continue || {
+                  echo "ERROR: Failed to continue rebase after automatic conflict resolution. Manual intervention may be needed."
+                  exit 1
+              }
           }
           
-          # 5. Push the resulting changes
-          git push
+          # 5. Push the resulting changes to the remote 'main' branch.
+          # The --force-with-lease is safer than --force as it prevents overwriting others' work
+          # if they pushed changes while the rebase was being resolved.
+          git push --force-with-lease
       
       - name: Summary
         run: |
