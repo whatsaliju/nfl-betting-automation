@@ -102,7 +102,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: market-data-ready
+          event-type: initial-market-data
           client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "analysis_type": "initial"}'
       
       - name: Summary
