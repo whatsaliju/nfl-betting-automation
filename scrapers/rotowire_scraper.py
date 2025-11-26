@@ -9,6 +9,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
 import pandas as pd
 import time
 from datetime import datetime
@@ -35,11 +37,22 @@ def scrape_lineups():
         # CORRECT URL
         driver.get("https://www.rotowire.com/football/lineups.php")
         
-        # Wait for lineups to load
-        wait = WebDriverWait(driver, 15)
-        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.lineup.is-nfl")))
-        time.sleep(2)
-        
+        # --- NEW ROBUST WAIT ---
+        print("⏳ Waiting up to 30 seconds for RotoWire game cards to load...")
+        try:
+            # Wait 30 seconds for the main game card container to be present
+            wait = WebDriverWait(driver, 30) 
+            wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div.lineup.is-nfl"))
+            )
+            print("✅ RotoWire page loaded dynamically.")
+            
+        except TimeoutException:
+            print("❌ Timeout waiting for RotoWire elements. The page took too long to load.")
+            driver.quit()
+            return [] # Exit gracefully on failure
+            
+        # This line now executes only after the element is confirmed present
         game_cards = driver.find_elements(By.CSS_SELECTOR, "div.lineup.is-nfl")
         
         print(f"✅ Found {len(game_cards)} games")
