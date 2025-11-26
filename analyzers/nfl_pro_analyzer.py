@@ -2098,32 +2098,82 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     )
 
     # 3. Apply Conflict Penalties (using unweighted scores for the check, weighted score for the penalty)
+    # Spread Conflict Penalty Check
     statistical_score_unweighted = statistical_analysis['score']
     unweighted_sum_for_consensus = sum(factor_scores.values())
     consensus_score_unweighted = unweighted_sum_for_consensus - statistical_score_unweighted
+    cap_confidence_total = False # Keep this variable initialization outside the loop if it was there before
     
-    cap_confidence_total = False
-
-    # Spread Conflict Penalty Check
     if abs(statistical_score_unweighted) >= 2 and (statistical_score_unweighted * consensus_score_unweighted < 0):
         CONFLICT_PENALTY_SPREAD = ANALYSIS_CONFIG['CONFLICT_PENALTY_SPREAD']
-                conflict_msg = f"🚨 MAJOR SPREAD CONFLICT: Strong stat value ({statistical_score_unweighted:+.1f}) opposes consensus ({consensus_score_unweighted:+.1f}). Penalty: {CONFLICT_PENALTY_SPREAD}"
+        
+        # --- LOGICAL FIX FOR total_score ---
+        # 1. Neutralize: Subtract the Statistical Score's weighted contribution 
+        stat_contribution = factor_scores['statistical_score'] * FACTOR_WEIGHTS['statistical_score']
+        total_score -= stat_contribution
+        
+        # 2. Penalize: Add the severe conflict penalty
+        total_score += CONFLICT_PENALTY_SPREAD
+        # ------------------------------------
+        
+        # --- LOGGING ---
+        conflict_msg = f"🚨 MAJOR SPREAD CONFLICT: Strong stat value ({statistical_score_unweighted:+.1f}) opposes consensus ({consensus_score_unweighted:+.1f}). Penalty: {CONFLICT_PENALTY_SPREAD}"
         situational_analysis['factors'].append(conflict_msg)
         situational_analysis['description'] += f" | {conflict_msg}"
-        situational_analysis['score'] += CONFLICT_PENALTY_SPREAD # Update situational score (for logging)
-
-    # Total Conflict Penalty Check
+        
+        # Update situational score for logging/tracking
+        situational_analysis['score'] += CONFLICT_PENALTY_SPREAD
+    
+    
+    # Total Conflict Penalty Check (FIXED LOGIC APPLIED)
     sharp_total_score = sharp_analysis['total']['score']
     ref_ou_score = ref_analysis['ou_score']
-    
+     
     if (sharp_total_score * ref_ou_score < 0) and (abs(sharp_total_score) >= 2) and (abs(ref_ou_score) >= 2):
         CONFLICT_PENALTY_TOTAL = ANALYSIS_CONFIG['CONFLICT_PENALTY_TOTAL']
         
+        # --- LOGICAL FIX FOR total_score ---
+        # 1. Neutralize: Subtract the weighted scores of *both* conflicting total factors.
+        #    The sharp score is part of sharp_consensus_score, so we subtract its weighted part.
+        sharp_total_contribution = factor_scores['sharp_consensus_score'] * FACTOR_WEIGHTS['sharp_consensus_score'] * (sharp_total_score / sum(v for v in factor_scores.values() if v > 0)) # Approximate contribution
+        ref_ou_contribution = factor_scores['referee_ou_score'] * FACTOR_WEIGHTS['referee_ou_score']
+        
+        # A cleaner approach is to use the actual factor scores for the total market:
+        # sharp_total_contribution = sharp_analysis['total']['score'] * FACTOR_WEIGHTS['sharp_consensus_score'] 
+        # NOTE: Assuming sharp_consensus_score already aggregates the total market score.
+        
+        # Let's neutralize the two conflicting factor scores entirely:
+        
+        # Neutralize Referee O/U contribution
+        total_score -= (factor_scores['referee_ou_score'] * FACTOR_WEIGHTS['referee_ou_score'])
+        
+        # Neutralize Sharp Total contribution (This is trickier as it's aggregated in sharp_consensus_score)
+        # A robust solution is to use the raw score for Sharp Total and remove it.
+        
+        # Neutralize Sharp Total (Approximate deduction from total_score based on its component weight)
+        # Since sharp_consensus_score is a sum of 3 market scores, we'll remove the full weighted sharp score 
+        # and re-add the spread and moneyline weighted scores. This is the safest way.
+        
+        # Remove the full weighted sharp consensus score
+        total_score -= (factor_scores['sharp_consensus_score'] * FACTOR_WEIGHTS['sharp_consensus_score'])
+        
+        # Re-add the non-conflicting sharp markets (spread and moneyline)
+        total_score += (sharp_analysis['spread']['score'] + sharp_analysis['moneyline']['score']) * FACTOR_WEIGHTS['sharp_consensus_score']
+        
+        # 2. Penalize: Add the severe conflict penalty
+        total_score += CONFLICT_PENALTY_TOTAL
+        # ------------------------------------
+        
+        # --- LOGGING ---
         conflict_msg = f"⚠️ HIGH TOTAL VARIANCE: Sharp Total ({sharp_total_score:+.1f}) conflicts with Referee O/U ({ref_ou_score:+.1f}). Penalty: {CONFLICT_PENALTY_TOTAL}"
         situational_analysis['factors'].append(conflict_msg)
         situational_analysis['description'] += f" | {conflict_msg}"
-        situational_analysis['score'] += CONFLICT_PENALTY_TOTAL # Update situational score (for logging)
+        
+        # Update situational score for logging/tracking
+        situational_analysis['score'] += CONFLICT_PENALTY_TOTAL
         cap_confidence_total = True
+    
+    
         
     # --- End: DYNAMIC FACTOR WEIGHTING & CONFLICT PENALTIES ---
 
