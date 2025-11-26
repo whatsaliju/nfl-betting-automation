@@ -386,9 +386,9 @@ class EnhancedPerformanceTracker:
             ])
 
         new_bets_data = []
-        for game_data in analytics_data.get('games', []):
-            game_name = game_data['game']
-            recommendation_str = game_data['recommendation']
+        for game_data in analytics_data:
+            game_name = game_data['matchup', 'Unknown Game']
+            recommendation_str = game_data.get['recommendation', 'N/A']
             
             # Use the new _parse_recommendation that returns a list of bets
             parsed_bets = self._parse_recommendation(recommendation_str, game_name)
