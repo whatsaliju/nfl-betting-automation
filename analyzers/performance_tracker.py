@@ -350,91 +350,87 @@ class EnhancedPerformanceTracker:
         
         return result
     
-    def log_week_recommendations(self, week: int, analytics_json_path: str):
-        """Log all recommendations for a week from analytics JSON - with duplicate checking."""
+    def log_week_recommendations(self, week: int, analytics_file_path: str, season: int = 2025): # Added season default
+        """
+        Logs recommendations from the analytics file to the betting results CSV.
+        Handles multiple bets per recommendation string by creating multiple rows.
+        """
+        if not os.path.exists(analytics_file_path):
+            print(f"Analytics file not found: {analytics_file_path}")
+            return
+
         try:
-            # Check for existing recommendations first
-            df = pd.read_csv(self.results_file)
-            existing = df[(df['week'] == week) & (df['season'] == 2025)]
+            with open(analytics_file_path, 'r') as f:
+                analytics_data = json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON from {analytics_file_path}: {e}")
+            return
+        
+        # Load existing results or create new DataFrame
+        results_path = os.path.join(self.data_dir, self.historical_results_file)
+        if os.path.exists(results_path):
+            existing_df = pd.read_csv(results_path)
+            # Filter out entries for the current week and season to prevent duplicates
+            existing_df = existing_df[
+                ~((existing_df['week'] == week) & (existing_df['season'] == season))
+            ]
+        else:
+            existing_df = pd.DataFrame(columns=[
+                'week', 'season', 'game', 'recommendation', 'classification', 
+                'bet_type', 'predicted_side', 'actual_result', 'won', 'confidence',
+                'total_score', 'sharp_score', 'referee_score', 'weather_score', 
+                'injury_score', 'situational_score', 'line_at_recommendation', 
+                'closing_line', 'line_movement', 'edge_identified', 
+                'recommendation_date', 'result_date', 'final_score', 
+                'spread_result', 'total_result', 'push'
+            ])
+
+        new_bets_data = []
+        for game_data in analytics_data.get('games', []):
+            game_name = game_data['game']
+            recommendation_str = game_data['recommendation']
             
-            if not existing.empty:
-                print("📋 Week " + str(week) + " recommendations already logged (" + str(len(existing)) + " games)")
-                print("    Skipping duplicate logging to avoid duplicates")
-                return
+            # Use the new _parse_recommendation that returns a list of bets
+            parsed_bets = self._parse_recommendation(recommendation_str, game_name)
             
-            with open(analytics_json_path, 'r') as f:
-                games = json.load(f)
-            
-            new_records = []
-            
-            for game in games:
-                # Skip games without clear recommendations - handle multiple avoid patterns
-                classification = game['classification']
-                recommendation = game.get('recommendation', '')
-                
-                # Skip avoid classifications (handle all variations)
-                avoid_classifications = [
-                    '⚠️ LANDMINE', '\u26a0\ufe0f LANDMINE', 'LANDMINE',
-                    '❌ FADE', '\u274c FADE', 'FADE', 
-                    '🚨 TRAP GAME', 'TRAP GAME',
-                    '⌛ FADE', '\u23f3 FADE',
-                    'AVOID'
-                ]
-                
-                if classification in avoid_classifications:
-                    continue
-                
-                # Also skip if recommendation contains avoid words
-                if any(word in recommendation.upper() for word in ['PASS:', 'AVOID:', 'FADE', 'TRAP']):
-                    continue
-                
-                rec = game['recommendation']
-                bet_info = self._parse_recommendation(rec)
-                
-                if not bet_info:
-                    continue
-                
-                record = {
+            for bet_info in parsed_bets:
+                new_row = {
                     'week': week,
-                    'season': 2025,
-                    'game': game['matchup'],
-                    'recommendation': rec,
-                    'classification': game['classification'],
-                    'bet_type': bet_info['bet_type'],
-                    'predicted_side': self._determine_predicted_side(rec, game['matchup'], bet_info['predicted_side']),
-                    'actual_result': None,
-                    'won': None,
-                    'confidence': game.get('confidence', 0),
-                    'total_score': game.get('total_score', 0),
-                    'sharp_score': game.get('sharp_consensus_score', 0),
-                    'referee_score': game.get('referee_analysis', {}).get('ats_score', 0),
-                    'weather_score': game.get('weather_analysis', {}).get('score', 0),
-                    'injury_score': game.get('injury_analysis', {}).get('score', 0),
-                    'situational_score': game.get('situational_analysis', {}).get('score', 0),
-                    'line_at_recommendation': bet_info.get('line', 'Unknown'),
-                    'closing_line': None,
-                    'line_movement': None,
-                    'edge_identified': self._calculate_edge_strength(game),
+                    'season': season,
+                    'game': game_name,
+                    'recommendation': recommendation_str, # Keep original full recommendation for context
+                    'classification': game_data.get('classification', 'N/A'),
+                    'bet_type': bet_info.get('bet_type', 'unknown'),
+                    'predicted_side': bet_info.get('predicted_side', 'unknown'),
+                    'actual_result': '',
+                    'won': False, # Will be updated later
+                    'confidence': game_data.get('confidence', 0),
+                    'total_score': game_data.get('total_score', 0),
+                    'sharp_score': game_data.get('sharp_score', 0),
+                    'referee_score': game_data.get('referee_score', 0),
+                    'weather_score': game_data.get('weather_score', 0),
+                    'injury_score': game_data.get('injury_score', 0),
+                    'situational_score': game_data.get('situational_score', 0),
+                    'line_at_recommendation': bet_info.get('line', 'N/A'),
+                    'closing_line': '',
+                    'line_movement': 0.0,
+                    'edge_identified': game_data.get('edge_strength', 0.0),
                     'recommendation_date': datetime.now().isoformat(),
-                    'result_date': None,
-                    'final_score': None,
-                    'spread_result': None,
-                    'total_result': None,
-                    'push': None
+                    'result_date': '',
+                    'final_score': '',
+                    'spread_result': '',
+                    'total_result': '',
+                    'push': False
                 }
-                
-                new_records.append(record)
-            
-            if new_records:
-                df = pd.DataFrame(new_records)
-                existing_df = pd.read_csv(self.results_file)
-                combined_df = pd.concat([existing_df, df], ignore_index=True)
-                combined_df.to_csv(self.results_file, index=False)
-                
-                print("✅ Logged " + str(len(new_records)) + " recommendations for Week " + str(week))
-            
-        except Exception as e:
-            print("⚠️ Error logging recommendations: " + str(e))
+                new_bets_data.append(new_row)
+
+        if new_bets_data:
+            new_df = pd.DataFrame(new_bets_data)
+            updated_df = pd.concat([existing_df, new_df], ignore_index=True)
+            updated_df.to_csv(results_path, index=False)
+            print(f"Logged {len(new_bets_data)} new recommendations for Week {week}, Season {season}")
+        else:
+            print(f"No new recommendations to log for Week {week}, Season {season}")
     
     def _parse_recommendation(self, recommendation: str, game_name: str) -> List[Dict]:
         """
