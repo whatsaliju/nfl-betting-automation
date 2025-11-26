@@ -393,7 +393,7 @@ class EnhancedPerformanceTracker:
                     'recommendation': rec,
                     'classification': game['classification'],
                     'bet_type': bet_info['bet_type'],
-                    'predicted_side': bet_info['predicted_side'],
+                    'predicted_side': self._determine_predicted_side(rec, game['matchup'], bet_info['predicted_side']),
                     'actual_result': None,
                     'won': None,
                     'confidence': game.get('confidence', 0),
@@ -433,21 +433,79 @@ class EnhancedPerformanceTracker:
         if not recommendation or 'PASS' in recommendation:
             return None
         
-        bet_info = {'bet_type': 'spread', 'predicted_side': 'unknown'}
+        bet_info = {'bet_type': 'spread', 'predicted_side': 'unknown', 'line': 'Unknown'}
         
+        # Check for combination bets first
         if 'spread' in recommendation.lower() and ('over' in recommendation.lower() or 'under' in recommendation.lower()):
             bet_info['bet_type'] = 'combination'
             
+        # Handle team name + spread format (e.g., "Chiefs -3.5", "Lions +2.5")
+        spread_match = re.search(r'([A-Za-z\s]+)\s*([-+]?\d+\.?5?)', recommendation)
+        if spread_match and not any(word in recommendation.upper() for word in ['OVER', 'UNDER']):
+            bet_info['bet_type'] = 'spread'
+            bet_info['predicted_side'] = 'team_spread'
+            bet_info['line'] = spread_match.group(2)  # Extract the spread value
+            return bet_info
+            
+        # Handle total bets (OVER/UNDER format)
+        total_match = re.search(r'(?:OVER|UNDER)\s+(\d+\.?5?)', recommendation, re.IGNORECASE)
+        if total_match:
+            bet_info['bet_type'] = 'total'
+            total_value = total_match.group(1)
+            if 'OVER' in recommendation.upper():
+                bet_info['predicted_side'] = 'over'
+                bet_info['line'] = 'O' + total_value
+            elif 'UNDER' in recommendation.upper():
+                bet_info['predicted_side'] = 'under' 
+                bet_info['line'] = 'U' + total_value
+            return bet_info
+            
+        # Handle legacy format
         if 'AWAY on spread' in recommendation:
             bet_info.update({'bet_type': 'spread', 'predicted_side': 'away'})
+            # Try to extract spread for legacy format too
+            legacy_spread = re.search(r'[-+]?\d+\.?5?', recommendation)
+            if legacy_spread:
+                bet_info['line'] = legacy_spread.group()
         elif 'HOME on spread' in recommendation:
             bet_info.update({'bet_type': 'spread', 'predicted_side': 'home'})
+            legacy_spread = re.search(r'[-+]?\d+\.?5?', recommendation)
+            if legacy_spread:
+                bet_info['line'] = legacy_spread.group()
         elif 'OVER' in recommendation:
             bet_info.update({'bet_type': 'total', 'predicted_side': 'over'})
+            legacy_total = re.search(r'(\d+\.?5?)', recommendation)
+            if legacy_total:
+                bet_info['line'] = 'O' + legacy_total.group()
         elif 'UNDER' in recommendation:
             bet_info.update({'bet_type': 'total', 'predicted_side': 'under'})
+            legacy_total = re.search(r'(\d+\.?5?)', recommendation)
+            if legacy_total:
+                bet_info['line'] = 'U' + legacy_total.group()
         
         return bet_info
+    
+    def _determine_predicted_side(self, recommendation: str, game_matchup: str, current_side: str) -> str:
+        """Determine predicted side (away/home) from team name and game context."""
+        # If already properly set, return it
+        if current_side in ['away', 'home', 'over', 'under']:
+            return current_side
+        
+        # For team+spread format, determine away/home from game context
+        if current_side == 'team_spread':
+            spread_match = re.search(r'([A-Za-z\s]+)\s*([-+]?\d+\.?5?)', recommendation)
+            if spread_match and ' @ ' in game_matchup:
+                team_mentioned = spread_match.group(1).strip()
+                away_team = game_matchup.split(' @ ')[0]
+                home_team = game_matchup.split(' @ ')[1]
+                
+                # Check if mentioned team is away or home
+                if any(word in team_mentioned.lower() for word in away_team.lower().split()):
+                    return 'away'
+                elif any(word in team_mentioned.lower() for word in home_team.lower().split()):
+                    return 'home'
+        
+        return current_side  # Return original if can't determine
     
     def _calculate_edge_strength(self, game: Dict) -> float:
         """Calculate overall edge strength for the recommendation."""
