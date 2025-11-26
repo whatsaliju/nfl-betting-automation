@@ -111,4 +111,6 @@ def build_schedule_rest_data():
 
 if __name__ == "__main__":
     rest_map_str = build_schedule_rest_data()
-    print(rest_map_str)
+    with open("data/schedule_rest_2025.py", "w") as f:
+    f.write(rest_map_str)
+
