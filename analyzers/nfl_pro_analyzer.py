@@ -2107,8 +2107,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     # Spread Conflict Penalty Check
     if abs(statistical_score_unweighted) >= 2 and (statistical_score_unweighted * consensus_score_unweighted < 0):
         CONFLICT_PENALTY_SPREAD = ANALYSIS_CONFIG['CONFLICT_PENALTY_SPREAD']
-        total_score += CONFLICT_PENALTY_SPREAD
-        conflict_msg = f"🚨 MAJOR SPREAD CONFLICT: Strong stat value ({statistical_score_unweighted:+.1f}) opposes consensus ({consensus_score_unweighted:+.1f}). Penalty: {CONFLICT_PENALTY_SPREAD}"
+                conflict_msg = f"🚨 MAJOR SPREAD CONFLICT: Strong stat value ({statistical_score_unweighted:+.1f}) opposes consensus ({consensus_score_unweighted:+.1f}). Penalty: {CONFLICT_PENALTY_SPREAD}"
         situational_analysis['factors'].append(conflict_msg)
         situational_analysis['description'] += f" | {conflict_msg}"
         situational_analysis['score'] += CONFLICT_PENALTY_SPREAD # Update situational score (for logging)
