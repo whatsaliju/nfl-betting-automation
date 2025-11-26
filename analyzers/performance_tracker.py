@@ -225,11 +225,12 @@ class EnhancedPerformanceTracker:
             'total_analysis': ''
         }
         
-        bet_type = bet_row.get('bet_type', 'spread')
+        bet_type = bet_row.get('bet_type', 'unknown') # Default to unknown, not 'spread'
         predicted_side = bet_row.get('predicted_side', 'unknown')
         recommendation = bet_row.get('recommendation', '')
         game_name = bet_row.get('game', '')
-        
+        line_at_rec = bet_row.get('line_at_recommendation', 'Unknown') # Use the stored line
+
         # Extract team names from the game
         if ' @ ' in game_name:
             away_team = game_name.split(' @ ')[0]
@@ -240,114 +241,110 @@ class EnhancedPerformanceTracker:
         else:
             away_team = home_team = ''
         
-        # Look for spread in format: "Team +/-X" or "Team +/-X.5"
-        spread_match = re.search(r'([A-Za-z\s]+)\s*([-+]?\d+\.?5?)', recommendation)
-        total_match = re.search(r'(?:OVER|UNDER)\s+(\d+\.?5?)', recommendation, re.IGNORECASE)
-        
         away_score = game_result['away_score']
         home_score = game_result['home_score']
         total_score = game_result['total_score']
-        margin = away_score - home_score  # Positive if away wins
+        margin = away_score - home_score  # Positive if away wins (Away_score - Home_score)
         
         analysis_parts = []
         
-        # Handle spread bets with team name + spread format
-        if 'spread' in bet_type.lower() and spread_match:
-            team_mentioned = spread_match.group(1).strip()
-            spread_value = float(spread_match.group(2))
-            
-            # Determine if the mentioned team is away or home
-            team_mentioned_words = team_mentioned.lower().split()
-            away_team_words = away_team.lower().split() 
-            home_team_words = home_team.lower().split()
-            
-            # More flexible matching - check if any word matches
-            is_away_team = any(word in away_team_words for word in team_mentioned_words)
-            is_home_team = any(word in home_team_words for word in team_mentioned_words)
-            
-            if is_away_team:
-                # Away team mentioned: if negative spread, they're favored
-                if spread_value < 0:
-                    # Away team favored by abs(spread_value)
+        # --- Evaluate SPREAD bets ---
+        if 'spread' in bet_type.lower():
+            # Use line_at_recommendation directly for calculation
+            # It should be a string like "-3.5", "+2.5"
+            try:
+                # Remove team names if present for parsing (e.g., "Chiefs -3.5" -> "-3.5")
+                spread_val_str = str(line_at_rec).replace('O', '').replace('U', '') # Remove O/U for safety
+                spread_value = float(spread_val_str)
+            except ValueError:
+                result['spread_analysis'] = "Invalid spread line: " + str(line_at_rec)
+                analysis_parts.append(result['spread_analysis'])
+                return result # Cannot evaluate without a valid line
+
+            covered = False
+            is_push = False
+
+            # Determine the favored team based on the stored predicted_side
+            # This is more robust than parsing the recommendation string again
+            if predicted_side == 'away': # Away team is taking the spread (e.g., Chiefs -3.5)
+                # Away team needs to win by more than abs(spread_value) if negative spread
+                # Away team needs to lose by less than abs(spread_value) if positive spread
+                if spread_value < 0: # Away team is favored
                     covered = margin > abs(spread_value)
-                    result['spread_analysis'] = "Away " + ('+' if margin >= 0 else '') + str(margin) + " vs spread " + str(spread_value)
-                else:
-                    # Away team getting points
-                    covered = margin > -abs(spread_value)
-                    result['spread_analysis'] = "Away " + ('+' if margin >= 0 else '') + str(margin) + " vs spread +" + str(spread_value)
+                    is_push = margin == abs(spread_value)
+                else: # Away team is underdog (e.g., Chiefs +3.5)
+                    covered = margin >= -abs(spread_value) # Win or lose by less than 3.5
+                    is_push = margin == -abs(spread_value)
                 
-            elif is_home_team:
-                # Home team mentioned: if negative spread, they're favored  
-                if spread_value < 0:
-                    # Home team favored by abs(spread_value)
-                    covered = -margin > abs(spread_value)
-                    result['spread_analysis'] = "Home " + ('+' if -margin >= 0 else '') + str(-margin) + " vs spread " + str(spread_value)
-                else:
-                    # Home team getting points
-                    covered = -margin > -abs(spread_value)
-                    result['spread_analysis'] = "Home " + ('+' if -margin >= 0 else '') + str(-margin) + " vs spread +" + str(spread_value)
+                result['spread_analysis'] = "Away Margin: " + ('+' if margin >= 0 else '') + str(margin) + " vs Line: " + str(line_at_rec)
+
+            elif predicted_side == 'home': # Home team is taking the spread (e.g., Eagles -2.5)
+                # Home team needs to win by more than abs(spread_value) if negative spread
+                # Home team needs to lose by less than abs(spread_value) if positive spread
+                actual_home_margin = home_score - away_score # Margin from home team perspective
+                if spread_value < 0: # Home team is favored
+                    covered = actual_home_margin > abs(spread_value)
+                    is_push = actual_home_margin == abs(spread_value)
+                else: # Home team is underdog (e.g., Eagles +2.5)
+                    covered = actual_home_margin >= -abs(spread_value)
+                    is_push = actual_home_margin == -abs(spread_value)
+                
+                result['spread_analysis'] = "Home Margin: " + ('+' if actual_home_margin >= 0 else '') + str(actual_home_margin) + " vs Line: " + str(line_at_rec)
             
-            else:
-                covered = False
-                result['spread_analysis'] = "Could not match team: " + team_mentioned + " in " + game_name
+            # This logic should be consistent for both away and home predicted_side for a given line
+            # The previous team_mentioned regex logic was too complex and error-prone.
+            # Rely on 'predicted_side' (away/home) and 'line_at_recommendation' directly.
             
-            # Check for push
-            if abs(margin) == abs(spread_value):
+            # Determine if it's a push for spread
+            if is_push: # Push is for spread only
                 result['push'] = True
                 analysis_parts.append("PUSH on spread (" + str(margin) + " vs " + str(spread_value) + ")")
             else:
                 result['won'] = covered
                 analysis_parts.append(('WON' if covered else 'LOST') + " spread bet")
-                
-        # Handle legacy format for backward compatibility
-        elif 'spread' in bet_type.lower() and any(word in recommendation.lower() for word in ['away on spread', 'home on spread']):
-            legacy_spread_match = re.search(r'[-+]?\d+\.?5?', recommendation)
-            if legacy_spread_match:
-                spread = float(legacy_spread_match.group())
-                
-                if 'away on spread' in recommendation.lower():
-                    covered = margin > abs(spread) if spread < 0 else margin > -abs(spread)
-                    result['spread_analysis'] = "Away " + ('+' if margin > 0 else '') + str(margin) + " vs spread " + str(spread)
-                    
-                elif 'home on spread' in recommendation.lower():
-                    covered = margin < -abs(spread) if spread > 0 else margin < abs(spread)
-                    result['spread_analysis'] = "Home " + ('+' if -margin > 0 else '') + str(-margin) + " vs spread " + str(-spread)
-                
-                if abs(margin) == abs(spread):
-                    result['push'] = True
-                    analysis_parts.append("PUSH on spread (" + str(margin) + " vs " + str(spread) + ")")
-                else:
-                    result['won'] = covered
-                    analysis_parts.append(('WON' if covered else 'LOST') + " spread bet")
-            else:
-                analysis_parts.append("Spread bet - could not extract line from recommendation")
         
-        # Handle total bets (this works fine already)
-        if 'total' in bet_type.lower() or any(word in recommendation.lower() for word in ['over', 'under']):
-            if total_match:
-                total_line = float(total_match.group(1))
-                
-                if 'over' in recommendation.lower():
-                    covered = total_score > total_line
-                    result['total_analysis'] = "Total " + str(total_score) + " vs O" + str(total_line)
-                elif 'under' in recommendation.lower():
-                    covered = total_score < total_line
-                    result['total_analysis'] = "Total " + str(total_score) + " vs U" + str(total_line)
-                else:
-                    covered = False
-                    result['total_analysis'] = "Could not determine O/U direction"
-                
-                if total_score == total_line:
-                    result['push'] = True
-                    analysis_parts.append("PUSH on total (" + str(total_score) + " vs " + str(total_line) + ")")
-                else:
-                    if 'spread' in result and result.get('won', False):
-                        result['won'] = result['won'] and covered
-                    else:
-                        result['won'] = covered
-                    analysis_parts.append(('WON' if covered else 'LOST') + " total bet")
+        # --- Evaluate TOTAL bets ---
+        elif 'total' in bet_type.lower():
+            # Use line_at_recommendation directly for calculation
+            # It should be a string like "O48.5" or "U41.5"
+            try:
+                total_line_str = str(line_at_rec).replace('O', '').replace('U', '')
+                total_line = float(total_line_str)
+            except ValueError:
+                result['total_analysis'] = "Invalid total line: " + str(line_at_rec)
+                analysis_parts.append(result['total_analysis'])
+                return result # Cannot evaluate without a valid line
+
+            covered = False
+            is_push = False
+
+            if 'over' in predicted_side.lower():
+                covered = total_score > total_line
+                is_push = total_score == total_line
+                result['total_analysis'] = "Total " + str(total_score) + " vs O" + str(total_line)
+            elif 'under' in predicted_side.lower():
+                covered = total_score < total_line
+                is_push = total_score == total_line
+                result['total_analysis'] = "Total " + str(total_score) + " vs U" + str(total_line)
             else:
-                analysis_parts.append("Total bet - could not extract line from recommendation")
+                result['total_analysis'] = "Could not determine O/U direction from predicted_side"
+                analysis_parts.append(result['total_analysis'])
+
+            if is_push:
+                result['push'] = True
+                analysis_parts.append("PUSH on total (" + str(total_score) + " vs " + str(total_line) + ")")
+            else:
+                result['won'] = covered
+                analysis_parts.append(('WON' if covered else 'LOST') + " total bet")
+
+        # --- Handle combination bets if bet_type is 'combination' (advanced, but possible) ---
+        # If your engine really generates combined bets that must *both* hit,
+        # then the logic above needs to be run for both, and result['won'] = spread_won AND total_won.
+        # However, for clearer tracking, it's better to separate these into two rows.
+        # For now, if bet_type is 'combination', this code will do nothing, and it won't be evaluated.
+        # This is okay if you intend to move to separate rows for each component.
+        # If you *don't* separate, then you need to duplicate the logic above and
+        # combine the 'won' and 'push' results carefully.
         
         result['analysis'] = '; '.join(analysis_parts) if analysis_parts else 'Could not analyze bet'
         
