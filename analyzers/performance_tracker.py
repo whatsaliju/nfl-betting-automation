@@ -436,62 +436,81 @@ class EnhancedPerformanceTracker:
         except Exception as e:
             print("⚠️ Error logging recommendations: " + str(e))
     
-    def _parse_recommendation(self, recommendation: str) -> Dict:
-        """Parse recommendation string to extract bet details."""
-        if not recommendation or 'PASS' in recommendation:
-            return None
+    def _parse_recommendation(self, recommendation: str, game_name: str) -> List[Dict]:
+        """
+        Parses a recommendation string to extract bet type, predicted side, and line.
+        Can now return multiple bet dictionaries if it's a combined recommendation.
+        """
+        parsed_bets = []
         
-        bet_info = {'bet_type': 'spread', 'predicted_side': 'unknown', 'line': 'Unknown'}
-        
-        # Check for combination bets first
-        if 'spread' in recommendation.lower() and ('over' in recommendation.lower() or 'under' in recommendation.lower()):
-            bet_info['bet_type'] = 'combination'
+        # Extract team names from the game
+        if ' @ ' in game_name:
+            away_team_full = game_name.split(' @ ')[0].strip()
+            home_team_full = game_name.split(' @ ')[1].strip()
+        elif ' at ' in game_name: # Handle 'at' as well
+            away_team_full = game_name.split(' at ')[0].strip()
+            home_team_full = game_name.split(' at ')[1].strip()
+        else:
+            away_team_full = ""
+            home_team_full = ""
+
+        # --- Regex for Spread Bets ---
+        # Catches 'Team +/-X.X' or 'Team +/-X'
+        spread_pattern = re.compile(r'\b(?!OVER|UNDER)([A-Za-z\s&.]+)\s([+-]?\d+\.?\d*)\b')
+        spread_matches = spread_pattern.findall(recommendation)
+
+        for team_name_match, line_match in spread_matches:
+            team_name_match = team_name_match.strip()
+            # Try to match the team name to away_team_full or home_team_full
+            # This is critical for setting predicted_side correctly
+            predicted_side = 'unknown'
+            if team_name_match in away_team_full:
+                predicted_side = 'away'
+            elif team_name_match in home_team_full:
+                predicted_side = 'home'
+            # If a shorter name is used (e.g., "Chiefs" for "Kansas City Chiefs")
+            elif away_team_full and team_name_match in away_team_full.split(' ')[-1]: # Match "Chiefs" in "Kansas City Chiefs"
+                 predicted_side = 'away'
+            elif home_team_full and team_name_match in home_team_full.split(' ')[-1]: # Match "Rams" in "Los Angeles Rams"
+                 predicted_side = 'home'
+
+            parsed_bets.append({
+                'bet_type': 'spread',
+                'predicted_side': predicted_side,
+                'line': line_match
+            })
+
+        # --- Regex for Total Bets (OVER/UNDER) ---
+        # Catches 'OVER X.X' or 'UNDER X' or 'O X.X' or 'U X'
+        total_pattern = re.compile(r'\b(OVER|UNDER|O|U)\s?(\d+\.?\d*)\b', re.IGNORECASE)
+        total_matches = total_pattern.findall(recommendation)
+
+        for ou_indicator, line_match in total_matches:
+            predicted_side = 'unknown'
+            if ou_indicator.lower() in ['over', 'o']:
+                predicted_side = 'over'
+            elif ou_indicator.lower() in ['under', 'u']:
+                predicted_side = 'under'
             
-        # Handle team name + spread format (e.g., "Chiefs -3.5", "Lions +2.5")
-        spread_match = re.search(r'([A-Za-z\s]+)\s*([-+]?\d+\.?5?)', recommendation)
-        if spread_match and not any(word in recommendation.upper() for word in ['OVER', 'UNDER']):
-            bet_info['bet_type'] = 'spread'
-            bet_info['predicted_side'] = 'team_spread'
-            bet_info['line'] = spread_match.group(2)  # Extract the spread value
-            return bet_info
-            
-        # Handle total bets (OVER/UNDER format)
-        total_match = re.search(r'(?:OVER|UNDER)\s+(\d+\.?5?)', recommendation, re.IGNORECASE)
-        if total_match:
-            bet_info['bet_type'] = 'total'
-            total_value = total_match.group(1)
-            if 'OVER' in recommendation.upper():
-                bet_info['predicted_side'] = 'over'
-                bet_info['line'] = 'O' + total_value
-            elif 'UNDER' in recommendation.upper():
-                bet_info['predicted_side'] = 'under' 
-                bet_info['line'] = 'U' + total_value
-            return bet_info
-            
-        # Handle legacy format
-        if 'AWAY on spread' in recommendation:
-            bet_info.update({'bet_type': 'spread', 'predicted_side': 'away'})
-            # Try to extract spread for legacy format too
-            legacy_spread = re.search(r'[-+]?\d+\.?5?', recommendation)
-            if legacy_spread:
-                bet_info['line'] = legacy_spread.group()
-        elif 'HOME on spread' in recommendation:
-            bet_info.update({'bet_type': 'spread', 'predicted_side': 'home'})
-            legacy_spread = re.search(r'[-+]?\d+\.?5?', recommendation)
-            if legacy_spread:
-                bet_info['line'] = legacy_spread.group()
-        elif 'OVER' in recommendation:
-            bet_info.update({'bet_type': 'total', 'predicted_side': 'over'})
-            legacy_total = re.search(r'(\d+\.?5?)', recommendation)
-            if legacy_total:
-                bet_info['line'] = 'O' + legacy_total.group()
-        elif 'UNDER' in recommendation:
-            bet_info.update({'bet_type': 'total', 'predicted_side': 'under'})
-            legacy_total = re.search(r'(\d+\.?5?)', recommendation)
-            if legacy_total:
-                bet_info['line'] = 'U' + legacy_total.group()
-        
-        return bet_info
+            # Format line as "O48.5" or "U41.5"
+            formatted_line = f"{ou_indicator[0].upper()}{line_match}"
+
+            parsed_bets.append({
+                'bet_type': 'total',
+                'predicted_side': predicted_side,
+                'line': formatted_line
+            })
+
+        # If no specific bet types were found, it's an unparseable recommendation.
+        # This catch-all can be removed if you ensure all recommendations are parsable.
+        if not parsed_bets:
+            parsed_bets.append({
+                'bet_type': 'unknown',
+                'predicted_side': 'unknown',
+                'line': 'N/A'
+            })
+
+        return parsed_bets
     
     def _determine_predicted_side(self, recommendation: str, game_matchup: str, current_side: str) -> str:
         """Determine predicted side (away/home) from team name and game context."""
