@@ -22,6 +22,7 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial 
 # >>> END NEW IMPORTS <<<
+from data.schedule_rest_2025 import SCHEDULE_REST_DATA_2025
 
 # ================================================================
 # CONFIGURATION AND WEIGHTS (NEW)
@@ -75,123 +76,6 @@ TEAM_MAP = {
 # This format allows the calculate_schedule_score function to look up rest days directly by TLA.
 # ================================================================
 
-SCHEDULE_REST_DATA_2025 = {
-    'W1': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W2': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 9, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 9, 'JAX': 7, 'KC': 8, 
-        'LAC': 8, 'LAR': 7, 'LV': 9, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W3': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 14, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 14, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W4': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W5': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W6': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W7': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W8': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W9': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W10': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W11': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W12': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 18, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 3, 'IND': 14, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 4, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W13': {
-        'ARI': 7, 'ATL': 7, 'BAL': 7, 'BUF': 14, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W14': {
-        'ARI': 7, 'ATL': 7, 'BAL': 14, 'BUF': 7, 'CAR': 14, 'CHI': 7, 'CIN': 14, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 14, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 14, 
-        'LAC': 7, 'LAR': 7, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 14, 'NO': 7, 'NYG': 14, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 14, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W15': {
-        'ARI': 7, 'ATL': 3, 'BAL': 7, 'BUF': 7, 'CAR': 14, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 9, 'DEN': 7, 'DET': 9, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 5, 'LAR': 7, 'LV': 7, 'MIA': 8, 'MIN': 7, 'NE': 14, 'NO': 7, 'NYG': 14, 
-        'NYJ': 7, 'PHI': 5, 'PIT': 8, 'SEA': 7, 'SF': 14, 'TB': 3, 'TEN': 7, 'WAS': 7
-    },
-    'W16': {
-        'ARI': 7, 'ATL': 9, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 7, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 7, 
-        'LAC': 7, 'LAR': 3, 'LV': 7, 'MIA': 5, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 5, 'SEA': 3, 'SF': 7, 'TB': 9, 'TEN': 7, 'WAS': 7
-    },
-    'W17': {
-        'ARI': 7, 'ATL': 8, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 3, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 5, 'JAX': 7, 'KC': 3, 
-        'LAC': 7, 'LAR': 11, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 8, 'SF': 5, 'TB': 7, 'TEN': 7, 'WAS': 7
-    },
-    'W18': {
-        'ARI': 7, 'ATL': 5, 'BAL': 7, 'BUF': 7, 'CAR': 7, 'CHI': 7, 'CIN': 7, 'CLE': 7, 
-        'DAL': 7, 'DEN': 10, 'DET': 7, 'GB': 7, 'HOU': 7, 'IND': 7, 'JAX': 7, 'KC': 10, 
-        'LAC': 7, 'LAR': 5, 'LV': 7, 'MIA': 7, 'MIN': 7, 'NE': 7, 'NO': 7, 'NYG': 7, 
-        'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 7, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 7
-    }
-}
-
-
-
-# ================================================================
-# SCHEDULE-SPECIFIC CONSTANTS (Derived from 2025 NFL Schedule)
-# ================================================================
-
 # Simplified map for time zone logic (Used to calculate W2E/E2W travel fatigue)
 TEAM_TIME_ZONES = {
     'SEA': 'PST', 'SF': 'PST', 'LAR': 'PST', 'LV': 'PST', 'LAC': 'PST', 'ARI': 'MST',
@@ -238,11 +122,14 @@ def calculate_schedule_score(week, home_tla, away_tla):
     """
     
     # Use the dummy data constant defined above
-    rest_data = SCHEDULE_REST_DATA_2025.get(week, {})
+    week_key = f"W{week}" if isinstance(week, int) else week
+    rest_data = SCHEDULE_REST_DATA_2025.get(week_key, {})
+
     
     # Retrieve rest days, defaulting to 7 if data is missing
-    home_rest = rest_data.get(home_tla, 7)
-    away_rest = rest_data.get(away_tla, 7)
+    home_rest = rest_data[home_tla]
+    away_rest = rest_data[away_tla]
+
     
     rest_differential = home_rest - away_rest # Positive means Home team has more rest
     
