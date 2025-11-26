@@ -70,8 +70,7 @@ def build_schedule_rest_data():
             week = g["week"]
             date = g["date"]
             if prev_date is None:
-                # First game of the season: define as 7 days rest
-                rest_days = 7
+                rest_days = 7  # Opening game baseline
             else:
                 rest_days = (date.date() - prev_date.date()).days
 
@@ -79,20 +78,19 @@ def build_schedule_rest_data():
             rest_by_week[wk_label][tla] = rest_days
             prev_date = date
 
-    # 4. Ensure every week has all 32 teams with default 7 if (for some reason) missing
+    # 4. Ensure every week has all teams (default = 7)
     all_tlas = sorted(team_games.keys())
     for w in range(1, 19):
         wk_label = f"W{w}"
         for tla in all_tlas:
             rest_by_week[wk_label].setdefault(tla, 7)
 
-    # 5. Build pretty Python constant string
+    # 5. Generate python constant
     lines = []
     lines.append("SCHEDULE_REST_DATA_2025 = {")
     for w in range(1, 19):
         wk_label = f"W{w}"
         mp = {tla: rest_by_week[wk_label][tla] for tla in sorted(all_tlas)}
-
         lines.append(f"    '{wk_label}': {{")
         line = "        "
         for tla, val in mp.items():
@@ -102,8 +100,7 @@ def build_schedule_rest_data():
                 line = "        " + entry
             else:
                 line += entry
-        if line.strip():
-            lines.append(line)
+        lines.append(line)
         lines.append("    },")
     lines.append("}")
 
@@ -112,5 +109,5 @@ def build_schedule_rest_data():
 if __name__ == "__main__":
     rest_map_str = build_schedule_rest_data()
     with open("data/schedule_rest_2025.py", "w") as f:
-    f.write(rest_map_str)
-
+        f.write(rest_map_str)
+    print("✔️ Generated: data/schedule_rest_2025.py")
