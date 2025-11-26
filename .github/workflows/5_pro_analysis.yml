@@ -535,7 +535,6 @@ jobs:
                   
                   for block in targeted_section.strip().split('\n\n'):
                       if 'TARGETED PLAY' in block and '→' in block:
-                          # FIX: Changed 'from' to 'in'
                           lines = [l.strip() for l in block.split('\n') if l.strip()]
                           if not lines: continue
                           
@@ -567,7 +566,6 @@ jobs:
                   
                   for block in blocks:
                       if '❌ AVOID' in block and '→' in block:
-                          # FIX: Changed 'from' to 'in'
                           lines = [l.strip() for l in block.split('\n') if l.strip()]
                           if len(lines) < 3: continue 
                           
@@ -692,24 +690,24 @@ jobs:
             </html>
             """
             
-            # --- EMAIL ASSEMBLY FOR CONVERSATIONAL EMAIL ---
-            msg_conv = MIMEMultipart()
-            msg_conv['Subject'] = f"Quick Hit: {subject_prefix} Week {week} NFL Plays & Fades" # Use dynamic subject prefix
-            msg_conv['From'] = os.getenv('GMAIL_USER')
-            msg_conv['To'] = "lvarughese@gmail.com" # Can be different recipient for conversational
-            
-            msg_conv.attach(MIMEText(conversational_body, 'html', 'utf-8'))
-            
-            # No attachments for conversational email, just plain text if needed
-            
-            server_conv = smtplib.SMTP('smtp.gmail.com', 587)
-            server_conv.starttls()
-            server_conv.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
-            server_conv.send_message(msg_conv)
-            server_conv.quit()
-            
-            print(f"✅ Conversational email sent: Week {week}")
-            PYTHON_EOF
+          # --- EMAIL ASSEMBLY FOR CONVERSATIONAL EMAIL ---
+          msg_conv = MIMEMultipart()
+          msg_conv['Subject'] = f"Quick Hit: {subject_prefix} Week {week} NFL Plays & Fades" # Use dynamic subject prefix
+          msg_conv['From'] = os.getenv('GMAIL_USER')
+          msg_conv['To'] = "lvarughese@gmail.com" # Can be different recipient for conversational
+          
+          msg_conv.attach(MIMEText(conversational_body, 'html', 'utf-8'))
+          
+          # No attachments for conversational email, just plain text if needed
+          
+          server_conv = smtplib.SMTP('smtp.gmail.com', 587)
+          server_conv.starttls()
+          server_conv.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
+          server_conv.send_message(msg_conv)
+          server_conv.quit()
+          
+          print(f"✅ Conversational email sent: Week {week}")
+          PYTHON_EOF
             
       - name: Upload Analysis Artifacts
         uses: actions/upload-artifact@v4
