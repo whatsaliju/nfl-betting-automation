@@ -60,19 +60,28 @@ jobs:
           echo "📅 Generating analysis for Week $WEEK"
       
       - name: Get Analysis Type
-        id: analysis_type
-        run: |
-          TYPE="${{ github.event.client_payload.analysis_type }}"
-          FLIPS="${{ github.event.client_payload.line_flips }}"
-          
+        id: analysis_type
+        run: |
+          # First, try to get from workflow_dispatch inputs
+          TYPE="${{ github.event.inputs.analysis_type }}"
+          # If not from inputs, then try client_payload (from repository_dispatch)
+          if [ -z "$TYPE" ] || [ "$TYPE" == "null" ]; then # Check for empty or "null" string
+            TYPE="${{ github.event.client_payload.analysis_type }}"
+          fi
+
+          FLIPS="${{ github.event.client_payload.line_flips }}" # Line flips will only come from repository_dispatch
+
           if [ "$TYPE" = "initial" ]; then
             echo "type=Initial Analysis" >> $GITHUB_OUTPUT
             echo "subject_prefix=🏈 Initial" >> $GITHUB_OUTPUT
-          else
+          elif [ "$TYPE" = "final_lineups" ]; then # Add a specific case for final lineups
+            echo "type=Final Lineup Analysis" >> $GITHUB_OUTPUT
+            echo "subject_prefix=🚨 Final Lineup" >> $GITHUB_OUTPUT
+          else # Default for manual or other types
             echo "type=Updated Analysis" >> $GITHUB_OUTPUT
             echo "subject_prefix=📊 Updated" >> $GITHUB_OUTPUT
           fi
-          
+
           if [ -n "$FLIPS" ] && [ "$FLIPS" != "0" ]; then
             echo "flip_alert=🚨 $FLIPS line flip(s) detected and processed" >> $GITHUB_OUTPUT
           else
