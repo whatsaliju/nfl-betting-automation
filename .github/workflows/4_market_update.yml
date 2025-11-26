@@ -2,11 +2,11 @@ name: 4. Market Update (with Line-Flip Detection)
 
 on:
   schedule:
-  # Thursday 7:00 PM Eastern Time (EST/UTC-5) = Friday 0:00 AM UTC
+    # Friday 0:00 AM UTC = Thursday 7:00 PM Eastern Time (EST/UTC-5)
     - cron: '0 0 * * 5' 
-    # Saturday 8:00 PM Eastern Time (EST/UTC-5) = Sunday 1:00 AM UTC
+    # Sunday 1:00 AM UTC = Saturday 8:00 PM Eastern Time (EST/UTC-5)
     - cron: '0 1 * * 0'
-    # Sunday 12:00 PM Eastern Time (EST/UTC-5) = Sunday 5:00 PM UTC
+    # Sunday 5:00 PM UTC = Sunday 12:00 PM Eastern Time (EST/UTC-5)
     - cron: '0 17 * * 0'
   workflow_dispatch:
     inputs:
@@ -14,6 +14,12 @@ on:
         description: 'NFL Week Number'
         required: true
         type: number
+      # Add a manual trigger for analysis_type if needed, though mostly handled by logic
+      analysis_type:
+        description: 'Override analysis type (e.g., update, initial, final_lineups)'
+        required: false
+        default: 'update'
+        type: string
 
 jobs:
   update_market_data:
@@ -24,15 +30,15 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: main
-      
-      - name: Pull latest changes
+          
+      - name: Pull latest changes (before starting)
         run: git pull origin main
         
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
+          
       - name: Cache Python dependencies
         uses: actions/cache@v3
         with:
@@ -43,32 +49,39 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install pandas selenium lxml
+          pip install pandas selenium lxml webdriver-manager # Added webdriver-manager
           sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
+          # Chromium is typically needed for Selenium, but chromedriver is managed by webdriver-manager
+          sudo apt-get install -y chromium-browser 
       
       - name: Get Week Number
         id: get_week
         run: |
-          # Use single quotes to safely assign the input number as a string
+          WEEK=""
+          # Priority 1: workflow_dispatch input
           if [ -n "${{ github.event.inputs.week }}" ]; then
-            WEEK='${{ github.event.inputs.week }}'
-          else
-            # Auto-detect from existing files
+            WEEK="${{ github.event.inputs.week }}"
+          fi
+          
+          # Priority 2: Auto-detect from existing files if no input provided
+          if [ -z "$WEEK" ]; then
             WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
           fi
           
           # Final safety check: Default to 1 if detection failed
           if [ -z "$WEEK" ]; then
               WEEK=1
+              echo "⚠️ Warning: Could not auto-detect week. Defaulting to Week 1."
           fi
+
+          # Ensure WEEK is an integer (remove any decimals if present, as it's type 'number')
+          WEEK="${WEEK%.*}"
 
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "📅 Updating market data for Week $WEEK"
 
       - name: Create config folder
-        run: mkdir -p config
-
+        run: mkdir -p config data/week${{ steps.get_week.outputs.week }} # Ensure week-specific folder exists
       
       - name: Create Action Network Cookies
         env:
@@ -78,12 +91,14 @@ jobs:
       - name: Scrape Action Network (All Markets)
         run: |
           echo "📊 Scraping Action Network..."
-          python3 scrapers/action_network_scraper_cookies.py
+          # Pass the week number to the scraper if it needs it to save data
+          python3 scrapers/action_network_scraper_cookies.py ${{ steps.get_week.outputs.week }}
       
       - name: Scrape Action Network Injuries & Weather
         run: |
           echo "🩹 Scraping Action Network injuries & weather..."
-          python3 scrapers/action_network_injuries_weather.py
+          # Pass the week number to the scraper
+          python3 scrapers/action_network_injuries_weather.py ${{ steps.get_week.outputs.week }}
       
       - name: Detect Line Flips & Update SDQL
         id: line_flips
@@ -93,176 +108,327 @@ jobs:
         run: |
           python3 << 'PYTHON_EOF'
           import sys
-          sys.path.append('scrapers')
+          import os
           import pandas as pd
           import re
-          from sdql_test import run_sdql_queries
+          import datetime
           
-          week = ${{ steps.get_week.outputs.week }}
+          # Add scraper path to system path for imports
+          sys.path.append('scrapers')
           
-          # Load baseline queries (from Wednesday)
+          # Import SDQL runner
           try:
-              baseline = pd.read_csv(f'data/week{week}/week{week}_queries.csv')
-          except:
-              print("⚠️ No baseline queries found, skipping line-flip detection")
-              exit(0)
+              from sdql_test import run_sdql_queries
+              from selenium import webdriver
+              from selenium.webdriver.chrome.service import Service
+              from webdriver_manager.chrome import ChromeDriverManager
+              sdql_available = True
+          except ImportError as e:
+              print(f"WARNING: Could not import SDQL dependencies: {e}. SDQL updates will be skipped.")
+              sdql_available = False
           
+          week = "${{ steps.get_week.outputs.week }}"
+          
+          # --- OUTPUT VARIABLES INITIALIZATION ---
+          analysis_type_output = "${{ github.event.inputs.analysis_type }}" # Default to workflow_dispatch input
+          flips_detected = "false"
+          flip_count = 0
+          
+          # Load baseline queries (from initial scrape or previous market update)
+          baseline_queries_path = f'data/week{week}/week{week}_queries.csv'
+          try:
+              baseline = pd.read_csv(baseline_queries_path)
+              print(f"Loaded baseline queries from {baseline_queries_path}")
+          except FileNotFoundError:
+              print(f"⚠️ No baseline queries found at {baseline_queries_path}, skipping line-flip detection.")
+              print(f"analysis_type={analysis_type_output}") # Still output the type
+              print(f"flips_detected={flips_detected}")
+              print(f"flip_count={flip_count}")
+              # Write outputs for GitHub Actions
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"flips_detected={flips_detected}\n")
+                  f.write(f"flip_count={flip_count}\n")
+                  f.write(f"analysis_type={analysis_type_output}\n")
+              exit(0) # Exit early if no baseline to compare against
+          except Exception as e:
+              print(f"Error loading baseline queries: {e}")
+              print(f"analysis_type={analysis_type_output}")
+              print(f"flips_detected={flips_detected}")
+              print(f"flip_count={flip_count}")
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"flips_detected={flips_detected}\n")
+                  f.write(f"flip_count={flip_count}\n")
+                  f.write(f"analysis_type={analysis_type_output}\n")
+              exit(0)
+
           # Load current Action Network spreads
           try:
-              action_files = [f for f in __import__('os').listdir('data') 
-                            if f.startswith('action_all_markets_')]
-              latest_action = sorted(action_files)[-1]
-              current_spreads = pd.read_csv(f'data/{latest_action}')
+              # Assuming action_network_scraper_cookies.py saves to a dated file like:
+              # data/action_all_markets_YYYYMMDD_HHMM.csv
+              action_files_in_data = [f for f in os.listdir('data') if f.startswith('action_all_markets_')]
+              if not action_files_in_data:
+                  raise FileNotFoundError("No 'action_all_markets_' files found in 'data' directory.")
+              latest_action_file = sorted(action_files_in_data, reverse=True)[0] # Get the most recent
+              current_spreads_path = os.path.join('data', latest_action_file)
+              current_spreads = pd.read_csv(current_spreads_path)
               current_spreads = current_spreads[current_spreads['Market'] == 'Spread']
-          except:
-              print("⚠️ No current spreads found, skipping line-flip detection")
+              print(f"Loaded current spreads from {current_spreads_path}")
+          except FileNotFoundError as e:
+              print(f"⚠️ {e}, skipping line-flip detection.")
+              print(f"analysis_type={analysis_type_output}")
+              print(f"flips_detected={flips_detected}")
+              print(f"flip_count={flip_count}")
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"flips_detected={flips_detected}\n")
+                  f.write(f"flip_count={flip_count}\n")
+                  f.write(f"analysis_type={analysis_type_output}\n")
+              exit(0)
+          except Exception as e:
+              print(f"Error loading current spreads: {e}")
+              print(f"analysis_type={analysis_type_output}")
+              print(f"flips_detected={flips_detected}")
+              print(f"flip_count={flip_count}")
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"flips_detected={flips_detected}\n")
+                  f.write(f"flip_count={flip_count}\n")
+                  f.write(f"analysis_type={analysis_type_output}\n")
               exit(0)
           
-          # Team name mapping
+          # Team name mapping (should be consistent)
           TEAM_FULL_TO_ABBR = {
-              'Patriots': 'NE', 'Jets': 'NYJ', 'Commanders': 'WAS', 'Dolphins': 'MIA',
-              'Panthers': 'CAR', 'Falcons': 'ATL', 'Buccaneers': 'TB', 'Bills': 'BUF',
-              'Chargers': 'LAC', 'Jaguars': 'JAX', 'Bears': 'CHI', 'Vikings': 'MIN',
-              'Packers': 'GB', 'Giants': 'NYG', 'Bengals': 'CIN', 'Steelers': 'PIT',
-              'Texans': 'HOU', 'Titans': 'TEN', '49ers': 'SF', 'Cardinals': 'ARI',
-              'Seahawks': 'SEA', 'Rams': 'LAR', 'Ravens': 'BAL', 'Browns': 'CLE',
-              'Chiefs': 'KC', 'Broncos': 'DEN', 'Lions': 'DET', 'Eagles': 'PHI',
-              'Cowboys': 'DAL', 'Raiders': 'LV'
+              'Arizona Cardinals': 'ARI', 'Atlanta Falcons': 'ATL', 'Baltimore Ravens': 'BAL', 'Buffalo Bills': 'BUF',
+              'Carolina Panthers': 'CAR', 'Chicago Bears': 'CHI', 'Cincinnati Bengals': 'CIN', 'Cleveland Browns': 'CLE',
+              'Dallas Cowboys': 'DAL', 'Denver Broncos': 'DEN', 'Detroit Lions': 'DET', 'Green Bay Packers': 'GB',
+              'Houston Texans': 'HOU', 'Indianapolis Colts': 'IND', 'Jacksonville Jaguars': 'JAX', 'Kansas City Chiefs': 'KC',
+              'Las Vegas Raiders': 'LV', 'Los Angeles Chargers': 'LAC', 'Los Angeles Rams': 'LAR', 'Miami Dolphins': 'MIA',
+              'Minnesota Vikings': 'MIN', 'New England Patriots': 'NE', 'New Orleans Saints': 'NO', 'New York Giants': 'NYG',
+              'New York Jets': 'NYJ', 'Philadelphia Eagles': 'PHI', 'Pittsburgh Steelers': 'PIT', 'San Francisco 49ers': 'SF',
+              'Seattle Seahawks': 'SEA', 'Tampa Bay Buccaneers': 'TB', 'Tennessee Titans': 'TEN', 'Washington Commanders': 'WAS'
           }
           
           def parse_spread(line_str):
-              match = re.search(r'([+-]?\d+\.?\d*)', str(line_str))
+              # Handles formats like "+3.5" or "-7" or "PICK"
+              line_str = str(line_str).strip().upper()
+              if "PICK" in line_str:
+                  return 0.0
+              match = re.search(r'([+-]?\d+\.?\d*)', line_str)
               return float(match.group(1)) if match else 0.0
           
           # Detect line flips (zero crosses)
           flips = []
           
-          for _, row in current_spreads.iterrows():
-              try:
-                  away_full, home_full = row['Matchup'].split('@')
-                  away_full = away_full.strip()
-                  home_full = home_full.strip()
-                  away_code = TEAM_FULL_TO_ABBR.get(away_full, away_full)
-                  home_code = TEAM_FULL_TO_ABBR.get(home_full, home_full)
-                  
-                  # Get current spread
-                  current_spread = parse_spread(row['Line'])
-                  
-                  # Find baseline
-                  baseline_row = baseline[
-                      (baseline['away'] == away_code) & 
-                      (baseline['home'] == home_code)
-                  ]
-                  
-                  if baseline_row.empty:
+          # Ensure 'away' and 'home' columns exist in baseline and 'Matchup' in current_spreads
+          if 'away' not in baseline.columns or 'home' not in baseline.columns or 'Matchup' not in current_spreads.columns:
+              print("Baseline or current spreads missing expected columns. Cannot detect flips.")
+          else:
+              for _, row in current_spreads.iterrows():
+                  try:
+                      # Parse matchup string "Away Team @ Home Team"
+                      matchup_parts = row['Matchup'].split('@')
+                      if len(matchup_parts) != 2:
+                          print(f"Skipping malformed matchup: {row['Matchup']}")
+                          continue
+                      
+                      away_full = matchup_parts[0].strip()
+                      home_full = matchup_parts[1].strip()
+                      
+                      away_code = TEAM_FULL_TO_ABBR.get(away_full, away_full)
+                      home_code = TEAM_FULL_TO_ABBR.get(home_full, home_full)
+                      
+                      # Get current spread (Action Network always shows as negative for favorite)
+                      current_spread_val = parse_spread(row['Line'])
+                      
+                      # Determine current favorite from Action Network's perspective (who has the minus line)
+                      if current_spread_val < 0:
+                          current_fav_code = away_code if row['Team'] == away_full else home_code
+                          current_dog_code = home_code if row['Team'] == away_full else away_code
+                      elif current_spread_val > 0:
+                          current_fav_code = home_code if row['Team'] == away_full else away_code # Dog is positive, fav is implied opponent
+                          current_dog_code = away_code if row['Team'] == away_full else home_code
+                      else: # PICK'EM
+                          current_fav_code = 'PK' 
+                          current_dog_code = 'PK'
+                          
+                      # Find baseline entry using team codes
+                      baseline_row = baseline[
+                          (baseline['away'] == away_code) & 
+                          (baseline['home'] == home_code)
+                      ]
+                      
+                      if baseline_row.empty:
+                          # This game might be new or not in the initial queries. Just skip line flip for it.
+                          continue
+                      
+                      # Extract baseline favorite and spread
+                      baseline_fav_code = baseline_row.iloc[0]['favorite'] # 'AF' or 'HF' or 'PK'
+                      baseline_spread_val = float(baseline_row.iloc[0]['spread'])
+                      
+                      # Map baseline 'AF'/'HF' to team codes for comparison
+                      baseline_fav_team = ''
+                      if baseline_fav_code == 'AF':
+                          baseline_fav_team = away_code
+                      elif baseline_fav_code == 'HF':
+                          baseline_fav_team = home_code
+                      elif baseline_fav_code == 'PK':
+                          baseline_fav_team = 'PK'
+
+                      # --- LINE FLIP LOGIC ---
+                      # A flip occurs if the favorite team has changed, or if it was PK and now isn't, or vice-versa
+                      if baseline_fav_team != current_fav_code:
+                          # Special handling for PK: if one was PK and the other isn't, it's a flip.
+                          # If both are PK, it's not a flip.
+                          if not (baseline_fav_team == 'PK' and current_fav_code == 'PK'):
+                              flips_detected = "true"
+                              flip_count += 1
+                              print(f"🚨 LINE FLIP DETECTED: {away_code} @ {home_code}")
+                              print(f"  Baseline Favorite: {baseline_fav_team} ({baseline_spread_val:+.1f})")
+                              print(f"  Current Favorite:  {current_fav_code} ({current_spread_val:+.1f})")
+                              
+                              referee = baseline_row.iloc[0]['referee']
+                              game_type = baseline_row.iloc[0]['game_type']
+                              
+                              # Determine new favorite code for SDQL (AF/HF/PK)
+                              new_sdql_fav_code = 'PK'
+                              if current_fav_code == away_code: new_sdql_fav_code = 'AF'
+                              elif current_fav_code == home_code: new_sdql_fav_code = 'HF'
+                              
+                              # Generate new query based on new favorite
+                              new_query = f"'{referee}' in officials and {new_sdql_fav_code} and {game_type} and REG and season>=2018"
+                              
+                              flips.append({
+                                  'matchup': f"{away_code} @ {home_code}",
+                                  'old_favorite_team': baseline_fav_team,
+                                  'new_favorite_team': current_fav_code,
+                                  'old_spread': baseline_spread_val,
+                                  'new_spread': current_spread_val,
+                                  'query': new_query,
+                                  'referee': referee,
+                                  'game_type': game_type # Store game_type for updating baseline
+                              })
+                              
+                  except Exception as e:
+                      print(f"Error processing {row.get('Matchup', 'Unknown Matchup')}: {e}")
                       continue
-                  
-                  baseline_fav = baseline_row.iloc[0]['favorite']
-                  baseline_spread = float(baseline_row.iloc[0]['spread'])
-                  
-                  # Determine current favorite
-                  current_fav = 'AF' if current_spread < 0 else 'HF'
-                  
-                  # Check if favorite flipped
-                  if baseline_fav != current_fav:
-                      print(f"🚨 LINE FLIP DETECTED: {away_code} @ {home_code}")
-                      print(f"   Was: {baseline_fav} ({baseline_spread:+.1f})")
-                      print(f"   Now: {current_fav} ({current_spread:+.1f})")
-                      
-                      referee = baseline_row.iloc[0]['referee']
-                      
-                      # Determine game type
-                      game_type = baseline_row.iloc[0]['game_type']
-                      
-                      # Generate new query
-                      new_query = f"'{referee}' in officials and {current_fav} and {game_type} and REG and season>=2018"
-                      
-                      flips.append({
-                          'matchup': f"{away_code} @ {home_code}",
-                          'old_favorite': baseline_fav,
-                          'new_favorite': current_fav,
-                          'old_spread': baseline_spread,
-                          'new_spread': current_spread,
-                          'query': new_query,
-                          'referee': referee
-                      })
-                      
-              except Exception as e:
-                  continue
           
-          # Run new queries if any flips detected
-          if flips:
+          # --- SDQL Update Logic ---
+          if flips and sdql_available:
               print(f"\n📊 Running {len(flips)} updated SDQL queries...")
               
-              new_queries = [flip['query'] for flip in flips]
+              new_queries_list = [flip['query'] for flip in flips]
               
+              # run_sdql_queries should update 'data/historical/sdql_results.csv'
               run_sdql_queries(
-                  email="${GIMMETHEDOG_EMAIL}",
-                  password="${GIMMETHEDOG_PASSWORD}",
-                  queries=new_queries,
-                  headless=True
+                  email=os.environ["GIMMETHEDOG_EMAIL"],
+                  password=os.environ["GIMMETHEDOG_PASSWORD"],
+                  queries=new_queries_list,
+                  headless=True, # Ensure headless mode for GitHub Actions
+                  output_dir='data/historical' # Specify output directory for SDQL results
               )
               
-              # Update baseline queries CSV
+              # Update baseline queries CSV with new favorites and queries
               for flip in flips:
-                  mask = (baseline['matchup'] == flip['matchup'])
-                  baseline.loc[mask, 'favorite'] = flip['new_favorite']
-                  baseline.loc[mask, 'spread'] = flip['new_spread']
+                  mask = (baseline['away'] == flip['away_code']) & (baseline['home'] == flip['home_code'])
                   
-                  # Update query
-                  new_query = f"'{flip['referee']}' in officials and {flip['new_favorite']} and {baseline.loc[mask, 'game_type'].iloc[0]} and REG and season>=2018"
-                  baseline.loc[mask, 'query'] = new_query
+                  # Update favorite code (AF/HF/PK)
+                  new_sdql_fav_code = 'PK'
+                  if flip['new_favorite_team'] == flip['away_code']: new_sdql_fav_code = 'AF'
+                  elif flip['new_favorite_team'] == flip['home_code']: new_sdql_fav_code = 'HF'
+
+                  baseline.loc[mask, 'favorite'] = new_sdql_fav_code
+                  baseline.loc[mask, 'spread'] = flip['new_spread']
+                  baseline.loc[mask, 'query'] = flip['query'] # Update with the new query
+                  
+              # Save updated queries to the week-specific folder
+              baseline.to_csv(baseline_queries_path, index=False)
               
-              # Save updated queries
-              baseline.to_csv(f'data/week{week}/week{week}_queries.csv', index=False)
-              
-              # Save flip report
+              # Save flip report to the week-specific folder
               flip_df = pd.DataFrame(flips)
-              flip_df.to_csv(f'data/week{week}_line_flips_{__import__("datetime").datetime.now().strftime("%Y%m%d_%H%M")}.csv', index=False)
+              flip_df_path = f'data/week{week}/week{week}_line_flips_{datetime.datetime.now().strftime("%Y%m%d_%H%M")}.csv'
+              flip_df.to_csv(flip_df_path, index=False)
               
-              print(f"✅ Updated SDQL data for {len(flips)} flipped games")
+              print(f"✅ Updated SDQL data for {len(flips)} flipped games and saved flip report to {flip_df_path}")
               
-              # Output for later steps
-              with open(__import__('os').environ['GITHUB_OUTPUT'], 'a') as f:
-                  f.write(f"flips_detected=true\n")
-                  f.write(f"flip_count={len(flips)}\n")
+              flips_detected = "true"
+              flip_count = len(flips)
+              analysis_type_output = "final_lineups" # When flips are detected, it's a "final lineup" type analysis
           else:
-              print("✅ No line flips detected")
-              with open(__import__('os').environ['GITHUB_OUTPUT'], 'a') as f:
-                  f.write(f"flips_detected=false\n")
-                  f.write(f"flip_count=0\n")
-          
+              print("✅ No line flips detected or SDQL updates skipped.")
+              flips_detected = "false"
+              flip_count = 0
+              analysis_type_output = "update" # Regular update if no flips
+
+          # --- Output for GitHub Actions ---
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"flips_detected={flips_detected}\n")
+              f.write(f"flip_count={flip_count}\n")
+              f.write(f"analysis_type={analysis_type_output}\n") # Output the determined analysis type
           PYTHON_EOF
       
       - name: Commit Updated Data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Stage all relevant updated data files
           git add data/action_all_markets_*.csv \
-                  data/action_injuries_*.csv \
-                  data/action_weather_*.csv \
-                  data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv \
-                  data/week${{ steps.get_week.outputs.week }}_line_flips_*.csv \
-                  data/historical/sdql_results.csv || true
-              # 1. Commit local changes
-              git commit -m "📊 Week ${{ steps.get_week.outputs.week }} market update (${{ steps.line_flips.outputs.flip_count }} line flips)" || echo "No changes to commit"
+                    data/action_injuries_*.csv \
+                    data/action_weather_*.csv \
+                    data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv \
+                    data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv \
+                    data/historical/sdql_results.csv || true
+          
+          # Attempt to commit; if no changes, echo message and proceed
+          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} market update (${{ steps.line_flips.outputs.flip_count }} line flips) - ${{ steps.line_flips.outputs.analysis_type }}" || echo "No changes to commit for market update."
+          
+          # Pull remote changes with rebase to integrate them cleanly.
+          # If conflicts occur, attempt to resolve them for the generated files (take 'ours').
+          git fetch origin
+          git rebase origin/main || {
+              echo "Rebase conflict detected during market data commit. Resolving generated files automatically."
               
-              # 2. FIX: Pull remote changes and reapply your commit
-              git pull --rebase origin main
+              # Resolve specific generated files, taking 'ours' (our newly generated data)
+              # Ensure dynamic week number
+              git checkout --ours data/action_all_markets_*.csv || true # Take our latest scrape
+              git checkout --ours data/action_injuries_*.csv || true
+              git checkout --ours data/action_weather_*.csv || true
+              git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv || true
+              git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv || true
+              git checkout --ours data/historical/sdql_results.csv || true # Take our latest SDQL results
               
-              # 3. Push the resulting changes
-              git push
+              # Stage the resolved files
+              git add data/action_all_markets_*.csv
+              git add data/action_injuries_*.csv
+              git add data/action_weather_*.csv
+              git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv
+              git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv
+              git add data/historical/sdql_results.csv
+              
+              # Continue the rebase
+              git rebase --continue || {
+                  echo "ERROR: Failed to continue rebase after automatic conflict resolution for market data. Manual intervention may be needed."
+                  exit 1
+              }
+          }
+          
+          # Push the resulting changes
+          git push --force-with-lease
       
       - name: Trigger Pro Analysis
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: market-data-ready
-          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "analysis_type": "update", "line_flips": "${{ steps.line_flips.outputs.flip_count }}"}'
+          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "analysis_type": "${{ steps.line_flips.outputs.analysis_type }}", "line_flips": "${{ steps.line_flips.outputs.flip_count }}"}'
       
       - name: Summary
         run: |
           echo "✅ Market data update complete"
           echo "📊 Line flips detected: ${{ steps.line_flips.outputs.flip_count }}"
+          echo "👉 Triggering Pro Analysis with type: ${{ steps.line_flips.outputs.analysis_type }}"
           echo "📁 Updated files:"
-          ls -lh data/action_all_markets_*.csv data/rotowire_lineups_*.csv 2>/dev/null | tail -5
+          # List more relevant files now that we have injury/weather/SDQL updates
+          ls -lh data/action_all_markets_*.csv \
+                    data/action_injuries_*.csv \
+                    data/action_weather_*.csv \
+                    data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv \
+                    data/historical/sdql_results.csv 2>/dev/null | tail -10
