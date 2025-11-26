@@ -52,7 +52,6 @@ driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () =>
 print("🍪 Cookie-based authentication approach")
 
 # Load cookies if they exist
-i# Load cookies if they exist
 if os.path.exists(COOKIES_FILE):
     print(f"✅ Found cookies file: {COOKIES_FILE}")
     driver.get("https://www.actionnetwork.com")
