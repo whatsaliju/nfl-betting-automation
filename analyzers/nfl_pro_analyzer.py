@@ -1795,7 +1795,7 @@ class ClassificationEngine:
         
         # Trap Game: Public/sharp divergence
         if sharp_score >= 2 and game_analysis['public_exposure'] >= 65:
-            return "🚨 TRAP GAME", "FADE PUBLIC", 6
+            return "🚨 TRAP GAME", "FADE PUBLIC", 4
         
         # Fade: Multiple negative factors
         if total <= -2:
@@ -2219,7 +2219,7 @@ def analyze_week(week):
         # it opposes the consensus (scores have opposite signs).
         if abs(statistical_score) >= 2 and (statistical_score * consensus_score < 0):
             # Apply a heavy penalty to force a drop in classification
-            CONFLICT_PENALTY_SPREAD = -5
+            CONFLICT_PENALTY_SPREAD = -2.0 # reduced from -5.0
             total_score += CONFLICT_PENALTY_SPREAD
             
             # Log the penalty in situational factors for transparency
