@@ -524,69 +524,85 @@ class EnhancedPerformanceTracker:
         return round(edge_strength, 2)
     
     def generate_week_results_report(self, week: int) -> str:
-        """Generate a formatted report for a specific week's results."""
-        try:
-            df = pd.read_csv(self.results_file)
-            week_df = df[df['week'] == week].copy()
+    """Generate a formatted report for a specific week's results."""
+    try:
+        df = pd.read_csv(self.results_file)
+        week_df = df[df['week'] == week].copy()
+        
+        if week_df.empty:
+            return "📊 Week " + str(week) + " Results: No bets found"
             
-            if week_df.empty:
-                return "📊 Week " + str(week) + " Results: No bets found"
-            
-            completed_df = week_df.dropna(subset=['won'])
-            
-            report = []
-            report.append("📊 WEEK " + str(week) + " BETTING RESULTS")
-            report.append("=" * 50)
-            
-            if completed_df.empty:
-                report.append("🔍 No completed games yet - results pending")
-                return "\n".join(report)
-            
-            wins = completed_df['won'].sum()
-            pushes = completed_df['push'].sum() if 'push' in completed_df.columns else 0
-            total_completed = len(completed_df)
-            losses = total_completed - wins - pushes
-            win_rate = (wins / (wins + losses) * 100) if (wins + losses) > 0 else 0
-            
-            report.append("")
-            report.append("📈 OVERALL PERFORMANCE:")
-            report.append("    Record: " + str(int(wins)) + "-" + str(int(losses)) + ("" if pushes == 0 else "-" + str(int(pushes))))
-            report.append("    Win Rate: " + str(round(win_rate, 1)) + "%")
-            report.append("    Total Recommendations: " + str(len(week_df)))
-            report.append("    Pending Results: " + str(len(week_df) - total_completed))
-            
-            if not completed_df.empty:
-                report.append("")
-                report.append("🎯 PERFORMANCE BY TIER:")
-                for classification in completed_df['classification'].unique():
-                    tier_df = completed_df[completed_df['classification'] == classification]
-                    tier_wins = int(tier_df['won'].sum())
-                    tier_total = len(tier_df)
-                    tier_rate = (tier_wins / tier_total * 100) if tier_total > 0 else 0
-                    report.append("    " + str(classification) + ": " + str(tier_wins) + "/" + str(tier_total) + " (" + str(round(tier_rate, 1)) + "%)")
-            
-            report.append("")
-            report.append("📋 GAME-BY-GAME RESULTS:")
-            for _, row in completed_df.iterrows():
-                result_icon = "✅" if row['won'] else "🟡" if row.get('push', False) else "❌"
-                result_text = "WIN" if row['won'] else "PUSH" if row.get('push', False) else "LOSS"
-                
-                report.append("    " + result_icon + " " + str(row['game']))
-                report.append("      Bet: " + str(row['recommendation']))
-                report.append("      Result: " + result_text + " - " + str(row.get('final_score', 'Score unavailable')))
-                if row.get('spread_result') or row.get('total_result'):
-                    analysis = []
-                    if row.get('spread_result'):
-                        analysis.append(str(row['spread_result']))
-                    if row.get('total_result'):
-                        analysis.append(str(row['total_result']))
-                    report.append("      Analysis: " + '; '.join(analysis))
-                report.append("")
-            
+        # --- START OF FIX: Filter for official bets only ---
+        official_bet_types = ['spread', 'total']
+        
+        # Filter all recommendations for the week to only include official bets
+        official_week_df = week_df[week_df['bet_type'].isin(official_bet_types)].copy()
+        
+        # Filter the official bets down to only completed games
+        official_completed_df = official_week_df.dropna(subset=['won'])
+        # --- END OF FIX ---
+        
+        report = []
+        report.append("📊 WEEK " + str(week) + " BETTING RESULTS")
+        report.append("=" * 50)
+        
+        if official_completed_df.empty: # Check for completed official bets
+            report.append("🔍 No completed official bets yet - results pending")
             return "\n".join(report)
             
-        except Exception as e:
-            return "⚠️ Error generating report: " + str(e)
+        # --- Use official_completed_df for calculations ---
+        wins = official_completed_df['won'].sum()
+        pushes = official_completed_df['push'].sum() if 'push' in official_completed_df.columns else 0
+        total_completed = len(official_completed_df) # Total completed official bets
+        losses = total_completed - wins - pushes
+        win_rate = (wins / (wins + losses) * 100) if (wins + losses) > 0 else 0
+        # --------------------------------------------------
+        
+        report.append("")
+        report.append("📈 OVERALL PERFORMANCE:")
+        report.append("    Record: " + str(int(wins)) + "-" + str(int(losses)) + ("" if pushes == 0 else "-" + str(int(pushes))))
+        report.append("    Win Rate: " + str(round(win_rate, 1)) + "%")
+        # Use the official_week_df count for the total
+        report.append("    Total Official Bets: " + str(len(official_week_df)))
+        report.append("    Pending Official Results: " + str(len(official_week_df) - total_completed))
+        
+        # --- Use the original completed_df for the breakdown by tier, 
+        #     but only if you want to include 'PASS' and 'FADE' in the tier stats.
+        #     If you only want official bets in the tier report, change 'completed_df' to 'official_completed_df' below.
+        if not completed_df.empty: 
+            report.append("")
+            report.append("🎯 PERFORMANCE BY TIER:")
+            for classification in official_completed_df['classification'].unique(): # Use official_completed_df for filtering
+                tier_df = official_completed_df[official_completed_df['classification'] == classification]
+                tier_wins = int(tier_df['won'].sum())
+                tier_total = len(tier_df)
+                tier_pushes = int(tier_df['push'].sum()) if 'push' in tier_df.columns else 0
+                tier_losses = tier_total - tier_wins - tier_pushes
+                tier_rate = (tier_wins / (tier_wins + tier_losses) * 100) if (tier_wins + tier_losses) > 0 else 0
+                report.append("    " + str(classification) + ": " + str(tier_wins) + "-" + str(tier_losses) + ("" if tier_pushes == 0 else "-" + str(tier_pushes)) + " (" + str(round(tier_rate, 1)) + "%)")
+        
+        report.append("")
+        report.append("📋 GAME-BY-GAME RESULTS (Official Bets Only):")
+        for _, row in official_completed_df.iterrows(): # Use official_completed_df for iteration
+            result_icon = "✅" if row['won'] else "🟡" if row.get('push', False) else "❌"
+            result_text = "WIN" if row['won'] else "PUSH" if row.get('push', False) else "LOSS"
+            
+            report.append("    " + result_icon + " " + str(row['game']))
+            report.append("      Bet: " + str(row['recommendation']))
+            report.append("      Result: " + result_text + " - " + str(row.get('final_score', 'Score unavailable')))
+            if row.get('spread_result') or row.get('total_result'):
+                analysis = []
+                if row.get('spread_result'):
+                    analysis.append(str(row['spread_result']))
+                if row.get('total_result'):
+                    analysis.append(str(row['total_result']))
+                report.append("      Analysis: " + '; '.join(analysis))
+            report.append("")
+            
+        return "\n".join(report)
+        
+    except Exception as e:
+        return "⚠️ Error generating report: " + str(e)
 
 
 def main():
