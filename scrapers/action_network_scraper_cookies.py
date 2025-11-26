@@ -52,12 +52,12 @@ driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () =>
 print("🍪 Cookie-based authentication approach")
 
 # Load cookies if they exist
+i# Load cookies if they exist
 if os.path.exists(COOKIES_FILE):
     print(f"✅ Found cookies file: {COOKIES_FILE}")
     driver.get("https://www.actionnetwork.com")
-    time.sleep(2) # <-- RE-ADDED: Essential for stability before adding cookies
+    time.sleep(2) # <-- Essential sleep after initial navigation
     try:
-        # ALL CODE BELOW HERE IS INDENTED 8 SPACES
         with open(COOKIES_FILE, 'r') as f:
             cookies = json.load(f)
         
@@ -65,10 +65,8 @@ if os.path.exists(COOKIES_FILE):
             # --- START FIX: ESSENTIAL ROBUSTNESS ---
             if 'expiry' in cookie:
                 try:
-                    # Convert to int, as drivers require it.
                     cookie['expiry'] = int(cookie['expiry'])
                 except (ValueError, TypeError):
-                    # If conversion fails, remove it to prevent hard failure
                     cookie.pop('expiry', None) 
             if 'domain' not in cookie:
                 cookie['domain'] = '.actionnetwork.com'
@@ -314,13 +312,12 @@ for val, label in markets:
         print(f"✅ Dropdown selection changed to: {val}")
         
         # NEW, ROBUST SYNCHRONIZATION CODE
-        # We replace the brittle staleness check with a robust dynamic wait.
-        # We wait for an actual game element to be present, which signals data has arrived.
-        print("⏳ Waiting for new table data to load...")
-        wait.until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "table tbody tr .public-betting__game-info"))
-        )
-        print("✅ Market data loaded dynamically.")
+        # We wait for an actual game element to be present, which signals data has arrived.
+        print("⏳ Waiting for new table data to load...")
+        wait.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "table tbody tr .public-betting__game-info"))
+        )
+        print("✅ Market data loaded dynamically.")
         
         # 5. Now it's safe to scrape
         market_data = scrape_current_market(label)
@@ -329,16 +326,16 @@ for val, label in markets:
     except TimeoutException:
         print(f"❌ Timeout waiting for {label} market data to load.")
     except Exception as e:
-        print(f"❌ Error scraping {label}: {e}")
         # Important: if the market select element itself became stale, we need to find it again.
+        print(f"❌ Error scraping {label}: {e}")
         if isinstance(e, StaleElementReferenceException):
-             print("Re-finding dropdown element...")
-             all_selects = driver.find_elements(By.TAG_NAME, "select")
-             for sel in all_selects:
-                 opts = [opt.get_attribute("value") for opt in sel.find_elements(By.TAG_NAME, "option")]
-                 if "spread" in opts and "total" in opts:
-                     market_select_element = sel
-                     break
+            print("Re-finding dropdown element...")
+            all_selects = driver.find_elements(By.TAG_NAME, "select")
+            for sel in all_selects:
+                opts = [opt.get_attribute("value") for opt in sel.find_elements(By.TAG_NAME, "option")]
+                if "spread" in opts and "total" in opts:
+                    market_select_element = sel
+                    break
 
 driver.quit()
 
