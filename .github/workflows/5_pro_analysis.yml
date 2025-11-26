@@ -112,7 +112,6 @@ jobs:
         run: |
           echo "🔬 Running Pro Analysis Engine..."
           python3 analyzers/nfl_pro_analyzer.py ${{ steps.get_week.outputs.week }}
-      
       - name: Send Enhanced Professional Email
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
@@ -140,19 +139,16 @@ jobs:
           except:
               pro_analysis_content = "Pro analysis file not found"
           
-          # --- DATA PARSING LOGIC (Restored from your old script) ---
+          # --- DATA PARSING LOGIC ---
           def parse_game_sections(content):
               games = []
-              # Split by game divider
               game_sections = content.split("======================================================================")
               
               for section in game_sections:
-                  # Check for a new game section
                   if "===" in section and "Classification:" in section:
                       game = {}
                       lines = section.strip().split('\n')
                       
-                      # Initial line parsing
                       for line in lines:
                           line = line.strip()
                           if line.startswith("=== ") and " ===" in line:
@@ -162,11 +158,10 @@ jobs:
                           elif line.startswith("Total Score:"):
                               game['total_score'] = line.replace("Total Score:", "").strip()
                           elif line.startswith("Confidence:"):
-                              game['confidence'] = line.replace("Confidence:", "").strip().split('/')[0] # Clean up /10 if present
+                              game['confidence'] = line.replace("Confidence:", "").strip().split('/')[0]
                           elif line.startswith("Recommendation:"):
                               game['recommendation'] = line.replace("Recommendation:", "").strip()
                       
-                      # Detailed section parsing
                       game['sharp_stories'] = []
                       game['referee_context'] = []
                       game['weather'] = ""
@@ -194,9 +189,8 @@ jobs:
                           elif "MARKET DYNAMICS:" in line:
                               current_section = "market"
                           elif "THE VERDICT:" in line:
-                              current_section = "verdict" # Stop parsing bullet points after verdict
+                              current_section = "verdict"
                           
-                          # Extract bullet points/data
                           elif (line.startswith("•") or line.startswith("→") or line.startswith("-")) and current_section and current_section != "verdict":
                               content_line = line[1:].strip()
                               
@@ -211,8 +205,7 @@ jobs:
                               elif current_section == "market":
                                   game['market'].append(content_line)
                               
-                              # Specific handling for non-list items
-                              elif current_section == "weather" and content_line and not game['weather']: # Only set if not already set
+                              elif current_section == "weather" and content_line and not game['weather']:
                                   game['weather'] = content_line
                               elif current_section == "injury" and "Impact:" in line:
                                   game['injury'] = line.split("Impact:")[-1].strip()
@@ -230,11 +223,10 @@ jobs:
           traps = [g for g in games if "❌ FADE" in g.get('classification', '') or "⚠️ LANDMINE" in g.get('classification', '')]
           total_games = len(games)
           
-          # --- HTML GENERATION (Restored and Refined) ---
+          # --- HTML GENERATION ---
           def generate_game_card(game):
               classification = game.get('classification', '')
               
-              # Determine card styling
               if "🔵 BLUE CHIP" in classification:
                   card_class = "border-left: 5px solid #2196F3; background: #e3f2fd;"
                   badge_color = "#2196F3"
@@ -252,7 +244,6 @@ jobs:
                   badge_color = "#666"
                   emoji = "📈"
               
-              # Combine all bullet-point factors for a concise "Other Factors" list
               other_factors = []
               if game.get('weather'):
                   other_factors.append(f"<strong>Weather:</strong> {game['weather']}")
@@ -267,31 +258,31 @@ jobs:
               
               factors_html = ""
               if other_factors:
-                  factors_html += """
+                  factors_html += f"""
                   <div style="background: white; padding: 10px 15px; border-radius: 5px; margin: 10px 0;">
                       <h4 style="margin: 0 0 5px 0; color: #34495e; font-size: 15px;">📊 Additional Context</h4>
                   """
-                  for factor in other_factors[:4]: # Limit to 4 factors
+                  for factor in other_factors[:4]:
                       factors_html += f"<p style='margin: 3px 0; font-size: 13px;'>• {factor}</p>"
                   factors_html += "</div>"
                   
               sharp_html = ""
               if game.get('sharp_stories'):
-                  sharp_html += """
+                  sharp_html += f"""
                   <div style="background: white; padding: 10px 15px; border-radius: 5px; margin: 10px 0;">
                       <h4 style="margin: 0 0 5px 0; color: #e65100; font-size: 15px;">💰 Sharp Money Analysis</h4>
                   """
-                  for story in game['sharp_stories'][:3]: # Top 3 stories
+                  for story in game['sharp_stories'][:3]:
                       sharp_html += f"<p style='margin: 3px 0; font-size: 13px;'>• {story}</p>"
                   sharp_html += "</div>"
 
               ref_html = ""
               if game.get('referee_context'):
-                  ref_html += """
+                  ref_html += f"""
                   <div style="background: white; padding: 10px 15px; border-radius: 5px; margin: 10px 0;">
                       <h4 style="margin: 0 0 5px 0; color: #5d4e75; font-size: 15px;">⚖️ Referee Context</h4>
                   """
-                  for context in game['referee_context'][:2]: # Top 2 contexts
+                  for context in game['referee_context'][:2]:
                       ref_html += f"<p style='margin: 3px 0; font-size: 13px;'>• {context}</p>"
                   ref_html += "</div>"
               
@@ -375,11 +366,304 @@ jobs:
                       <div style="font-weight:bold;">🎯 TARGETED</div>
                       <div style="font-size:12px; color:#666;">Good Value Plays</div>
                   </div>
-                  <div style="text-align:center; padding:15px; background:white; border-radius:5px; border-left: 4(total_games)} games.
+                  <div style="text-align:center; padding:15px; background:white; border-radius:5px; border-left: 4px solid #f44336;">
+                      <div style="font-size:24px; font-weight:bold; color:#f44336;">{len(traps)}</div>
+                      <div style="font-weight:bold;">❌ FADES/TRAPS</div>
+                      <div style="font-size:12px; color:#666;">Fade the Public</div>
+                  </div>
+                  <div style="text-align:center; padding:15px; background:white; border-radius:5px; border-left: 4px solid #666;">
+                      <div style="font-size:24px; font-weight:bold; color:#666;">{total_games}</div>
+                      <div style="font-weight:bold;">📈 TOTAL GAMES</div>
+                      <div style="font-size:12px; color:#666;">Full Analysis</div>
+                  </div>
+              </div>
+          </div>
+          
+          <div style="margin: 30px 0;">
+              <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+                  🎯 Complete Game-by-Game Analysis
+              </h2>
+              <p style="color: #7f8c8d; margin-bottom: 25px;">
+                  Comprehensive breakdown of all {total_games} games with sharp money analysis, referee trends, 
+                  situational factors, and confidence scores.
+              </p>
+              {game_cards_html}
+          </div>
+          
+          <div style="text-align:center; padding:25px; background:#f8f9fa; border-radius:8px; margin:30px 0;">
+              <h3 style="margin-top:0; color:#2c3e50;">📁 Complete Analysis Package (Attached)</h3>
+              <p style="color:#666; margin: 10px 0;">The following files are attached to this email:</p>
+              
+              <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0;">
+                  <span style="background: #e8f5e8; padding: 8px 12px; border-radius: 5px; font-size: 14px;">
+                      📊 week{week}_analytics.csv
+                  </span>
+                  <span style="background: #fff3e0; padding: 8px 12px; border-radius: 5px; font-size: 14px;">
+                      📝 week{week}_pro_analysis.txt
+                  </span>
+                  <span style="background: #f3e5f5; padding: 8px 12px; border-radius: 5px; font-size: 14px;">
+                      🤖 week{week}_analytics.json
+                  </span>
+                   <span style="background: #e1f5fe; padding: 8px 12px; border-radius: 5px; font-size: 14px;">
+                       📄 week{week}_executive_summary.txt
+                   </span>
+              </div>
+              
+              <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" class="download-link">
+                  🔽 Go to GitHub Run (If Attachments Fail)
+              </a>
+          </div>
+          
+          <div style="border-top:1px solid #ddd; padding-top:15px; margin-top:30px; font-size:12px; color:#666;">
+              <p><b>🤖 Analysis Engine:</b> 8-layer system covering sharp money, referee trends, weather, injuries, situational factors, statistical modeling, game theory, and schedule analysis</p>
+              <p><b>📊 Data Sources:</b> Action Network, Football Zebras, RotoWire, SDQL Historical Database</p>
+              <p><b>⏰ Generated:</b> {timestamp} | Week {week} {analysis_type}</p>
+          </div>
+          
+          </div>
+          </body>
+          </html>"""
+          
+          
+          # --- EMAIL ASSEMBLY (CRITICAL FIX: MIME Structure for Attachments) ---
+          # 1. Main container is 'mixed' (default) to hold attachments
+          msg = MIMEMultipart() 
+          # Use the subject prefix determined earlier
+          msg['Subject'] = f"{subject_prefix} Week {week} NFL Pro Analysis & Data Package"
+          msg['From'] = os.getenv('GMAIL_USER')
+          msg['To'] = "lvarughese@gmail.com"
+          
+          # 2. Attach the HTML body directly
+          html_part = MIMEText(html_body, 'html', 'utf-8')
+          msg.attach(html_part)
+          
+          # ATTACH ALL FOUR ANALYSIS FILES INDIVIDUALLY
+          files_to_attach = [
+              "executive_summary.txt",
+              "pro_analysis.txt",
+              "analytics.csv",
+              "analytics.json",
+          ]
+          
+          for file_name_suffix in files_to_attach:
+              file_name = f"week{week}_{file_name_suffix}"
+              file_path = f"data/week{week}/{file_name}"
+              try:
+                  with open(file_path, "rb") as f:
+                      # CRITICAL: Use email.mime.application for proper attachment
+                      part = email.mime.application.MIMEApplication(f.read(), name=file_name)
+                  part['Content-Disposition'] = f'attachment; filename="{file_name}"'
+                  # 3. Attach files directly to the main message
+                  msg.attach(part) 
+                  print(f"Attached: {file_name}")
+              except FileNotFoundError:
+                  print(f"⚠️ Warning: File not found for attachment: {file_path}")
+          
+          server = smtplib.SMTP('smtp.gmail.com', 587)
+          server.starttls()
+          server.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
+          server.send_message(msg)
+          server.quit()
+          
+          print(f"✅ Enhanced professional email sent: Week {week}")
+          PYTHON_EOF
+      
+      - name: Upload Analysis Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: week-${{ steps.get_week.outputs.week }}-analysis
+          path: |
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_executive_summary.txt
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_pro_analysis.txt
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.csv
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.json
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_referee_trends.txt
+          retention-days: 30
 
-                  """ if total_games > 0 else "<p>No games analyzed in this report.</p>"
+      - name: Send Conversational Analysis Email
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: |
+          python3 << 'PYTHON_EOF'
+          import smtplib
+          from email.mime.multipart import MIMEMultipart
+          from email.mime.text import MIMEText
+          import email.mime.application 
+          import os
+          import re
+          
+          week = "${{ steps.get_week.outputs.week }}"
+          timestamp = "${{ steps.timestamp.outputs.time }}"
+          analysis_type = "${{ steps.analysis_type.outputs.type }}"
+          subject_prefix = "${{ steps.analysis_type.outputs.subject_prefix }}"
+          intro_text = "${{ steps.analysis_type.outputs.intro_text }}" # Use dynamic intro text
+          flip_alert = "${{ steps.analysis_type.outputs.flip_alert }}"
+          
+          # --- HELPER FUNCTION TO PULL SCORES AND SHARP MONEY STORY ---
+          def get_game_data(week, matchup):
+              score = 'N/A'
+              confidence = 'N/A'
+              story = 'No major divergence identified.' 
+              
+              try:
+                  with open(f"data/week{week}/week{week}_pro_analysis.txt", "r") as f:
+                      content = f.read()
+              except FileNotFoundError:
+                  return score, confidence, story
 
-            conversational_body = f"""
+              escaped_matchup = re.escape(matchup)
+              
+              matchup_pattern = re.compile(
+                  rf"==={re.escape(matchup)}===\s*.*?SHARP MONEY STORY:\s*(.*?)\s*THE VERDICT:\s*Total Score: (\S+)\s*Confidence: (\S+)",
+                  re.DOTALL
+              )
+
+              match = matchup_pattern.search(content)
+
+              if match:
+                  story = match.group(1).strip()
+                  score = match.group(2)
+                  confidence = match.group(3)
+                  
+                  story = re.sub(r'[\n\t\r]', ' ', story).strip()
+                  story = re.sub(r'•\s*', '', story)
+                  story = re.sub(r'\s{2,}', ' ', story)
+                  
+              return score, confidence, story
+              
+          # --- MAIN PARSING LOGIC ---
+          def parse_executive_summary(week):
+              plays = []
+              fades = []
+              try:
+                  with open(f"data/week{week}/week{week}_executive_summary.txt", "r") as f:
+                      content = f.read()
+              except FileNotFoundError:
+                  return [], []
+              
+              if "🎯 TARGETED PLAY" in content:
+                  targeted_section = content.split("🎯 TARGETED PLAY")[1].split("❌ FADE")[0]
+                  
+                  for block in targeted_section.strip().split('\n\n'):
+                      if 'TARGETED PLAY' in block and '→' in block:
+                          lines = [l.strip() for l in block.split('\n') if l.strip()]
+                          if not lines: continue
+                          
+                          matchup = lines[0].strip()
+                          recommendation = lines[1].split('→')[1].split(':')[1].strip() if len(lines) > 1 and 'TARGETED PLAY:' in lines[1] else 'N/A'
+                          reason = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else 'Key factors align'
+                          
+                          score, confidence, story = get_game_data(week, matchup)
+                          
+                          plays.append({
+                              'matchup': matchup,
+                              'recommendation': recommendation,
+                              'reason': reason,
+                              'score': score,
+                              'confidence': confidence,
+                              'story': story
+                          })
+              
+              if "❌ FADE" in content:
+                  fade_section = content.split("❌ FADE")[1]
+                  separator = "----------------------------------------------------------------------"
+                  
+                  if fade_section.strip().startswith(separator):
+                      fade_section = fade_section.strip().replace(separator, '', 1).strip()
+                  else:
+                      fade_section = fade_section.strip()
+                      
+                  blocks = [block.strip() for block in fade_section.split('\n\n') if block.strip()]
+                  
+                  for block in blocks:
+                      if '❌ AVOID' in block and '→' in block:
+                          lines = [l.strip() for l from block.split('\n') if l.strip()]
+                          if len(lines) < 3: continue 
+                          
+                          matchup = lines[0].strip()
+                          recommendation = 'AVOID/FADE'
+                          
+                          primary_warning = lines[1].split('→')[1].strip() if len(lines) > 1 and '→' in lines[1] else '❌ AVOID: Multiple negative factors align'
+                          divergence_detail = lines[2].split('→')[1].strip() if len(lines) > 2 and '→' in lines[2] else 'Mixed signals/conflicts'
+                          
+                          reason = f"{primary_warning} — {divergence_detail}"
+                          
+                          score, confidence, story = get_game_data(week, matchup)
+                          
+                          fades.append({
+                              'matchup': matchup,
+                              'recommendation': recommendation,
+                              'reason': reason,
+                              'score': score,
+                              'confidence': confidence,
+                              'story': story
+                          })
+                          
+              return plays, fades 
+
+          plays, fades = parse_executive_summary(week)
+          
+          # --- DYNAMIC CONTENT GENERATION ---
+          plays_html_conversational = ""
+          if plays:
+              for play in plays:
+                  plays_html_conversational += f"""
+                  <div style="margin: 15px 0; padding: 15px; border-left: 4px solid #28a745; background: #e9f7ef; border-radius: 5px;">
+                      <h4 style="color: #28a745; margin: 0 0 8px 0; font-size: 16px;">🟢 {play['matchup']}</h4>
+                      <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Recommendation:</strong> {play['recommendation']}</p>
+                      <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Confidence:</strong> {play['confidence']}/10 (for the play)</p>
+                      <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Why:</strong> <em>{play['reason']}</em></p>
+                      <p style="margin: 0; font-size: 13px; color: #666;">
+                          <em>Sharp Money Story: {play['story']}</em>
+                      </p>
+                  </div>
+                  """
+          else:
+              plays_html_conversational = "<p style='font-size: 14px; color: #777;'>No specific top plays identified in this report at this time.</p>"
+
+          fades_html_conversational = ""
+          if fades:
+              for fade in fades:
+                  fades_html_conversational += f"""
+                  <div style="margin: 15px 0; padding: 15px; border-left: 4px solid #dc3545; background: #fdf3f4; border-radius: 5px;">
+                      <h4 style="color: #dc3545; margin: 0 0 8px 0; font-size: 16px;">🔴 {fade['matchup']}</h4>
+                      <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Recommendation:</strong> {fade['recommendation']}</p>
+                      <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Confidence:</strong> {fade['confidence']}/10 (for the fade)</p>
+                      <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Why:</strong> <em>{fade['reason']}</em></p>
+                      <p style="margin: 0; font-size: 13px; color: #666;">
+                          <em>Sharp Money Story: {fade['story']}</em>
+                      </p>
+                  </div>
+                  """
+          else:
+              fades_html_conversational = "<p style='font-size: 14px; color: #777;'>No specific games flagged for avoidance in this report at this time.</p>"
+
+            
+          flip_section_conversational = ""
+          if flip_alert:
+              flip_section_conversational = f"""
+              <div style="background:#fff3cd; padding:15px; border-left:4px solid #ffc107; margin:20px 0; border-radius: 5px;">
+                  <h3 style="margin-top:0; color:#c09853; font-size: 18px;">⚠️ Line Movement Alert</h3>
+                  <p style="margin: 0; font-size: 15px; color: #666;"><b>{flip_alert}</b></p>
+                  <p style="margin: 5px 0 0; font-size: 14px; color: #666;">Analysis has been updated to reflect new line movements.</p>
+              </div>
+              """
+              
+          plays_intro = f"""
+          <p style="font-size: 14px; color: #777;">
+              Here are the games where our model sees significant value, backed by converging sharp money and statistical edges:
+          </p>
+          """ if plays else ""
+
+          fades_intro = f"""
+          <p style="font-size: 14px; color: #777;">
+              These are the matchups where public money or conflicting signals suggest caution, making them prime candidates for a fade:
+          </p>
+          """ if fades else ""
+
+
+          conversational_body = f"""
             <html>
             <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9f9f9;">
                 <div style="max-width: 600px; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
@@ -402,7 +686,7 @@ jobs:
                         {fades_html_conversational}
 
                         <p style="margin-top: 30px; font-size: 14px; color: #777;">
-                            For the full, detailed breakdown, including all game cards and comprehensive data files, please refer to the attached **Professional Analysis & Data Package**.
+                            For the full, detailed breakdown, including all game cards and comprehensive data files, please refer to the attached **Professional Analysis & Data Package** sent in a separate email.
                         </p>
                         <p style="font-size: 14px; color: #777;">
                             Good luck this week!
@@ -436,19 +720,7 @@ jobs:
             
             print(f"✅ Conversational email sent: Week {week}")
             PYTHON_EOF
-      
-      - name: Upload Analysis Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: week-${{ steps.get_week.outputs.week }}-analysis
-          path: |
-            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_executive_summary.txt
-            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_pro_analysis.txt
-            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.csv
-            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.json
-            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_referee_trends.txt
-          retention-days: 30
-      
+            
       - name: Commit Pro Analysis
         run: |
           # 1. Configuration
