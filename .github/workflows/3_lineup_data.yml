@@ -76,9 +76,9 @@ jobs:
           git pull --rebase origin main
           git push
 
-      - name: Trigger Automated Pro Analysis with Latest Lineup Data
+      - name: Trigger Pro Analysis & Email with Latest Lineup Data
         uses: peter-evans/repository-dispatch@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN if repo_dispatch is in the same repo
-          event-type: final-lineup-data-ready # A new event type for Workflow 4 to listen for
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: final-lineup-data-ready # This is the new event Workflow 5 will listen for
           client-payload: '{"week": "${{ steps.get_week_for_commit.outputs.week }}", "analysis_type": "final_lineups"}'
