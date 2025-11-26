@@ -51,7 +51,6 @@ jobs:
       run: |
         python <<EOF
         import sys, os
-        sys.path.append('.')
         from analyzers.performance_tracker import EnhancedPerformanceTracker
         
         # Get inputs
@@ -254,10 +253,15 @@ jobs:
         
         # Check if there are changes to commit
         if [ -n "$(git status --porcelain)" ]; then
+          # Stage the CSV directory and the generated report file
           git add data/historical/ week${{ github.event.inputs.week }}_performance_report.txt
+          
+          # Rebase before pushing to prevent non-fast-forward errors (CRITICAL FIX)
+          git pull --rebase
+          
           git commit -m "📊 Performance update: Week ${{ github.event.inputs.week }} (${{ github.event.inputs.action }})"
           git push
           echo "✅ Performance data committed and pushed"
         else
-          echo "ℹ️ No changes to commit"
+        echo "ℹ️ No changes to commit"
         fi
