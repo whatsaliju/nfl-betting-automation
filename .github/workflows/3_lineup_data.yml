@@ -1,0 +1,75 @@
+name: 3. Final Lineup Data
+
+on:
+  schedule:
+    # Example: Run every Saturday at 12:00 PM UTC (adjust as needed for game day)
+    # 1. Thursday 7:00 PM Eastern Time (EST/UTC-5) = Friday 0:00 AM UTC
+    - cron: '0 0 * * 5' 
+    # 2. Sunday 12:00 PM Eastern Time (EST/UTC-5) = Sunday 5:00 PM UTC
+    - cron: '0 17 * * 0'
+  workflow_dispatch:
+    # Allows manual running
+    inputs:
+      week:
+        description: 'NFL Week Number (Optional)'
+        required: false
+        type: number
+
+jobs:
+  scrape_lineup_data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Python Dependencies
+        run: pip install pandas selenium lxml
+        
+      - name: Install Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: 'stable'
+          install-dependencies: true
+          install-chromedriver: true
+
+      - name: Get Week Number for Commit
+        id: get_week_for_commit
+        run: |
+          # 1. Safely assign the input, treating it as a string to prevent the type error
+          WEEK='${{ github.event.inputs.week }}'
+          
+          # 2. Check if the assigned variable is empty (which happens if the input wasn't provided)
+          if [ -z "$WEEK" ] || [ "$WEEK" == "''" ]; then
+            # 3. Fallback: Detect week from existing files
+            WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
+          fi
+          
+          # 4. Final safety check: Default to 1 if no files were found
+          if [ -z "$WEEK" ]; then
+              WEEK=1
+          fi
+
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "📅 Scraping lineup data for Week $WEEK"
+          
+      - name: Scrape RotoWire Lineups
+        # RotoWire scraper has been moved here, ensuring it runs independently.
+        run: |
+          echo "🏈 Scraping RotoWire lineups & injuries..."
+          python3 scrapers/rotowire_scraper.py
+          
+      - name: Commit Lineup Data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/rotowire_lineups_*.csv || true
+          
+          git commit -m "🏈 Week ${{ steps.get_week_for_commit.outputs.week }} final lineup data" || echo "No changes to commit"
+          git pull --rebase origin main
+          git push
