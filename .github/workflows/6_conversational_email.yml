@@ -33,7 +33,6 @@ jobs:
         id: file_vars
         run: |
           # The GITHUB_SHA is the commit that triggered this. We need to find the specific file path.
-          # Use git diff to find the changed file path matching the pattern
           CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E 'data/week[0-9]+/week[0-9]+_executive_summary.txt' | head -n 1)
           
           if [ -z "$CHANGED_FILE" ]; then
@@ -42,20 +41,31 @@ jobs:
             exit 1
           fi
 
-          # Extract week number (e.g., from data/week13/week13_executive_summary.txt -> 13)
+          # Extract week number
           WEEK_NUM=$(echo "$CHANGED_FILE" | grep -oP 'week\K[0-9]+' | head -n 1)
           
-          # Check if the analysis is for a special type (like 'FINAL') - needs to be inferred or passed
-          # For simplicity, we'll keep it general unless you specify a mechanism to detect FINAL vs MIDWEEK
+          # Determine the day of the week and set context (1=Mon, 3=Wed, 5=Fri)
+          DAY_OF_WEEK=$(date +%u) 
           
-          # For now, we assume it's a generic "ANALYSIS"
-          ANALYSIS_TYPE="ANALYSIS"
-          SUBJECT_PREFIX="MIDWEEK" 
-          INTRO_TEXT="Here is your quick summary of the week's sharp money and model plays. Focus on the Blue Chip and Targeted Plays, and be cautious with the Fades."
+          case $DAY_OF_WEEK in
+            3) # Wednesday - Referee day
+              ANALYSIS_TYPE="MIDWEEK ANALYSIS"
+              SUBJECT_PREFIX="MIDWEEK (REFS LOCKED)" 
+              INTRO_TEXT="Good news! We have fully integrated the official referee assignments and their historical trends into the model. This run provides the first comprehensive look at the week's value, combining all static factors (Stats, Refs, Situational) with sharp money."
+              ;;
+            5) # Friday - Final Injury/Lineup day
+              ANALYSIS_TYPE="FINAL ANALYSIS"
+              SUBJECT_PREFIX="FINAL LINEUPS" 
+              INTRO_TEXT="This is the final report for the weekend. All major injury reports are processed, and we've accounted for late-week line movement. Use these plays for your final lineup decisions."
+              ;;
+            *) # Other days (Market Update or catch-all)
+              ANALYSIS_TYPE="MARKET UPDATE"
+              SUBJECT_PREFIX="MARKET UPDATE" 
+              INTRO_TEXT="Here is your quick summary of the week's sharp money and model plays. Focus on the Blue Chip and Targeted Plays, and be cautious with the Fades. Full data is attached to the Professional Analysis email."
+              ;;
+          esac
           
-          # This workflow CANNOT reliably know the flip_alert status unless it's in the text.
-          # We'll set it to blank unless the logic is moved here.
-          FLIP_ALERT=""
+          FLIP_ALERT="" # You can manually update this if a line flip occurs
           
           echo "week=$WEEK_NUM" >> $GITHUB_OUTPUT
           echo "analysis_type=$ANALYSIS_TYPE" >> $GITHUB_OUTPUT
@@ -69,7 +79,7 @@ jobs:
           TIME_STAMP=$(date +"%Y-%m-%d %H:%M:%S ET")
           echo "time=$TIME_STAMP" >> $GITHUB_OUTPUT
 
-      - name: 📧 Send Conversational Analysis Email (Corrected Logic)
+      - name: 📧 Send Conversational Analysis Email (Storytelling Logic)
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
@@ -99,39 +109,86 @@ jobs:
           summary_path = os.getenv('SUMMARY_PATH')
           pro_path = os.getenv('PRO_PATH')
           
-          # --- HELPER FUNCTION TO PULL SCORES AND SHARP MONEY STORY ---
+          # --- HELPER FUNCTION TO PULL SCORES, SHARP MONEY, AND SITUATIONAL STORY ---
           def get_game_data(week, matchup):
               score = 'N/A'
               confidence = 'N/A'
-              story = 'No major divergence identified.' 
+              sharp_story = 'No major divergence identified.' 
+              situational_story = 'Standard context.'
               
               try:
                   with open(pro_path, "r") as f:
                       content = f.read()
               except FileNotFoundError:
-                  return score, confidence, story
+                  return score, confidence, sharp_story, situational_story 
 
               escaped_matchup = re.escape(matchup)
               
-              matchup_pattern = re.compile(
-                  rf"==={re.escape(matchup)}===\s*.*?SHARP MONEY STORY:\s*(.*?)\s*THE VERDICT:\s*Total Score: (\S+)\s*Confidence: (\S+)",
+              # Pattern to find the entire game block
+              game_block_pattern = re.compile(
+                  rf"==={re.escape(matchup)}===\s*.*?\n(.*?)\n======================================================================",
                   re.DOTALL
               )
+              game_block_match = game_block_pattern.search(content)
 
-              match = matchup_pattern.search(content)
+              if not game_block_match:
+                  return score, confidence, sharp_story, situational_story
 
-              if match:
-                  story = match.group(1).strip()
-                  score = match.group(2)
-                  confidence = match.group(3)
-                  
-                  story = re.sub(r'[\n\t\r]', ' ', story).strip()
-                  story = re.sub(r'•\s*', '', story)
-                  story = re.sub(r'\s{2,}', ' ', story)
-                  
-              return score, confidence, story
+              block_content = game_block_match.group(1)
               
-          # --- MAIN PARSING LOGIC (FIXED) ---
+              # 1. Extract VERDICT data (Score/Confidence)
+              verdict_pattern = re.compile(
+                  r"THE VERDICT:\s*Total Score: (\S+)\s*Confidence: (\S+)",
+                  re.DOTALL
+              )
+              verdict_match = verdict_pattern.search(block_content)
+
+              if verdict_match:
+                  score = verdict_match.group(1)
+                  confidence = verdict_match.group(2)
+              
+              # 2. Extract SHARP MONEY STORY
+              sharp_pattern = re.compile(r"SHARP MONEY STORY:\s*(.*?)\n\n", re.DOTALL)
+              sharp_match = sharp_pattern.search(block_content)
+              if sharp_match:
+                  sharp_story = sharp_match.group(1).strip()
+                  sharp_story = re.sub(r'[\n\t\r]', ' ', sharp_story).strip()
+                  sharp_story = re.sub(r'•\s*', '', sharp_story)
+                  sharp_story = re.sub(r'\s{2,}', ' ', sharp_story)
+                  
+              # 3. Extract SITUATIONAL/ENVIRONMENTAL Story (New Logic)
+              situational_pattern = re.compile(
+                  r"WEATHER IMPACT:\s*(.*?)\n\n🏥 INJURY ANALYSIS:\s*.*?SITUATIONAL FACTORS:\s*(.*?)\n",
+                  re.DOTALL
+              )
+              situational_match = situational_pattern.search(block_content)
+              
+              if situational_match:
+                  weather = situational_match.group(1).strip()
+                  situational = situational_match.group(2).strip()
+                  
+                  story_parts = []
+                  
+                  # Clean and add Weather
+                  if weather:
+                      weather = re.sub(r'[\n\t\r•]', ' ', weather).strip()
+                      story_parts.append(f"Weather: {weather}")
+                      
+                  # Clean and add Situational (removing highly technical conflict text)
+                  if situational:
+                      situational = re.sub(r'[\n\t\r•]', ' ', situational).strip()
+                      situational = re.sub(r'🚨 MAJOR SPREAD CONFLICT:.*?\)', '', situational).strip()
+                      
+                      if situational:
+                           story_parts.append(f"Context: {situational}")
+                      
+                  situational_story = " | ".join(story_parts)
+                  if not situational_story:
+                      situational_story = 'Standard context.'
+
+              return score, confidence, sharp_story, situational_story
+              
+          # --- MAIN PARSING LOGIC (REVISED TO ACCEPT 4 RETURN VALUES) ---
           def parse_executive_summary(week):
               plays = []
               fades = []
@@ -146,34 +203,25 @@ jobs:
               # --- 1. Parse ALL Plays (Blue Chip & Targeted) ---
               if "🔵 BLUE CHIP" in content and "❌ FADE" in content:
                   try:
-                      # Isolate the section containing all plays
-                      # Using TARGETED PLAY as a fallback if BLUE CHIP isn't at the start, but FADE must be the end marker
                       split_start = content.split("🔵 BLUE CHIP")[1] if "🔵 BLUE CHIP" in content else content.split("🎯 TARGETED PLAY")[1]
                       play_section = split_start.split("❌ FADE")[0].strip()
                   except IndexError:
                       play_section = ""
 
-                  # This regex splits the play section based on a line starting with a game matchup (e.g., "Packers at Lions")
                   game_blocks = re.split(r'\n(?=\S+ at \S+\n)', play_section)
                   
                   for block in game_blocks:
                       block = block.strip()
-                      # Skip header separators or section markers that aren't a game
                       if not block or block.startswith("---") or block.startswith("🎯 TARGETED PLAY"): continue
 
                       lines = [l.strip() for l in block.split('\n') if l.strip()]
                       if not lines: continue
                       
-                      # Matchup is the first line
                       matchup = lines[0].strip()
-                      
-                      # Find the recommendation line (which contains 'STRONG PLAY:' or 'TARGETED PLAY:')
                       rec_line = next((l for l in lines if 'STRONG PLAY:' in l or 'TARGETED PLAY:' in l), None)
                       
                       if rec_line:
                           recommendation = rec_line.split('→')[1].split(':', 1)[-1].strip()
-                          
-                          # Find the reason line (usually the next '→' line)
                           reason_line = next((l for l in lines if '→' in l and l != rec_line), None)
                           
                           if reason_line and ('SHARP CONSENSUS:' in reason_line or 'DIVERGENCE:' in reason_line):
@@ -181,7 +229,8 @@ jobs:
                           else:
                               reason = 'Key factors align'
 
-                          score, confidence, story = get_game_data(week, matchup)
+                          # *** UPDATED FUNCTION CALL ***
+                          score, confidence, sharp_story, situational_story = get_game_data(week, matchup)
                           
                           plays.append({
                               'matchup': matchup,
@@ -189,10 +238,11 @@ jobs:
                               'reason': reason,
                               'score': score,
                               'confidence': confidence,
-                              'story': story
+                              'sharp_story': sharp_story,
+                              'situational_story': situational_story
                           })
 
-              # --- 2. Parse Fades (Existing working logic) ---
+              # --- 2. Parse Fades ---
               if "❌ FADE" in content:
                   fade_section = content.split("❌ FADE")[1]
                   separator = "----------------------------------------------------------------------"
@@ -217,7 +267,8 @@ jobs:
                           
                           reason = f"{primary_warning} — {divergence_detail}"
                           
-                          score, confidence, story = get_game_data(week, matchup)
+                          # *** UPDATED FUNCTION CALL ***
+                          score, confidence, sharp_story, situational_story = get_game_data(week, matchup)
                           
                           fades.append({
                               'matchup': matchup,
@@ -225,16 +276,16 @@ jobs:
                               'reason': reason,
                               'score': score,
                               'confidence': confidence,
-                              'story': story
+                              'sharp_story': sharp_story,
+                              'situational_story': situational_story
                           })
                           
               return plays, fades 
 
           plays, fades = parse_executive_summary(week)
           
-          # --- DYNAMIC CONTENT GENERATION (HTML) ---
+          # --- DYNAMIC CONTENT GENERATION (HTML - Updated to include situational story) ---
           plays_html_conversational = ""
-          # ... (HTML generation code follows as provided in previous response) ...
           if plays:
               for play in plays:
                   plays_html_conversational += f"""
@@ -243,8 +294,9 @@ jobs:
                       <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Recommendation:</strong> {play['recommendation']}</p>
                       <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Confidence:</strong> {play['confidence']}/10 (for the play)</p>
                       <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Why:</strong> <em>{play['reason']}</em></p>
+                      <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;"><strong>Situational Context:</strong> <em>{play['situational_story']}</em></p>
                       <p style="margin: 0; font-size: 13px; color: #666;">
-                          <em>Sharp Money Story: {play['story']}</em>
+                          <em>Sharp Money Story: {play['sharp_story']}</em>
                       </p>
                   </div>
                   """
@@ -260,8 +312,9 @@ jobs:
                       <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Recommendation:</strong> {fade['recommendation']}</p>
                       <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Confidence:</strong> {fade['confidence']}/10 (for the fade)</p>
                       <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Why:</strong> <em>{fade['reason']}</em></p>
+                      <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;"><strong>Situational Context:</strong> <em>{fade['situational_story']}</em></p>
                       <p style="margin: 0; font-size: 13px; color: #666;">
-                          <em>Sharp Money Story: {fade['story']}</em>
+                          <em>Sharp Money Story: {fade['sharp_story']}</em>
                       </p>
                   </div>
                   """
