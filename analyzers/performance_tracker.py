@@ -19,10 +19,10 @@ import re
 class EnhancedPerformanceTracker:
     """Enhanced tracker with automated result updates - no f-strings."""
     
-    def __init__(self):
-        self.results_file = "data/historical/betting_results.csv"
-        self.analysis_file = "data/historical/performance_analysis.json"
-        self.ensure_files_exist()
+    def __init__(self, data_dir='data/historical'): # <--- ADD THIS __init__ METHOD
+            self.data_dir = data_dir
+            self.historical_results_file = 'betting_results.csv'
+            os.makedirs(self.data_dir, exist_ok=True) # Ensure the directory exists
     
     def ensure_files_exist(self):
         """Create tracking files if they don't exist."""
