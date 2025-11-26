@@ -40,7 +40,7 @@ class EnhancedPerformanceTracker:
             ])
             df.to_csv(self.results_file, index=False)
     
-    def fetch_week_scores(self, week: int, season: int = 2024) -> Dict[str, Dict]:
+    def fetch_week_scores(self, week: int, season: int = 2025) -> Dict[str, Dict]:
         """Fetch NFL scores for a specific week using ESPN API with proper historical parameters."""
         try:
             # Use proper ESPN parameters for historical weeks
@@ -106,8 +106,8 @@ class EnhancedPerformanceTracker:
         try:
             # Look for Action Network files
             action_files = [
-                "action_all_markets_2024-11-17.csv",  # Week 11 date
-                "action_all_markets_2024-11-24.csv",  # Week 12 date
+                "action_all_markets_2025-11-17.csv",  # Week 11 date
+                "action_all_markets_2025-11-24.csv",  # Week 12 date
                 "action_all_markets_" + str(week) + ".csv"
             ]
             
