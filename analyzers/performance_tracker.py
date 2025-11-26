@@ -231,8 +231,14 @@ class EnhancedPerformanceTracker:
         game_name = bet_row.get('game', '')
         
         # Extract team names from the game
-        away_team = game_name.split(' @ ')[0] if ' @ ' in game_name else ''
-        home_team = game_name.split(' @ ')[1] if ' @ ' in game_name else ''
+        if ' @ ' in game_name:
+            away_team = game_name.split(' @ ')[0]
+            home_team = game_name.split(' @ ')[1]
+        elif ' at ' in game_name:
+            away_team = game_name.split(' at ')[0]
+            home_team = game_name.split(' at ')[1]
+        else:
+            away_team = home_team = ''
         
         # Look for spread in format: "Team +/-X" or "Team +/-X.5"
         spread_match = re.search(r'([A-Za-z\s]+)\s*([-+]?\d+\.?5?)', recommendation)
@@ -251,8 +257,13 @@ class EnhancedPerformanceTracker:
             spread_value = float(spread_match.group(2))
             
             # Determine if the mentioned team is away or home
-            is_away_team = any(word in team_mentioned.lower() for word in away_team.lower().split())
-            is_home_team = any(word in team_mentioned.lower() for word in home_team.lower().split())
+            team_mentioned_words = team_mentioned.lower().split()
+            away_team_words = away_team.lower().split() 
+            home_team_words = home_team.lower().split()
+            
+            # More flexible matching - check if any word matches
+            is_away_team = any(word in away_team_words for word in team_mentioned_words)
+            is_home_team = any(word in home_team_words for word in team_mentioned_words)
             
             if is_away_team:
                 # Away team mentioned: if negative spread, they're favored
@@ -494,15 +505,32 @@ class EnhancedPerformanceTracker:
         # For team+spread format, determine away/home from game context
         if current_side == 'team_spread':
             spread_match = re.search(r'([A-Za-z\s]+)\s*([-+]?\d+\.?5?)', recommendation)
-            if spread_match and ' @ ' in game_matchup:
+            if spread_match:
                 team_mentioned = spread_match.group(1).strip()
-                away_team = game_matchup.split(' @ ')[0]
-                home_team = game_matchup.split(' @ ')[1]
                 
-                # Check if mentioned team is away or home
-                if any(word in team_mentioned.lower() for word in away_team.lower().split()):
+                # Handle both 'at' and '@' formats
+                if ' @ ' in game_matchup:
+                    away_team = game_matchup.split(' @ ')[0]
+                    home_team = game_matchup.split(' @ ')[1]
+                elif ' at ' in game_matchup:
+                    away_team = game_matchup.split(' at ')[0]
+                    home_team = game_matchup.split(' at ')[1]
+                else:
+                    return current_side
+                
+                # More flexible team name matching
+                team_mentioned_words = team_mentioned.lower().split()
+                away_team_words = away_team.lower().split()
+                home_team_words = home_team.lower().split()
+                
+                # Check if any word from mentioned team appears in away team
+                away_match = any(word in away_team_words for word in team_mentioned_words)
+                # Check if any word from mentioned team appears in home team  
+                home_match = any(word in home_team_words for word in team_mentioned_words)
+                
+                if away_match and not home_match:
                     return 'away'
-                elif any(word in team_mentioned.lower() for word in home_team.lower().split()):
+                elif home_match and not away_match:
                     return 'home'
         
         return current_side  # Return original if can't determine
