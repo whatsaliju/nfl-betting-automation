@@ -76,11 +76,6 @@ jobs:
           echo "📊 Scraping Action Network..."
           python3 scrapers/action_network_scraper_cookies.py ${{ steps.get_week.outputs.week }}
       
-      - name: Scrape RotoWire Lineups
-        run: |
-          echo "🏈 Scraping RotoWire lineups & injuries..."
-          python3 scrapers/rotowire_scraper.py
-      
       - name: Scrape Action Network Injuries & Weather
         run: |
           echo "🩹 Scraping Action Network injuries & weather..."
@@ -91,7 +86,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/action_all_markets_*.csv \
-                  data/rotowire_lineups_*.csv \
                   data/action_injuries_*.csv \
                   data/action_weather_*.csv || true
           
