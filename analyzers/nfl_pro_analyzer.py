@@ -2118,7 +2118,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     
     if (sharp_total_score * ref_ou_score < 0) and (abs(sharp_total_score) >= 2) and (abs(ref_ou_score) >= 2):
         CONFLICT_PENALTY_TOTAL = ANALYSIS_CONFIG['CONFLICT_PENALTY_TOTAL']
-        total_score += CONFLICT_PENALTY_TOTAL
+        
         conflict_msg = f"⚠️ HIGH TOTAL VARIANCE: Sharp Total ({sharp_total_score:+.1f}) conflicts with Referee O/U ({ref_ou_score:+.1f}). Penalty: {CONFLICT_PENALTY_TOTAL}"
         situational_analysis['factors'].append(conflict_msg)
         situational_analysis['description'] += f" | {conflict_msg}"
