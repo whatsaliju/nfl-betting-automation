@@ -1828,12 +1828,21 @@ class ClassificationEngine:
         total_num = ClassificationEngine.extract_total_number(total_line)
         
         cat = classification
-        
+
+        # New BLUE CHIP Logic (Prioritizes Highest Edge):
         if "BLUE CHIP" in cat:
-            # Strong plays get both spread and total recommendations
-            primary_rec = ClassificationEngine.generate_primary_bet(spread_dir, away_team, home_team, spread_num)
-            secondary_rec = ClassificationEngine.generate_total_bet(total_dir, total_num) if total_edge >= 10 else None
+            # Determine which play has the absolute strongest edge (Spread or Total)
+            if total_edge >= spread_edge and total_edge > 0:
+                primary_rec = ClassificationEngine.generate_total_bet(total_dir, total_num)
+                secondary_rec = ClassificationEngine.generate_primary_bet(spread_dir, away_team, home_team, spread_num) if spread_edge >= 10 else None
+            else:
+                primary_rec = ClassificationEngine.generate_primary_bet(spread_dir, away_team, home_team, spread_num)
+                secondary_rec = ClassificationEngine.generate_total_bet(total_dir, total_num) if total_edge >= 10 else None
             
+            # If a secondary recommendation is not possible, we check if the other play still has a high enough edge
+            if not secondary_rec and total_edge >= 10 and primary_rec != ClassificationEngine.generate_total_bet(total_dir, total_num):
+                secondary_rec = ClassificationEngine.generate_total_bet(total_dir, total_num)
+        
             if secondary_rec:
                 return f"✅ STRONG PLAY: {primary_rec} + {secondary_rec}"
             else:
@@ -2195,6 +2204,7 @@ def analyze_week(week):
         total_score = (
             sharp_consensus_score +
             ref_analysis['ats_score'] +
+            ref_analysis['ou_score'] +
             weather_analysis['score'] +
             injury_analysis['score'] +
             situational_analysis['score'] +
