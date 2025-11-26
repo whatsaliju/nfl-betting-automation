@@ -467,19 +467,7 @@ jobs:
           
           print(f"✅ Enhanced professional email sent: Week {week}")
           PYTHON_EOF
-      
-      - name: Upload Analysis Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: week-${{ steps.get_week.outputs.week }}-analysis
-          path: |
-            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_executive_summary.txt
-            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_pro_analysis.txt
-            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.csv
-            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.json
-            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_referee_trends.txt
-          retention-days: 30
-
+          
       - name: Send Conversational Analysis Email
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
@@ -547,6 +535,7 @@ jobs:
                   
                   for block in targeted_section.strip().split('\n\n'):
                       if 'TARGETED PLAY' in block and '→' in block:
+                          # FIX: Changed 'from' to 'in'
                           lines = [l.strip() for l in block.split('\n') if l.strip()]
                           if not lines: continue
                           
@@ -578,7 +567,8 @@ jobs:
                   
                   for block in blocks:
                       if '❌ AVOID' in block and '→' in block:
-                          lines = [l.strip() for l from block.split('\n') if l.strip()]
+                          # FIX: Changed 'from' to 'in'
+                          lines = [l.strip() for l in block.split('\n') if l.strip()]
                           if len(lines) < 3: continue 
                           
                           matchup = lines[0].strip()
@@ -720,6 +710,18 @@ jobs:
             
             print(f"✅ Conversational email sent: Week {week}")
             PYTHON_EOF
+            
+      - name: Upload Analysis Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: week-${{ steps.get_week.outputs.week }}-analysis
+          path: |
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_executive_summary.txt
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_pro_analysis.txt
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.csv
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_analytics.json
+            data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_referee_trends.txt
+          retention-days: 30
             
       - name: Commit Pro Analysis
         run: |
