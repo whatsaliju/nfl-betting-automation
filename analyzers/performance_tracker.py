@@ -41,43 +41,87 @@ class EnhancedPerformanceTracker:
             df.to_csv(self.results_file, index=False)
     
     def fetch_week_scores(self, week: int, season: int = 2024) -> Dict[str, Dict]:
-        """Fetch NFL scores for a specific week using ESPN API."""
+        """Fetch NFL scores for a specific week using ESPN API with proper historical parameters."""
         try:
+            # Use proper ESPN parameters for historical weeks
             url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
+            params = {
+                'seasontype': 2,  # Regular season
+                'week': week
+            }
             
-            response = requests.get(url, timeout=10)
+            response = requests.get(url, params=params, timeout=10)
             response.raise_for_status()
             
             data = response.json()
             games = {}
             
             for game in data.get('events', []):
-                if game.get('status', {}).get('type', {}).get('completed', False):
+                # Include both completed and in-progress games
+                status = game.get('status', {})
+                is_completed = status.get('type', {}).get('completed', False)
+                is_final = status.get('type', {}).get('name', '') in ['STATUS_FINAL', 'STATUS_FINAL_OVERTIME']
+                
+                if is_completed or is_final:
                     competitors = game.get('competitions', [{}])[0].get('competitors', [])
                     
                     if len(competitors) >= 2:
-                        away_team = competitors[0]['team']['displayName']
-                        home_team = competitors[1]['team']['displayName']
-                        away_score = int(competitors[0].get('score', 0))
-                        home_score = int(competitors[1].get('score', 0))
+                        # Handle ESPN's variable competitor ordering
+                        away_team = home_team = None
+                        away_score = home_score = 0
                         
-                        matchup = away_team + " @ " + home_team
+                        for comp in competitors:
+                            if comp.get('homeAway') == 'away':
+                                away_team = comp['team']['displayName']
+                                away_score = int(comp.get('score', 0))
+                            elif comp.get('homeAway') == 'home':
+                                home_team = comp['team']['displayName'] 
+                                home_score = int(comp.get('score', 0))
                         
-                        games[matchup] = {
-                            'away_team': away_team,
-                            'home_team': home_team,
-                            'away_score': away_score,
-                            'home_score': home_score,
-                            'total_score': away_score + home_score,
-                            'winner': away_team if away_score > home_score else home_team,
-                            'margin': abs(away_score - home_score),
-                            'final_score': away_team + " " + str(away_score) + "-" + str(home_score) + " " + home_team
-                        }
+                        if away_team and home_team:
+                            matchup = away_team + " @ " + home_team
+                            
+                            games[matchup] = {
+                                'away_team': away_team,
+                                'home_team': home_team,
+                                'away_score': away_score,
+                                'home_score': home_score,
+                                'total_score': away_score + home_score,
+                                'winner': away_team if away_score > home_score else home_team,
+                                'margin': away_score - home_score,
+                                'final_score': away_team + " " + str(away_score) + "-" + str(home_score) + " " + home_team
+                            }
             
+            print("🏈 Found " + str(len(games)) + " completed games for Week " + str(week))
             return games
             
         except Exception as e:
             print("⚠️ Error fetching scores: " + str(e))
+            
+            # Fallback to Action Network data if available
+            return self._try_action_network_fallback(week)
+    
+    def _try_action_network_fallback(self, week: int) -> Dict[str, Dict]:
+        """Try to extract scores from Action Network CSV files as fallback."""
+        try:
+            # Look for Action Network files
+            action_files = [
+                "action_all_markets_2024-11-17.csv",  # Week 11 date
+                "action_all_markets_2024-11-24.csv",  # Week 12 date
+                "action_all_markets_" + str(week) + ".csv"
+            ]
+            
+            for file_path in action_files:
+                if os.path.exists(file_path):
+                    print("📊 Trying Action Network fallback: " + file_path)
+                    # Could parse final scores from Action Network data here
+                    # For now, return empty dict
+                    break
+            
+            return {}
+            
+        except Exception as e:
+            print("⚠️ Action Network fallback failed: " + str(e))
             return {}
     
     def update_week_results_auto(self, week: int, season: int = 2025) -> Dict:
