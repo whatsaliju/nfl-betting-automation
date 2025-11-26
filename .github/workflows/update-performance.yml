@@ -253,15 +253,20 @@ jobs:
         
         # Check if there are changes to commit
         if [ -n "$(git status --porcelain)" ]; then
-          # Stage the CSV directory and the generated report file
+          
+          # Stage files (your original line)
           git add data/historical/ week${{ github.event.inputs.week }}_performance_report.txt
           
-          # Rebase before pushing to prevent non-fast-forward errors (CRITICAL FIX)
+          # 1. COMMIT LOCAL CHANGES FIRST (FIXES: 'index contains uncommitted changes')
+          git commit -m "📊 Performance update: Week ${{ github.event.inputs.week }} (${{ github.event.inputs.action }})"
+          
+          # 2. PULL AND REBASE (FIXES: 'non-fast-forward' push failures)
           git pull --rebase
           
-          git commit -m "📊 Performance update: Week ${{ github.event.inputs.week }} (${{ github.event.inputs.action }})"
+          # 3. PUSH the finalized commit
           git push
+          
           echo "✅ Performance data committed and pushed"
         else
-        echo "ℹ️ No changes to commit"
+          echo "ℹ️ No changes to commit"
         fi
