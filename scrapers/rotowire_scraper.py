@@ -2,7 +2,7 @@
 """
 RotoWire NFL Lineup & Injury Scraper
 """
-
+import sys
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -28,14 +28,27 @@ def setup_driver():
         options=options
     )
 
-def scrape_lineups():
+# Fix 1: Changed 'wee' back to 'week' in the function definition
+def scrape_lineups(week=None): # <--- Corrected parameter name
     driver = setup_driver()
     
     print("🏈 Scraping RotoWire NFL lineups...")
-    
-    try:
-        # CORRECT URL
-        driver.get("https://www.rotowire.com/football/lineups.php")
+
+    # Fix 2: Moved the initial 'try' block for the scraping logic outside the function scope
+    # and ensured the subsequent code is correctly indented.
+    try: # <--- Corrected indentation, this 'try' block should encompass the main scraping logic
+        # Construct the URL with the week if provided
+        base_url = "https://www.rotowire.com/football/lineups.php"
+        if week and week != "None": # Check if week is not None or "None" string
+            # RotoWire's week parameter seems to be 'week='
+            # Example: https://www.rotowire.com/football/lineups.php?week=1
+            url = f"{base_url}?week={week}"
+            print(f"Using RotoWire URL for Week {week}: {url}")
+        else:
+            url = base_url
+            print(f"Using RotoWire default URL for current week: {url}")
+
+        driver.get(url) # <--- USE THE CONSTRUCTED URL
         
         # --- NEW ROBUST WAIT ---
         print("⏳ Waiting up to 30 seconds for RotoWire game cards to load...")
@@ -141,7 +154,13 @@ def scrape_lineups():
         
         # Save to CSV
         df = pd.DataFrame(games)
-        output = f"data/rotowire_lineups_{datetime.now().strftime('%Y-%m-%d_')}.csv"
+        
+        # Use the week in the filename if provided
+        if week and week != "None":
+            output = f"data/rotowire_lineups_week{week}_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
+        else:
+            output = f"data/rotowire_lineups_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}.csv"
+            
         df.to_csv(output, index=False)
         
         print(f"\n✅ Scraped {len(df)} games")
@@ -151,13 +170,13 @@ def scrape_lineups():
         print("\n📋 GAME SUMMARY:")
         for _, game in df.iterrows():
             print(f"\n{game['matchup']} ({game['game_time']})")
-            print(f"  QBs: {game['away_qb']} vs {game['home_qb']}")
+            print(f"  QBs: {game['away_qb']} vs {game['home_qb']}")
             if game['injuries'] != "None":
-                print(f"  🚨 Injuries: {game['injuries']}")
+                print(f"  🚨 Injuries: {game['injuries']}")
             if game['weather']:
-                print(f"  🌤️  Weather: {game['weather']}")
+                print(f"  🌤️  Weather: {game['weather']}")
             if game['spread']:
-                print(f"  📊 {game['spread']} | {game['total']}")
+                print(f"  📊 {game['spread']} | {game['total']}")
         
         return df
         
@@ -169,4 +188,13 @@ def scrape_lineups():
         return None
 
 if __name__ == "__main__":
-    scrape_lineups()
+    # Check for command-line arguments
+    if len(sys.argv) > 1:
+        # The first argument (sys.argv[0]) is the script name itself
+        # The second argument (sys.argv[1]) would be the week number
+        week_number = sys.argv[1]
+        print(f"Received week number from command line: {week_number}")
+        scrape_lineups(week_number)
+    else:
+        print("No week number provided via command line. Scraping current week's lineups.")
+        scrape_lineups() # Call without a specific week, Rotowire defaults to current
