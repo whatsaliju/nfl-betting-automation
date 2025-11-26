@@ -15,7 +15,7 @@ on:
       week:
         description: 'NFL Week Number (Optional)'
         required: false
-        type: number
+        type: string
 
 jobs:
   scrape_lineup_data:
@@ -75,3 +75,10 @@ jobs:
           git commit -m "🏈 Week ${{ steps.get_week_for_commit.outputs.week }} final lineup data" || echo "No changes to commit"
           git pull --rebase origin main
           git push
+
+      - name: Trigger Automated Pro Analysis with Latest Lineup Data
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN if repo_dispatch is in the same repo
+          event-type: final-lineup-data-ready # A new event type for Workflow 4 to listen for
+          client-payload: '{"week": "${{ steps.get_week_for_commit.outputs.week }}", "analysis_type": "final_lineups"}'
