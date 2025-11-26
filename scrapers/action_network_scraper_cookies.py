@@ -59,7 +59,7 @@ if os.path.exists(COOKIES_FILE):
         with open(COOKIES_FILE, 'r') as f:
             cookies = json.load(f)
         # NEW, ROBUST COOKIE LOADING CODE
-        for cookie in cookies:
+        for cookie in cookies:
             # --- START FIX: ESSENTIAL ROBUSTNESS ---
             if 'expiry' in cookie:
                 try:
@@ -73,10 +73,10 @@ if os.path.exists(COOKIES_FILE):
             if 'path' not in cookie:
                 cookie['path'] = '/'
             # --- END FIX ---
-            cookie.pop('sameSite', None)
-            cookie.pop('httpOnly', None)
-            try:
-                driver.add_cookie(cookie)
+            cookie.pop('sameSite', None)
+            cookie.pop('httpOnly', None)
+            try:
+                driver.add_cookie(cookie)
             except Exception as e:
                 print(f"  ⚠️ Could not add cookie {cookie.get('name')}: {e}")
         print(f"✅ Loaded {len(cookies)} cookies")
