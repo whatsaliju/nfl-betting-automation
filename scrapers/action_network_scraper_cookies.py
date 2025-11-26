@@ -55,10 +55,12 @@ print("🍪 Cookie-based authentication approach")
 if os.path.exists(COOKIES_FILE):
     print(f"✅ Found cookies file: {COOKIES_FILE}")
     driver.get("https://www.actionnetwork.com")
+    time.sleep(2) # <-- RE-ADDED: Essential for stability before adding cookies
     try:
+        # ALL CODE BELOW HERE IS INDENTED 8 SPACES
         with open(COOKIES_FILE, 'r') as f:
             cookies = json.load(f)
-        # NEW, ROBUST COOKIE LOADING CODE
+        
         for cookie in cookies:
             # --- START FIX: ESSENTIAL ROBUSTNESS ---
             if 'expiry' in cookie:
@@ -106,10 +108,7 @@ def scrape_current_market(market_name):
     rows = []
 
     # The wait for rows is now handled in the main loop before calling this function
-    
-    # Small sleep to ensure all cells within the rows are populated
-    time.sleep(2) 
-    
+    # Small sleep to ensure all cells within the rows are populated   
     games = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
     print(f"📊 Found {len(games)} total rows in {market_name}")
 
