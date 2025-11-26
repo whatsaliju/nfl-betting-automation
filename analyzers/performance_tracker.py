@@ -228,20 +228,71 @@ class EnhancedPerformanceTracker:
         bet_type = bet_row.get('bet_type', 'spread')
         predicted_side = bet_row.get('predicted_side', 'unknown')
         recommendation = bet_row.get('recommendation', '')
+        game_name = bet_row.get('game', '')
         
-        spread_match = re.search(r'[-+]?\d+\.?5?', recommendation)
-        total_match = re.search(r'(?:OVER|UNDER)\s+(\d+\.?5?)', recommendation)
+        # Extract team names from the game
+        away_team = game_name.split(' @ ')[0] if ' @ ' in game_name else ''
+        home_team = game_name.split(' @ ')[1] if ' @ ' in game_name else ''
+        
+        # Look for spread in format: "Team +/-X" or "Team +/-X.5"
+        spread_match = re.search(r'([A-Za-z\s]+)\s*([-+]?\d+\.?5?)', recommendation)
+        total_match = re.search(r'(?:OVER|UNDER)\s+(\d+\.?5?)', recommendation, re.IGNORECASE)
         
         away_score = game_result['away_score']
         home_score = game_result['home_score']
         total_score = game_result['total_score']
-        margin = away_score - home_score
+        margin = away_score - home_score  # Positive if away wins
         
         analysis_parts = []
         
-        if 'spread' in bet_type.lower() or any(word in recommendation.lower() for word in ['away on spread', 'home on spread']):
-            if spread_match:
-                spread = float(spread_match.group())
+        # Handle spread bets with team name + spread format
+        if 'spread' in bet_type.lower() and spread_match:
+            team_mentioned = spread_match.group(1).strip()
+            spread_value = float(spread_match.group(2))
+            
+            # Determine if the mentioned team is away or home
+            is_away_team = any(word in team_mentioned.lower() for word in away_team.lower().split())
+            is_home_team = any(word in team_mentioned.lower() for word in home_team.lower().split())
+            
+            if is_away_team:
+                # Away team mentioned: if negative spread, they're favored
+                if spread_value < 0:
+                    # Away team favored by abs(spread_value)
+                    covered = margin > abs(spread_value)
+                    result['spread_analysis'] = "Away " + ('+' if margin >= 0 else '') + str(margin) + " vs spread " + str(spread_value)
+                else:
+                    # Away team getting points
+                    covered = margin > -abs(spread_value)
+                    result['spread_analysis'] = "Away " + ('+' if margin >= 0 else '') + str(margin) + " vs spread +" + str(spread_value)
+                
+            elif is_home_team:
+                # Home team mentioned: if negative spread, they're favored  
+                if spread_value < 0:
+                    # Home team favored by abs(spread_value)
+                    covered = -margin > abs(spread_value)
+                    result['spread_analysis'] = "Home " + ('+' if -margin >= 0 else '') + str(-margin) + " vs spread " + str(spread_value)
+                else:
+                    # Home team getting points
+                    covered = -margin > -abs(spread_value)
+                    result['spread_analysis'] = "Home " + ('+' if -margin >= 0 else '') + str(-margin) + " vs spread +" + str(spread_value)
+            
+            else:
+                covered = False
+                result['spread_analysis'] = "Could not match team: " + team_mentioned + " in " + game_name
+            
+            # Check for push
+            if abs(margin) == abs(spread_value):
+                result['push'] = True
+                analysis_parts.append("PUSH on spread (" + str(margin) + " vs " + str(spread_value) + ")")
+            else:
+                result['won'] = covered
+                analysis_parts.append(('WON' if covered else 'LOST') + " spread bet")
+                
+        # Handle legacy format for backward compatibility
+        elif 'spread' in bet_type.lower() and any(word in recommendation.lower() for word in ['away on spread', 'home on spread']):
+            legacy_spread_match = re.search(r'[-+]?\d+\.?5?', recommendation)
+            if legacy_spread_match:
+                spread = float(legacy_spread_match.group())
                 
                 if 'away on spread' in recommendation.lower():
                     covered = margin > abs(spread) if spread < 0 else margin > -abs(spread)
@@ -250,10 +301,6 @@ class EnhancedPerformanceTracker:
                 elif 'home on spread' in recommendation.lower():
                     covered = margin < -abs(spread) if spread > 0 else margin < abs(spread)
                     result['spread_analysis'] = "Home " + ('+' if -margin > 0 else '') + str(-margin) + " vs spread " + str(-spread)
-                
-                else:
-                    covered = False
-                    result['spread_analysis'] = "Could not determine spread direction"
                 
                 if abs(margin) == abs(spread):
                     result['push'] = True
@@ -264,6 +311,7 @@ class EnhancedPerformanceTracker:
             else:
                 analysis_parts.append("Spread bet - could not extract line from recommendation")
         
+        # Handle total bets (this works fine already)
         if 'total' in bet_type.lower() or any(word in recommendation.lower() for word in ['over', 'under']):
             if total_match:
                 total_line = float(total_match.group(1))
