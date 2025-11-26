@@ -48,12 +48,19 @@ jobs:
       - name: Get Week Number
         id: get_week
         run: |
+          # Use single quotes to safely assign the input number as a string
           if [ -n "${{ github.event.inputs.week }}" ]; then
-            WEEK=${{ github.event.inputs.week }}
+            WEEK='${{ github.event.inputs.week }}'
           else
             # Auto-detect from existing files
             WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
           fi
+          
+          # Final safety check: Default to 1 if detection failed
+          if [ -z "$WEEK" ]; then
+              WEEK=1
+          fi
+
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "📅 Updating market data for Week $WEEK"
 
@@ -70,11 +77,6 @@ jobs:
         run: |
           echo "📊 Scraping Action Network..."
           python3 scrapers/action_network_scraper_cookies.py
-      
-      - name: Scrape RotoWire Lineups
-        run: |
-          echo "🏈 Scraping RotoWire lineups & injuries..."
-          python3 scrapers/rotowire_scraper.py
       
       - name: Scrape Action Network Injuries & Weather
         run: |
@@ -235,7 +237,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/action_all_markets_*.csv \
-                  data/rotowire_lineups_*.csv \
                   data/action_injuries_*.csv \
                   data/action_weather_*.csv \
                   data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv \
