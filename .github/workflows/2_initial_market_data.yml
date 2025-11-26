@@ -8,7 +8,7 @@ on:
       week:
         description: 'NFL Week Number'
         required: true
-        type: number
+        type: string
 
 jobs:
   collect_initial_market:
@@ -109,4 +109,4 @@ jobs:
         run: |
           echo "✅ Initial market data collection complete"
           echo "📁 Market files created:"
-          ls -lh data/action_all_markets_*.csv data/rotowire_lineups_*.csv data/action_injuries_*.csv data/action_weather_*.csv 2>/dev/null || true
+          ls -lh data/action_all_markets_*.csv data/action_injuries_*.csv data/action_weather_*.csv 2>/dev/null || true
