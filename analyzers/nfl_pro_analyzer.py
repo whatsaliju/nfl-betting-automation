@@ -67,8 +67,11 @@ TEAM_MAP = {
     "HOU": "Texans", "TEN": "Titans", "SF": "49ers", "ARI": "Cardinals",
     "SEA": "Seahawks", "LAR": "Rams", "BAL": "Ravens", "CLE": "Browns",
     "KC": "Chiefs", "DEN": "Broncos", "DET": "Lions", "PHI": "Eagles",
-    "DAL": "Cowboys", "LV": "Raiders"
+    "DAL": "Cowboys", "LV": "Raiders",
+    "IND": "Colts", "NO": "Saints"
+
 }
+FULL_NAME_TO_TLA = {v.lower(): k for k, v in TEAM_MAP.items()}
 
 # --- DATA CONSTANT: SCHEDULE REST DATA ---
 # This dictionary holds the rest days for all teams entering each week of the 2025 NFL season.
@@ -1886,9 +1889,27 @@ class ClassificationEngine:
 # The logic from the original 'for game' loop has been moved here.
 # It receives a row (as a namedtuple from itertuples) and the required dataframes.
 def analyze_single_game(row, week, action, action_injuries, rotowire):
-    # Access row attributes using dot notation from itertuples()
-    away_full = TEAM_MAP.get(getattr(row, 'away', ''), '')
-    home_full = TEAM_MAP.get(getattr(row, 'home', ''), '')
+
+    # Raw from CSV (may be full names or TLAs)
+    away_raw = getattr(row, 'away', '').strip()
+    home_raw = getattr(row, 'home', '').strip()
+
+    # Standardize to uppercase for TLA lookup
+    away_key = away_raw.upper()
+    home_key = home_raw.upper()
+
+    # If key isn't already a valid TLA, reverse map from full name
+    if away_key not in TEAM_MAP:
+        away_key = FULL_NAME_TO_TLA.get(away_raw, away_key)
+
+    if home_key not in TEAM_MAP:
+        home_key = FULL_NAME_TO_TLA.get(home_raw, home_key)
+
+    # Now get full official team names from the TLA
+    away_full = TEAM_MAP.get(away_key, away_key)
+    home_full = TEAM_MAP.get(home_key, home_key)
+
+
     
     # --- Sharp Money Analysis (Unchanged) ---
     sharp_analysis = {
@@ -1965,16 +1986,25 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         'away': away_full, 'home': home_full, 'game_time': getattr(row, 'game_time', '')
     }
     game_theory_analysis = GameTheoryAnalyzer.analyze(game_theory_data)
-
+    
     try:
         schedule_score, schedule_desc = calculate_schedule_score(
-            week, getattr(row, 'home', ''), getattr(row, 'away', '')
+            week,
+            home_key,  # normalized TLA
+            away_key   # normalized TLA
         )
-        schedule_analysis = {'score': schedule_score, 'description': schedule_desc, 'factors': [schedule_desc]}
+        schedule_analysis = {
+            'score': schedule_score,
+            'description': schedule_desc,
+            'factors': [schedule_desc]
+        }
     except Exception as e:
-        schedule_analysis = {'score': 0, 'description': f"Schedule analysis failed: {e}", 'factors': []}
-        
-    # --- Start: DYNAMIC FACTOR WEIGHTING & CONFLICT PENALTIES ---    
+        schedule_analysis = {
+            'score': 0,
+            'description': f"Schedule analysis failed: {e}",
+            'factors': []
+        }
+
     # --- Start: DYNAMIC FACTOR WEIGHTING & CONFLICT PENALTIES ---
     
     # 1. Collect unweighted scores
