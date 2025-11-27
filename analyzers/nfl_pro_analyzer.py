@@ -2091,13 +2091,14 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         + FACTOR_WEIGHTS['schedule_score']     * schedule_analysis['score']
     )
 
-    classification, recommendation, tier_score = classify({
+    classification, recommendation_label, tier_score = classify_game({
         'total_score': total_score,
         'sharp_consensus_score': sharp_analysis['spread'].get('score', 0),
         'referee_analysis': referee_analysis,
         'injury_analysis': injury_analysis,
         'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
     })
+
 
 
     return {
@@ -2108,7 +2109,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         'away_tla': away_tla,
         'home_tla': home_tla,
         'classification': classification,
-        'recommendation': recommendation,
+        'classification_label': recommendation_label,
         'tier_score': tier_score,
         'total_score': total_score,
         'confidence': abs(total_score),
