@@ -1949,13 +1949,14 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     matchup_key = f"{away_tla}@{home_tla}"
 
     # ======================================================
-    # STEP 2 — ACTION matching (stable)
+    # STEP 2 — ACTION MATCHING (CANONICAL, STABLE)
     # ======================================================
-    normalized_matchup = normalize_matchup(matchup_raw)
+    normalized_matchup = f"{away_tla}@{home_tla}"
     action_row = None
     
     if not action.empty:
         action_row = action[action['normalized_matchup'] == normalized_matchup]
+
     # ======================================================
     # STEP 3 — SHARP MONEY
     # ======================================================
@@ -2002,7 +2003,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     # STEP 6 — INJURIES
     # ======================================================
     try:
-        inj = InjuryIntegration.analyze_game_injuries(away_tla, home_tla, week)
+        inj = InjuryIntegration.analyze_game_injuries(away_full, home_full, week)
         injury_analysis = {
             'score': inj.get('injury_score', 0),
             'edge': inj.get('injury_edge', 'NO EDGE'),
@@ -2021,22 +2022,24 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     # STEP 7 — SITUATIONAL
     # ======================================================
     situational_analysis = SituationalAnalyzer.analyze({
-        'away': away_tla,
-        'home': home_tla,
+        'away': away_full,
+        'home': home_full,
         'weather_analysis': weather_analysis,
         'spread_line': sharp_analysis['spread'].get('line', ""),
         'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
     }, week)
 
+
     # ======================================================
     # STEP 8 — STATISTICAL
     # ======================================================
     stat_score, stat_factors = StatisticalAnalyzer.analyze_line_value(
-        away_tla,
-        home_tla,
+        away_full,
+        home_full,
         sharp_analysis['spread'].get('line', ""),
         week
     )
+
 
     statistical_analysis = {
         'score': stat_score,
@@ -2047,11 +2050,12 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     # STEP 9 — GAME THEORY
     # ======================================================
     game_theory_analysis = GameTheoryAnalyzer.analyze({
-        'away': away_tla,
-        'home': home_tla,
+        'away': away_full,
+        'home': home_full,
         'sharp_analysis': sharp_analysis,
         'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
     })
+
 
     # ======================================================
     # STEP 10 — SCHEDULE REST
@@ -2151,6 +2155,7 @@ def analyze_week(week):
     final_games = set()
     if not action.empty:
         action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
+        action["normalized_matchup"] = action["normalized_matchup"].str.strip()
         
         # Better filtering that catches all completed games
         final_games = set(
