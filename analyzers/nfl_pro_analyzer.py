@@ -1716,7 +1716,7 @@ class ClassificationEngine:
     """Classifies games into tiers with enhanced recommendations"""
 
     @staticmethod
-    def classify(game_analysis):
+    def classify_game(game_analysis):
         """Determine game classification"""
         total = game_analysis['total_score']
         sharp_score = game_analysis['sharp_consensus_score']
@@ -2091,7 +2091,14 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         + FACTOR_WEIGHTS['schedule_score']     * schedule_analysis['score']
     )
 
-    classification, recommendation = classify_game(total_score)
+    classification, recommendation, tier_score = classify({
+        'total_score': total_score,
+        'sharp_consensus_score': sharp_analysis['spread'].get('score', 0),
+        'referee_analysis': referee_analysis,
+        'injury_analysis': injury_analysis,
+        'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
+    })
+
 
     return {
         'matchup': f"{away_full} @ {home_full}",
@@ -2102,6 +2109,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         'home_tla': home_tla,
         'classification': classification,
         'recommendation': recommendation,
+        'tier_score': tier_score,
         'total_score': total_score,
         'confidence': abs(total_score),
         'sharp_analysis': sharp_analysis,
