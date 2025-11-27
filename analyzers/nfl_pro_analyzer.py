@@ -971,7 +971,13 @@ class InjuryIntegration:
             analyzer = InjuryAnalyzer()
             
             # Load RotoWire injury data
-            rotowire_file = f"data/rotowire_injuries_week_{week}.csv"
+            rotowire_week_pattern = f"rotowire_lineups_week{week}_"
+            rotowire_file = find_latest(rotowire_week_pattern)
+            
+            # Fall back to global if no week file found
+            if not rotowire_file:
+                rotowire_file = find_latest("rotowire_lineups_")
+            
             print(f"🔍 Looking for injury file: {rotowire_file}")
             print(f"🔍 File exists: {os.path.exists(rotowire_file)}")
             injury_data = analyzer.process_rotowire_injuries(rotowire_file)
