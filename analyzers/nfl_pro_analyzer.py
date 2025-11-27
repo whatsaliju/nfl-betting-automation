@@ -127,29 +127,29 @@ def calculate_schedule_score(week, home_tla, away_tla):
 
     
     # Retrieve rest days, defaulting to 7 if data is missing
-    home_rest = rest_data[home_tla]
-    away_rest = rest_data[away_tla]
+    home_rest = rest_data.get(home_tla, 7)
+    away_rest = rest_data.get(away_tla, 7)
 
     
-    rest_differential = home_rest - away_rest # Positive means Home team has more rest
+    rest_differential = home_rest - away_rest
     
     score = 0
-    description = "Neutral schedule situation (standard rest)."
+    factors = []
     
     if rest_differential > 2:
-        score = 1
-        description = f"Schedule Edge: HOME team ({home_tla}) has a significant rest advantage (+{rest_differential} days)."
+        score = 2  # Increase impact
+        factors.append(f"HOME rest advantage (+{rest_differential} days)")
     elif rest_differential < -2:
-        score = -1
-        description = f"Schedule Edge: AWAY team ({away_tla}) has a significant rest advantage (+{abs(rest_differential)} days)."
+        score = -2  # Penalize disadvantage
+        factors.append(f"AWAY rest advantage (+{abs(rest_differential)} days)")
     elif rest_differential != 0:
-        # For minor rest differences (1 or 2 days)
-        team_with_rest = home_tla if rest_differential > 0 else away_tla
-        score = 0.5 if rest_differential > 0 else -0.5
-        description = f"Minor rest advantage for {team_with_rest} ({abs(rest_differential)} days)."
-
-    # If both teams are coming off a bye (10 days) or a TNF game (3 days), the diff is 0, keeping the score 0.
-
+        score = 1 if rest_differential > 0 else -1
+        factors.append(f"Minor rest edge ({abs(rest_differential)} days)")
+    else:
+        factors.append("Neutral schedule situation (standard rest)")
+    
+    description = " | ".join(factors)
+    
     return score, description
     
 def safe_load_csv(path, required=False):
