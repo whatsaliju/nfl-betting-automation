@@ -2002,7 +2002,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     # STEP 6 — INJURIES
     # ======================================================
     try:
-        inj = InjuryIntegration.analyze_game_injuries(away_full, home_full, week)
+        inj = InjuryIntegration.analyze_game_injuries(away_tla, home_tla, week)
         injury_analysis = {
             'score': inj.get('injury_score', 0),
             'edge': inj.get('injury_edge', 'NO EDGE'),
@@ -2021,8 +2021,8 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     # STEP 7 — SITUATIONAL
     # ======================================================
     situational_analysis = SituationalAnalyzer.analyze({
-        'away': away_full,
-        'home': home_full,
+        'away': away_tla,
+        'home': home_tla,
         'weather_analysis': weather_analysis,
         'spread_line': sharp_analysis['spread'].get('line', ""),
         'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
@@ -2032,8 +2032,8 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     # STEP 8 — STATISTICAL
     # ======================================================
     stat_score, stat_factors = StatisticalAnalyzer.analyze_line_value(
-        away_full,
-        home_full,
+        away_tla,
+        home_tla,
         sharp_analysis['spread'].get('line', ""),
         week
     )
@@ -2047,8 +2047,8 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     # STEP 9 — GAME THEORY
     # ======================================================
     game_theory_analysis = GameTheoryAnalyzer.analyze({
-        'away': away_full,
-        'home': home_full,
+        'away': away_tla,
+        'home': home_tla,
         'sharp_analysis': sharp_analysis,
         'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
     })
@@ -2118,6 +2118,10 @@ def analyze_week(week):
     # Load data
     print("📥 Loading data sources...")
     queries = safe_load_csv(f"data/week{week}/week{week}_queries.csv", required=True)
+    queries["away_std"] = queries["away"].apply(canonical)
+    queries["home_std"] = queries["home"].apply(canonical)
+    queries["normalized_matchup"] = queries["matchup"].apply(normalize_matchup)
+
     sdql = safe_load_csv("data/historical/sdql_results.csv")
     
     if queries.empty:
@@ -2173,6 +2177,11 @@ def analyze_week(week):
     # Load supplemental data
     rotowire_file = find_latest("rotowire_lineups_")
     rotowire = safe_load_csv(rotowire_file) if rotowire_file else pd.DataFrame()
+
+    # Prepare rotowire data
+    if not rotowire.empty:
+        rotowire['home_std'] = rotowire['home'].apply(canonical)
+        rotowire['away_std'] = rotowire['away'].apply(canonical)
     
     # Merge base data
     final = queries.merge(sdql, on='query', how='left') if not sdql.empty else queries
@@ -2202,12 +2211,6 @@ def analyze_week(week):
     
     if completed_removed or started_removed:
         print(f"🧹 Filtered out {completed_removed} completed + {started_removed} started games")
-
-    # Prepare rotowire data
-    if not rotowire.empty:
-        rotowire['home_std'] = rotowire['home'].apply(canonical)
-        rotowire['away_std'] = rotowire['away'].apply(canonical)
-
 
     # Process each game IN PARALLEL
     games = []
