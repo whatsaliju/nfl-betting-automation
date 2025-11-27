@@ -111,7 +111,7 @@ jobs:
       - name: Run Pro Analyzer
         run: |
           echo "🔬 Running Pro Analysis Engine..."
-          python3 analyzers/nfl_pro_analyzer.py ${{ steps.get_week.outputs.week }}
+          python3 -m analyzers.nfl_pro_analyzer ${{ steps.get_week.outputs.week }}
       - name: Send Enhanced Professional Email
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
