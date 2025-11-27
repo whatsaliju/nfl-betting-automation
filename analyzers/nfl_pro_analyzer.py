@@ -1882,252 +1882,228 @@ class ClassificationEngine:
         else:
             return '-' + spread_str
 
+def canonical(team_raw: str) -> str:
+    if not team_raw:
+        return ""
+
+    t = team_raw.strip().lower()
+
+    # Already TLA
+    if t.upper() in TEAM_MAP:
+        return t.upper()
+
+    # Exact full-name match
+    if t in FULL_NAME_TO_TLA:
+        return FULL_NAME_TO_TLA[t]
+
+    # Partial match
+    for tla, fullname in TEAM_MAP.items():
+        lf = fullname.lower()
+        if t == lf or t in lf or lf in t:
+            return tla
+
+    # Last-chance uppercase
+    return t.upper()
+
+def normalize_matchup(s: str) -> str:
+    if not s:
+        return ""
+
+    s = s.lower().replace(" vs ", "@").replace(" at ", "@").replace(" ", "")
+    parts = s.split("@")
+
+    if len(parts) != 2:
+        return s
+
+    return f"{canonical(parts[0])}@{canonical(parts[1])}"
+
+
+
+
 # ================================================================
 # SINGLE GAME ANALYSIS (REFRACTORED FOR PARALLELISM)
 # ================================================================
-
-# The logic from the original 'for game' loop has been moved here.
-# It receives a row (as a namedtuple from itertuples) and the required dataframes.
 def analyze_single_game(row, week, action, action_injuries, rotowire):
+    """
+    Core deterministic single-game analysis.
+    Input row → output dict
+    """
 
-    # Raw from CSV (may be full names or TLAs)
+    # ======================================================
+    # STEP 0 — RAW INPUT
+    # ======================================================
     away_raw = getattr(row, 'away', '').strip()
     home_raw = getattr(row, 'home', '').strip()
+    matchup_raw = getattr(row, 'matchup', '').strip()
 
-    # Standardize to uppercase for TLA lookup
-    away_key = away_raw.upper()
-    home_key = home_raw.upper()
+    # ======================================================
+    # STEP 1 — CANONICAL TEAMS
+    # ======================================================
+    away_tla = canonical(away_raw)
+    home_tla = canonical(home_raw)
 
-    # If key isn't already a valid TLA, reverse map from full name
-    if away_key not in TEAM_MAP:
-        away_key = FULL_NAME_TO_TLA.get(away_raw, away_key)
+    away_full = TEAM_MAP.get(away_tla, away_tla)
+    home_full = TEAM_MAP.get(home_tla, home_tla)
 
-    if home_key not in TEAM_MAP:
-        home_key = FULL_NAME_TO_TLA.get(home_raw, home_key)
+    # stable matchup key (NO lowercase, NO spaces)
+    matchup_key = f"{away_tla}@{home_tla}"
 
-    # Now get full official team names from the TLA
-    away_full = TEAM_MAP.get(away_key, away_key)
-    home_full = TEAM_MAP.get(home_key, home_key)
-
-
+    # ======================================================
+    # STEP 2 — ACTION matching (stable)
+    # ======================================================
+    normalized_matchup = normalize_matchup(matchup_raw)
+    action_row = None
     
-    # --- Sharp Money Analysis (Unchanged) ---
-    sharp_analysis = {
-        'spread': {'differential': 0, 'score': 0, 'direction': 'NEUTRAL', 'bets_pct': 0, 'money_pct': 0, 'line': '', 'description': 'No data'},
-        'total': {'differential': 0, 'score': 0, 'direction': 'NEUTRAL', 'bets_pct': 0, 'money_pct': 0, 'line': '', 'description': 'No data'},
-        'moneyline': {'differential': 0, 'score': 0, 'direction': 'NEUTRAL', 'bets_pct': 0, 'money_pct': 0, 'line': '', 'description': 'No data'}
-    }
-    # ... sharp analysis logic ...
     if not action.empty:
-        for market_name in ['Spread', 'Total', 'Moneyline']:
-            market_data = action[
-                (action["normalized_matchup"] == getattr(row, "normalized_matchup")) &
-                (action["Market"] == market_name)
-            ]
-            sharp_analysis[market_name.lower()] = SharpMoneyAnalyzer.analyze_market(
-                market_data, market_name
-            )
-            
-    sharp_scores = [v.get('score', 0) for v in sharp_analysis.values()]
-    sharp_consensus_score = sum(sharp_scores)
+        action_row = action[action['normalized_matchup'] == normalized_matchup]
+    # ======================================================
+    # STEP 3 — SHARP MONEY
+    # ======================================================
+    sharp_analysis = {
+        'spread': {},
+        'total': {},
+        'moneyline': {}
+    }
 
-    # --- Referee Analysis (Unchanged) ---
-    ref_analysis = RefereeAnalyzer.analyze(row)
-    
-    # --- Weather and Injury Data Retrieval (Unchanged) ---
-    # ... weather and injury data retrieval logic ...
-    weather_data = ""
-    injury_data_combined = ""
-    if not rotowire.empty:
-        match = rotowire[
-            (rotowire['away_std'] == away_full) &
-            (rotowire['home_std'] == home_full)
+    if action_row is not None and not action_row.empty:
+        spread_data = action_row[action_row['Market'].str.contains("Spread", case=False)]
+        total_data  = action_row[action_row['Market'].str.contains("Total", case=False)]
+        ml_data     = action_row[action_row['Market'].str.contains("Money", case=False)]
+
+        sharp_analysis['spread']     = SharpMoneyAnalyzer.analyze_market(spread_data, "Spread")
+        sharp_analysis['total']      = SharpMoneyAnalyzer.analyze_market(total_data, "Total")
+        sharp_analysis['moneyline']  = SharpMoneyAnalyzer.analyze_market(ml_data, "Moneyline")
+
+    # ======================================================
+    # STEP 4 — WEATHER
+    # ======================================================
+    if action_row is not None and not action_row.empty:
+        weather_raw = action_row.iloc[0].get("Weather", "")
+        weather_analysis = WeatherAnalyzer.analyze(weather_raw)
+    else:
+        weather_analysis = {'score': 0, 'description': 'N/A', 'factors': []}
+
+    # ======================================================
+    # STEP 5 — REFEREE
+    # ======================================================
+    if rotowire is not None and not rotowire.empty:
+        ref_row = rotowire[
+            (rotowire['away_std'] == away_tla) &
+            (rotowire['home_std'] == home_tla)
         ]
-        if not match.empty:
-            weather_data = match.iloc[0].get('weather', '')
-            injury_data_combined = match.iloc[0].get('injuries', '')
-            
-    # --- Other Analyses (Abbreviated for brevity) ---
-    weather_analysis = WeatherAnalyzer.analyze(weather_data)
-    
-    # Enhanced Injury Analysis
+        if not ref_row.empty:
+            referee_analysis = RefereeAnalyzer.analyze(ref_row.iloc[0])
+        else:
+            referee_analysis = {'ats_score': 0, 'ou_score': 0}
+    else:
+        referee_analysis = {'ats_score': 0, 'ou_score': 0}
+
+    # ======================================================
+    # STEP 6 — INJURIES
+    # ======================================================
     try:
-        # ... injury analysis logic (use the full logic from your file) ...
-        injury_integration = InjuryIntegration.analyze_game_injuries(away_full, home_full, week)
+        inj = InjuryIntegration.analyze_game_injuries(away_full, home_full, week)
         injury_analysis = {
-             'score': injury_integration.get('injury_score', 0),
-             'factors': injury_integration.get('recommendations', []),
-             'description': injury_integration.get('analysis', 'No significant injuries identified'),
-             'edge': injury_integration.get('injury_edge', 'NO EDGE'),
-             'away_impact': injury_integration.get('away_injuries', []),
-             'home_impact': injury_integration.get('home_injuries', []),
-             'net_impact': injury_integration.get('injury_score', 0),
-             'prop_recommendations': injury_integration.get('recommendations', [])
+            'score': inj.get('injury_score', 0),
+            'edge': inj.get('injury_edge', 'NO EDGE'),
+            'analysis': inj.get('analysis', ''),
+            'away_impact': inj.get('away_injuries', []),
+            'home_impact': inj.get('home_injuries', []),
         }
     except Exception as e:
-        # ... fallback injury analysis logic ...
-        injury_analysis = {'score': 0, 'factors': [], 'description': f"Analysis failed: {e}", 'edge': 'NO EDGE', 'away_impact': 0, 'home_impact': 0, 'net_impact': 0}
-        
-    temp_game_data = {
-        'away': away_full, 'home': home_full, 'game_time': getattr(row, 'game_time', ''),
-        'weather_analysis': weather_analysis,
-        'public_exposure': sharp_analysis.get('spread', {}).get('bets_pct', 50),
-        'spread_line': sharp_analysis.get('spread', {}).get('line', '')
-    }
-    situational_analysis = SituationalAnalyzer.analyze(temp_game_data, week)
-    
-    stat_score, stat_factors = StatisticalAnalyzer.analyze_line_value(
-        away_full, home_full, sharp_analysis.get('spread', {}).get('line', ''), week
-    )
-    statistical_analysis = {'score': stat_score, 'factors': stat_factors, 'description': ', '.join(stat_factors) if stat_factors else 'No statistical edge detected'}
-    
-    game_theory_data = {
-        'sharp_analysis': sharp_analysis, 'public_exposure': sharp_analysis.get('spread', {}).get('bets_pct', 50),
-        'away': away_full, 'home': home_full, 'game_time': getattr(row, 'game_time', '')
-    }
-    game_theory_analysis = GameTheoryAnalyzer.analyze(game_theory_data)
-    
-    try:
-        schedule_score, schedule_desc = calculate_schedule_score(
-            week,
-            home_key,  # normalized TLA
-            away_key   # normalized TLA
-        )
-        schedule_analysis = {
-            'score': schedule_score,
-            'description': schedule_desc,
-            'factors': [schedule_desc]
-        }
-    except Exception as e:
-        schedule_analysis = {
+        injury_analysis = {
             'score': 0,
-            'description': f"Schedule analysis failed: {e}",
-            'factors': []
+            'edge': 'NO EDGE',
+            'analysis': f"injury analyzer fail: {e}",
         }
 
-    # --- Start: DYNAMIC FACTOR WEIGHTING & CONFLICT PENALTIES ---
-    
-    # 1. Collect unweighted scores
-    factor_scores = {
-        'sharp_consensus_score': sharp_consensus_score,
-        'referee_ats_score': ref_analysis['ats_score'],
-        'referee_ou_score': ref_analysis['ou_score'],
-        'weather_score': weather_analysis['score'],
-        'injury_score': injury_analysis['score'],
-        'situational_score': situational_analysis['score'],
-        'statistical_score': statistical_analysis['score'],
-        'game_theory_score': game_theory_analysis['score'],
-        'schedule_score': schedule_analysis['score']
-    }
-    
-    # 2. Calculate initial total score using WEIGHTS
-    total_score = sum(
-        factor_scores[k] * FACTOR_WEIGHTS.get(k, 1.0)
-        for k in factor_scores
-    )
-    
-    # 3. Apply Conflict Penalties (using unweighted scores for the check, weighted score for the penalty)
-    # Spread Conflict Penalty Check
-    statistical_score_unweighted = statistical_analysis['score']
-    unweighted_sum_for_consensus = sum(factor_scores.values())
-    consensus_score_unweighted = unweighted_sum_for_consensus - statistical_score_unweighted
-    cap_confidence_total = False 
-        
-    if abs(statistical_score_unweighted) >= 2 and (statistical_score_unweighted * consensus_score_unweighted < 0):
-        CONFLICT_PENALTY_SPREAD = ANALYSIS_CONFIG['CONFLICT_PENALTY_SPREAD']
-        
-        # --- LOGICAL FIX FOR total_score: NEUTRALIZE AND PENALIZE ---
-        # Neutralize: Subtract the Statistical Score's weighted contribution 
-        stat_contribution = factor_scores['statistical_score'] * FACTOR_WEIGHTS['statistical_score']
-        total_score -= stat_contribution
-        
-        # Penalize: Add the severe conflict penalty
-        total_score += CONFLICT_PENALTY_SPREAD
-        
-        # --- LOGGING ---
-        conflict_msg = f"🚨 MAJOR SPREAD CONFLICT: Strong stat value ({statistical_score_unweighted:+.1f}) opposes consensus ({consensus_score_unweighted:+.1f}). Penalty: {CONFLICT_PENALTY_SPREAD}"
-        situational_analysis['factors'].append(conflict_msg)
-        situational_analysis['description'] += f" | {conflict_msg}"
-        
-        # Update situational score for logging/tracking
-        situational_analysis['score'] += CONFLICT_PENALTY_SPREAD
-        
-        
-    # Total Conflict Penalty Check
-    sharp_total_score = sharp_analysis['total']['score']
-    ref_ou_score = ref_analysis['ou_score']
-        
-    if (sharp_total_score * ref_ou_score < 0) and (abs(sharp_total_score) >= 2) and (abs(ref_ou_score) >= 2):
-        CONFLICT_PENALTY_TOTAL = ANALYSIS_CONFIG['CONFLICT_PENALTY_TOTAL']
-        
-        # --- LOGICAL FIX FOR total_score: NEUTRALIZE AND PENALIZE ---
-        
-        # Neutralize Referee O/U contribution
-        ref_ou_contribution = factor_scores['referee_ou_score'] * FACTOR_WEIGHTS['referee_ou_score']
-        total_score -= ref_ou_contribution
-        
-        # Neutralize Sharp Total contribution (by removing full consensus and re-adding non-conflicting markets)
-        # Remove the full weighted sharp consensus score
-        total_score -= (factor_scores['sharp_consensus_score'] * FACTOR_WEIGHTS['sharp_consensus_score'])
-        
-        # Re-add the weighted scores for the non-conflicting sharp markets (Spread and Moneyline)
-        non_conflicting_sharp_score = sharp_analysis['spread']['score'] + sharp_analysis['moneyline']['score']
-        total_score += non_conflicting_sharp_score * FACTOR_WEIGHTS['sharp_consensus_score']
-        
-        # Penalize: Add the severe conflict penalty
-        total_score += CONFLICT_PENALTY_TOTAL
-        
-        # --- LOGGING ---
-        conflict_msg = f"⚠️ HIGH TOTAL VARIANCE: Sharp Total ({sharp_total_score:+.1f}) conflicts with Referee O/U ({ref_ou_score:+.1f}). Penalty: {CONFLICT_PENALTY_TOTAL}"
-        situational_analysis['factors'].append(conflict_msg)
-        situational_analysis['description'] += f" | {conflict_msg}"
-        
-        # Update situational score for logging/tracking
-        situational_analysis['score'] += CONFLICT_PENALTY_TOTAL
-        cap_confidence_total = True
-        
-    # --- End: DYNAMIC FACTOR WEIGHTING & CONFLICT PENALTIES ---    
-    # --- End: DYNAMIC FACTOR WEIGHTING & CONFLICT PENALTIES ---
-
-    public_exposure = sharp_analysis.get('spread', {}).get('bets_pct', 50)
-    sharp_stories = NarrativeEngine.generate_sharp_story(sharp_analysis)
-    
-    # Build game analysis
-    game_analysis = {
-        'matchup': getattr(row, 'matchup', f"{away_full} @ {home_full}"),
-        'normalized_matchup': getattr(row, 'normalized_matchup'),
+    # ======================================================
+    # STEP 7 — SITUATIONAL
+    # ======================================================
+    situational_analysis = SituationalAnalyzer.analyze({
         'away': away_full,
         'home': home_full,
-        'game_time': getattr(row, 'game_time', ''),
-        # ... include all analysis dicts ...
-        'sharp_analysis': sharp_analysis,
-        'sharp_consensus_score': sharp_consensus_score,
-        'referee_analysis': ref_analysis,
         'weather_analysis': weather_analysis,
+        'spread_line': sharp_analysis['spread'].get('line', ""),
+        'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
+    }, week)
+
+    # ======================================================
+    # STEP 8 — STATISTICAL
+    # ======================================================
+    stat_score, stat_factors = StatisticalAnalyzer.analyze_line_value(
+        away_full,
+        home_full,
+        sharp_analysis['spread'].get('line', ""),
+        week
+    )
+
+    statistical_analysis = {
+        'score': stat_score,
+        'description': ', '.join(stat_factors) if stat_factors else 'No stat edge'
+    }
+
+    # ======================================================
+    # STEP 9 — GAME THEORY
+    # ======================================================
+    game_theory_analysis = GameTheoryAnalyzer.analyze({
+        'away': away_full,
+        'home': home_full,
+        'sharp_analysis': sharp_analysis,
+        'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
+    })
+
+    # ======================================================
+    # STEP 10 — SCHEDULE REST
+    # ======================================================
+    schedule_score, schedule_desc = calculate_schedule_score(
+        week,
+        home_tla,
+        away_tla
+    )
+    schedule_analysis = {
+        'score': schedule_score,
+        'description': schedule_desc
+    }
+
+    # ======================================================
+    # STEP 11 — SCORE
+    # ======================================================
+    total_score = (
+        FACTOR_WEIGHTS['sharp_consensus_score'] * sharp_analysis['spread'].get('score', 0)
+        + FACTOR_WEIGHTS['weather_score']      * weather_analysis.get('score', 0)
+        + FACTOR_WEIGHTS['referee_ats_score']  * referee_analysis.get('ats_score', 0)
+        + FACTOR_WEIGHTS['referee_ou_score']   * referee_analysis.get('ou_score', 0)
+        + FACTOR_WEIGHTS['injury_score']       * injury_analysis.get('score', 0)
+        + FACTOR_WEIGHTS['situational_score']  * situational_analysis.get('score', 0)
+        + FACTOR_WEIGHTS['statistical_score']  * statistical_analysis['score']
+        + FACTOR_WEIGHTS['game_theory_score']  * game_theory_analysis.get('score', 0)
+        + FACTOR_WEIGHTS['schedule_score']     * schedule_analysis['score']
+    )
+
+    classification, recommendation = classify_game(total_score)
+
+    return {
+        'matchup': f"{away_full} @ {home_full}",
+        'matchup_key': matchup_key,
+        'away': away_full,
+        'home': home_full,
+        'away_tla': away_tla,
+        'home_tla': home_tla,
+        'classification': classification,
+        'recommendation': recommendation,
+        'total_score': total_score,
+        'confidence': abs(total_score),
+        'sharp_analysis': sharp_analysis,
+        'weather_analysis': weather_analysis,
+        'referee_analysis': referee_analysis,
         'injury_analysis': injury_analysis,
         'situational_analysis': situational_analysis,
         'statistical_analysis': statistical_analysis,
         'game_theory_analysis': game_theory_analysis,
         'schedule_analysis': schedule_analysis,
-        'total_score': total_score, # This is now the WEIGHTED score
-        'public_exposure': public_exposure,
-        'sharp_stories': sharp_stories
     }
-    
-    # Classification
-    classification, recommendation, confidence = ClassificationEngine.classify(game_analysis)
-    
-    # Apply confidence cap if high total variance was detected
-    if cap_confidence_total:
-        confidence = min(confidence, ANALYSIS_CONFIG['CONFIDENCE_CAP_TOTAL_CONFLICT'])
-            
-    game_analysis['classification'] = classification
-    game_analysis['recommendation'] = ClassificationEngine.generate_enhanced_recommendation(
-        classification, game_analysis
-    )
-    game_analysis['confidence'] = confidence
-    
-    return game_analysis
+
 # ================================================================
 # MAIN ANALYSIS ENGINE
 # ================================================================
@@ -2229,8 +2205,9 @@ def analyze_week(week):
 
     # Prepare rotowire data
     if not rotowire.empty:
-        rotowire['home_std'] = rotowire['home'].map(TEAM_MAP)
-        rotowire['away_std'] = rotowire['away'].map(TEAM_MAP)
+        rotowire['home_std'] = rotowire['home'].apply(canonical)
+        rotowire['away_std'] = rotowire['away'].apply(canonical)
+
 
     # Process each game IN PARALLEL
     games = []
