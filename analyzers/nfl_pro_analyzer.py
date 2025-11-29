@@ -768,22 +768,22 @@ class InjuryAnalyzer:
         total_impact = 0
         
         for injury in injuries:
-            player_id = self.match_player(injury['player'], team_name)
+            player_id = self.enhanced_match_player(injury['player'], team_name)
             if player_id and player_id in self.players_dict:
                 player_data = self.players_dict[player_id]
                 impact = self.calculate_player_impact(injury, player_data)
                 total_impact += impact
         
         return min(total_impact, 10)  # Cap at 10 points
-    
-    def match_player(self, player_name, team_name):
-        """Match player to whitelist by name and team."""
+
+    def enhanced_match_player(self, player_name, team_name):
+        """Enhanced player matching with fuzzy name matching for abbreviations"""
         if not self.players_dict:
             return None
         
         name_lower = player_name.lower().strip()
         
-        # Team abbreviation mapping
+        # Team abbreviation mapping (your existing one)
         team_mapping = {
             "Miami Dolphins": "MIA", "Washington Commanders": "WAS", "Cincinnati Bengals": "CIN",
             "Pittsburgh Steelers": "PIT", "Buffalo Bills": "BUF", "Kansas City Chiefs": "KC",
@@ -800,13 +800,111 @@ class InjuryAnalyzer:
         
         team_abbrev = team_mapping.get(team_name, team_name)
         
+        # Enhanced matching with multiple strategies
         for player_id, player_data in self.players_dict.items():
+            if team_abbrev != player_data['team']:
+                continue  # Skip wrong team
+                
             player_whitelist_name = player_data['name'].lower()
-            if (name_lower in player_whitelist_name or player_whitelist_name in name_lower):
-                if team_abbrev == player_data['team']:
-                    return player_id
+            
+            # Strategy 1: Exact match (existing)
+            if name_lower == player_whitelist_name:
+                return player_id
+                
+            # Strategy 2: Simple substring match (existing)
+            if name_lower in player_whitelist_name or player_whitelist_name in name_lower:
+                return player_id
+                
+            # Strategy 3: Handle abbreviations (NEW)
+            # Example: "A. St. Brown" should match "Amon-Ra St. Brown"
+            if self._matches_with_abbreviation(name_lower, player_whitelist_name):
+                return player_id
+                
+            # Strategy 4: Last name + first initial match (NEW)
+            # Example: "J. Allen" should match "Josh Allen" 
+            if self._matches_last_name_initial(name_lower, player_whitelist_name):
+                return player_id
         
         return None
+    
+    def _matches_with_abbreviation(self, input_name, whitelist_name):
+        """Check if abbreviated name matches full name"""
+        # Split both names into parts
+        input_parts = input_name.replace('.', '').split()
+        whitelist_parts = whitelist_name.split()
+        
+        if len(input_parts) != len(whitelist_parts):
+            return False
+        
+        for i, (inp, wl) in enumerate(zip(input_parts, whitelist_parts)):
+            # If input is single character, check if it's first letter of whitelist
+            if len(inp) == 1:
+                if inp != wl[0]:
+                    return False
+            else:
+                # Full word must match exactly
+                if inp != wl:
+                    return False
+        
+        return True
+    
+    def _matches_last_name_initial(self, input_name, whitelist_name):
+        """Check if 'J. Allen' matches 'Josh Allen' pattern"""
+        input_parts = input_name.replace('.', '').split()
+        whitelist_parts = whitelist_name.split()
+        
+        if len(input_parts) != 2 or len(whitelist_parts) != 2:
+            return False
+            
+        # First part should be single initial matching first letter of whitelist first name
+        if len(input_parts[0]) == 1 and input_parts[0] == whitelist_parts[0][0]:
+            # Second part should match last name exactly
+            if input_parts[1] == whitelist_parts[1]:
+                return True
+        
+        return False
+    
+    # Test the matching with your actual data
+    def test_enhanced_matching():
+        """Test the enhanced matching with real examples"""
+        
+        # Simulate your whitelist entry
+        test_whitelist = {
+            "stbrown_amonra_det_wr": {
+                "name": "Amon-Ra St. Brown",
+                "team": "DET", 
+                "pos": "WR"
+            },
+            "allen_josh_buf_qb": {
+                "name": "Josh Allen",
+                "team": "BUF",
+                "pos": "QB"  
+            }
+        }
+        
+        # Test cases from RotoWire format
+        test_cases = [
+            ("A. St. Brown", "Detroit Lions", "stbrown_amonra_det_wr"),
+            ("J. Allen", "Buffalo Bills", "allen_josh_buf_qb"),
+            ("Josh Allen", "Buffalo Bills", "allen_josh_buf_qb"),
+            ("Amon-Ra St. Brown", "Detroit Lions", "stbrown_amonra_det_wr")
+        ]
+        
+        # Create mock analyzer
+        class MockAnalyzer:
+            def __init__(self):
+                self.players_dict = test_whitelist
+                
+            def enhanced_match_player(self, player_name, team_name):
+                # Your enhanced function logic here
+                pass
+        
+        print("Testing enhanced player matching:")
+        for player, team, expected in test_cases:
+            print(f"'{player}' + '{team}' -> Expected: {expected}")
+    
+    if __name__ == "__main__":
+        test_enhanced_matching()
     
     def calculate_player_impact(self, injury, player_data):
         """Calculate impact points for a specific injured player."""
