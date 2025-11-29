@@ -662,7 +662,7 @@ class InjuryAnalyzer:
             print(f"⚠️ Error loading injury whitelist: {e}")
             return None
     
-   def process_rotowire_injuries(self, rotowire_file):
+    def process_rotowire_injuries(self, rotowire_file):
         """Process injury data from RotoWire file."""
         injury_data = []
         
