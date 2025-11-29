@@ -1763,7 +1763,8 @@ class NarrativeEngine:
                 home_team = game_data['home'] 
                 away_count = len(injury_data['away_impact']) if injury_data['away_impact'] else 0
                 home_count = len(injury_data['home_impact']) if injury_data['home_impact'] else 0
-                narrative.append(f"   Team Impacts: {away_team} ({away_count} injurie       
+                narrative.append(f"   Team Impacts: {away_team} ({away_count} injuries) vs {home_team} ({home_count} injuries)")
+                
         # Add prop recommendations if available
         if injury_data.get('prop_recommendations'):
             narrative.append(f"   Prop Opportunities:")
