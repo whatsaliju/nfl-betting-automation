@@ -2090,7 +2090,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         + FACTOR_WEIGHTS['game_theory_score']  * game_theory_analysis.get('score', 0)
         + FACTOR_WEIGHTS['schedule_score']     * schedule_analysis['score']
     )
-
+    
     classification, recommendation_label, tier_score = ClassificationEngine.classify_game({
         'total_score': total_score,
         'sharp_consensus_score': sharp_analysis['spread'].get('score', 0),
@@ -2098,6 +2098,18 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         'injury_analysis': injury_analysis,
         'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
     })
+    
+    recommendation = ClassificationEngine.generate_enhanced_recommendation(
+        classification,
+        {
+            'away': away_full,
+            'home': home_full,
+            'sharp_analysis': sharp_analysis,
+            'injury_analysis': injury_analysis,
+            'public_exposure': sharp_analysis['spread'].get('bets_pct', 50)
+        }
+    )
+
 
 
 
@@ -2110,6 +2122,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         'home_tla': home_tla,
         'classification': classification,
         'classification_label': recommendation_label,
+        'recommendation': recommendation,
         'tier_score': tier_score,
         'total_score': total_score,
         'confidence': abs(total_score),
@@ -2121,6 +2134,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         'statistical_analysis': statistical_analysis,
         'game_theory_analysis': game_theory_analysis,
         'schedule_analysis': schedule_analysis,
+        'sharp_stores': [],
     }
 
 # ================================================================
@@ -2336,8 +2350,8 @@ def generate_outputs(week, games):
             'confidence': game['confidence'],
             'sharp_spread_diff': game['sharp_analysis'].get('spread', {}).get('differential', 0),
             'sharp_total_diff': game['sharp_analysis'].get('total', {}).get('differential', 0),
-            'ref_ats_pct': game['referee_analysis']['ats_pct'],
-            'ref_ou_pct': game['referee_analysis']['ou_pct'],
+            'ref_ats_pct': game['referee_analysis'].get('ats_pct', 50),
+            'ref_ou_pct': game['referee_analysis'].get('ou_pct', 50),
             'weather_score': game['weather_analysis']['score'],
             'injury_score': game['injury_analysis']['score'],
             'injury_edge': game['injury_analysis'].get('edge', 'NO EDGE'),
