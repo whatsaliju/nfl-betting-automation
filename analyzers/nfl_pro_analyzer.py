@@ -1937,7 +1937,8 @@ def normalize_matchup(s: str) -> str:
 # ================================================================
 # SINGLE GAME ANALYSIS (REFRACTORED FOR PARALLELISM)
 # ================================================================
-def analyze_single_game(row, week, action, action_injuries, rotowire):
+def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
+    # Add sdql parameter
     """
     Core deterministic single-game analysis.
     Input row → output dict
@@ -2004,20 +2005,26 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
     # ======================================================
     # STEP 5 — REFEREE
     # ======================================================
-    if rotowire is not None and not rotowire.empty:
-        ref_row = rotowire[
-            (rotowire['away_std'] == away_tla) &
-            (rotowire['home_std'] == home_tla)
-        ]
+    # STEP 5 — REFEREE (FROM SDQL DATA)
+    if sdql is not None and not sdql.empty and hasattr(row, 'query'):
+        # Match by query field
+        ref_row = sdql[sdql['query'] == row.query]
         if not ref_row.empty:
             referee_analysis = RefereeAnalyzer.analyze(ref_row.iloc[0])
             if 'factors' not in referee_analysis:
-                referee_analysis['factors'] = []  # Add empty factors if missing
+                referee_analysis['factors'] = []
         else:
-            referee_analysis = {'ats_score': 0, 'ou_score': 0, 'factors': []}
-       
+            referee_analysis = {
+                'ats_score': 0, 'ou_score': 0, 'factors': [], 
+                'ats_pct': 50.0, 'ou_pct': 50.0, 
+                'referee': 'No SDQL match'
+            }
     else:
-        referee_analysis = {'ats_score': 0, 'ou_score': 0, 'factors': []}
+        referee_analysis = {
+            'ats_score': 0, 'ou_score': 0, 'factors': [], 
+            'ats_pct': 50.0, 'ou_pct': 50.0, 
+            'referee': 'SDQL unavailable'
+        }
 
     # STEP 6 — INJURIES
     try:
@@ -2256,7 +2263,8 @@ def analyze_week(week):
         week=week, 
         action=action, 
         action_injuries=action_injuries, 
-        rotowire=rotowire
+        rotowire=rotowire,
+        sdql=sdql
     )
 
     # Use ThreadPoolExecutor to run the single-game analysis concurrently
