@@ -678,18 +678,68 @@ class InjuryAnalyzer:
                 if injury_str and pd.notna(injury_str) and injury_str.lower() != 'none':
                     # Parse injury string
                     injuries = self.parse_rotowire_injuries(injury_str)
+                    
+                    # Get team info
+                    away_tla = row.get('away', '')
+                    home_tla = row.get('home', '')
+                    away_full = TEAM_MAP.get(away_tla, away_tla)
+                    home_full = TEAM_MAP.get(home_tla, home_tla)
+                    away_qb = row.get('away_qb', '').strip()
+                    home_qb = row.get('home_qb', '').strip()
+                    
                     for inj in injuries:
-                        # FIX: Convert team abbreviations to full names
-                        away_tla = row.get('away', '')
-                        home_tla = row.get('home', '')
-                        away_full = TEAM_MAP.get(away_tla, away_tla)
-                        home_full = TEAM_MAP.get(home_tla, home_tla)
-                        inj['team'] = f"{away_full} / {home_full}"
+                        # ENHANCED: Determine which team the injury belongs to
+                        player_name = inj['player']
+                        
+                        # Method 1: Match by QB name
+                        if inj['position'] == 'QB':
+                            if self._name_matches(player_name, away_qb):
+                                inj['team'] = away_full
+                                inj['team_tla'] = away_tla
+                            elif self._name_matches(player_name, home_qb):
+                                inj['team'] = home_full
+                                inj['team_tla'] = home_tla
+                            else:
+                                # Default to away team if can't determine
+                                inj['team'] = away_full
+                                inj['team_tla'] = away_tla
+                        else:
+                            # Method 2: For non-QBs, try whitelist matching to determine team
+                            away_match = self.enhanced_match_player(player_name, away_full)
+                            home_match = self.enhanced_match_player(player_name, home_full)
+                            
+                            if away_match:
+                                inj['team'] = away_full
+                                inj['team_tla'] = away_tla
+                            elif home_match:
+                                inj['team'] = home_full  
+                                inj['team_tla'] = home_tla
+                            else:
+                                # Default to away team if can't determine
+                                inj['team'] = away_full
+                                inj['team_tla'] = away_tla
+                        
                         injury_data.append(inj)
+                        
         except Exception as e:
             print(f"⚠️ Error processing RotoWire injuries: {e}")
         
         return injury_data
+   
+    def _name_matches(self, player_name, reference_name):
+        """Check if player name matches reference (like QB name from roster)"""
+        if not player_name or not reference_name:
+            return False
+        
+        # Simple matching - you can enhance this
+        player_parts = player_name.lower().split()
+        ref_parts = reference_name.lower().split()
+        
+        # Match last name
+        if player_parts and ref_parts:
+            return player_parts[-1] == ref_parts[-1]
+        
+        return False    
     
     @staticmethod
     def parse_rotowire_injuries(injury_str):
@@ -732,19 +782,21 @@ class InjuryAnalyzer:
         
         return injuries
     
+    # Also update analyze_game_injuries to use the new team assignments:
     def analyze_game_injuries(self, away_team, home_team, injury_data):
         """Comprehensive game-level injury analysis."""
         away_injuries = []
         home_injuries = []
         
-        # Process available injury data
+        # NEW: Use the specific team assignments from processed data
         for injury in injury_data:
-            if away_team.lower() in injury.get('team', '').lower():
+            injury_team = injury.get('team', '')
+            if injury_team == away_team:
                 away_injuries.append(injury)
-            elif home_team.lower() in injury.get('team', '').lower():
+            elif injury_team == home_team:
                 home_injuries.append(injury)
         
-        # Calculate team impacts
+        # Calculate team impacts using the correct team assignments
         away_impact = self.calculate_team_impact(away_injuries, away_team)
         home_impact = self.calculate_team_impact(home_injuries, home_team)
         
@@ -767,17 +819,23 @@ class InjuryAnalyzer:
             'game_analysis': game_analysis,
             'betting_recommendations': betting_recs
         }
+
     
+    # And finally, update calculate_team_impact to use team_tla for whitelist matching:
     def calculate_team_impact(self, injuries, team_name):
         """Calculate total injury impact for a team."""
         total_impact = 0
         
         for injury in injuries:
-            player_id = self.enhanced_match_player(injury['player'], team_name)
+            # Use team_tla if available, otherwise fall back to team name
+            team_for_matching = injury.get('team_tla', team_name)
+            player_id = self.enhanced_match_player(injury['player'], team_for_matching)
+            
             if player_id and player_id in self.players_dict:
                 player_data = self.players_dict[player_id]
                 impact = self.calculate_player_impact(injury, player_data)
                 total_impact += impact
+                print(f"🏥 INJURY IMPACT: {injury['player']} ({team_for_matching}) = {impact:.1f} points")
         
         return min(total_impact, 10)  # Cap at 10 points
 
