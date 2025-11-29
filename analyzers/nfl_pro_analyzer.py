@@ -2050,6 +2050,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
 
     statistical_analysis = {
         'score': stat_score,
+        'factors': stat_factors,  # ADD THIS LINE
         'description': ', '.join(stat_factors) if stat_factors else 'No stat edge'
     }
 
