@@ -2014,6 +2014,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
             'score': inj.get('injury_score', 0),
             'edge': inj.get('injury_edge', 'NO EDGE'),
             'analysis': inj.get('analysis', ''),
+            'description': inj.get('analysis', 'No significant injury impacts identified'),  # ADD THIS LINE
             'away_impact': inj.get('away_injuries', []),
             'home_impact': inj.get('home_injuries', []),
         }
