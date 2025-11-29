@@ -2134,7 +2134,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         'statistical_analysis': statistical_analysis,
         'game_theory_analysis': game_theory_analysis,
         'schedule_analysis': schedule_analysis,
-        'sharp_stores': [],
+        'sharp_stories': [],
     }
 
 # ================================================================
