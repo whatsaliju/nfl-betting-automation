@@ -663,33 +663,33 @@ class InjuryAnalyzer:
             return None
     
    def process_rotowire_injuries(self, rotowire_file):
-    """Process injury data from RotoWire file."""
-    injury_data = []
-    
-    if not os.path.exists(rotowire_file):
-        print(f"⚠️ RotoWire file not found: {rotowire_file}")
-        return injury_data
-    
-    try:
-        df = pd.read_csv(rotowire_file)
+        """Process injury data from RotoWire file."""
+        injury_data = []
         
-        for _, row in df.iterrows():
-            injury_str = row.get('injuries', '')
-            if injury_str and pd.notna(injury_str) and injury_str.lower() != 'none':
-                # Parse injury string
-                injuries = self.parse_rotowire_injuries(injury_str)
-                for inj in injuries:
-                    # FIX: Convert team abbreviations to full names
-                    away_tla = row.get('away', '')
-                    home_tla = row.get('home', '')
-                    away_full = TEAM_MAP.get(away_tla, away_tla)
-                    home_full = TEAM_MAP.get(home_tla, home_tla)
-                    inj['team'] = f"{away_full} / {home_full}"
-                    injury_data.append(inj)
-    except Exception as e:
-        print(f"⚠️ Error processing RotoWire injuries: {e}")
-    
-    return injury_data
+        if not os.path.exists(rotowire_file):
+            print(f"⚠️ RotoWire file not found: {rotowire_file}")
+            return injury_data
+        
+        try:
+            df = pd.read_csv(rotowire_file)
+            
+            for _, row in df.iterrows():
+                injury_str = row.get('injuries', '')
+                if injury_str and pd.notna(injury_str) and injury_str.lower() != 'none':
+                    # Parse injury string
+                    injuries = self.parse_rotowire_injuries(injury_str)
+                    for inj in injuries:
+                        # FIX: Convert team abbreviations to full names
+                        away_tla = row.get('away', '')
+                        home_tla = row.get('home', '')
+                        away_full = TEAM_MAP.get(away_tla, away_tla)
+                        home_full = TEAM_MAP.get(home_tla, home_tla)
+                        inj['team'] = f"{away_full} / {home_full}"
+                        injury_data.append(inj)
+        except Exception as e:
+            print(f"⚠️ Error processing RotoWire injuries: {e}")
+        
+        return injury_data
     
     @staticmethod
     def parse_rotowire_injuries(injury_str):
