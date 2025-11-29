@@ -2091,7 +2091,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         + FACTOR_WEIGHTS['schedule_score']     * schedule_analysis['score']
     )
 
-    classification, recommendation_label, tier_score = classify_game({
+    classification, recommendation_label, tier_score = ClassificationEngine.classify_game({
         'total_score': total_score,
         'sharp_consensus_score': sharp_analysis['spread'].get('score', 0),
         'referee_analysis': referee_analysis,
