@@ -1980,6 +1980,9 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         sharp_analysis['spread']     = SharpMoneyAnalyzer.analyze_market(spread_data, "Spread")
         sharp_analysis['total']      = SharpMoneyAnalyzer.analyze_market(total_data, "Total")
         sharp_analysis['moneyline']  = SharpMoneyAnalyzer.analyze_market(ml_data, "Moneyline")
+    
+    # STEP 3.5 — SHARP STORIES (add after sharp analysis)
+    sharp_stories = NarrativeEngine.generate_sharp_story(sharp_analysis)
 
     # ======================================================
     # STEP 4 — WEATHER
@@ -2000,21 +2003,23 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         ]
         if not ref_row.empty:
             referee_analysis = RefereeAnalyzer.analyze(ref_row.iloc[0])
+            if 'factors' not in referee_analysis:
+                referee_analysis['factors'] = []  # Add empty factors if missing
         else:
-            referee_analysis = {'ats_score': 0, 'ou_score': 0}
+            referee_analysis = {'ats_score': 0, 'ou_score': 0, 'factors': []}
+       
     else:
-        referee_analysis = {'ats_score': 0, 'ou_score': 0}
+        referee_analysis = {'ats_score': 0, 'ou_score': 0, 'factors': []}
 
-    # ======================================================
     # STEP 6 — INJURIES
-    # ======================================================
     try:
         inj = InjuryIntegration.analyze_game_injuries(away_full, home_full, week)
         injury_analysis = {
             'score': inj.get('injury_score', 0),
             'edge': inj.get('injury_edge', 'NO EDGE'),
             'analysis': inj.get('analysis', ''),
-            'description': inj.get('analysis', 'No significant injury impacts identified'),  # ADD THIS LINE
+            'description': inj.get('analysis', 'No significant injury impacts identified'),
+            'factors': inj.get('recommendations', []),
             'away_impact': inj.get('away_injuries', []),
             'home_impact': inj.get('home_injuries', []),
         }
@@ -2023,11 +2028,11 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
             'score': 0,
             'edge': 'NO EDGE',
             'analysis': f"injury analyzer fail: {e}",
+            'description': f"injury analyzer fail: {e}",
+            'factors': [],
         }
-
-    # ======================================================
+    
     # STEP 7 — SITUATIONAL
-    # ======================================================
     situational_analysis = SituationalAnalyzer.analyze({
         'away': away_full,
         'home': home_full,
@@ -2035,46 +2040,30 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         'spread_line': sharp_analysis['spread'].get('line', ""),
         'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
     }, week)
-
-
-    # ======================================================
+    
     # STEP 8 — STATISTICAL
-    # ======================================================
     stat_score, stat_factors = StatisticalAnalyzer.analyze_line_value(
-        away_full,
-        home_full,
-        sharp_analysis['spread'].get('line', ""),
-        week
+        away_full, home_full, sharp_analysis['spread'].get('line', ""), week
     )
-
-
     statistical_analysis = {
         'score': stat_score,
-        'factors': stat_factors,  # ADD THIS LINE
+        'factors': stat_factors,
         'description': ', '.join(stat_factors) if stat_factors else 'No stat edge'
     }
-
-    # ======================================================
+    
     # STEP 9 — GAME THEORY
-    # ======================================================
     game_theory_analysis = GameTheoryAnalyzer.analyze({
         'away': away_full,
         'home': home_full,
         'sharp_analysis': sharp_analysis,
         'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
     })
-
-
-    # ======================================================
+    
     # STEP 10 — SCHEDULE REST
-    # ======================================================
-    schedule_score, schedule_desc = calculate_schedule_score(
-        week,
-        home_tla,
-        away_tla
-    )
+    schedule_score, schedule_desc = calculate_schedule_score(week, home_tla, away_tla)
     schedule_analysis = {
         'score': schedule_score,
+        'factors': [schedule_desc] if schedule_desc != "No significant scheduling factors" else [],
         'description': schedule_desc
     }
 
@@ -2136,7 +2125,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire):
         'statistical_analysis': statistical_analysis,
         'game_theory_analysis': game_theory_analysis,
         'schedule_analysis': schedule_analysis,
-        'sharp_stories': [],
+        'sharp_stories': sharp_stories,
     }
 
 # ================================================================
