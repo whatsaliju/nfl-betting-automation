@@ -124,15 +124,28 @@ def calculate_schedule_score(week, home_tla, away_tla):
     A positive score favors the Home team (or punishes the Away team).
     """
     
-    # Use the dummy data constant defined above
-    week_key = f"W{week}" if isinstance(week, int) else week
-    rest_data = SCHEDULE_REST_DATA_2025.get(week_key, {})
-
+    # Hard-coded Week 13 data for immediate fix
+    W13_SCHEDULE_DATA = {
+        'ARI': 7, 'ATL': 7, 'BAL': 4, 'BUF': 4, 'CAR': 8, 'CHI': 5, 'CIN': 4, 'CLE': 7,
+        'DAL': 10, 'DEN': 14, 'DET': 10, 'GB': 4, 'HOU': 10, 'IND': 7, 'JAX': 7, 'KC': 4,
+        'LAC': 14, 'LAR': 7, 'LV': 7, 'MIA': 14, 'MIN': 7, 'NE': 8, 'NO': 7, 'NYG': 8,
+        'NYJ': 7, 'PHI': 5, 'PIT': 7, 'SEA': 7, 'SF': 6, 'TB': 7, 'TEN': 7, 'WAS': 14
+    }
+    
+    # Use hard-coded data for Week 13, fall back to import for other weeks
+    if week == 13:
+        rest_data = W13_SCHEDULE_DATA
+    else:
+        try:
+            from data.schedule_rest_2025 import SCHEDULE_REST_DATA_2025
+            week_key = f"W{week}"
+            rest_data = SCHEDULE_REST_DATA_2025.get(week_key, {})
+        except ImportError:
+            return 0, "Schedule data unavailable"
     
     # Retrieve rest days, defaulting to 7 if data is missing
     home_rest = rest_data.get(home_tla, 7)
     away_rest = rest_data.get(away_tla, 7)
-
     
     rest_differential = home_rest - away_rest
     
@@ -140,10 +153,10 @@ def calculate_schedule_score(week, home_tla, away_tla):
     factors = []
     
     if rest_differential > 2:
-        score = 2  # Increase impact
+        score = 2
         factors.append(f"HOME rest advantage (+{rest_differential} days)")
     elif rest_differential < -2:
-        score = -2  # Penalize disadvantage
+        score = -2
         factors.append(f"AWAY rest advantage (+{abs(rest_differential)} days)")
     elif rest_differential != 0:
         score = 1 if rest_differential > 0 else -1
