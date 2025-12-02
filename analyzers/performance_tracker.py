@@ -569,11 +569,12 @@ class EnhancedPerformanceTracker:
             # --- Use the original completed_df for the breakdown by tier, 
             #     but only if you want to include 'PASS' and 'FADE' in the tier stats.
             #     If you only want official bets in the tier report, change 'completed_df' to 'official_completed_df' below.
-            if not completed_df.empty: 
+            if not official_completed_df.empty:  # ← FIX: Change completed_df to official_completed_df
                 report.append("")
                 report.append("🎯 PERFORMANCE BY TIER:")
-                for classification in official_completed_df['classification'].unique(): # Use official_completed_df for filtering
+                for classification in official_completed_df['classification'].unique():
                     tier_df = official_completed_df[official_completed_df['classification'] == classification]
+                    # ... rest of the logic
                     tier_wins = int(tier_df['won'].sum())
                     tier_total = len(tier_df)
                     tier_pushes = int(tier_df['push'].sum()) if 'push' in tier_df.columns else 0
