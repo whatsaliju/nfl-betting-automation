@@ -2186,7 +2186,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
             ]
             
             if not game_match.empty:
-                referee_name = game_match['Referee'].iloc[0]
+                referee_name = game_match['referee'].iloc[0]
                 
                 # Find this referee's stats in SDQL data
                 ref_row = sdql[sdql['query'].str.contains(referee_name, na=False)]
