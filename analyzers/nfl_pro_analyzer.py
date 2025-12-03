@@ -2192,15 +2192,15 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
                     referee_analysis = {
                         'ats_score': 0, 'ou_score': 0, 'factors': [], 
                         'ats_pct': 50.0, 'ou_pct': 50.0, 
-                        'referee': referee_name
-                        'ats_tendency': 'NEUTRAL',      # ← ADD THIS
-                        'ou_tendency': 'NEUTRAL TOTAL'  # ← ADD THIS
+                        'referee': referee_name,
+                        'ats_tendency':'NEUTRAL',
+                        'ou_tendency': 'NEUTRAL TOTAL' 
                     }
             else:
                 referee_analysis = {
                     'ats_score': 0, 'ou_score': 0, 'factors': [], 
                     'ats_pct': 50.0, 'ou_pct': 50.0, 
-                    'referee': 'Game not found'
+                    'referee': 'Game not found',
                     'ats_tendency': 'NEUTRAL',      # ← ADD THIS
                     'ou_tendency': 'NEUTRAL TOTAL'  # ← ADD THIS
                 }
@@ -2208,7 +2208,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
             referee_analysis = {
                 'ats_score': 0, 'ou_score': 0, 'factors': [], 
                 'ats_pct': 50.0, 'ou_pct': 50.0, 
-                'referee': 'Data unavailable'
+                'referee': 'Data unavailable',
                 'ats_tendency': 'NEUTRAL',      # ← ADD THIS
                 'ou_tendency': 'NEUTRAL TOTAL'  # ← ADD THIS
             }
@@ -2216,7 +2216,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         referee_analysis = {
             'ats_score': 0, 'ou_score': 0, 'factors': [], 
             'ats_pct': 50.0, 'ou_pct': 50.0, 
-            'referee': f'Error: {str(e)}'
+            'referee': f'Error: {str(e)}',
             'ats_tendency': 'NEUTRAL',      # ← ADD THIS
             'ou_tendency': 'NEUTRAL TOTAL'  # ← ADD THIS
         }
