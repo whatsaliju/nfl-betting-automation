@@ -2193,24 +2193,32 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
                         'ats_score': 0, 'ou_score': 0, 'factors': [], 
                         'ats_pct': 50.0, 'ou_pct': 50.0, 
                         'referee': referee_name
+                        'ats_tendency': 'NEUTRAL',      # ← ADD THIS
+                        'ou_tendency': 'NEUTRAL TOTAL'  # ← ADD THIS
                     }
             else:
                 referee_analysis = {
                     'ats_score': 0, 'ou_score': 0, 'factors': [], 
                     'ats_pct': 50.0, 'ou_pct': 50.0, 
                     'referee': 'Game not found'
+                    'ats_tendency': 'NEUTRAL',      # ← ADD THIS
+                    'ou_tendency': 'NEUTRAL TOTAL'  # ← ADD THIS
                 }
         else:
             referee_analysis = {
                 'ats_score': 0, 'ou_score': 0, 'factors': [], 
                 'ats_pct': 50.0, 'ou_pct': 50.0, 
                 'referee': 'Data unavailable'
+                'ats_tendency': 'NEUTRAL',      # ← ADD THIS
+                'ou_tendency': 'NEUTRAL TOTAL'  # ← ADD THIS
             }
     except Exception as e:
         referee_analysis = {
             'ats_score': 0, 'ou_score': 0, 'factors': [], 
             'ats_pct': 50.0, 'ou_pct': 50.0, 
             'referee': f'Error: {str(e)}'
+            'ats_tendency': 'NEUTRAL',      # ← ADD THIS
+            'ou_tendency': 'NEUTRAL TOTAL'  # ← ADD THIS
         }
     
     # STEP 6 — INJURIES
