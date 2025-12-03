@@ -2166,29 +2166,53 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         weather_analysis = {'score': 0, 'description': 'N/A', 'factors': []}
 
     # ======================================================
-    # STEP 5 — REFEREE
+    # STEP 5 — REFEREE (FIXED)
     # ======================================================
-    # STEP 5 — REFEREE (FROM SDQL DATA)
-    if sdql is not None and not sdql.empty and hasattr(row, 'query'):
-        # Match by query field
-        ref_row = sdql[sdql['query'] == row.query]
-        if not ref_row.empty:
-            referee_analysis = RefereeAnalyzer.analyze(ref_row.iloc[0])
-            if 'factors' not in referee_analysis:
-                referee_analysis['factors'] = []
+    try:
+        referee_file = f"data/week{week}/week{week}_referees.csv"
+        if os.path.exists(referee_file) and sdql is not None and not sdql.empty:
+            referee_assignments = pd.read_csv(referee_file)
+            
+            # Match game to referee name
+            matchup_for_lookup = f"{away_full} @ {home_full}"  # or however your CSV formats it
+            game_match = referee_assignments[referee_assignments['Game'].str.contains(away_tla) & 
+                                            referee_assignments['Game'].str.contains(home_tla)]
+            
+            if not game_match.empty:
+                referee_name = game_match['Referee'].iloc[0]
+                
+                # Find this referee's stats in SDQL data
+                ref_row = sdql[sdql['query'].str.contains(referee_name, na=False)]
+                if not ref_row.empty:
+                    referee_analysis = RefereeAnalyzer.analyze(ref_row.iloc[0])
+                    referee_analysis['referee'] = referee_name  # Add the missing name!
+                    if 'factors' not in referee_analysis:
+                        referee_analysis['factors'] = []
+                else:
+                    referee_analysis = {
+                        'ats_score': 0, 'ou_score': 0, 'factors': [], 
+                        'ats_pct': 50.0, 'ou_pct': 50.0, 
+                        'referee': referee_name
+                    }
+            else:
+                referee_analysis = {
+                    'ats_score': 0, 'ou_score': 0, 'factors': [], 
+                    'ats_pct': 50.0, 'ou_pct': 50.0, 
+                    'referee': 'Game not found'
+                }
         else:
             referee_analysis = {
                 'ats_score': 0, 'ou_score': 0, 'factors': [], 
                 'ats_pct': 50.0, 'ou_pct': 50.0, 
-                'referee': 'No SDQL match'
+                'referee': 'Data unavailable'
             }
-    else:
+    except Exception as e:
         referee_analysis = {
             'ats_score': 0, 'ou_score': 0, 'factors': [], 
             'ats_pct': 50.0, 'ou_pct': 50.0, 
-            'referee': 'SDQL unavailable'
+            'referee': f'Error: {str(e)}'
         }
-
+    
     # STEP 6 — INJURIES
     try:
         inj = InjuryIntegration.analyze_game_injuries(away_full, home_full, week)
