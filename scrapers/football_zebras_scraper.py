@@ -12,6 +12,7 @@ def scrape_week_referees(week, year=2025):
     
     # Try different URL patterns (they're inconsistent)
     url_patterns = [
+        f"https://www.footballzebras.com/{year}/12/week-{week}-referee-assignments-{year}/"
         f"https://www.footballzebras.com/{year}/11/week-{week}-referee-assignments-{year}/",
         f"https://www.footballzebras.com/{year}/10/week-{week}-referee-assignments-{year}/",
         f"https://www.footballzebras.com/{year}/09/week-{week}-referee-assignments-{year}/",
