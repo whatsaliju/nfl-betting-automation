@@ -2175,6 +2175,10 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
             
             # Match game to referee name
             matchup_for_lookup = f"{away_full} @ {home_full}"  # or however your CSV formats it
+            # Add this before the game_match line:
+            print(f"Looking for: away_tla={away_tla}, home_tla={home_tla}")
+            print(f"Available teams in CSV: {referee_assignments['away_team'].unique()}")
+
             game_match = referee_assignments[(referee_assignments['away_team'] == away_tla) & 
                                                 (referee_assignments['home_team'] == home_tla)]
             if not game_match.empty:
