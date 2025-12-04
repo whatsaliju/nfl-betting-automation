@@ -38,7 +38,7 @@ class EnhancedPerformanceTracker:
                 'injury_score', 'situational_score', 'line_at_recommendation',
                 'closing_line', 'line_movement', 'edge_identified',
                 'recommendation_date', 'result_date', 'final_score', 'spread_result',
-                'total_result', 'push'
+                'total_result', 'push', 'actually_bet', 'units_bet', 'dollar_amount', 'line_actually_bet'
             ])
             df.to_csv(self.results_file, index=False)
     
@@ -377,7 +377,8 @@ class EnhancedPerformanceTracker:
                 'injury_score', 'situational_score', 'line_at_recommendation', 
                 'closing_line', 'line_movement', 'edge_identified', 
                 'recommendation_date', 'result_date', 'final_score', 
-                'spread_result', 'total_result', 'push'
+                'spread_result', 'total_result', 'push',
+                'actually_bet', 'units_bet', 'dollar_amount', 'line_actually_bet'
             ])
 
         new_bets_data = []
@@ -427,6 +428,33 @@ class EnhancedPerformanceTracker:
             print(f"Logged {len(new_bets_data)} new recommendations for Week {week}, Season {season}")
         else:
             print(f"No new recommendations to log for Week {week}, Season {season}")
+    
+    def log_my_actual_bets(self, week, my_bets):
+        """Log the bets I actually placed with real money"""
+        try:
+            # Load existing CSV
+            df = pd.read_csv(self.results_file)
+            
+            # Update rows where I actually placed bets
+            for bet in my_bets:
+                # Find matching row and update with actual bet info
+                mask = (
+                    (df['week'] == week) & 
+                    (df['game'] == bet['game']) & 
+                    (df['bet_type'] == bet['bet_type'])
+                )
+                if mask.any():
+                    df.loc[mask, 'actually_bet'] = True
+                    df.loc[mask, 'units_bet'] = bet['units']
+                    df.loc[mask, 'dollar_amount'] = bet['amount']
+                    df.loc[mask, 'line_actually_bet'] = bet['line']
+            
+            # Save updated CSV
+            df.to_csv(self.results_file, index=False)
+            print(f"✅ Logged {len(my_bets)} actual bets for Week {week}")
+            
+        except Exception as e:
+            print(f"⚠️ Error logging actual bets: {e}")
     
     def _parse_recommendation(self, recommendation: str, game_name: str) -> List[Dict]:
         """
