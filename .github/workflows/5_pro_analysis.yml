@@ -302,7 +302,7 @@ jobs:
                       </h4>
                       <div style="display: flex; gap: 20px; font-size: 14px;">
                           <span><strong>Total Score:</strong> {game.get('total_score', 'N/A')}</span>
-                          <span><strong>Confidence:</strong> {game.get('confidence', 'N/A')}/10</span>
+                          <span><strong>Confidence:</strong> {round(float(game.get('confidence', 0))/20*100, 1) if game.get('confidence', 'N/A') != 'N/A' else 'N/A'}%</span>
                       </div>
                   </div>
                   
