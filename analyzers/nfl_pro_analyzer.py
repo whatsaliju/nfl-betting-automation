@@ -2094,6 +2094,45 @@ def normalize_matchup(s: str) -> str:
 
     return f"{canonical(parts[0])}@{canonical(parts[1])}"
 
+def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df, rotowire_data=None):
+    """Use Action Network for team mapping, RotoWire for latest status"""
+    
+    # Step 1: Build team mapping from Action Network
+    player_team_map = {}
+    if not action_injuries_df.empty:
+        for _, injury in action_injuries_df.iterrows():
+            player_name = injury['player'].lower()
+            team_name = injury['team']
+            player_team_map[player_name] = team_name
+    
+    # Step 2: Process RotoWire with correct team assignments
+    away_injuries = []
+    home_injuries = []
+    
+    if rotowire_data:
+        for injury in rotowire_data:
+            player_name = injury['player'].lower()
+            
+            # Use Action Network team mapping if available
+            if player_name in player_team_map:
+                correct_team = player_team_map[player_name]
+                injury['team'] = correct_team
+                
+                if away_team in correct_team:
+                    away_injuries.append(injury)
+                elif home_team in correct_team:
+                    home_injuries.append(injury)
+    
+    return {
+        'away_injuries': away_injuries,
+        'home_injuries': home_injuries,
+        'away_impact': away_injuries,
+        'home_impact': home_injuries,
+        'score': 0,
+        'edge': 'NO EDGE',
+        'description': f"No significant injury edge detected between {away_team} and {home_team}.",
+        'factors': []
+    }
 
 
 
@@ -2228,18 +2267,11 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
             'ou_tendency': 'NEUTRAL TOTAL'  # ← ADD THIS
         }
     
-    # STEP 6 — INJURIES
+    # STEP 6 — INJURIES (FIXED)
     try:
-        inj = InjuryIntegration.analyze_game_injuries(away_full, home_full, week)
-        injury_analysis = {
-            'score': inj.get('injury_score', 0),
-            'edge': inj.get('injury_edge', 'NO EDGE'),
-            'analysis': inj.get('analysis', ''),
-            'description': inj.get('analysis', 'No significant injury impacts identified'),
-            'factors': inj.get('recommendations', []),
-            'away_impact': inj.get('away_injuries', []),
-            'home_impact': inj.get('home_injuries', []),
-        }
+        injury_analysis = analyze_injuries_with_team_mapping(away_full, home_full, action_injuries)
+        if not injury_analysis.get('description'):
+            injury_analysis['description'] = 'No significant injury impacts identified'
     except Exception as e:
         injury_analysis = {
             'score': 0,
@@ -2247,8 +2279,9 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
             'analysis': f"injury analyzer fail: {e}",
             'description': f"injury analyzer fail: {e}",
             'factors': [],
+            'away_impact': [],  # ← Adding this missing field
+            'home_impact': []   # ← Adding this missing field
         }
-    
     # STEP 7 — SITUATIONAL
     situational_analysis = SituationalAnalyzer.analyze({
         'away': away_full,
