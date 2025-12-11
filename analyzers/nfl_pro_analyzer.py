@@ -2096,7 +2096,17 @@ def normalize_matchup(s: str) -> str:
 
 def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df, rotowire_data=None):
     """Use Action Network for team mapping, RotoWire for latest status"""
-    
+    # DEBUG: Check what we're receiving
+    print(f"🔍 DEBUG: away_team = {away_team}")
+    print(f"🔍 DEBUG: home_team = {home_team}")
+    print(f"🔍 DEBUG: action_injuries_df type = {type(action_injuries_df)}")
+    print(f"🔍 DEBUG: action_injuries_df empty = {action_injuries_df.empty if hasattr(action_injuries_df, 'empty') else 'Not a DataFrame'}")
+    if hasattr(action_injuries_df, 'empty') and not action_injuries_df.empty:
+        print(f"🔍 DEBUG: action_injuries_df shape = {action_injuries_df.shape}")
+        print(f"🔍 DEBUG: action_injuries_df columns = {list(action_injuries_df.columns)}")
+        print(f"🔍 DEBUG: First few rows:")
+        print(action_injuries_df.head())
+        
     # Step 1: Build team mapping from Action Network
     player_team_map = {}
     if not action_injuries_df.empty:
