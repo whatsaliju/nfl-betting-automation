@@ -1055,6 +1055,8 @@ class InjuryAnalyzer:
                 'position': inj['pos'],
                 'status': inj['status'],
                 'injury_type': inj.get('injury', 'Unknown')
+                'team': team_name,
+                'team_tla': team_tla
             })
         
         return injuries
