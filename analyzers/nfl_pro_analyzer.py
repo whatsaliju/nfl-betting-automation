@@ -661,6 +661,13 @@ class InjuryAnalyzer:
         except Exception as e:
             print(f"⚠️ Error loading injury whitelist: {e}")
             return None
+            
+    def get_correct_tla(self, full_team_name):
+        """Convert full team name back to correct TLA using TEAM_MAP"""
+        for tla, name in TEAM_MAP.items():
+            if name.lower() == full_team_name.lower():
+                return tla
+        return full_team_name[:3].upper()  # fallback
     
     def process_rotowire_injuries(self, rotowire_file):
         """Process injury data from RotoWire file."""
@@ -690,19 +697,19 @@ class InjuryAnalyzer:
                     for inj in injuries:
                         # ENHANCED: Determine which team the injury belongs to
                         player_name = inj['player']
-                        
+
                         # Method 1: Match by QB name
                         if inj['position'] == 'QB':
                             if self._name_matches(player_name, away_qb):
                                 inj['team'] = away_full
-                                inj['team_tla'] = away_tla
+                                inj['team_tla'] = self.get_correct_tla(away_full)  # ✅ FIXED
                             elif self._name_matches(player_name, home_qb):
                                 inj['team'] = home_full
-                                inj['team_tla'] = home_tla
+                                inj['team_tla'] = self.get_correct_tla(home_full)  # ✅ FIXED
                             else:
                                 # Default to away team if can't determine
                                 inj['team'] = away_full
-                                inj['team_tla'] = away_tla
+                                inj['team_tla'] = self.get_correct_tla(away_full)  # ✅ FIXED
                         else:
                             # Method 2: For non-QBs, try whitelist matching to determine team
                             away_match = self.enhanced_match_player(player_name, away_full)
@@ -710,14 +717,14 @@ class InjuryAnalyzer:
                             
                             if away_match:
                                 inj['team'] = away_full
-                                inj['team_tla'] = away_tla
+                                inj['team_tla'] = self.get_correct_tla(away_full)  # ✅ FIXED
                             elif home_match:
                                 inj['team'] = home_full  
-                                inj['team_tla'] = home_tla
+                                inj['team_tla'] = self.get_correct_tla(home_full)  # ✅ FIXED
                             else:
                                 # Default to away team if can't determine
                                 inj['team'] = away_full
-                                inj['team_tla'] = away_tla
+                                inj['team_tla'] = self.get_correct_tla(away_full)  # ✅ FIXED
                         
                         injury_data.append(inj)
                         
