@@ -502,7 +502,6 @@ class RefereeAnalyzer:
         return 0
     
     @staticmethod
-    @staticmethod
     def analyze(ref_data):
         # Check for and safely access 'ats_pct' attribute (Fixes AttributeError)
         if hasattr(ref_data, 'ats_pct'):
