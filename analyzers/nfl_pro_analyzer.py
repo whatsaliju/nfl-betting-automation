@@ -1038,7 +1038,7 @@ class InjuryAnalyzer:
         return recs
     
     @staticmethod
-    def match_action_network_injuries(team_name, action_injuries_df):
+    def match_action_network_injuries(team_name, team_tla, action_injuries_df):
         """Match injuries from Action Network by team name"""
         if action_injuries_df.empty:
             return []
@@ -1143,57 +1143,35 @@ class InjuryIntegration:
     """Integrates injury analysis into game breakdowns."""
     
     @staticmethod
-    def analyze_game_injuries(away_full, home_full, week):
-        """Analyze injuries for a specific game."""
-        try:
-            analyzer = InjuryAnalyzer()
+    def analyze_game_injuries(self, away_team, home_team, injury_data):
+        # ... (code for collecting away_injuries / home_injuries lists) ...
+        
+        # Calculate team impacts using the correct team assignments
+        away_impact_score = self.calculate_team_impact(away_injuries, away_team)
+        home_impact_score = self.calculate_team_impact(home_injuries, home_team)
+        
+        # Net impact (positive favors home, negative favors away)
+        net_impact = home_impact_score - away_impact_score
+        
+        # Generate analysis
+        game_analysis = self.generate_game_analysis(away_team, home_team, away_impact_score, home_impact_score, net_impact)
+        
+        # Betting recommendations
+        betting_recs = self.generate_betting_recommendations(away_team, home_team, net_impact, away_injuries, home_injuries)
+        
+        return {
+            'away_injuries': away_injuries,
+            'home_injuries': home_injuries,
             
-            # Load RotoWire injury data
-            rotowire_week_pattern = f"rotowire_lineups_week{week}_"
-            rotowire_file = find_latest(rotowire_week_pattern)
+            # ✅ FIX 1: Rename/Keep impact scores (and round them)
+            'away_impact_score': round(away_impact_score, 2),
+            'home_impact_score': round(home_impact_score, 2),
+            'net_impact': round(net_impact, 2), # ✅ FIX 2: Round net impact
             
-            # Fall back to global if no week file found
-            if not rotowire_file:
-                rotowire_file = find_latest("rotowire_lineups_")
-            
-            print(f"🔍 Looking for injury file: {rotowire_file}")
-            print(f"🔍 File exists: {os.path.exists(rotowire_file)}")
-            injury_data = analyzer.process_rotowire_injuries(rotowire_file)
-            print(f"🔍 Injury data loaded: {len(injury_data)} injuries found")
-            
-            if not injury_data:
-                return {
-                    'away_team': away_full,
-                    'home_team': home_full,
-                    'analysis': 'No significant injury impacts identified',
-                    'recommendations': [],
-                    'injury_score': 0
-                }
-            
-            # Analyze game-level injuries
-            game_analysis = analyzer.analyze_game_injuries(away_full, home_full, injury_data)
-            
-            return {
-                'away_team': away_full,
-                'home_team': home_full,
-                'analysis': game_analysis['game_analysis'],
-                'recommendations': game_analysis['betting_recommendations'],
-                'injury_score': game_analysis['net_impact'],
-                'away_injuries': game_analysis['away_injuries'],
-                'home_injuries': game_analysis['home_injuries'],
-                'injury_edge': game_analysis['injury_edge']
-            }
-            
-        except Exception as e:
-            print(f"⚠️  Error in injury analysis for {away_full} @ {home_full}: {e}")
-            
-            return {
-                'away_team': away_full,
-                'home_team': home_full,
-                'analysis': 'Injury analysis unavailable',
-                'recommendations': [],
-                'injury_score': 0
-            }
+            'injury_edge': 'STRONG EDGE' if abs(net_impact) >= 3 else 'MODERATE EDGE' if abs(net_impact) >= 1 else 'NO EDGE',
+            'game_analysis': game_analysis,
+            'betting_recommendations': betting_recs
+        }
 
 
 # ================================================================
