@@ -2219,92 +2219,92 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         'ou_tendency': 'NEUTRAL TOTAL'
     }
     # --- FIX END ---
-        try:
-            referee_file = f"data/week{week}/week{week}_referees.csv"
-            if os.path.exists(referee_file) and sdql is not None and not sdql.empty:
-                referee_assignments = pd.read_csv(referee_file)
-                
-                # 1. Get canonical full names and derive the essential Nicknames
-                away_full_name = TEAM_MAP.get(away_tla, away_tla)
-                home_full_name = TEAM_MAP.get(home_tla, home_tla)
-    
-                # --- KEY ADJUSTMENT: Extract the nickname (last word) and lower case ---
-                # e.g., 'Atlanta Falcons' -> 'falcons'
-                away_nickname = away_full_name.split()[-1].lower()
-                home_nickname = home_full_name.split()[-1].lower()
-    
-                # 2. Prepare CSV team columns for lower-cased string matching
-                # Ensure the CSV columns are converted to lowercase strings for robust matching
-                referee_assignments['away_team_lower'] = referee_assignments['away_team'].astype(str).str.lower()
-                referee_assignments['home_team_lower'] = referee_assignments['home_team'].astype(str).str.lower()
-                
-                # 3. Create the primary match condition (Away@Home)
-                # Match if the CSV team name CONTAINS the Nickname
-                match_condition_forward = (
-                    referee_assignments['away_team_lower'].str.contains(away_nickname, na=False)
+    try:
+        referee_file = f"data/week{week}/week{week}_referees.csv"
+        if os.path.exists(referee_file) and sdql is not None and not sdql.empty:
+            referee_assignments = pd.read_csv(referee_file)
+            
+            # 1. Get canonical full names and derive the essential Nicknames
+            away_full_name = TEAM_MAP.get(away_tla, away_tla)
+            home_full_name = TEAM_MAP.get(home_tla, home_tla)
+
+            # --- KEY ADJUSTMENT: Extract the nickname (last word) and lower case ---
+            # e.g., 'Atlanta Falcons' -> 'falcons'
+            away_nickname = away_full_name.split()[-1].lower()
+            home_nickname = home_full_name.split()[-1].lower()
+
+            # 2. Prepare CSV team columns for lower-cased string matching
+            # Ensure the CSV columns are converted to lowercase strings for robust matching
+            referee_assignments['away_team_lower'] = referee_assignments['away_team'].astype(str).str.lower()
+            referee_assignments['home_team_lower'] = referee_assignments['home_team'].astype(str).str.lower()
+            
+            # 3. Create the primary match condition (Away@Home)
+            # Match if the CSV team name CONTAINS the Nickname
+            match_condition_forward = (
+                referee_assignments['away_team_lower'].str.contains(away_nickname, na=False)
+            ) & (
+                referee_assignments['home_team_lower'].str.contains(home_nickname, na=False)
+            )
+
+            game_match = referee_assignments[match_condition_forward]
+            
+            # 4. Check the reverse match condition (Home@Away)
+            if game_match.empty:
+                match_condition_reverse = (
+                    referee_assignments['away_team_lower'].str.contains(home_nickname, na=False)
                 ) & (
-                    referee_assignments['home_team_lower'].str.contains(home_nickname, na=False)
+                    referee_assignments['home_team_lower'].str.contains(away_nickname, na=False)
                 )
-    
-                game_match = referee_assignments[match_condition_forward]
+                game_match = referee_assignments[match_condition_reverse]
+
+            # --- END OF MATCHING LOGIC ---
+            
+            if not game_match.empty:
+                referee_name = game_match['referee'].iloc[0]
                 
-                # 4. Check the reverse match condition (Home@Away)
-                if game_match.empty:
-                    match_condition_reverse = (
-                        referee_assignments['away_team_lower'].str.contains(home_nickname, na=False)
-                    ) & (
-                        referee_assignments['home_team_lower'].str.contains(away_nickname, na=False)
-                    )
-                    game_match = referee_assignments[match_condition_reverse]
-    
-                # --- END OF MATCHING LOGIC ---
+                # Find this referee's stats in SDQL data
+                # We need to ensure the referee name in the SDQL query is also case-insensitive if needed
+                ref_row = sdql[sdql['query'].str.contains(referee_name, case=False, na=False)]
                 
-                if not game_match.empty:
-                    referee_name = game_match['referee'].iloc[0]
-                    
-                    # Find this referee's stats in SDQL data
-                    # We need to ensure the referee name in the SDQL query is also case-insensitive if needed
-                    ref_row = sdql[sdql['query'].str.contains(referee_name, case=False, na=False)]
-                    
-                    if not ref_row.empty:
-                        # The ref_data object passed here MUST have 'referee', 'ats_pct', 'ou_pct' attributes
-                        referee_analysis = RefereeAnalyzer.analyze(ref_row.iloc[0])
-                        referee_analysis['referee'] = referee_name
-                        if 'factors' not in referee_analysis:
-                            referee_analysis['factors'] = []
-                        # Add logic to include factors from the ref_row data if available
-                    else:
-                        referee_analysis = {
-                            'ats_score': 0, 'ou_score': 0, 'factors': [], 
-                            'ats_pct': 50.0, 'ou_pct': 50.0, 
-                            'referee': referee_name, # Successfully found name, but no SDQL stats
-                            'ats_tendency':'NEUTRAL',
-                            'ou_tendency': 'NEUTRAL TOTAL' 
-                        }
+                if not ref_row.empty:
+                    # The ref_data object passed here MUST have 'referee', 'ats_pct', 'ou_pct' attributes
+                    referee_analysis = RefereeAnalyzer.analyze(ref_row.iloc[0])
+                    referee_analysis['referee'] = referee_name
+                    if 'factors' not in referee_analysis:
+                        referee_analysis['factors'] = []
+                    # Add logic to include factors from the ref_row data if available
                 else:
                     referee_analysis = {
                         'ats_score': 0, 'ou_score': 0, 'factors': [], 
                         'ats_pct': 50.0, 'ou_pct': 50.0, 
-                        'referee': 'Game not found',
-                        'ats_tendency': 'NEUTRAL',
+                        'referee': referee_name, # Successfully found name, but no SDQL stats
+                        'ats_tendency':'NEUTRAL',
                         'ou_tendency': 'NEUTRAL TOTAL' 
                     }
             else:
                 referee_analysis = {
                     'ats_score': 0, 'ou_score': 0, 'factors': [], 
                     'ats_pct': 50.0, 'ou_pct': 50.0, 
-                    'referee': 'Data unavailable',
-                    'ats_tendency': 'NEUTRAL', 
+                    'referee': 'Game not found',
+                    'ats_tendency': 'NEUTRAL',
                     'ou_tendency': 'NEUTRAL TOTAL' 
                 }
-        except Exception as e:
+        else:
             referee_analysis = {
                 'ats_score': 0, 'ou_score': 0, 'factors': [], 
                 'ats_pct': 50.0, 'ou_pct': 50.0, 
-                'referee': f'Error: {str(e)}',
+                'referee': 'Data unavailable',
                 'ats_tendency': 'NEUTRAL', 
                 'ou_tendency': 'NEUTRAL TOTAL' 
             }
+    except Exception as e:
+        referee_analysis = {
+            'ats_score': 0, 'ou_score': 0, 'factors': [], 
+            'ats_pct': 50.0, 'ou_pct': 50.0, 
+            'referee': f'Error: {str(e)}',
+            'ats_tendency': 'NEUTRAL', 
+            'ou_tendency': 'NEUTRAL TOTAL' 
+        }
     
     # STEP 6 — INJURIES (FIXED)
     try:
