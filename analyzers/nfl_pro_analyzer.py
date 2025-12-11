@@ -2359,7 +2359,8 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     # ======================================================
     # STEP 11 — SCORE
     # ======================================================
-    total_score = (
+    total_score = round(
+        (
         FACTOR_WEIGHTS['sharp_consensus_score'] * sharp_analysis['spread'].get('score', 0)
         + FACTOR_WEIGHTS['weather_score']      * weather_analysis.get('score', 0)
         + FACTOR_WEIGHTS['referee_ats_score']  * referee_analysis.get('ats_score', 0)
@@ -2369,8 +2370,9 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         + FACTOR_WEIGHTS['statistical_score']  * statistical_analysis['score']
         + FACTOR_WEIGHTS['game_theory_score']  * game_theory_analysis.get('score', 0)
         + FACTOR_WEIGHTS['schedule_score']     * schedule_analysis['score']
+    ),
+    1 #round the entire result
     )
-    
     classification, recommendation_label, tier_score = ClassificationEngine.classify_game({
         'total_score': total_score,
         'sharp_consensus_score': sharp_analysis['spread'].get('score', 0),
@@ -2405,7 +2407,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         'recommendation': recommendation,
         'tier_score': tier_score,
         'total_score': total_score,
-        'confidence': abs(total_score),
+        'confidence': round(abs(total_score),1),
         'sharp_analysis': sharp_analysis,
         'weather_analysis': weather_analysis,
         'referee_analysis': referee_analysis,
