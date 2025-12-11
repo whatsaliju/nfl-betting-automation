@@ -702,14 +702,14 @@ class InjuryAnalyzer:
                         if inj['position'] == 'QB':
                             if self._name_matches(player_name, away_qb):
                                 inj['team'] = away_full
-                                inj['team_tla'] = self.get_correct_tla(away_full)  # ✅ FIXED
+                                inj['team_tla'] = away_tla
                             elif self._name_matches(player_name, home_qb):
                                 inj['team'] = home_full
-                                inj['team_tla'] = self.get_correct_tla(home_full)  # ✅ FIXED
+                                inj['team_tla'] = home_tla
                             else:
                                 # Default to away team if can't determine
                                 inj['team'] = away_full
-                                inj['team_tla'] = self.get_correct_tla(away_full)  # ✅ FIXED
+                                inj['team_tla'] = away_tla
                         else:
                             # Method 2: For non-QBs, try whitelist matching to determine team
                             away_match = self.enhanced_match_player(player_name, away_full)
@@ -717,14 +717,14 @@ class InjuryAnalyzer:
                             
                             if away_match:
                                 inj['team'] = away_full
-                                inj['team_tla'] = self.get_correct_tla(away_full)  # ✅ FIXED
+                                inj['team_tla'] = away_tla
                             elif home_match:
                                 inj['team'] = home_full  
-                                inj['team_tla'] = self.get_correct_tla(home_full)  # ✅ FIXED
+                                inj['team_tla'] = home_tla
                             else:
                                 # Default to away team if can't determine
                                 inj['team'] = away_full
-                                inj['team_tla'] = self.get_correct_tla(away_full)  # ✅ FIXED
+                                inj['team_tla'] = away_tla
                         
                         injury_data.append(inj)
                         
