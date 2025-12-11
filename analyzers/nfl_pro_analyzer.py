@@ -2096,51 +2096,51 @@ def normalize_matchup(s: str) -> str:
 
 def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df, rotowire_data=None):
     """Use Action Network for team mapping, RotoWire for latest status"""
-    # DEBUG: Check what we're receiving
-    print(f"🔍 DEBUG: away_team = {away_team}")
-    print(f"🔍 DEBUG: home_team = {home_team}")
-    print(f"🔍 DEBUG: action_injuries_df type = {type(action_injuries_df)}")
-    print(f"🔍 DEBUG: action_injuries_df empty = {action_injuries_df.empty if hasattr(action_injuries_df, 'empty') else 'Not a DataFrame'}")
-    if hasattr(action_injuries_df, 'empty') and not action_injuries_df.empty:
-        print(f"🔍 DEBUG: action_injuries_df shape = {action_injuries_df.shape}")
-        print(f"🔍 DEBUG: action_injuries_df columns = {list(action_injuries_df.columns)}")
-        print(f"🔍 DEBUG: First few rows:")
-        print(action_injuries_df.head())
-        
-    # Step 1: Build team mapping from Action Network
-    player_team_map = {}
-    if not action_injuries_df.empty:
-        for _, injury in action_injuries_df.iterrows():
-            player_name = injury['player'].lower()
-            team_name = injury['team']
-            player_team_map[player_name] = team_name
     
-    # Step 2: Process RotoWire with correct team assignments
+    # Use your existing TEAM_MAP to create reverse lookup
+    # Your away_team/home_team are like "Ravens", "Bengals" 
+    # Action Network uses "Baltimore Ravens", "Cincinnati Bengals"
+    
     away_injuries = []
     home_injuries = []
     
-    if rotowire_data:
-        for injury in rotowire_data:
-            player_name = injury['player'].lower()
+    if not action_injuries_df.empty:
+        for _, injury in action_injuries_df.iterrows():
+            team_name = injury['team']  # e.g. "Baltimore Ravens"
             
-            # Use Action Network team mapping if available
-            if player_name in player_team_map:
-                correct_team = player_team_map[player_name]
-                injury['team'] = correct_team
+            # Check if this injury belongs to away team
+            # "Ravens" should match "Baltimore Ravens"
+            if away_team.lower() in team_name.lower():
+                away_injuries.append({
+                    'player': injury['player'],
+                    'position': injury['pos'],
+                    'status': injury['status'],
+                    'team': team_name,
+                    'team_tla': away_team[:3].upper()
+                })
+                print(f"✅ Found away injury: {injury['player']} ({away_team})")
                 
-                if away_team in correct_team:
-                    away_injuries.append(injury)
-                elif home_team in correct_team:
-                    home_injuries.append(injury)
+            # Check if this injury belongs to home team  
+            elif home_team.lower() in team_name.lower():
+                home_injuries.append({
+                    'player': injury['player'],
+                    'position': injury['pos'],
+                    'status': injury['status'],
+                    'team': team_name,
+                    'team_tla': home_team[:3].upper()
+                })
+                print(f"✅ Found home injury: {injury['player']} ({home_team})")
+    
+    print(f"🔍 FINAL: {away_team} has {len(away_injuries)} injuries, {home_team} has {len(home_injuries)} injuries")
     
     return {
         'away_injuries': away_injuries,
         'home_injuries': home_injuries,
         'away_impact': away_injuries,
         'home_impact': home_injuries,
-        'score': 0,
-        'edge': 'NO EDGE',
-        'description': f"No significant injury edge detected between {away_team} and {home_team}.",
+        'score': len(home_injuries) - len(away_injuries),  # Simple scoring
+        'edge': 'EDGE' if abs(len(home_injuries) - len(away_injuries)) >= 1 else 'NO EDGE',
+        'description': f"Found {len(away_injuries + home_injuries)} total injuries",
         'factors': []
     }
 
