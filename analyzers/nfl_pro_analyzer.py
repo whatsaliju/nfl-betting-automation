@@ -2205,7 +2205,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     # STEP 5 — REFEREE (FIXED)
     # ======================================================
     try:
-        referee_file = f"data/week{week}/week{week}_referees.csv"
+        referee_file = f"data/week{week}/week{week}_referees.csv"
         if os.path.exists(referee_file) and sdql is not None and not sdql.empty:
             referee_assignments = pd.read_csv(referee_file)
             
