@@ -60,15 +60,19 @@ ANALYSIS_CONFIG = {
 # ================================================================
 
 TEAM_MAP = {
-    "NE": "Patriots", "NYJ": "Jets", "WAS": "Commanders", "MIA": "Dolphins",
-    "CAR": "Panthers", "ATL": "Falcons", "TB": "Buccaneers", "BUF": "Bills",
-    "LAC": "Chargers", "JAX": "Jaguars", "CHI": "Bears", "MIN": "Vikings",
-    "GB": "Packers", "NYG": "Giants", "CIN": "Bengals", "PIT": "Steelers",
-    "HOU": "Texans", "TEN": "Titans", "SF": "49ers", "ARI": "Cardinals",
-    "SEA": "Seahawks", "LAR": "Rams", "BAL": "Ravens", "CLE": "Browns",
-    "KC": "Chiefs", "DEN": "Broncos", "DET": "Lions", "PHI": "Eagles",
-    "DAL": "Cowboys", "LV": "Raiders",
-    "IND": "Colts", "NO": "Saints"
+{
+    "ARI": "Arizona Cardinals", "ATL": "Atlanta Falcons", "BAL": "Baltimore Ravens",
+    "BUF": "Buffalo Bills", "CAR": "Carolina Panthers", "CHI": "Chicago Bears",
+    "CIN": "Cincinnati Bengals", "CLE": "Cleveland Browns", "DAL": "Dallas Cowboys",
+    "DEN": "Denver Broncos", "DET": "Detroit Lions", "GB": "Green Bay Packers",
+    "HOU": "Houston Texans", "IND": "Indianapolis Colts", "JAX": "Jacksonville Jaguars",
+    "KC": "Kansas City Chiefs", "LAC": "Los Angeles Chargers", "LAR": "Los Angeles Rams",
+    "LV": "Las Vegas Raiders", "MIA": "Miami Dolphins", "MIN": "Minnesota Vikings",
+    "NE": "New England Patriots", "NO": "New Orleans Saints", "NYG": "New York Giants",
+    "NYJ": "New York Jets", "PHI": "Philadelphia Eagles", "PIT": "Pittsburgh Steelers",
+    "SEA": "Seattle Seahawks", "SF": "San Francisco 49ers", "TB": "Tampa Bay Buccaneers",
+    "TEN": "Tennessee Titans", "WAS": "Washington Commanders"
+}
 
 }
 FULL_NAME_TO_TLA = {v.lower(): k for k, v in TEAM_MAP.items()}
@@ -663,14 +667,10 @@ class InjuryAnalyzer:
             return None
             
     def get_correct_tla(self, full_team_name):
-        """Convert full team name back to correct TLA using TEAM_MAP"""
-        full_name_lower = full_team_name.lower()
-        
-        for tla, name in TEAM_MAP.items():
-            # Check if the TEAM_MAP name is contained in the full team name
-            if name.lower() in full_name_lower:
+        """Convert full team name back to correct TLA using updated TEAM_MAP"""
+        for tla, full_name in TEAM_MAP.items():
+            if full_name.lower() == full_team_name.lower():  # Exact match now
                 return tla
-        
         return full_team_name[:3].upper()  # fallback
     
     def process_rotowire_injuries(self, rotowire_file):
