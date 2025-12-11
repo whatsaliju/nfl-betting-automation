@@ -60,7 +60,6 @@ ANALYSIS_CONFIG = {
 # ================================================================
 
 TEAM_MAP = {
-{
     "ARI": "Arizona Cardinals", "ATL": "Atlanta Falcons", "BAL": "Baltimore Ravens",
     "BUF": "Buffalo Bills", "CAR": "Carolina Panthers", "CHI": "Chicago Bears",
     "CIN": "Cincinnati Bengals", "CLE": "Cleveland Browns", "DAL": "Dallas Cowboys",
@@ -72,8 +71,6 @@ TEAM_MAP = {
     "NYJ": "New York Jets", "PHI": "Philadelphia Eagles", "PIT": "Pittsburgh Steelers",
     "SEA": "Seattle Seahawks", "SF": "San Francisco 49ers", "TB": "Tampa Bay Buccaneers",
     "TEN": "Tennessee Titans", "WAS": "Washington Commanders"
-}
-
 }
 FULL_NAME_TO_TLA = {v.lower(): k for k, v in TEAM_MAP.items()}
 
