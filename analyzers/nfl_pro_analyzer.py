@@ -2207,6 +2207,18 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     # ======================================================
     #     # STEP 5 — REFEREE (FIXED AGAIN)
     # ======================================================
+    # --- FIX START: Initialize referee_analysis ---
+    referee_analysis = {
+        'ats_score': 0, 
+        'ou_score': 0, 
+        'factors': [], 
+        'ats_pct': 50.0, 
+        'ou_pct': 50.0, 
+        'referee': 'Initialization Error', # Set a safe default description
+        'ats_tendency': 'NEUTRAL',
+        'ou_tendency': 'NEUTRAL TOTAL'
+    }
+    # --- FIX END ---
         try:
             referee_file = f"data/week{week}/week{week}_referees.csv"
             if os.path.exists(referee_file) and sdql is not None and not sdql.empty:
