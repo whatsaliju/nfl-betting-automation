@@ -664,9 +664,13 @@ class InjuryAnalyzer:
             
     def get_correct_tla(self, full_team_name):
         """Convert full team name back to correct TLA using TEAM_MAP"""
+        full_name_lower = full_team_name.lower()
+        
         for tla, name in TEAM_MAP.items():
-            if name.lower() == full_team_name.lower():
+            # Check if the TEAM_MAP name is contained in the full team name
+            if name.lower() in full_name_lower:
                 return tla
+        
         return full_team_name[:3].upper()  # fallback
     
     def process_rotowire_injuries(self, rotowire_file):
