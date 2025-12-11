@@ -2205,21 +2205,31 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     # STEP 5 — REFEREE (FIXED)
     # ======================================================
     try:
-        referee_file = f"data/week{week}/week{week}_referees.csv"
-        if os.path.exists(referee_file) and sdql is not None and not sdql.empty:
-            referee_assignments = pd.read_csv(referee_file)
-            
-            # Match game to referee name
-            matchup_for_lookup = f"{away_full} @ {home_full}"  # or however your CSV formats it
-            
-            # Use your existing TEAM_MAP to get full names
-            away_full_name = TEAM_MAP.get(away_tla, away_tla)
-            home_full_name = TEAM_MAP.get(home_tla, home_tla)
-            
-            game_match = referee_assignments[
-                (referee_assignments['away_team'] == away_full_name) & 
-                (referee_assignments['home_team'] == home_full_name)
-            ]
+        referee_file = f"data/week{week}/week{week}_referees.csv"
+        if os.path.exists(referee_file) and sdql is not None and not sdql.empty:
+            referee_assignments = pd.read_csv(referee_file)
+            
+            # --- FIX START ---
+            
+            # 1. Define the standardized TLAs for the current game
+            # We assume away_tla and home_tla are already defined from the main analysis function
+            
+            # 2. Look up using the standardized TLAs (TLA is more reliable than full name)
+            #    You should use the columns in your CSV that hold the TLA (if available).
+            #    If your CSV only has full names, we must use a robust string comparison.
+            
+            # *Assuming your referee CSV uses TLAs (e.g., 'ATL', 'TB') in the team columns:*
+            game_match = referee_assignments[
+                (referee_assignments['away_team'] == away_tla) & 
+                (referee_assignments['home_team'] == home_tla)
+            ]
+            
+            # 3. Check the reverse matchup order just in case the data source is inconsistent
+            if game_match.empty:
+                game_match = referee_assignments[
+                    (referee_assignments['away_team'] == home_tla) & 
+                    (referee_assignments['home_team'] == away_tla)
+                ]
             
             if not game_match.empty:
                 referee_name = game_match['referee'].iloc[0]
