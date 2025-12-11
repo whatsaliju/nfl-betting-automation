@@ -1054,7 +1054,7 @@ class InjuryAnalyzer:
                 'player': inj['player'],
                 'position': inj['pos'],
                 'status': inj['status'],
-                'injury_type': inj.get('injury', 'Unknown')
+                'injury_type': inj.get('injury', 'Unknown'),
                 'team': team_name,
                 'team_tla': team_tla
             })
