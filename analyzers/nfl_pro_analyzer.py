@@ -2208,9 +2208,9 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         referee_file = f"data/week{week}/week{week}_referees.csv"
         if os.path.exists(referee_file) and sdql is not None and not sdql.empty:
             referee_assignments = pd.read_csv(referee_file)
-            
-            # --- FIX START: Create robust comparison variables ---
-            
+
+            # --- FIX START: Create robust comparison variables ---
+
             # 1. Use the canonical full names from your system (e.g., 'Atlanta Falcons')
             #    We assume away_tla and home_tla are already defined.
             away_full_name = TEAM_MAP.get(away_tla, away_tla)
@@ -2219,7 +2219,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
             # 2. Convert CSV team columns to strings for string matching
             referee_assignments['away_team'] = referee_assignments['away_team'].astype(str)
             referee_assignments['home_team'] = referee_assignments['home_team'].astype(str)
-            
+
             # 3. Create the primary match condition (Away@Home) using a partial match (contains)
             #    This accounts for your map using "Atlanta Falcons" while the CSV says "Falcons"
             match_condition_forward = (
@@ -2231,7 +2231,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
             )
 
             game_match = referee_assignments[match_condition_forward]
-            
+
             # 4. Check the reverse match condition (Home@Away)
             if game_match.empty:
                 match_condition_reverse = (
@@ -2244,10 +2244,10 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
                 game_match = referee_assignments[match_condition_reverse]
 
             # --- FIX END ---
-            
+
             if not game_match.empty:
                 referee_name = game_match['referee'].iloc[0]
-                
+
                 # Find this referee's stats in SDQL data
                 ref_row = sdql[sdql['query'].str.contains(referee_name, na=False)]
                 
