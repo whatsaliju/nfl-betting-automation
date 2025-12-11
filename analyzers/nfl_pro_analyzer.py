@@ -2082,39 +2082,39 @@ def normalize_matchup(s: str) -> str:
     return f"{canonical(parts[0])}@{canonical(parts[1])}"
 
 def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df, rotowire_data=None):
-    """Use Action Network for team mapping, RotoWire for latest status"""
-    
-    # Use your existing TEAM_MAP to create reverse lookup
-    # Your away_team/home_team are like "Ravens", "Bengals" 
-    # Action Network uses "Baltimore Ravens", "Cincinnati Bengals"
+    # 1. First, define the TLAs for the current game from the input team names
+    #(The canonical function is what converts 'Ravens'/'Baltimore Ravens' to 'BAL')
+    away_tla = canonical(away_team)
+    home_tla = canonical(home_team)
     
     away_injuries = []
     home_injuries = []
-    
+     
     if not action_injuries_df.empty:
         for _, injury in action_injuries_df.iterrows():
             team_name = injury['team']  # e.g. "Baltimore Ravens"
             
-            # Check if this injury belongs to away team
-            # "Ravens" should match "Baltimore Ravens"
-            if away_team.lower() in team_name.lower():
+            # 2. Get the TLA of the injury record's team for comparison
+            injury_tla = canonical(team_name)
+            
+            # 3. Use direct TLA comparison instead of 'in' substring search
+            if injury_tla == away_tla:
                 away_injuries.append({
                     'player': injury['player'],
                     'position': injury['pos'],
                     'status': injury['status'],
                     'team': team_name,
-                    'team_tla': away_team[:3].upper()
+                    'team_tla': away_tla  # Use the correct, standardized TLA
                 })
                 print(f"✅ Found away injury: {injury['player']} ({away_team})")
                 
-            # Check if this injury belongs to home team  
-            elif home_team.lower() in team_name.lower():
+            elif injury_tla == home_tla:
                 home_injuries.append({
                     'player': injury['player'],
                     'position': injury['pos'],
                     'status': injury['status'],
                     'team': team_name,
-                    'team_tla': home_team[:3].upper()
+                    'team_tla': home_tla  # Use the correct, standardized TLA
                 })
                 print(f"✅ Found home injury: {injury['player']} ({home_team})")
     
