@@ -2209,33 +2209,48 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         if os.path.exists(referee_file) and sdql is not None and not sdql.empty:
             referee_assignments = pd.read_csv(referee_file)
             
-            # --- FIX START ---
-            
-            # 1. Define the standardized TLAs for the current game
-            # We assume away_tla and home_tla are already defined from the main analysis function
-            
-            # 2. Look up using the standardized TLAs (TLA is more reliable than full name)
-            #    You should use the columns in your CSV that hold the TLA (if available).
-            #    If your CSV only has full names, we must use a robust string comparison.
-            
-            # *Assuming your referee CSV uses TLAs (e.g., 'ATL', 'TB') in the team columns:*
-            game_match = referee_assignments[
-                (referee_assignments['away_team'] == away_tla) & 
-                (referee_assignments['home_team'] == home_tla)
-            ]
-            
-            # 3. Check the reverse matchup order just in case the data source is inconsistent
-            if game_match.empty:
-                game_match = referee_assignments[
-                    (referee_assignments['away_team'] == home_tla) & 
-                    (referee_assignments['home_team'] == away_tla)
-                ]
+            # --- FIX START: Create robust comparison variables ---
+            
+            # 1. Use the canonical full names from your system (e.g., 'Atlanta Falcons')
+            #    We assume away_tla and home_tla are already defined.
+            away_full_name = TEAM_MAP.get(away_tla, away_tla)
+            home_full_name = TEAM_MAP.get(home_tla, home_tla)
+
+            # 2. Convert CSV team columns to strings for string matching
+            referee_assignments['away_team'] = referee_assignments['away_team'].astype(str)
+            referee_assignments['home_team'] = referee_assignments['home_team'].astype(str)
+            
+            # 3. Create the primary match condition (Away@Home) using a partial match (contains)
+            #    This accounts for your map using "Atlanta Falcons" while the CSV says "Falcons"
+            match_condition_forward = (
+                referee_assignments['away_team'].str.contains(away_full_name, case=False, na=False) |
+                referee_assignments['away_team'].str.contains(away_tla, case=False, na=False)
+            ) & (
+                referee_assignments['home_team'].str.contains(home_full_name, case=False, na=False) |
+                referee_assignments['home_team'].str.contains(home_tla, case=False, na=False)
+            )
+
+            game_match = referee_assignments[match_condition_forward]
+            
+            # 4. Check the reverse match condition (Home@Away)
+            if game_match.empty:
+                match_condition_reverse = (
+                    referee_assignments['away_team'].str.contains(home_full_name, case=False, na=False) |
+                    referee_assignments['away_team'].str.contains(home_tla, case=False, na=False)
+                ) & (
+                    referee_assignments['home_team'].str.contains(away_full_name, case=False, na=False) |
+                    referee_assignments['home_team'].str.contains(away_tla, case=False, na=False)
+                )
+                game_match = referee_assignments[match_condition_reverse]
+
+            # --- FIX END ---
             
             if not game_match.empty:
                 referee_name = game_match['referee'].iloc[0]
                 
                 # Find this referee's stats in SDQL data
                 ref_row = sdql[sdql['query'].str.contains(referee_name, na=False)]
+                
                 if not ref_row.empty:
                     referee_analysis = RefereeAnalyzer.analyze(ref_row.iloc[0])
                     referee_analysis['referee'] = referee_name  # Add the missing name!
