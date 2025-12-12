@@ -1,0 +1,73 @@
+name: 8. Log My Actual Bets
+on:
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'Week Number'
+        required: true
+        type: string
+      actual_bets:
+        description: 'Your actual bets (JSON format)'
+        required: true
+        default: '[{"game":"Team A @ Team B","bet_type":"spread","amount":100,"line":"+3.5","odds":"-110","result":"PENDING"}]'
+        type: string
+
+jobs:
+  log-actual-bets:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: pip install pandas
+    
+    - name: Log Actual Bets
+      run: |
+        python << 'EOF'
+        import pandas as pd
+        import json
+        import os
+        from datetime import datetime
+        
+        week = ${{ github.event.inputs.week }}
+        actual_bets_json = '${{ github.event.inputs.actual_bets }}'
+        
+        # Parse the JSON
+        actual_bets = json.loads(actual_bets_json)
+        
+        # Create/load actual bets CSV
+        actual_bets_file = "data/historical/my_actual_bets.csv"
+        
+        if os.path.exists(actual_bets_file):
+            df = pd.read_csv(actual_bets_file)
+        else:
+            os.makedirs("data/historical", exist_ok=True)
+            df = pd.DataFrame(columns=['week', 'game', 'bet_type', 'amount', 'line', 'odds', 'to_win', 'result', 'profit_loss', 'logged_date'])
+        
+        # Add new bets
+        for bet in actual_bets:
+            new_row = {
+                'week': week,
+                'game': bet['game'],
+                'bet_type': bet['bet_type'],
+                'amount': bet['amount'],
+                'line': bet['line'],
+                'odds': bet.get('odds', ''),
+                'to_win': bet.get('to_win', ''),
+                'result': bet.get('result', 'PENDING'),
+                'profit_loss': '',
+                'logged_date': datetime.now().isoformat()
+            }
+            df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+        
+        # Save
+        df.to_csv(actual_bets_file, index=False)
+        print(f"✅ Logged {len(actual_bets)} actual bets for Week {week}")
+        
+        EOF
