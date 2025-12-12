@@ -421,6 +421,7 @@ class EnhancedPerformanceTracker:
                 }
                 new_bets_data.append(new_row)
 
+        # Log actual recommendations (bets)
         if new_bets_data:
             new_df = pd.DataFrame(new_bets_data)
             updated_df = pd.concat([existing_df, new_df], ignore_index=True)
@@ -428,6 +429,9 @@ class EnhancedPerformanceTracker:
             print(f"Logged {len(new_bets_data)} new recommendations for Week {week}, Season {season}")
         else:
             print(f"No new recommendations to log for Week {week}, Season {season}")
+        
+        # NEW: Log passed games (landmines/fades) with their scores
+        self._log_week_passes(week, season, analytics_data)
     
     def log_my_actual_bets(self, week, my_bets):
         """Log the bets I actually placed with real money"""
@@ -455,7 +459,74 @@ class EnhancedPerformanceTracker:
             
         except Exception as e:
             print(f"⚠️ Error logging actual bets: {e}")
+    def _log_week_passes(self, week: int, season: int, analytics_data: list):
+    """Log games we passed on (landmines/fades) with scores for tracking discipline"""
     
+    passes_file = "data/historical/betting_passes.csv"
+    
+    # Create passes file if it doesn't exist
+    if not os.path.exists(passes_file):
+        os.makedirs("data/historical", exist_ok=True)
+        passes_df = pd.DataFrame(columns=[
+            'week', 'season', 'game', 'classification', 'total_score', 
+            'confidence', 'pass_reason', 'sharp_edge', 'injury_impact',
+            'situational_factors', 'recommendation', 'logged_date'
+        ])
+        passes_df.to_csv(passes_file, index=False)
+    
+    # Load existing passes
+    passes_df = pd.read_csv(passes_file)
+    
+    # Remove any existing entries for this week/season
+    passes_df = passes_df[~((passes_df['week'] == week) & (passes_df['season'] == season))]
+    
+    new_passes = []
+    for game_data in analytics_data:
+        classification = game_data.get('classification', '')
+        
+        # Only log landmines and fades (passed games)
+        if classification in ['⚠️ LANDMINE', '❌ FADE']:
+            pass_record = {
+                'week': week,
+                'season': season,
+                'game': game_data.get('matchup', 'Unknown'),
+                'classification': classification,
+                'total_score': game_data.get('total_score', 0),
+                'confidence': game_data.get('confidence', 0),
+                'pass_reason': self._get_pass_reason(game_data),
+                'sharp_edge': game_data.get('sharp_analysis', {}).get('spread', {}).get('differential', 0),
+                'injury_impact': game_data.get('injury_analysis', {}).get('score', 0),
+                'situational_factors': len(game_data.get('situational_analysis', {}).get('factors', [])),
+                'recommendation': game_data.get('recommendation', ''),
+                'logged_date': datetime.now().isoformat()
+            }
+            new_passes.append(pass_record)
+    
+    if new_passes:
+        new_passes_df = pd.DataFrame(new_passes)
+        updated_passes_df = pd.concat([passes_df, new_passes_df], ignore_index=True)
+        updated_passes_df.to_csv(passes_file, index=False)
+        print(f"📝 Logged {len(new_passes)} passed games for Week {week}")
+
+    def _get_pass_reason(self, game_data):
+        """Extract the main reasons for passing on this game"""
+        reasons = []
+        
+        classification = game_data.get('classification', '')
+        if 'LANDMINE' in classification:
+            reasons.append('mixed_signals')
+        elif 'FADE' in classification:
+            reasons.append('negative_factors')
+        
+        # Add specific red flags
+        if game_data.get('total_score', 0) < 0:
+            reasons.append('negative_score')
+        if game_data.get('injury_analysis', {}).get('score', 0) < -2:
+            reasons.append('major_injuries')
+        if game_data.get('situational_analysis', {}).get('score', 0) < -1:
+            reasons.append('situational_concerns')
+        
+        return ', '.join(reasons) if reasons else 'low_confidence'
     def _parse_recommendation(self, recommendation: str, game_name: str) -> List[Dict]:
         """
         Parses a recommendation string to extract bet type, predicted side, and line.
