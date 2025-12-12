@@ -71,3 +71,17 @@ jobs:
         print(f"✅ Logged {len(actual_bets)} actual bets for Week {week}")
         
         EOF
+        
+    - name: Commit Actual Bets Data
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        if [ -n "$(git status --porcelain)" ]; then
+          git add data/historical/my_actual_bets.csv
+          git commit -m "📊 Logged actual bets: Week ${{ github.event.inputs.week }}"
+          git push
+          echo "✅ Actual bets data committed and pushed"
+        else
+          echo "ℹ️ No changes to commit"
+        fi
