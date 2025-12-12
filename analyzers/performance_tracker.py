@@ -133,39 +133,27 @@ class EnhancedPerformanceTracker:
         
         if not os.path.exists(passes_file):
             print("No passes file found to update")
-            return
+            return 0
         
         passes_df = pd.read_csv(passes_file)
         week_passes = passes_df[(passes_df['week'] == week) & (passes_df['season'] == season)]
         
         if week_passes.empty:
             print(f"No passes found for Week {week}")
-            return
+            return 0
         
-        updated_count = 0
+        print(f"📊 Found {len(week_passes)} passed games to validate for Week {week}")
         
-        for idx, pass_row in week_passes.iterrows():
-            game_name = pass_row['game']
-            
-            # Get actual game result using your existing NFL API logic
-            game_result = self._get_game_result(game_name, week, season)
-            
-            if game_result:
-                # Determine if the pass was "smart" - did the game hit the implied recommendation?
-                validation = self._validate_pass_decision(pass_row, game_result)
-                
-                # Update the passes DataFrame
-                passes_df.loc[idx, 'actual_final_score'] = game_result.get('final_score', '')
-                passes_df.loc[idx, 'pass_validation'] = validation  # 'smart_pass' or 'missed_opportunity'
-                passes_df.loc[idx, 'updated_date'] = datetime.now().isoformat()
-                
-                updated_count += 1
+        # For now, just mark them as "pending validation" until games are complete
+        updated_count = len(week_passes)
+        passes_df.loc[week_passes.index, 'validation_status'] = 'pending_results'
+        passes_df.loc[week_passes.index, 'last_updated'] = datetime.now().isoformat()
         
-        if updated_count > 0:
-            passes_df.to_csv(passes_file, index=False)
-            print(f"✅ Updated {updated_count} pass results for Week {week}")
+        passes_df.to_csv(passes_file, index=False)
+        print(f"✅ Marked {updated_count} passes for validation")
         
         return updated_count
+        
     def update_week_results_auto(self, week: int, season: int = 2025):
         """Automatically update results using NFL API or ESPN data"""
         
