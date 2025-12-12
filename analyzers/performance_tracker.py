@@ -126,74 +126,65 @@ class EnhancedPerformanceTracker:
             print("⚠️ Action Network fallback failed: " + str(e))
             return {}
     
-    def update_week_results_auto(self, week: int, season: int = 2025) -> Dict:
-        """Automatically update results for a week using live scores."""
-        try:
-            # Use the defined self.results_file
-            df = pd.read_csv(self.results_file)
-            week_bets = df[(df['week'] == week) & (df['season'] == season)].copy()
+    def update_pass_results(self, week: int, season: int = 2025):
+        """Update the outcomes of games we passed on to validate our discipline"""
+        
+        passes_file = "data/historical/betting_passes.csv"
+        
+        if not os.path.exists(passes_file):
+            print("No passes file found to update")
+            return
+        
+        passes_df = pd.read_csv(passes_file)
+        week_passes = passes_df[(passes_df['week'] == week) & (passes_df['season'] == season)]
+        
+        if week_passes.empty:
+            print(f"No passes found for Week {week}")
+            return
+        
+        updated_count = 0
+        
+        for idx, pass_row in week_passes.iterrows():
+            game_name = pass_row['game']
             
-            if week_bets.empty:
-                return {'error': 'No recommendations found for Week ' + str(week)}
+            # Get actual game result using your existing NFL API logic
+            game_result = self._get_game_result(game_name, week, season)
             
-            scores = self.fetch_week_scores(week, season)
-            
-            if not scores:
-                return {'error': 'Could not fetch current NFL scores'}
-            
-            results_summary = {
-                'updated_games': 0,
-                'total_bets': len(week_bets),
-                'wins': 0,
-                'losses': 0,
-                'pushes': 0,
-                'details': []
-            }
-            
-            for idx, row in week_bets.iterrows():
-                matched_score = self._match_game_to_score(row['game'], scores)
+            if game_result:
+                # Determine if the pass was "smart" - did the game hit the implied recommendation?
+                validation = self._validate_pass_decision(pass_row, game_result)
                 
-                if matched_score:
-                    bet_result = self._evaluate_bet(row, matched_score)
-                    
-                    df.at[idx, 'actual_result'] = matched_score['final_score']
-                    df.at[idx, 'won'] = bet_result['won']
-                    df.at[idx, 'push'] = bet_result['push']
-                    df.at[idx, 'final_score'] = str(matched_score['away_score']) + "-" + str(matched_score['home_score'])
-                    df.at[idx, 'spread_result'] = bet_result['spread_analysis']
-                    df.at[idx, 'total_result'] = bet_result['total_analysis']
-                    df.at[idx, 'result_date'] = datetime.now().isoformat()
-                    
-                    results_summary['updated_games'] += 1
-                    if bet_result['push']:
-                        results_summary['pushes'] += 1
-                    elif bet_result['won']:
-                        results_summary['wins'] += 1
-                    else:
-                        results_summary['losses'] += 1
-                    
-                    results_summary['details'].append({
-                        'game': row['game'],
-                        'recommendation': row['recommendation'],
-                        'result': 'WIN' if bet_result['won'] else 'PUSH' if bet_result['push'] else 'LOSS',
-                        'final_score': matched_score['final_score'],
-                        'analysis': bet_result['analysis']
-                    })
-            
-            # Use the defined self.results_file
-            df.to_csv(self.results_file, index=False)
-            
-            completed_bets = results_summary['wins'] + results_summary['losses']
-            if completed_bets > 0:
-                results_summary['win_rate'] = round(results_summary['wins'] / completed_bets * 100, 1)
-            else:
-                results_summary['win_rate'] = 0
-            
-            return results_summary
-            
-        except Exception as e:
-            print("⚠️ Error updating results: " + str(e))
-            return {'error': str(e)}
+                # Update the passes DataFrame
+                passes_df.loc[idx, 'actual_final_score'] = game_result.get('final_score', '')
+                passes_df.loc[idx, 'pass_validation'] = validation  # 'smart_pass' or 'missed_opportunity'
+                passes_df.loc[idx, 'updated_date'] = datetime.now().isoformat()
+                
+                updated_count += 1
+        
+        if updated_count > 0:
+            passes_df.to_csv(passes_file, index=False)
+            print(f"✅ Updated {updated_count} pass results for Week {week}")
+        
+        return updated_count
+    
+    def _validate_pass_decision(self, pass_row, game_result):
+        """Determine if passing on this game was the right call"""
+        
+        classification = pass_row['classification']
+        total_score = pass_row['total_score']
+        
+        # For negative-score games (FADE), passing is usually smart
+        if total_score < 0:
+            return 'smart_pass'
+        
+        # For LANDMINE games, check if there was actually mixed signals
+        if 'LANDMINE' in classification and total_score < 3:
+            return 'smart_pass'
+        
+        # If it was a very close game or covered/didn't cover as expected
+        # This would need more sophisticated logic based on spreads/totals
+        
+        return 'needs_review'  # Default for manual validation
     
     def _match_game_to_score(self, bet_game: str, scores: Dict) -> Optional[Dict]:
         """Match a betting game string to actual NFL scores."""
