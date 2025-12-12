@@ -219,10 +219,11 @@ jobs:
           
           # Calculate summary stats
           blue_chip = [g for g in games if "🔵 BLUE CHIP" in g.get('classification', '')]
-          targeted = [g for g in games if "🎯 TARGETED" in g.get('classification', '')]  # This will catch both "TARGETED" and "TARGETED PLAY"
+          targeted = [g for g in games if "🎯 TARGETED" in g.get('classification', '')]
           leans = [g for g in games if "📊 LEAN" in g.get('classification', '')]
           landmines = [g for g in games if "⚠️ LANDMINE" in g.get('classification', '')]
           fades = [g for g in games if "❌ FADE" in g.get('classification', '')]
+          traps = fades + landmines  # Keep this for the existing HTML code that references 'traps'
           total_games = len(games)
           
           # --- HTML GENERATION ---
