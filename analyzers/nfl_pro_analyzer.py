@@ -2602,6 +2602,7 @@ def generate_outputs(week, games):
         for game in games:
             tiers[game['classification']].append(game)
         
+        # Updated to match actual classifications + enhanced details
         for tier_name in ['🔵 BLUE CHIP', '🎯 TARGETED PLAY', '📊 LEAN', '⚠️ LANDMINE', '❌ FADE']:
             if tier_name in tiers:
                 f.write(f"{tier_name}\n")
@@ -2609,8 +2610,26 @@ def generate_outputs(week, games):
                 for game in tiers[tier_name]:
                     f.write(f"{game['matchup']}\n")
                     f.write(f"  → {game['recommendation']}\n")
+                    
+                    # Enhanced details from pro analysis
                     if game['sharp_stories']:
                         f.write(f"  → {game['sharp_stories'][0]}\n")
+                    
+                    # Add referee context
+                    if game.get('referee_analysis'):
+                        ref = game['referee_analysis']
+                        f.write(f"  → Referee: {ref.get('referee', 'Unknown')} ({ref.get('ats_pct', 'N/A')}% ATS, {ref.get('ats_tendency', 'N/A')})\n")
+                    
+                    # Add key statistical or injury info
+                    if game.get('statistical_analysis', {}).get('factors'):
+                        stat = game['statistical_analysis']['factors'][0]
+                        f.write(f"  → {stat}\n")
+                    elif game.get('injury_analysis', {}).get('description'):
+                        injury = game['injury_analysis']['description']
+                        f.write(f"  → Injury Impact: {injury}\n")
+                    
+                    # Add score for quick reference  
+                    f.write(f"  → Score: {game.get('total_score', 'N/A')} | Confidence: {game.get('confidence', 'N/A')}\n")
                     f.write("\n")
     
     # Full Analysis
