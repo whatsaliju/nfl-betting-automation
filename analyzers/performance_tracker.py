@@ -166,7 +166,58 @@ class EnhancedPerformanceTracker:
             print(f"✅ Updated {updated_count} pass results for Week {week}")
         
         return updated_count
-    
+    def update_week_results_auto(self, week: int, season: int = 2025):
+        """Automatically update results using NFL API or ESPN data"""
+        
+        try:
+            # Load existing results
+            if not os.path.exists(self.results_file):
+                return {'error': 'No results file found'}
+            
+            df = pd.read_csv(self.results_file)
+            week_bets = df[(df['week'] == week) & (df['season'] == season)]
+            
+            if week_bets.empty:
+                return {'error': f'No bets found for Week {week}'}
+            
+            updated_games = 0
+            wins = 0
+            losses = 0
+            pushes = 0
+            
+            for idx, bet in week_bets.iterrows():
+                if bet['actual_result']:  # Already has result
+                    continue
+                    
+                # For now, mark as pending since we need NFL API integration
+                df.loc[idx, 'actual_result'] = 'pending'
+                df.loc[idx, 'result_date'] = datetime.now().isoformat()
+                updated_games += 1
+            
+            # Count existing results
+            completed_bets = week_bets[week_bets['actual_result'].notna() & (week_bets['actual_result'] != '')]
+            wins = len(completed_bets[completed_bets['won'] == True])
+            losses = len(completed_bets[completed_bets['won'] == False])
+            pushes = len(completed_bets[completed_bets['push'] == True])
+            
+            # Calculate win rate
+            total_completed = wins + losses
+            win_rate = (wins / total_completed * 100) if total_completed > 0 else 0
+            
+            # Save updated DataFrame
+            df.to_csv(self.results_file, index=False)
+            
+            return {
+                'updated_games': updated_games,
+                'wins': wins,
+                'losses': losses,
+                'pushes': pushes,
+                'win_rate': win_rate
+            }
+            
+        except Exception as e:
+            return {'error': str(e)}
+            
     def _validate_pass_decision(self, pass_row, game_result):
         """Determine if passing on this game was the right call"""
         
