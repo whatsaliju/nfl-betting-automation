@@ -459,54 +459,55 @@ class EnhancedPerformanceTracker:
             
         except Exception as e:
             print(f"⚠️ Error logging actual bets: {e}")
+    
     def _log_week_passes(self, week: int, season: int, analytics_data: list):
-    """Log games we passed on (landmines/fades) with scores for tracking discipline"""
-    
-    passes_file = "data/historical/betting_passes.csv"
-    
-    # Create passes file if it doesn't exist
-    if not os.path.exists(passes_file):
-        os.makedirs("data/historical", exist_ok=True)
-        passes_df = pd.DataFrame(columns=[
-            'week', 'season', 'game', 'classification', 'total_score', 
-            'confidence', 'pass_reason', 'sharp_edge', 'injury_impact',
-            'situational_factors', 'recommendation', 'logged_date'
-        ])
-        passes_df.to_csv(passes_file, index=False)
-    
-    # Load existing passes
-    passes_df = pd.read_csv(passes_file)
-    
-    # Remove any existing entries for this week/season
-    passes_df = passes_df[~((passes_df['week'] == week) & (passes_df['season'] == season))]
-    
-    new_passes = []
-    for game_data in analytics_data:
-        classification = game_data.get('classification', '')
+        """Log games we passed on (landmines/fades) with scores for tracking discipline"""
         
-        # Only log landmines and fades (passed games)
-        if classification in ['⚠️ LANDMINE', '❌ FADE']:
-            pass_record = {
-                'week': week,
-                'season': season,
-                'game': game_data.get('matchup', 'Unknown'),
-                'classification': classification,
-                'total_score': game_data.get('total_score', 0),
-                'confidence': game_data.get('confidence', 0),
-                'pass_reason': self._get_pass_reason(game_data),
-                'sharp_edge': game_data.get('sharp_analysis', {}).get('spread', {}).get('differential', 0),
-                'injury_impact': game_data.get('injury_analysis', {}).get('score', 0),
-                'situational_factors': len(game_data.get('situational_analysis', {}).get('factors', [])),
-                'recommendation': game_data.get('recommendation', ''),
-                'logged_date': datetime.now().isoformat()
-            }
-            new_passes.append(pass_record)
-    
-    if new_passes:
-        new_passes_df = pd.DataFrame(new_passes)
-        updated_passes_df = pd.concat([passes_df, new_passes_df], ignore_index=True)
-        updated_passes_df.to_csv(passes_file, index=False)
-        print(f"📝 Logged {len(new_passes)} passed games for Week {week}")
+        passes_file = "data/historical/betting_passes.csv"
+        
+        # Create passes file if it doesn't exist
+        if not os.path.exists(passes_file):
+            os.makedirs("data/historical", exist_ok=True)
+            passes_df = pd.DataFrame(columns=[
+                'week', 'season', 'game', 'classification', 'total_score', 
+                'confidence', 'pass_reason', 'sharp_edge', 'injury_impact',
+                'situational_factors', 'recommendation', 'logged_date'
+            ])
+            passes_df.to_csv(passes_file, index=False)
+        
+        # Load existing passes
+        passes_df = pd.read_csv(passes_file)
+        
+        # Remove any existing entries for this week/season
+        passes_df = passes_df[~((passes_df['week'] == week) & (passes_df['season'] == season))]
+        
+        new_passes = []
+        for game_data in analytics_data:
+            classification = game_data.get('classification', '')
+            
+            # Only log landmines and fades (passed games)
+            if classification in ['⚠️ LANDMINE', '❌ FADE']:
+                pass_record = {
+                    'week': week,
+                    'season': season,
+                    'game': game_data.get('matchup', 'Unknown'),
+                    'classification': classification,
+                    'total_score': game_data.get('total_score', 0),
+                    'confidence': game_data.get('confidence', 0),
+                    'pass_reason': self._get_pass_reason(game_data),
+                    'sharp_edge': game_data.get('sharp_analysis', {}).get('spread', {}).get('differential', 0),
+                    'injury_impact': game_data.get('injury_analysis', {}).get('score', 0),
+                    'situational_factors': len(game_data.get('situational_analysis', {}).get('factors', [])),
+                    'recommendation': game_data.get('recommendation', ''),
+                    'logged_date': datetime.now().isoformat()
+                }
+                new_passes.append(pass_record)
+        
+        if new_passes:
+            new_passes_df = pd.DataFrame(new_passes)
+            updated_passes_df = pd.concat([passes_df, new_passes_df], ignore_index=True)
+            updated_passes_df.to_csv(passes_file, index=False)
+            print(f"📝 Logged {len(new_passes)} passed games for Week {week}")
 
     def _get_pass_reason(self, game_data):
         """Extract the main reasons for passing on this game"""
