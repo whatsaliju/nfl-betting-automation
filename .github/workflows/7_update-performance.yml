@@ -95,6 +95,10 @@ jobs:
                 print('🔄 Updating results with live NFL scores...')
                 results = tracker.update_week_results_auto(week, season=2025)
                 
+                # NEW: Update pass results too
+                print('🔄 Updating pass results...')
+                pass_results = tracker.update_pass_results(week, season=2025)
+                
                 if 'error' in results:
                     print('⚠️ Auto-update failed: ' + str(results.get('error', 'Unknown error')))
                     print('💡 You may need to update results manually')
