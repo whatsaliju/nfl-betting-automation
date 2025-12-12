@@ -2602,7 +2602,7 @@ def generate_outputs(week, games):
         for game in games:
             tiers[game['classification']].append(game)
         
-        for tier_name in ['🔵 BLUE CHIP', '🎯 TARGETED PLAY', '🚨 TRAP GAME', '❌ FADE']:
+        for tier_name in ['🔵 BLUE CHIP', '🎯 TARGETED PLAY', '📊 LEAN', '⚠️ LANDMINE', '❌ FADE']:
             if tier_name in tiers:
                 f.write(f"{tier_name}\n")
                 f.write("-"*70 + "\n")
