@@ -96,7 +96,13 @@ jobs:
           echo "🩹 Scraping Action Network injuries & weather..."
           # Pass the week number to the scraper
           python3 scrapers/action_network_injuries_weather.py ${{ steps.get_week.outputs.week }}
-      
+          
+      - name: Scrape RotoWire Lineups
+        # RotoWire scraper has been moved here, ensuring it runs independently.
+        run: |
+          echo "🏈 Scraping RotoWire lineups & injuries for Week ${{ steps.get_week_for_commit.outputs.week }}..."
+          python3 scrapers/rotowire_scraper.py ${{ steps.get_week_for_commit.outputs.week }} # <--- ADD WEEK ARGUMENT
+          
       - name: Detect Line Flips & Update SDQL
         id: line_flips
         env:
