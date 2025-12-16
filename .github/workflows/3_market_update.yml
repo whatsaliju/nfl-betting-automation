@@ -100,8 +100,8 @@ jobs:
       - name: Scrape RotoWire Lineups
         # RotoWire scraper has been moved here, ensuring it runs independently.
         run: |
-          echo "🏈 Scraping RotoWire lineups & injuries for Week ${{ steps.get_week_for_commit.outputs.week }}..."
-          python3 scrapers/rotowire_scraper.py ${{ steps.get_week_for_commit.outputs.week }} # <--- ADD WEEK ARGUMENT
+          echo "🏈 Scraping RotoWire lineups & injuries for Week ${{ steps.get_week.outputs.week }}..."
+          python3 scrapers/rotowire_scraper.py ${{ steps.get_week.outputs.week }} # <--- ADD WEEK ARGUMENT
           
       - name: Detect Line Flips & Update SDQL
         id: line_flips
