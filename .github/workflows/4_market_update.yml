@@ -2,12 +2,9 @@ name: 4. Market Update (with Line-Flip Detection)
 
 on:
   schedule:
-    # Friday 0:00 AM UTC = Thursday 7:00 PM Eastern Time (EST/UTC-5)
-    - cron: '0 0 * * 5' 
-    # Sunday 1:00 AM UTC = Saturday 8:00 PM Eastern Time (EST/UTC-5)
-    - cron: '0 1 * * 0'
-    # Sunday 5:00 PM UTC = Sunday 12:00 PM Eastern Time (EST/UTC-5)
-    - cron: '0 17 * * 0'
+    - cron: '0 0 * * 5'   # Friday 12:00 AM UTC (Thu 7:00 PM ET) ✅
+    - cron: '0 1 * * 0'   # Sunday 1:00 AM UTC (Sat 8:00 PM ET)
+    - cron: '0 18 * * 0'  # Sunday 6:00 PM UTC (Sun 1:00 PM ET)
   workflow_dispatch:
     inputs:
       week:
