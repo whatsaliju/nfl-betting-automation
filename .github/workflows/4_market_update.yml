@@ -2,9 +2,9 @@ name: 4. Market Update (with Line-Flip Detection)
 
 on:
   schedule:
-    - cron: '0 0 * * 5'   # Friday 12:00 AM UTC (Thu 7:00 PM ET) ✅
-    - cron: '0 1 * * 0'   # Sunday 1:00 AM UTC (Sat 8:00 PM ET)
-    - cron: '0 18 * * 0'  # Sunday 6:00 PM UTC (Sun 1:00 PM ET)
+    - cron: '0 0 * * 5'   # Friday 12:00 AM UTC (Thu 7:00 PM ET)
+    - cron: '0 1 * * 0'   # Sunday 1:00 AM UTC (Sat 8:00 PM ET)  
+    - cron: '0 17 * * 0'  # Sunday 5:00 PM UTC (Sun 1:00 PM ET)
   workflow_dispatch:
     inputs:
       week:
@@ -376,12 +376,13 @@ jobs:
           git add data/action_all_markets_*.csv \
                     data/action_injuries_*.csv \
                     data/action_weather_*.csv \
+                    data/rotowire_lineups_*.csv \
                     data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv \
                     data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv \
                     data/historical/sdql_results.csv || true
           
           # Attempt to commit; if no changes, echo message and proceed
-          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} market update (${{ steps.line_flips.outputs.flip_count }} line flips) - ${{ steps.line_flips.outputs.analysis_type }}" || echo "No changes to commit for market update."
+          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} market & lineup update (${{ steps.line_flips.outputs.flip_count }} line flips) - ${{ steps.line_flips.outputs.analysis_type }}" || echo "No changes to commit for market & lineup update."
           
           # Pull remote changes with rebase to integrate them cleanly.
           # If conflicts occur, attempt to resolve them for the generated files (take 'ours').
@@ -394,6 +395,7 @@ jobs:
               git checkout --ours data/action_all_markets_*.csv || true # Take our latest scrape
               git checkout --ours data/action_injuries_*.csv || true
               git checkout --ours data/action_weather_*.csv || true
+              git checkout --ours data/rotowire_lineups_*.csv || true
               git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv || true
               git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv || true
               git checkout --ours data/historical/sdql_results.csv || true # Take our latest SDQL results
@@ -402,6 +404,7 @@ jobs:
               git add data/action_all_markets_*.csv
               git add data/action_injuries_*.csv
               git add data/action_weather_*.csv
+              git add data/rotowire_lineups_*.csv
               git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv
               git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv
               git add data/historical/sdql_results.csv
@@ -433,5 +436,6 @@ jobs:
           ls -lh data/action_all_markets_*.csv \
                     data/action_injuries_*.csv \
                     data/action_weather_*.csv \
+                    data/rotowire_lineups_*.csv \
                     data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv \
                     data/historical/sdql_results.csv 2>/dev/null | tail -10
