@@ -164,18 +164,45 @@ jobs:
                   f.write(f"analysis_type={analysis_type_output}\n")
               exit(0)
 
-          # Load current Action Network spreads
+          # Replace the section "Load current Action Network spreads" with this:
+          # Load COMPLETE Action Network dataset (preserve all games from initial scrape)
           try:
-              # Assuming action_network_scraper_cookies.py saves to a dated file like:
-              # data/action_all_markets_YYYYMMDD_HHMM.csv
+              # Find the EARLIEST Action Network file for this week (Wednesday's complete scrape)
+              # This ensures we keep all games including completed ones
               action_files_in_data = [f for f in os.listdir('data') if f.startswith('action_all_markets_')]
               if not action_files_in_data:
                   raise FileNotFoundError("No 'action_all_markets_' files found in 'data' directory.")
-              latest_action_file = sorted(action_files_in_data, reverse=True)[0] # Get the most recent
-              current_spreads_path = os.path.join('data', latest_action_file)
-              current_spreads = pd.read_csv(current_spreads_path)
+              
+              # Use the OLDEST file (Wednesday's complete scrape) instead of newest
+              earliest_action_file = sorted(action_files_in_data)[0] # Get the earliest complete dataset
+              complete_spreads_path = os.path.join('data', earliest_action_file)
+              current_spreads = pd.read_csv(complete_spreads_path)
               current_spreads = current_spreads[current_spreads['Market'] == 'Spread']
-              print(f"Loaded current spreads from {current_spreads_path}")
+              
+              # Try to get updated lines for games that haven't started yet
+              latest_files = [f for f in action_files_in_data if f > earliest_action_file]
+              if latest_files:
+                  # If we have a newer scrape, use it to update lines for active games only
+                  latest_action_file = sorted(latest_files, reverse=True)[0]
+                  latest_spreads_path = os.path.join('data', latest_action_file)
+                  try:
+                      latest_spreads = pd.read_csv(latest_spreads_path)
+                      latest_spreads = latest_spreads[latest_spreads['Market'] == 'Spread']
+                      
+                      # Update lines for games that appear in both datasets (active games)
+                      for _, latest_row in latest_spreads.iterrows():
+                          matchup_mask = current_spreads['Matchup'] == latest_row['Matchup']
+                          if matchup_mask.any():
+                              # Update line for this game
+                              current_spreads.loc[matchup_mask, 'Line'] = latest_row['Line']
+                              current_spreads.loc[matchup_mask, 'Team'] = latest_row['Team']
+                      print(f"✅ Updated lines from {latest_spreads_path} for active games")
+                  except Exception as e:
+                      print(f"⚠️ Could not update with latest lines: {e}, using complete dataset only")
+              
+              print(f"📊 Using complete dataset from {complete_spreads_path} ({len(current_spreads)} games)")
+              print(f"Games included: {current_spreads['Matchup'].tolist()}")
+              
           except FileNotFoundError as e:
               print(f"⚠️ {e}, skipping line-flip detection.")
               print(f"analysis_type={analysis_type_output}")
@@ -187,7 +214,7 @@ jobs:
                   f.write(f"analysis_type={analysis_type_output}\n")
               exit(0)
           except Exception as e:
-              print(f"Error loading current spreads: {e}")
+              print(f"Error loading spreads: {e}")
               print(f"analysis_type={analysis_type_output}")
               print(f"flips_detected={flips_detected}")
               print(f"flip_count={flip_count}")
