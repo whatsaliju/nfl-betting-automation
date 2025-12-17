@@ -28,216 +28,110 @@ on:
 jobs:
   generate_analysis:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          ref: main
-          
-      - name: Pull latest changes
-        run: git pull origin main
-        
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          
-      - name: Cache Python dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      
+
       - name: Install dependencies
         run: pip install pandas numpy requests
-      
+
       - name: Get Week Number
         id: get_week
         run: |
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK="${{ github.event.inputs.week }}"
-            WEEK="${WEEK%.*}"
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
             WEEK="${{ github.event.client_payload.week }}"
-            WEEK="${WEEK%.*}"
           else
             WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
-          echo "📅 Generating analysis for Week $WEEK"
-      
-      - name: Enhanced Analysis Type Detection
+
+      - name: Analysis Detection
         id: analysis_type
         run: |
           TYPE="${{ github.event.inputs.analysis_type }}"
-          ORGANIZED="${{ github.event.inputs.organized_output }}"
-          
-          if [ -z "$TYPE" ] || [ "$TYPE" == "null" ] || [ "$TYPE" == "default" ]; then
+          if [ -z "$TYPE" ] || [ "$TYPE" == "default" ]; then
             TYPE="${{ github.event.client_payload.analysis_type }}"
           fi
-          
-          if [ -z "$TYPE" ] || [ "$TYPE" == "null" ]; then
-            TYPE="default"
-          fi
-          
-          FLIPS="${{ github.event.client_payload.line_flips }}"
-          
+          [ -z "$TYPE" ] && TYPE="final"
           case "$TYPE" in
-            "initial")
-              STAGE="initial"
-              DISPLAY_TYPE="Initial Market Analysis"
-              SUBJECT_PREFIX="🏈 Initial Market"
-              INTRO_TEXT="Here's your initial market analysis for Week ${{ steps.get_week.outputs.week }}."
-              ;;
-            "update")
-              STAGE="update"  
-              DISPLAY_TYPE="Market Update Analysis"
-              SUBJECT_PREFIX="🔄 Market Update"
-              INTRO_TEXT="Market update for Week ${{ steps.get_week.outputs.week }}!"
-              ;;
-            "final_lineups")
-              STAGE="final"
-              DISPLAY_TYPE="Final Lineup Analysis"
-              SUBJECT_PREFIX="🚨 Final Lineup"
-              INTRO_TEXT="The final lineups are in for Week ${{ steps.get_week.outputs.week }}!"
-              ;;
-            *)
-              STAGE="final"
-              DISPLAY_TYPE="Updated Analysis"
-              SUBJECT_PREFIX="📊 Updated"
-              INTRO_TEXT="Updated analysis for Week ${{ steps.get_week.outputs.week }}."
-              ;;
+            "initial") STAGE="initial" ;;
+            "update") STAGE="update" ;;
+            *) STAGE="final" ;;
           esac
-          
-          echo "type=$DISPLAY_TYPE" >> $GITHUB_OUTPUT
           echo "stage=$STAGE" >> $GITHUB_OUTPUT
-          echo "subject_prefix=$SUBJECT_PREFIX" >> $GITHUB_OUTPUT
-          echo "intro_text=$INTRO_TEXT" >> $GITHUB_OUTPUT
-          echo "organized_mode=$ORGANIZED" >> $GITHUB_OUTPUT
-          
-          if [ -n "$FLIPS" ] && [ "$FLIPS" != "0" ]; then
-            echo "flip_alert=🚨 $FLIPS line flip(s) detected" >> $GITHUB_OUTPUT
-          else
-            echo "flip_alert=" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Setup Directory Structure
-        run: |
-          WEEK=${{ steps.get_week.outputs.week }}
-          mkdir -p data/week$WEEK
-      
-      - name: Get Timestamp
-        id: timestamp
-        run: echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
-      
-      - name: Run Pro Analyzer (Enhanced)
-        run: |
-          WEEK=${{ steps.get_week.outputs.week }}
-          STAGE=${{ steps.analysis_type.outputs.stage }}
-          ORGANIZED=${{ steps.analysis_type.outputs.organized_mode }}
-          if [ "$ORGANIZED" = "true" ]; then
-            python3 -m analyzers.nfl_pro_analyzer $WEEK --stage=$STAGE --organized || python3 -m analyzers.nfl_pro_analyzer $WEEK
-          else
-            python3 -m analyzers.nfl_pro_analyzer $WEEK
-          fi
+          echo "organized_mode=${{ github.event.inputs.organized_output }}" >> $GITHUB_OUTPUT
 
-      - name: Organize Files and Update Metadata
+      - name: Run Pro Analyzer
+        run: |
+          WEEK=${{ steps.get_week.outputs.week }}
+          python3 -m analyzers.nfl_pro_analyzer $WEEK
+
+      - name: Metadata Update
         if: steps.analysis_type.outputs.organized_mode == 'true'
         env:
           WEEK: ${{ steps.get_week.outputs.week }}
           STAGE: ${{ steps.analysis_type.outputs.stage }}
-          ANALYSIS_TYPE: ${{ steps.analysis_type.outputs.type }}
-          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
-          WEEK_VAL=$WEEK
-          STAGE_VAL=$STAGE
-          WEEK_DIR="data/week$WEEK_VAL"
-          
-          if [ -f "$WEEK_DIR/week${WEEK_VAL}_analytics.json" ]; then
-            cp "$WEEK_DIR/week${WEEK_VAL}_analytics.json" "$WEEK_DIR/${STAGE_VAL}.json"
-          fi
-          if [ -f "$WEEK_DIR/week${WEEK_VAL}_analytics.csv" ]; then
-            cp "$WEEK_DIR/week${WEEK_VAL}_analytics.csv" "$WEEK_DIR/${STAGE_VAL}.csv"
-          fi
-          if [ -f "$WEEK_DIR/week${WEEK_VAL}_pro_analysis.txt" ]; then
-            cp "$WEEK_DIR/week${WEEK_VAL}_pro_analysis.txt" "$WEEK_DIR/${STAGE_VAL}_pro_analysis.txt"
-          fi
+          python3 << 'EOF'
+          import json, os, datetime
+          week = os.environ['WEEK']
+          stage = os.environ['STAGE']
+          path = f'data/week{week}/metadata.json'
+          os.makedirs(os.path.dirname(path), exist_ok=True)
+          if os.path.exists(path):
+              with open(path, 'r') as f: meta = json.load(f)
+          else:
+              meta = {'week': week, 'stages': []}
+          meta['stages'] = [s for s in meta['stages'] if s.get('stage') != stage]
+          meta['stages'].append({'stage': stage, 'time': datetime.datetime.now().isoformat()})
+          with open(path, 'w') as f: json.dump(meta, f, indent=2)
+          EOF
 
-          python3 << 'METADATA_EOF'
-import json, os, datetime
-week, stage = os.environ['WEEK'], os.environ['STAGE']
-week_dir = f'data/week{week}'
-metadata_file = f'{week_dir}/metadata.json'
-if os.path.exists(metadata_file):
-    with open(metadata_file, 'r') as f: metadata = json.load(f)
-else:
-    metadata = {'week': int(week), 'season': 2025, 'created_at': datetime.datetime.now().isoformat(), 'stages': []}
-
-games_count = 0
-if os.path.exists(f'{week_dir}/{stage}.json'):
-    try:
-        with open(f'{week_dir}/{stage}.json', 'r') as f:
-            data = json.load(f)
-            games_count = len(data) if isinstance(data, list) else 0
-    except: pass
-
-metadata['stages'] = [s for s in metadata['stages'] if s['stage'] != stage]
-metadata['stages'].append({'stage': stage, 'timestamp': datetime.datetime.now().isoformat(), 'games_count': games_count})
-with open(metadata_file, 'w') as f: json.dump(metadata, f, indent=2)
-METADATA_EOF
-
-      - name: Send Enhanced Professional Email
+      - name: Send Email
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          GMAIL_PASS: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: |
-          python3 << 'EMAIL_EOF'
-          import smtplib, os, json, email.mime.application
+          python3 << 'EOF'
+          import smtplib, os
           from email.mime.multipart import MIMEMultipart
           from email.mime.text import MIMEText
+          from email.mime.application import MIMEApplication
           
           week = "${{ steps.get_week.outputs.week }}"
           stage = "${{ steps.analysis_type.outputs.stage }}"
-          organized_mode = "${{ steps.analysis_type.outputs.organized_mode }}" == "true"
           
-          # Simplified Email Body Logic for reliability
           msg = MIMEMultipart()
-          msg['Subject'] = f"${{ steps.analysis_type.outputs.subject_prefix }} Week {week} Analysis"
-          msg['From'] = os.getenv('GMAIL_USER')
+          msg['Subject'] = f"NFL Week {week} Analysis - {stage}"
+          msg['From'] = os.environ['GMAIL_USER']
           msg['To'] = "lvarughese@gmail.com"
+          msg.attach(MIMEText(f"Analysis for Week {week} is ready.", 'plain'))
           
-          body = f"Week {week} analysis is ready. Stage: {stage}. View details in attached files."
-          msg.attach(MIMEText(body, 'plain'))
+          f_path = f"data/week{week}/week{week}_pro_analysis.txt"
+          if os.path.exists(f_path):
+              with open(f_path, "rb") as f:
+                  part = MIMEApplication(f.read(), Name=os.path.basename(f_path))
+                  part['Content-Disposition'] = f'attachment; filename="{os.path.basename(f_path)}"'
+                  msg.attach(part)
           
-          files = [f"data/week{week}/week{week}_pro_analysis.txt", f"data/week{week}/{stage}_pro_analysis.txt"]
-          for f_path in files:
-              if os.path.exists(f_path):
-                  with open(f_path, "rb") as f:
-                      part = email.mime.application.MIMEApplication(f.read(), Name=os.path.basename(f_path))
-                      part['Content-Disposition'] = f'attachment; filename="{os.path.basename(f_path)}"'
-                      msg.attach(part)
-          
-          server = smtplib.SMTP('smtp.gmail.com', 587)
-          server.starttls()
-          server.login(os.getenv('GMAIL_USER'), os.getenv('GMAIL_APP_PASSWORD'))
-          server.send_message(msg)
-          server.quit()
-EMAIL_EOF
+          s = smtplib.SMTP('smtp.gmail.com', 587)
+          s.starttls()
+          s.login(os.environ['GMAIL_USER'], os.environ['GMAIL_PASS'])
+          s.send_message(msg)
+          s.quit()
+          EOF
 
-      - name: Upload Analysis Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: week-${{ steps.get_week.outputs.week }}-${{ steps.analysis_type.outputs.stage }}-analysis
-          path: data/week${{ steps.get_week.outputs.week }}/
-          retention-days: 30
-            
-      - name: Commit Analysis (Enhanced)
+      - name: Commit Changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
-          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} ${{ steps.analysis_type.outputs.stage }} analysis" || echo "No changes"
-          git push || echo "Push failed"
+          git commit -m "📊 update" || exit 0
+          git push
