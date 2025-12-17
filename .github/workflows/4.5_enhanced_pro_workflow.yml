@@ -182,95 +182,86 @@ jobs:
           echo "✅ Analysis complete"
       
       - name: Organize Files (If Enabled)
+        # Use a GitHub Action 'if' instead of a bash 'if' for better reliability
+        if: steps.analysis_type.outputs.organized_mode == 'true'
+        env:
+          WEEK: ${{ steps.get_week.outputs.week }}
+          STAGE: ${{ steps.analysis_type.outputs.stage }}
+          ANALYSIS_TYPE: ${{ steps.analysis_type.outputs.type }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
-          WEEK=${{ steps.get_week.outputs.week }}
-          STAGE=${{ steps.analysis_type.outputs.stage }}
-          ORGANIZED=${{ steps.analysis_type.outputs.organized_mode }}
+          WEEK_VAL=${{ steps.get_week.outputs.week }}
+          STAGE_VAL=${{ steps.analysis_type.outputs.stage }}
+          WEEK_DIR="data/week$WEEK_VAL"
+
+          echo "🗂️ Organizing files for Week $WEEK_VAL, Stage $STAGE_VAL"
           
-          if [ "$ORGANIZED" = "true" ]; then
-            echo "🗂️ Organizing files for Week $WEEK, Stage $STAGE"
-            
-            # Move/copy legacy output files to organized structure
-            WEEK_DIR="data/week$WEEK"
-            
-            # Copy main files with stage naming
-            if [ -f "$WEEK_DIR/week${WEEK}_analytics.json" ]; then
-              cp "$WEEK_DIR/week${WEEK}_analytics.json" "$WEEK_DIR/${STAGE}.json"
-              echo "📄 Created ${STAGE}.json"
-            fi
-            
-            if [ -f "$WEEK_DIR/week${WEEK}_analytics.csv" ]; then
-              cp "$WEEK_DIR/week${WEEK}_analytics.csv" "$WEEK_DIR/${STAGE}.csv"
-              echo "📊 Created ${STAGE}.csv"
-            fi
-            
-            if [ -f "$WEEK_DIR/week${WEEK}_pro_analysis.txt" ]; then
-              cp "$WEEK_DIR/week${WEEK}_pro_analysis.txt" "$WEEK_DIR/${STAGE}_pro_analysis.txt"
-              echo "📋 Created ${STAGE}_pro_analysis.txt"
-            fi
-            
-            # Update metadata using Python script
-            python3 << 'METADATA_EOF'
-            import json
-            import os
-            from datetime import datetime
-            
-            week = int(os.environ['WEEK'])
-            stage = os.environ['STAGE']
-            week_dir = f'data/week{week}'
-            metadata_file = f'{week_dir}/metadata.json'
-            
-            if os.path.exists(metadata_file):
-                with open(metadata_file, 'r') as f:
-                    metadata = json.load(f)
-            else:
-                metadata = {
-                    'week': week,
-                    'season': 2025,
-                    'created_at': datetime.now().isoformat(),
-                    'stages': [],
-                    'workflow_complete': False
-                }
-            
-            games_count = 0
-            stage_file = f'{week_dir}/{stage}.json'
-            if os.path.exists(stage_file):
-                with open(stage_file, 'r') as f:
-                    data = json.load(f)
-                    games_count = len(data) if isinstance(data, list) else 0
-            
-            # Remove any existing entry for this stage
-            metadata['stages'] = [s for s in metadata['stages'] if s['stage'] != stage]
-            
-            stage_entry = {
-                'stage': stage,
-                'timestamp': datetime.now().isoformat(),
-                'games_count': games_count,
-                'filename': f'{stage}.json',
-                'github_run_id': os.environ.get('GITHUB_RUN_ID', ''),
-                'analysis_type': os.environ.get('ANALYSIS_TYPE', '')
-            }
-            
-            metadata['stages'].append(stage_entry)
-            metadata['updated_at'] = datetime.now().isoformat()
-            
-            stages = [s['stage'] for s in metadata['stages']]
-            metadata['workflow_complete'] = 'initial' in stages and ('final' in stages or 'update' in stages)
-            
-            with open(metadata_file, 'w') as f:
-                json.dump(metadata, f, indent=2)
-            
-            print(f'Updated metadata for week {week}, stage {stage}')
-            print(f'Games: {games_count}, Stages: {stages}')
-            METADATA_EOF
-                      else
-                        echo "📁 Skipping organization - using legacy structure"
-                      fi
-                    env:
-                      WEEK: ${{ steps.get_week.outputs.week }}
-                      STAGE: ${{ steps.analysis_type.outputs.stage }}
-                      ANALYSIS_TYPE: ${{ steps.analysis_type.outputs.type }}
-                      GITHUB_RUN_ID: ${{ github.run_id }}
+          # 1. Handle file copies
+          if [ -f "$WEEK_DIR/week${WEEK_VAL}_analytics.json" ]; then
+            cp "$WEEK_DIR/week${WEEK_VAL}_analytics.json" "$WEEK_DIR/${STAGE_VAL}.json"
+          fi
+          
+          if [ -f "$WEEK_DIR/week${WEEK_VAL}_analytics.csv" ]; then
+            cp "$WEEK_DIR/week${WEEK_VAL}_analytics.csv" "$WEEK_DIR/${STAGE_VAL}.csv"
+          fi
+          
+          if [ -f "$WEEK_DIR/week${WEEK_VAL}_pro_analysis.txt" ]; then
+            cp "$WEEK_DIR/week${WEEK_VAL}_pro_analysis.txt" "$WEEK_DIR/${STAGE_VAL}_pro_analysis.txt"
+          fi
+
+          # 2. Run Metadata Update (The Python block)
+          python3 << 'METADATA_EOF'
+import json
+import os
+from datetime import datetime
+
+week = os.environ['WEEK']
+stage = os.environ['STAGE']
+week_dir = f'data/week{week}'
+metadata_file = f'{week_dir}/metadata.json'
+
+if os.path.exists(metadata_file):
+    with open(metadata_file, 'r') as f:
+        metadata = json.load(f)
+else:
+    metadata = {
+        'week': int(week),
+        'season': 2025,
+        'created_at': datetime.now().isoformat(),
+        'stages': [],
+        'workflow_complete': False
+    }
+
+games_count = 0
+stage_file = f'{week_dir}/{stage}.json'
+if os.path.exists(stage_file):
+    try:
+        with open(stage_file, 'r') as f:
+            data = json.load(f)
+            games_count = len(data) if isinstance(data, list) else 0
+    except:
+        pass
+
+# Update stage entries
+metadata['stages'] = [s for s in metadata['stages'] if s['stage'] != stage]
+metadata['stages'].append({
+    'stage': stage,
+    'timestamp': datetime.now().isoformat(),
+    'games_count': games_count,
+    'filename': f'{stage}.json',
+    'github_run_id': os.environ.get('GITHUB_RUN_ID', ''),
+    'analysis_type': os.environ.get('ANALYSIS_TYPE', '')
+})
+
+metadata['updated_at'] = datetime.now().isoformat()
+stages_present = [s['stage'] for s in metadata['stages']]
+metadata['workflow_complete'] = 'initial' in stages_present and ('final' in stages_present or 'update' in stages_present)
+
+with open(metadata_file, 'w') as f:
+    json.dump(metadata, f, indent=2)
+
+print(f'✅ Updated metadata for week {week}, stage {stage}')
+METADATA_EOF
       
       - name: Send Enhanced Professional Email
         env:
