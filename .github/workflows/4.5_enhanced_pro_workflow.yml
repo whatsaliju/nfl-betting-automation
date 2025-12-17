@@ -211,66 +211,66 @@ jobs:
             
             # Update metadata using Python script
             python3 << 'METADATA_EOF'
-import json
-import os
-from datetime import datetime
-
-week = int(os.environ['WEEK'])
-stage = os.environ['STAGE']
-week_dir = f'data/week{week}'
-metadata_file = f'{week_dir}/metadata.json'
-
-if os.path.exists(metadata_file):
-    with open(metadata_file, 'r') as f:
-        metadata = json.load(f)
-else:
-    metadata = {
-        'week': week,
-        'season': 2025,
-        'created_at': datetime.now().isoformat(),
-        'stages': [],
-        'workflow_complete': False
-    }
-
-games_count = 0
-stage_file = f'{week_dir}/{stage}.json'
-if os.path.exists(stage_file):
-    with open(stage_file, 'r') as f:
-        data = json.load(f)
-        games_count = len(data) if isinstance(data, list) else 0
-
-# Remove any existing entry for this stage
-metadata['stages'] = [s for s in metadata['stages'] if s['stage'] != stage]
-
-stage_entry = {
-    'stage': stage,
-    'timestamp': datetime.now().isoformat(),
-    'games_count': games_count,
-    'filename': f'{stage}.json',
-    'github_run_id': os.environ.get('GITHUB_RUN_ID', ''),
-    'analysis_type': os.environ.get('ANALYSIS_TYPE', '')
-}
-
-metadata['stages'].append(stage_entry)
-metadata['updated_at'] = datetime.now().isoformat()
-
-stages = [s['stage'] for s in metadata['stages']]
-metadata['workflow_complete'] = 'initial' in stages and ('final' in stages or 'update' in stages)
-
-with open(metadata_file, 'w') as f:
-    json.dump(metadata, f, indent=2)
-
-print(f'Updated metadata for week {week}, stage {stage}')
-print(f'Games: {games_count}, Stages: {stages}')
-METADATA_EOF
-          else
-            echo "📁 Skipping organization - using legacy structure"
-          fi
-        env:
-          WEEK: ${{ steps.get_week.outputs.week }}
-          STAGE: ${{ steps.analysis_type.outputs.stage }}
-          ANALYSIS_TYPE: ${{ steps.analysis_type.outputs.type }}
-          GITHUB_RUN_ID: ${{ github.run_id }}
+            import json
+            import os
+            from datetime import datetime
+            
+            week = int(os.environ['WEEK'])
+            stage = os.environ['STAGE']
+            week_dir = f'data/week{week}'
+            metadata_file = f'{week_dir}/metadata.json'
+            
+            if os.path.exists(metadata_file):
+                with open(metadata_file, 'r') as f:
+                    metadata = json.load(f)
+            else:
+                metadata = {
+                    'week': week,
+                    'season': 2025,
+                    'created_at': datetime.now().isoformat(),
+                    'stages': [],
+                    'workflow_complete': False
+                }
+            
+            games_count = 0
+            stage_file = f'{week_dir}/{stage}.json'
+            if os.path.exists(stage_file):
+                with open(stage_file, 'r') as f:
+                    data = json.load(f)
+                    games_count = len(data) if isinstance(data, list) else 0
+            
+            # Remove any existing entry for this stage
+            metadata['stages'] = [s for s in metadata['stages'] if s['stage'] != stage]
+            
+            stage_entry = {
+                'stage': stage,
+                'timestamp': datetime.now().isoformat(),
+                'games_count': games_count,
+                'filename': f'{stage}.json',
+                'github_run_id': os.environ.get('GITHUB_RUN_ID', ''),
+                'analysis_type': os.environ.get('ANALYSIS_TYPE', '')
+            }
+            
+            metadata['stages'].append(stage_entry)
+            metadata['updated_at'] = datetime.now().isoformat()
+            
+            stages = [s['stage'] for s in metadata['stages']]
+            metadata['workflow_complete'] = 'initial' in stages and ('final' in stages or 'update' in stages)
+            
+            with open(metadata_file, 'w') as f:
+                json.dump(metadata, f, indent=2)
+            
+            print(f'Updated metadata for week {week}, stage {stage}')
+            print(f'Games: {games_count}, Stages: {stages}')
+            METADATA_EOF
+                      else
+                        echo "📁 Skipping organization - using legacy structure"
+                      fi
+                    env:
+                      WEEK: ${{ steps.get_week.outputs.week }}
+                      STAGE: ${{ steps.analysis_type.outputs.stage }}
+                      ANALYSIS_TYPE: ${{ steps.analysis_type.outputs.type }}
+                      GITHUB_RUN_ID: ${{ github.run_id }}
       
       - name: Send Enhanced Professional Email
         env:
