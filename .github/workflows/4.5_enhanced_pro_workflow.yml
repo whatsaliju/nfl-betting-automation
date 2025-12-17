@@ -210,65 +210,65 @@ jobs:
             fi
             
             # Update metadata using Python
-            python3 << EOF
-import json
-import os
-from datetime import datetime
-
-week = $WEEK
-stage = "$STAGE"
-timestamp = "${{ steps.timestamp.outputs.time }}"
-week_dir = f"data/week{week}"
-metadata_file = f"{week_dir}/metadata.json"
-
-# Load or create metadata
-if os.path.exists(metadata_file):
-    with open(metadata_file, 'r') as f:
-        metadata = json.load(f)
-else:
-    metadata = {
-        'week': week,
-        'season': 2025,
-        'created_at': datetime.now().isoformat(),
-        'stages': [],
-        'workflow_complete': False
-    }
-
-# Count games
-games_count = 0
-stage_file = f'{week_dir}/{stage}.json'
-if os.path.exists(stage_file):
-    with open(stage_file, 'r') as f:
-        data = json.load(f)
-        games_count = len(data) if isinstance(data, list) else 0
-
-# Remove existing stage entry
-metadata['stages'] = [s for s in metadata['stages'] if s['stage'] != stage]
-
-# Add new stage entry
-stage_entry = {
-    'stage': stage,
-    'timestamp': datetime.now().isoformat(),
-    'games_count': games_count,
-    'filename': f'{stage}.json',
-    'github_run_id': '${{ github.run_id }}',
-    'analysis_type': '${{ steps.analysis_type.outputs.type }}'
-}
-
-metadata['stages'].append(stage_entry)
-metadata['updated_at'] = datetime.now().isoformat()
-
-# Check workflow completeness
-stages = [s['stage'] for s in metadata['stages']]
-metadata['workflow_complete'] = 'initial' in stages and ('final' in stages or 'update' in stages)
-
-# Save metadata
-with open(metadata_file, 'w') as f:
-    json.dump(metadata, f, indent=2)
-
-print(f"✅ Updated metadata for week {week}, stage {stage}")
-print(f"📊 Games: {games_count}, Stages: {stages}")
-EOF
+            python3 << 'EOF'
+            import json
+            import os
+            from datetime import datetime
+            
+            week = int("$WEEK")
+            stage = "$STAGE"
+            timestamp = "${{ steps.timestamp.outputs.time }}"
+            week_dir = f"data/week{week}"
+            metadata_file = f"{week_dir}/metadata.json"
+            
+            # Load or create metadata
+            if os.path.exists(metadata_file):
+                with open(metadata_file, 'r') as f:
+                    metadata = json.load(f)
+            else:
+                metadata = {
+                    'week': week,
+                    'season': 2025,
+                    'created_at': datetime.now().isoformat(),
+                    'stages': [],
+                    'workflow_complete': False
+                }
+            
+            # Count games
+            games_count = 0
+            stage_file = f'{week_dir}/{stage}.json'
+            if os.path.exists(stage_file):
+                with open(stage_file, 'r') as f:
+                    data = json.load(f)
+                    games_count = len(data) if isinstance(data, list) else 0
+            
+            # Remove existing stage entry
+            metadata['stages'] = [s for s in metadata['stages'] if s['stage'] != stage]
+            
+            # Add new stage entry
+            stage_entry = {
+                'stage': stage,
+                'timestamp': datetime.now().isoformat(),
+                'games_count': games_count,
+                'filename': f'{stage}.json',
+                'github_run_id': '${{ github.run_id }}',
+                'analysis_type': '${{ steps.analysis_type.outputs.type }}'
+            }
+            
+            metadata['stages'].append(stage_entry)
+            metadata['updated_at'] = datetime.now().isoformat()
+            
+            # Check workflow completeness
+            stages = [s['stage'] for s in metadata['stages']]
+            metadata['workflow_complete'] = 'initial' in stages and ('final' in stages or 'update' in stages)
+            
+            # Save metadata
+            with open(metadata_file, 'w') as f:
+                json.dump(metadata, f, indent=2)
+            
+            print(f"✅ Updated metadata for week {week}, stage {stage}")
+            print(f"📊 Games: {games_count}, Stages: {stages}")
+            EOF
           else
             echo "📁 Skipping organization - using legacy structure"
           fi
