@@ -106,76 +106,16 @@ jobs:
           with open(path, 'w') as f: json.dump(meta, f, indent=2)
           EOF
 
-      - name: Send Fancy Email
+      - name: Send Enhanced Professional Email
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
-          GMAIL_PASS: ${{ secrets.GMAIL_APP_PASSWORD }}
-        run: |
-          python3 << 'EOF'
-          import smtplib, os, re
-          from email.mime.multipart import MIMEMultipart
-          from email.mime.text import MIMEText
-          from email.mime.application import MIMEApplication
-
-          week = "${{ steps.info.outputs.week }}"
-          stage = "${{ steps.info.outputs.stage }}"
-          prefix = "${{ steps.info.outputs.prefix }}"
-          
-          # Load Content
-          txt_path = f"data/week{week}/{stage}_pro_analysis.txt"
-          if not os.path.exists(txt_path): txt_path = f"data/week{week}/week{week}_pro_analysis.txt"
-          
-          content = ""
-          if os.path.exists(txt_path):
-              with open(txt_path, 'r') as f: content = f.read()
-
-          # Parsing Logic for Game Cards
-          cards = []
-          sections = content.split("======================================================================")
-          for sec in sections:
-              if "Classification:" in sec:
-                  match = re.search(r"=== (.*?) ===", sec)
-                  matchup = match.group(1) if match else "Unknown Matchup"
-                  class_match = re.search(r"Classification: (.*)", sec)
-                  cls = class_match.group(1) if class_match else "📊 LEAN"
-                  
-                  # Color logic
-                  color = "#2196F3" if "BLUE" in cls else "#ff9800" if "TARGET" in cls else "#f44336" if "FADE" in cls else "#666"
-                  
-                  cards.append(f"""
-                  <div style="border-left:5px solid {color}; background:#f9f9f9; padding:15px; margin:10px 0; border-radius:4px;">
-                      <h3 style="margin:0; color:#2c3e50;">{matchup}</h3>
-                      <p style="margin:5px 0;"><strong>{cls}</strong></p>
-                  </div>""")
-
-          html = f"""
-          <html><body style="font-family:sans-serif;">
-              <div style="background:#1976D2; color:white; padding:20px; border-radius:8px;">
-                  <h1>{prefix} NFL Week {week}</h1>
-                  <p>Generated: ${{ steps.info.outputs.time }}</p>
-              </div>
-              {''.join(cards)}
-              <p>Full analysis files are attached to this email.</p>
-          </body></html>"""
-
-          msg = MIMEMultipart()
-          msg['Subject'] = f"{prefix} Week {week} NFL Analysis"
-          msg['From'] = os.environ['GMAIL_USER']
-          msg['To'] = "lvarughese@gmail.com"
-          msg.attach(MIMEText(html, 'html'))
-          
-          for ext in ['csv', 'json']:
-              f_path = f"data/week{week}/{stage}.{ext}"
-              if os.path.exists(f_path):
-                  with open(f_path, "rb") as f:
-                      part = MIMEApplication(f.read(), Name=os.path.basename(f_path))
-                      part['Content-Disposition'] = f'attachment; filename="{os.path.basename(f_path)}"'
-                      msg.attach(part)
-          
-          s = smtplib.SMTP('smtp.gmail.com', 587); s.starttls()
-          s.login(os.environ['GMAIL_USER'], os.environ['GMAIL_PASS'])
-          s.send_message(msg); s.quit()
-          EOF
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          WEEK: ${{ steps.get_week.outputs.week }}
+          TIMESTAMP: ${{ steps.timestamp.outputs.time }}
+          ANALYSIS_TYPE: ${{ steps.analysis_type.outputs.type }}
+          SUBJECT_PREFIX: ${{ steps.analysis_type.outputs.subject_prefix }}
+          FLIP_ALERT: ${{ steps.analysis_type.outputs.flip_alert }}
+        run: python3 scripts/nfl_reporter.py
 
       - name: Commit Changes
         run: |
