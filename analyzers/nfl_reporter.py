@@ -8,6 +8,8 @@ def generate_report():
     gmail_user = os.getenv('GMAIL_USER')
     gmail_password = os.getenv('GMAIL_APP_PASSWORD')
 
+
+    
     # 1. Load the JSON Data (The reliable source)
     # Fixed (uses your organized structure)
     stage = os.getenv('ANALYSIS_TYPE', 'final')  # Gets 'initial', 'update', or 'final'
@@ -18,7 +20,8 @@ def generate_report():
     except Exception as e:
         print(f"ERROR: Could not load JSON: {e}")
         return
-
+    
+  
     game_cards_html = ""
 
     # 2. Map JSON keys to the Email Template
@@ -30,11 +33,41 @@ def generate_report():
         elif "LANDMINE" in class_text: color, bg, emoji = "#f44336", "#ffebee", "❌"
         else: color, bg, emoji = "#4CAF50", "#f1f8e9", "📈"
 
-        # Extract Sharp Stories
+         # Extract richer data
+        total_score = game.get('total_score', 0)
+        recommendation = game.get('recommendation', 'No specific recommendation')
+        
+        # Sharp money details
+        sharp_spread = game.get('sharp_spread_edge', 0)
+        sharp_total = game.get('sharp_total_edge', 0)
+        
+        # Market data
+        spread_line = game.get('spread', 'N/A')
+        total_line = game.get('total', 'N/A')
+        
+        # Injury analysis
+        injury_summary = game.get('injury_analysis', {})
+        injuries_text = injury_summary.get('summary', 'No significant injuries')
+        
+        # Weather (if outdoor)
+        weather_data = game.get('weather_analysis', {})
+        weather_text = weather_data.get('summary', 'Indoor/No weather impact')
+        
+        # Enhanced sharp activity section
+        sharp_details = []
+        if abs(sharp_spread) > 5:
+            edge_text = f"+{sharp_spread:.1f}%" if sharp_spread > 0 else f"{sharp_spread:.1f}%"
+            sharp_details.append(f"📈 Spread Edge: {edge_text}")
+        if abs(sharp_total) > 5:
+            edge_text = f"+{sharp_total:.1f}%" if sharp_total > 0 else f"{sharp_total:.1f}%"
+            sharp_details.append(f"📊 Total Edge: {edge_text}")
+            
+        # Add your existing sharp stories
         sharp_list = game.get('sharp_stories', [])
-        sharp_html = "".join([f"<li>{s}</li>" for s in sharp_list]) if sharp_list else "<li>No specific sharp story recorded.</li>"
+        all_sharp_content = sharp_details + sharp_list
+        sharp_html = "".join([f"<li>{s}</li>" for s in all_sharp_content]) if all_sharp_content else "<li>No specific sharp story recorded.</li>"
 
-        # Combine Referee and Situational Data (To match your preferred style)
+        # Combine Referee and Situational Data
         ref_name = game.get('referee_analysis', {}).get('referee', 'Unknown')
         ref_tendency = game.get('referee_analysis', {}).get('ats_tendency', 'NEUTRAL')
         
@@ -42,33 +75,67 @@ def generate_report():
         factors = []
         factors.extend(game.get('situational_analysis', {}).get('factors', []))
         factors.extend(game.get('statistical_analysis', {}).get('factors', []))
-        
         factors_html = "".join([f"<li>{f}</li>" for f in factors]) if factors else "<li>Neutral factors detected.</li>"
 
-        # Build Card
+        # Build enhanced card
         game_cards_html += f"""
         <div style="margin:20px 0; padding:15px; border-left:6px solid {color}; background-color:{bg}; border-radius:4px; font-family:sans-serif;">
             <h2 style="margin:0; color:#333;">{emoji} {game['matchup']}</h2>
-            <p style="font-weight:bold; color:{color}; margin:5px 0;">{class_text} | Confidence: {game.get('confidence', '0')}/20</p>
+            <div style="display:grid; grid-template-columns:2fr 1fr; gap:15px; margin:10px 0;">
+                <div>
+                    <p style="font-weight:bold; color:{color}; margin:0;">{class_text} | Confidence: {game.get('confidence', '0'):.1f}/20</p>
+                    <p style="color:#666; margin:5px 0; font-size:14px;">📋 {recommendation}</p>
+                </div>
+                <div style="text-align:right;">
+                    <p style="margin:0; font-size:12px; color:#666;">Spread: {spread_line}</p>
+                    <p style="margin:0; font-size:12px; color:#666;">Total: {total_line}</p>
+                    <p style="margin:0; font-size:12px; font-weight:bold; color:{color};">Score: {total_score:.1f}</p>
+                </div>
+            </div>
+            
             <div style="background:white; padding:12px; border-radius:4px; border:1px solid #ddd;">
                 <h4 style="margin:0 0 8px 0; color:#e65100; border-bottom:1px solid #eee;">💰 Sharp Activity</h4>
                 <ul style="margin:0; padding-left:20px; font-size:13px; color:#444;">{sharp_html}</ul>
                 
-                <h4 style="margin:12px 0 8px 0; color:#5d4e75; border-bottom:1px solid #eee;">⚖️ Market & Ref Context</h4>
+                <h4 style="margin:12px 0 8px 0; color:#5d4e75; border-bottom:1px solid #eee;">⚖️ Context & Intel</h4>
                 <p style="font-size:12px; margin:0 0 5px 20px;"><strong>Official:</strong> {ref_name} ({ref_tendency})</p>
-                <ul style="margin:0; padding-left:20px; font-size:13px; color:#444;">{factors_html}</ul>
+                <p style="font-size:12px; margin:0 0 5px 20px;"><strong>Injuries:</strong> {injuries_text}</p>
+                <p style="font-size:12px; margin:0 0 5px 20px;"><strong>Weather:</strong> {weather_text}</p>
+                <ul style="margin:5px 0 0 0; padding-left:20px; font-size:13px; color:#444;">{factors_html}</ul>
             </div>
         </div>"""
 
-    # 3. Final Email Assembly (Standard logic)
+    # Add summary statistics at the top
+    blue_chips = [g for g in games_data if 'BLUE CHIP' in g.get('classification', '').upper()]
+    targeted = [g for g in games_data if 'TARGETED' in g.get('classification', '').upper()]
+    landmines = [g for g in games_data if 'LANDMINE' in g.get('classification', '').upper()]
+    
+    # Find best edge game
+    best_edge_game = max(games_data, key=lambda x: x.get('confidence', 0))
+    
+    summary_html = f"""
+    <div style="background:#f8f9fa; padding:15px; border-radius:8px; margin:20px 0; border-left:4px solid #007bff;">
+        <h3 style="margin:0 0 10px 0; color:#007bff;">📊 Week {week} Summary</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+            <div>
+                <p style="margin:5px 0;"><strong>🔵 Blue Chips:</strong> {len(blue_chips)} plays{f" (avg: {sum(g.get('confidence',0) for g in blue_chips)/len(blue_chips):.1f})" if blue_chips else ""}</p>
+                <p style="margin:5px 0;"><strong>🎯 Targeted:</strong> {len(targeted)} plays{f" (avg: {sum(g.get('confidence',0) for g in targeted)/len(targeted):.1f})" if targeted else ""}</p>
+            </div>
+            <div>
+                <p style="margin:5px 0;"><strong>❌ Avoid:</strong> {len(landmines)} landmines</p>
+                <p style="margin:5px 0;"><strong>💰 Best Edge:</strong> {best_edge_game.get('matchup', 'N/A')} ({best_edge_game.get('confidence', 0):.1f})</p>
+            </div>
+        </div>
+    </div>
+    """
+
+    # Rest of email assembly stays the same, but add summary_html
     msg = MIMEMultipart()
-    # Fixed (stage-aware)
     subject_prefix = os.getenv('SUBJECT_PREFIX', '🏈')
     msg['Subject'] = f"{subject_prefix} Week {week} NFL Analysis"
     msg['From'] = gmail_user
     msg['To'] = "lvarughese@gmail.com"
 
-    # Add this one line for stage context
     stage_context = f"<p style='text-align:center; color:#e67e22; font-weight:bold;'>{stage.title()} Analysis</p>" if stage != 'final' else ""
     
     full_html = f"""
@@ -78,6 +145,7 @@ def generate_report():
                 <h1 style="text-align:center; color:#2c3e50;">NFL Week {week} Report</h1>
                 {stage_context}
                 <p style="text-align:center; color:#7f8c8d;">Generated: {timestamp}</p>
+                {summary_html}
                 {game_cards_html}
             </div>
         </body>
