@@ -38,26 +38,28 @@ def generate_report():
 
     # 3. Parse Game Sections
     games = []
-    # Splitting by the long equals bar
     sections = content.split("======================================================================")
     
     for section in sections:
         if "Classification:" in section:
+            # RESET for every single game
             game = {
+                'matchup': "Unknown Matchup",
+                'classification': "STANDARD",
+                'confidence': "0",
                 'sharp_stories': [], 
                 'referee_context': [], 
-                'situational': [], 
-                'statistical': [], 
-                'market': [],
                 'weather': 'No significant impact'
             }
+            
             lines = section.strip().split('\n')
-            current_section = None
+            current_section = None  # Reset state for this game
             
             for line in lines:
                 line = line.strip()
                 if not line: continue
 
+                # Header detection
                 if line.startswith("=== ") and " ===" in line:
                     game['matchup'] = line.replace("===", "").strip()
                 elif line.startswith("Classification:"):
@@ -65,16 +67,25 @@ def generate_report():
                 elif line.startswith("Confidence:"):
                     game['confidence'] = line.replace("Confidence:", "").strip().split('/')[0]
                 
-                # Section detection
-                if "SHARP MONEY STORY:" in line: current_section = "sharp"
-                elif "REFEREE CONTEXT:" in line: current_section = "referee"
-                elif "WEATHER IMPACT:" in line: current_section = "weather"
-                elif (line.startswith("•") or line.startswith("→") or line.startswith("-")) and current_section:
+                # Context switching
+                if "SHARP MONEY STORY:" in line: 
+                    current_section = "sharp"
+                elif "REFEREE CONTEXT:" in line: 
+                    current_section = "referee"
+                elif "WEATHER IMPACT:" in line: 
+                    current_section = "weather"
+                
+                # Bullet point capture
+                elif (line.startswith("•") or line.startswith("→") or line.startswith("-")):
                     clean_line = line[1:].strip()
-                    if current_section == "sharp": game['sharp_stories'].append(clean_line)
-                    elif current_section == "referee": game['referee_context'].append(clean_line)
-                    elif current_section == "weather": game['weather'] = clean_line
-
+                    if current_section == "sharp": 
+                        game['sharp_stories'].append(clean_line)
+                    elif current_section == "referee": 
+                        # This prevents general notes from being stuck in "referee"
+                        game['referee_context'].append(clean_line)
+                    elif current_section == "weather": 
+                        game['weather'] = clean_line
+            
             if game.get('matchup'):
                 games.append(game)
 
