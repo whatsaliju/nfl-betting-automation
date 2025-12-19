@@ -120,7 +120,63 @@ jobs:
           # Fix: This ensures analyzers/performance_tracker.py is found
           PYTHONPATH: .
         run: python3 -m analyzers.nfl_reporter
-
+        
+      - name: Attach Analysis Files
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          WEEK: ${{ steps.info.outputs.week }}
+          STAGE: ${{ steps.info.outputs.stage }}
+          SUBJECT_PREFIX: ${{ steps.info.outputs.prefix }}
+        run: |
+          python3 << 'EOF'
+          import smtplib, os
+          from email.mime.multipart import MIMEMultipart
+          from email.mime.base import MIMEBase
+          from email import encoders
+          
+          week, stage = os.environ['WEEK'], os.environ['STAGE']
+          subject_prefix = os.environ['SUBJECT_PREFIX']
+          gmail_user = os.environ['GMAIL_USER']
+          gmail_password = os.environ['GMAIL_APP_PASSWORD']
+          
+          msg = MIMEMultipart()
+          msg['Subject'] = f"{subject_prefix} Week {week} - Analysis Files"
+          msg['From'] = gmail_user
+          msg['To'] = "lvarughese@gmail.com"
+          
+          def attach_file(filepath, filename):
+              if os.path.exists(filepath):
+                  with open(filepath, "rb") as f:
+                      part = MIMEBase('application', 'octet-stream')
+                      part.set_payload(f.read())
+                  encoders.encode_base64(part)
+                  part.add_header('Content-Disposition', f'attachment; filename={filename}')
+                  msg.attach(part)
+                  return True
+              return False
+          
+          # Attach stage-specific files
+          files_attached = []
+          if attach_file(f"data/week{week}/{stage}.json", f"week{week}_{stage}_analytics.json"):
+              files_attached.append("JSON")
+          if attach_file(f"data/week{week}/{stage}.csv", f"week{week}_{stage}_analytics.csv"):
+              files_attached.append("CSV") 
+          if attach_file(f"data/week{week}/{stage}_pro_analysis.txt", f"week{week}_{stage}_analysis.txt"):
+              files_attached.append("TXT")
+          
+          msg.attach(MIMEText(f"Week {week} {stage} analysis files: {', '.join(files_attached)}", 'plain'))
+          
+          try:
+              s = smtplib.SMTP('smtp.gmail.com', 587)
+              s.starttls()
+              s.login(gmail_user, gmail_password)
+              s.send_message(msg)
+              s.quit()
+              print(f"Attachments sent: {', '.join(files_attached)}")
+          except Exception as e:
+              print(f"Attachment error: {e}")
+          EOF
       - name: Commit Changes
         run: |
           git config user.name "github-actions[bot]"
