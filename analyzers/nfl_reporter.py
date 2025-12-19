@@ -9,7 +9,9 @@ def generate_report():
     gmail_password = os.getenv('GMAIL_APP_PASSWORD')
 
     # 1. Load the JSON Data (The reliable source)
-    json_path = f"data/week{week}/week{week}_analytics.json"
+    # Fixed (uses your organized structure)
+    stage = os.getenv('ANALYSIS_TYPE', 'final')  # Gets 'initial', 'update', or 'final'
+    json_path = f"data/week{week}/{stage}.json"
     try:
         with open(json_path, "r") as f:
             games_data = json.load(f)
