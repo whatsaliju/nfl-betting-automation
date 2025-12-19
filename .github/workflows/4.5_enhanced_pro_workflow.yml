@@ -108,6 +108,7 @@ jobs:
 
       - name: Send Enhanced Professional Email
         env:
+          # Pass the GitHub step outputs into the Environment for Python to see
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           WEEK: ${{ steps.get_week.outputs.week }}
@@ -115,7 +116,10 @@ jobs:
           ANALYSIS_TYPE: ${{ steps.analysis_type.outputs.type }}
           SUBJECT_PREFIX: ${{ steps.analysis_type.outputs.subject_prefix }}
           FLIP_ALERT: ${{ steps.analysis_type.outputs.flip_alert }}
-        run: python3 -m analyzers.nfl_reporter
+        # Set PYTHONPATH so the reporter can find performance_tracker if needed
+        run: |
+          export PYTHONPATH=$PYTHONPATH:.
+          python3 -m analyzers.nfl_reporter
 
       - name: Commit Changes
         run: |
