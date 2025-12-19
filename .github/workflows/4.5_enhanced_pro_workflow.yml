@@ -115,7 +115,7 @@ jobs:
           ANALYSIS_TYPE: ${{ steps.analysis_type.outputs.type }}
           SUBJECT_PREFIX: ${{ steps.analysis_type.outputs.subject_prefix }}
           FLIP_ALERT: ${{ steps.analysis_type.outputs.flip_alert }}
-        run: python3 analyzers.nfl_reporter
+        run: python3 -m analyzers.nfl_reporter
 
       - name: Commit Changes
         run: |
