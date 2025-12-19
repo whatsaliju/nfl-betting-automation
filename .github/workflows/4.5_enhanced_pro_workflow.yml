@@ -108,18 +108,18 @@ jobs:
 
       - name: Send Enhanced Professional Email
         env:
-          # Pass the GitHub step outputs into the Environment for Python to see
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          WEEK: ${{ steps.get_week.outputs.week }}
-          TIMESTAMP: ${{ steps.timestamp.outputs.time }}
-          ANALYSIS_TYPE: ${{ steps.analysis_type.outputs.type }}
-          SUBJECT_PREFIX: ${{ steps.analysis_type.outputs.subject_prefix }}
-          FLIP_ALERT: ${{ steps.analysis_type.outputs.flip_alert }}
-        # Set PYTHONPATH so the reporter can find performance_tracker if needed
-        run: |
-          export PYTHONPATH=$PYTHONPATH:.
-          python3 -m analyzers.nfl_reporter
+          # Fix: Use the 'info' step outputs
+          WEEK: ${{ steps.info.outputs.week }}
+          TIMESTAMP: ${{ steps.info.outputs.time }}
+          ANALYSIS_TYPE: ${{ steps.info.outputs.stage }}
+          SUBJECT_PREFIX: ${{ steps.info.outputs.prefix }}
+          # This variable doesn't exist in your logic yet, but keeping it as a placeholder
+          FLIP_ALERT: "" 
+          # Fix: This ensures analyzers/performance_tracker.py is found
+          PYTHONPATH: .
+        run: python3 -m analyzers.nfl_reporter
 
       - name: Commit Changes
         run: |
