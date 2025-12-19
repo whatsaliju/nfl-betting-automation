@@ -67,7 +67,7 @@ jobs:
       - name: Run Pro Analyzer
         run: |
           WEEK=${{ steps.info.outputs.week }}
-          python3 -m analyzers/nfl_pro_analyzer.py $WEEK
+          python3 -m analyzers.nfl_pro_analyzer $WEEK
 
       - name: Organize and Metadata
         env:
