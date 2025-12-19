@@ -69,15 +69,15 @@ def generate_report():
     msg['To'] = "lvarughese@gmail.com"
 
     # Add this one line for stage context
-    stage_context = f"<p style='text-align:center; color:#e67e22; font-weight:bold;'>{stage.title()} Analysis - {timestamp}</p>" if stage != 'final' else f"<p style='text-align:center; color:#7f8c8d;'>Generated: {timestamp}</p>"
-
+    stage_context = f"<p style='text-align:center; color:#e67e22; font-weight:bold;'>{stage.title()} Analysis</p>" if stage != 'final' else ""
+    
     full_html = f"""
     <html>
         <body style="background-color:#f4f4f4; padding:20px;">
             <div style="max-width:800px; margin:auto; background:white; padding:20px; border-radius:8px;">
                 <h1 style="text-align:center; color:#2c3e50;">NFL Week {week} Report</h1>
-                <p style="text-align:center; color:#7f8c8d;">Generated: {timestamp}</p>
                 {stage_context}
+                <p style="text-align:center; color:#7f8c8d;">Generated: {timestamp}</p>
                 {game_cards_html}
             </div>
         </body>
