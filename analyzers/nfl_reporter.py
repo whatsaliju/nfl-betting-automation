@@ -34,25 +34,31 @@ def generate_report():
         else: color, bg, emoji = "#4CAF50", "#f1f8e9", "📈"
 
          # Extract richer data
-        total_score = game.get('total_score', 0)
-        recommendation = game.get('recommendation', 'No specific recommendation')
+                
+        # Fix these field mappings:
+
+        # Sharp money details (FIXED)
+        sharp_spread = game.get('sharp_analysis', {}).get('spread', {}).get('differential', 0)
+        sharp_total = game.get('sharp_analysis', {}).get('total', {}).get('differential', 0)
         
-        # Sharp money details
-        sharp_spread = game.get('sharp_spread_edge', 0)
-        sharp_total = game.get('sharp_total_edge', 0)
+        # Market data (FIXED)  
+        spread_line = game.get('sharp_analysis', {}).get('spread', {}).get('line', 'N/A')
+        total_line = game.get('sharp_analysis', {}).get('total', {}).get('line', 'N/A')
         
-        # Market data
-        spread_line = game.get('spread', 'N/A')
-        total_line = game.get('total', 'N/A')
+        # Injury analysis (FIXED)
+        injury_analysis = game.get('injury_analysis', {})
+        total_injuries = len(injury_analysis.get('away_injuries', [])) + len(injury_analysis.get('home_injuries', []))
+        injuries_text = injury_analysis.get('description', 'No injuries') if total_injuries > 0 else 'No significant injuries'
         
-        # Injury analysis
-        injury_summary = game.get('injury_analysis', {})
-        injuries_text = injury_summary.get('summary', 'No significant injuries')
-        
-        # Weather (if outdoor)
+        # Weather (FIXED)
         weather_data = game.get('weather_analysis', {})
-        weather_text = weather_data.get('summary', 'Indoor/No weather impact')
+        weather_text = weather_data.get('description', 'No weather impact') if weather_data.get('score', 0) != 0 else 'Indoor/No weather concerns'
         
+        # Total score (FIXED)
+        total_score = game.get('total_score', 0)
+
+        recommendation = game.get('recommendation', 'No specific recommendation')
+
         # Enhanced sharp activity section
         sharp_details = []
         if abs(sharp_spread) > 5:
