@@ -61,10 +61,10 @@ def generate_report():
 
         # Enhanced sharp activity section
         sharp_details = []
-        if abs(sharp_spread) > 5:
+        if abs(sharp_spread) >= 5:
             edge_text = f"+{sharp_spread:.1f}%" if sharp_spread > 0 else f"{sharp_spread:.1f}%"
             sharp_details.append(f"📈 Spread Edge: {edge_text}")
-        if abs(sharp_total) > 5:
+        if abs(sharp_total) >= 5:
             edge_text = f"+{sharp_total:.1f}%" if sharp_total > 0 else f"{sharp_total:.1f}%"
             sharp_details.append(f"📊 Total Edge: {edge_text}")
             
