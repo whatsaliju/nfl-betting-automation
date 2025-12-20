@@ -554,83 +554,76 @@ class RefereeAnalyzer:
 # ================================================================
 
 class WeatherAnalyzer:
-    """Analyzes weather impact with improved parsing and scoring for heat/cold/wind"""
+    """Analyzes weather impact from action_weather CSV format"""
     
     @staticmethod
-    def analyze(weather_str):
+    def analyze_from_csv_row(forecast, precip, wind):
         """
-        Parse weather from RotoWire format:
-        Example: "47% Rain\n40°  18 mph W Wind"
-        or "Dome\nIn Domed Stadium"
+        Parse weather from CSV format:
+        forecast: "25°F Windy" or "Dome"
+        precip: "0 %" 
+        wind: "21.56 NNE" or ""
         """
-        s = str(weather_str).strip()
         
-        if not s or s.lower() == 'none':
-            return {'score': 0, 'factors': [], 'description': 'None'}
-        
-        # Dome detection
-        if 'dome' in s.lower():
-            return {'score': 0, 'factors': ['Dome'], 'description': 'Dome (no weather impact)'}
+        # Handle dome games
+        if forecast and 'dome' in forecast.lower():
+            return {
+                'score': 0, 
+                'factors': ['Dome'], 
+                'description': 'Dome - no weather impact'
+            }
         
         score = 0
         factors = []
         
-        # Split by newline (RotoWire format)
-        lines = s.split('\n')
+        # Parse temperature from forecast
+        if forecast and '°' in forecast:
+            import re
+            temp_match = re.search(r'(\d+)°F', forecast)
+            if temp_match:
+                temp = int(temp_match.group(1))
+                if temp <= 25:
+                    score += 2  # Major cold impact
+                    factors.append(f"Extreme cold ({temp}°F)")
+                elif temp <= 35:
+                    score += 1  # Moderate cold impact
+                    factors.append(f"Cold weather ({temp}°F)")
+                elif temp >= 85:
+                    score += 1  # Heat impact
+                    factors.append(f"Hot weather ({temp}°F)")
         
-        for line in lines:
-            # Precipitation percentage
-            if '%' in line:
-                import re
-                precip_match = re.search(r'(\d+)%', line)
-                if precip_match:
-                    precip = int(precip_match.group(1))
-                    if precip >= 60:
-                        score -= 2
-                        factors.append(f"Heavy precipitation ({precip}%)")
-                    elif precip >= 40:
-                        score -= 1
-                        factors.append(f"Moderate precipitation ({precip}%)")
-                    elif precip >= 20:
-                        factors.append(f"Light precipitation ({precip}%)")
-                
-                # Check for rain/snow keywords
-                if 'rain' in line.lower():
-                    if 'heavy' not in line.lower() and precip < 60:
-                        factors.append("Rain expected")
-                if 'snow' in line.lower():
-                    score -= 1
-                    factors.append("Snow expected")
-            
-            # Wind speed
-            if 'mph' in line.lower():
-                import re
-                wind_match = re.search(r'(\d+)\s*mph', line, re.IGNORECASE)
-                if wind_match:
-                    wind = int(wind_match.group(1))
-                    if wind >= 20:
-                        score -= 2
-                        factors.append(f"High wind ({wind} mph)")
-                    elif wind >= 15:
-                        score -= 1
-                        factors.append(f"Windy conditions ({wind} mph)")
-            
-            # Temperature (Enhanced with Extreme Heat)
-            if '°' in line:
-                import re
-                temp_match = re.search(r'(\d+)°', line)
-                if temp_match:
-                    temp = int(temp_match.group(1))
-                    if temp <= 32:
-                        score -= 1
-                        factors.append(f"Freezing temperature ({temp}°F)")
-                    elif temp <= 40:
-                        factors.append(f"Cold weather ({temp}°F)")
-                    elif temp >= 90:
-                        score -= 1  # Extreme heat can impact offensive pace
-                        factors.append(f"Extreme heat ({temp}°F)")
+        # Parse wind speed
+        if wind:
+            import re
+            wind_match = re.search(r'(\d+\.?\d*)', str(wind))
+            if wind_match:
+                wind_speed = float(wind_match.group(1))
+                if wind_speed >= 20:
+                    score += 2  # Major wind impact
+                    factors.append(f"High wind ({wind_speed:.0f} mph)")
+                elif wind_speed >= 15:
+                    score += 1  # Moderate wind impact
+                    factors.append(f"Windy conditions ({wind_speed:.0f} mph)")
         
-        desc = ' | '.join(factors) if factors else 'Good conditions'
+        # Check for weather keywords in forecast
+        if forecast:
+            if 'windy' in forecast.lower():
+                if not any('wind' in f.lower() for f in factors):
+                    factors.append("Windy conditions")
+                    score += 1
+        
+        # Parse precipitation (though your data shows 0% for all)
+        if precip and '%' in str(precip):
+            precip_num = float(precip.replace('%', '').strip())
+            if precip_num >= 40:
+                score += 1
+                factors.append(f"Precipitation ({precip_num}%)")
+        
+        # Generate description
+        if factors:
+            desc = ', '.join(factors)
+        else:
+            desc = 'Good conditions'
         
         return {
             'score': score,
