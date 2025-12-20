@@ -2188,13 +2188,22 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     
     # STEP 3.5 — SHARP STORIES (add after sharp analysis)
     sharp_stories = NarrativeEngine.generate_sharp_story(sharp_analysis)
-
+    
     # ======================================================
     # STEP 4 — WEATHER
     # ======================================================
     if action_row is not None and not action_row.empty:
-        weather_raw = action_row.iloc[0].get("Weather", "")
-        weather_analysis = WeatherAnalyzer.analyze(weather_raw)
+        # Extract the CSV weather fields
+        forecast = action_row.iloc[0].get("forecast", "")
+        precip = action_row.iloc[0].get("precip", "")
+        wind = action_row.iloc[0].get("wind", "")
+        
+        # Use the new CSV-aware analyzer
+        weather_analysis = WeatherAnalyzer.analyze_from_csv_row(
+            forecast=forecast,
+            precip=precip, 
+            wind=wind
+        )
     else:
         weather_analysis = {'score': 0, 'description': 'N/A', 'factors': []}
 
