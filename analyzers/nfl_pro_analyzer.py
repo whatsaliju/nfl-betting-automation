@@ -432,7 +432,7 @@ class SharpMoneyAnalyzer:
     def generate_sharp_story_text(sharp_spread_diff, sharp_total_diff):
         """
         Generates the narrative for the SHARP MONEY STORY section.
-        Implements the fix for the too-high threshold.
+        Clear and unambiguous messaging.
         """
         
         insights = []
@@ -440,43 +440,47 @@ class SharpMoneyAnalyzer:
         # Determine Spread Action
         abs_spread = abs(sharp_spread_diff)
         if abs_spread >= SharpMoneyAnalyzer.MASSIVE_THRESHOLD:
-            direction = "AWAY" if sharp_spread_diff > 0 else "HOME"
-            insights.append(f"💰 MASSIVE EDGE: {abs_spread:.1f}% differential on Spread ({direction})")
+            if sharp_spread_diff > 0:
+                insights.append(f"💰 MASSIVE EDGE: +{sharp_spread_diff:.1f}% sharp money on AWAY team")
+            else:
+                insights.append(f"⚠️ SHARP CONFLICT: {sharp_spread_diff:.1f}% sharp money on HOME team")
         elif abs_spread >= SharpMoneyAnalyzer.MODERATE_THRESHOLD:
-            direction = "AWAY" if sharp_spread_diff > 0 else "HOME"
-            insights.append(f"📉 Moderate sharp action detected on the Spread ({direction})")
-
+            if sharp_spread_diff > 0:
+                insights.append(f"📈 Sharp action: +{sharp_spread_diff:.1f}% on AWAY team")
+            else:
+                insights.append(f"📉 Sharp action: {sharp_spread_diff:.1f}% on HOME team")
+        
         # Determine Total Action
         abs_total = abs(sharp_total_diff)
         if abs_total >= SharpMoneyAnalyzer.MASSIVE_THRESHOLD:
-            direction = "OVER" if sharp_total_diff > 0 else "UNDER"
-            insights.append(f"💰 MASSIVE EDGE: {abs_total:.1f}% differential on Total ({direction})")
+            if sharp_total_diff > 0:
+                insights.append(f"💰 MASSIVE TOTAL EDGE: +{sharp_total_diff:.1f}% on OVER")
+            else:
+                insights.append(f"⚠️ TOTAL CONFLICT: {sharp_total_diff:.1f}% on UNDER")
         elif abs_total >= SharpMoneyAnalyzer.MODERATE_THRESHOLD:
-            direction = "OVER" if sharp_total_diff > 0 else "UNDER"
-            insights.append(f"📈 Moderate sharp action detected on the Total ({direction})")
-
-        # Check for Sharp Divergence (Significant action on both, but opposite trends)
-        if insights and len(insights) == 2:
+            if sharp_total_diff > 0:
+                insights.append(f"📈 Total action: +{sharp_total_diff:.1f}% on OVER")
+            else:
+                insights.append(f"📊 Total action: {sharp_total_diff:.1f}% on UNDER")
+        
+        # Check for Sharp Divergence
+        if len(insights) == 2:
             spread_dir = "HOME" if sharp_spread_diff < 0 else "AWAY"
             total_dir = "UNDER" if sharp_total_diff < 0 else "OVER"
             
-            # Divergence logic (e.g., Home/Under or Away/Over are typical divergences)
+            # Classic divergence patterns
             is_divergence = (spread_dir == 'HOME' and total_dir == 'UNDER') or \
                             (spread_dir == 'AWAY' and total_dir == 'OVER')
-
             if is_divergence:
-                 # Override separate stories with a single, clear divergence story
-                return (f"📈 DIVERGENCE: Sharps on {spread_dir} team and {total_dir} - "
-                        f"expect action on the {spread_dir} and a high-scoring game.")
+                return f"📈 DIVERGENCE: Sharps on {spread_dir} team + {total_dir} - expect {spread_dir.lower()} team in defensive game"
             
-            # No divergence, just list the insights
-            return "\n  ".join(insights)
+            # List both insights
+            return "\n".join(insights)
         
-        # Return only the single insight or the default balance message
+        # Return single insight or default
         if insights:
             return insights[0]
-
-        # Default message if no significant action detected on either market
+        
         return "Sharp action relatively balanced across markets"
 
 
