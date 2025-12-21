@@ -224,17 +224,44 @@ def scrape_current_market(market_name):
 # --- Navigate with cookies ---
 driver.get("https://www.actionnetwork.com/nfl/public-betting")
 print("⏳ Waiting for page to load with cookies...")
-# Wait for the table to be present initially
+
+# 1. Wait for page to settle
+time.sleep(5) 
+
+# 2. Check for "Log In" or "Sign Up" text to verify if cookies worked
+login_indicators = [
+    "//*[contains(text(), 'Log In')]",
+    "//*[contains(text(), 'Sign Up')]",
+    "//button[contains(@class, 'login')]"
+]
+
+is_logged_in = True
+for xpath in login_indicators:
+    if len(driver.find_elements(By.XPATH, xpath)) > 0:
+        is_logged_in = False
+        break
+
+if not is_logged_in:
+    print("❌ AUTHENTICATION FAILED!")
+    print("   Your ACTION_NETWORK_COOKIES secret has likely expired.")
+    print("   Please run the local 'save_cookies_for_secret.py' and update GitHub Secrets.")
+    driver.save_screenshot("auth_failed_debug.png")
+    driver.quit()
+    sys.exit(1)
+
+print("✅ Successfully authenticated with cookies!")
+
+# 3. Wait for the actual data table to appear
 try:
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "table tbody"))
     )
-    print("✅ Initial table loaded successfully")
+    print("✅ Table data detected.")
 except TimeoutException:
-    print("❌ Timeout waiting for initial table load. Cookies might be bad or site is slow.")
-    driver.save_screenshot("debug_initial_load_failed.png")
+    print("❌ Timeout: Logged in, but the betting table didn't load.")
     driver.quit()
     sys.exit(1)
+
 
 # Check authentication (your existing logic is good)
 try:
