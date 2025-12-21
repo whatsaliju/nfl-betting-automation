@@ -2190,8 +2190,8 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     # STEP 3.5 — SHARP STORIES (add after sharp analysis)
     # ======================================================
     sharp_stories = NarrativeEngine.generate_sharp_story(sharp_analysis)
-    
-   # ======================================================
+
+    # ======================================================
     # STEP 4 — WEATHER (FIXED PATTERN)
     # ======================================================
     weather_analysis = {'score': 0, 'description': 'Good conditions', 'factors': []}
@@ -2222,6 +2222,8 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         
         weather_df = None
         found_file = None
+        
+        # FIRST: Find and load the weather file
         for weather_file in possible_files:
             if os.path.exists(weather_file):
                 weather_df = pd.read_csv(weather_file)
@@ -2229,17 +2231,42 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
                 print(f"✅ Found weather data: {weather_file} ({len(weather_df)} games)")
                 break
         
+        # SECOND: Process the weather data if found
         if weather_df is not None and not weather_df.empty:
-            # Find matching game in weather data
-            weather_row = weather_df[
-                (weather_df['away'].str.contains(away_tla, case=False, na=False)) |
-                (weather_df['home'].str.contains(home_tla, case=False, na=False))
-            ]
+            # Create a mapping from weather CSV names to your TLA codes
+            weather_to_tla = {
+                'Rams': 'LAR', 'Seahawks': 'SEA',
+                'Eagles': 'PHI', 'Commanders': 'WAS', 
+                'Packers': 'GB', 'Bears': 'CHI',
+                'Chiefs': 'KC', 'Titans': 'TEN',
+                'Vikings': 'MIN', 'Giants': 'NYG',
+                'Buccaneers': 'TB', 'Panthers': 'CAR',
+                'Bills': 'BUF', 'Browns': 'CLE',
+                'Bengals': 'CIN', 'Dolphins': 'MIA',
+                'Jaguars': 'JAX', 'Broncos': 'DEN',
+                'Patriots': 'NE', 'Ravens': 'BAL',
+                'Jets': 'NYJ', 'Saints': 'NO',
+                'Chargers': 'LAC', 'Cowboys': 'DAL',
+                'Falcons': 'ATL', 'Cardinals': 'ARI',
+                'Steelers': 'PIT', 'Lions': 'DET',
+                'Raiders': 'LV', 'Texans': 'HOU',
+                '49ers': 'SF', 'Colts': 'IND'
+            }
             
-            if not weather_row.empty:
-                forecast = weather_row.iloc[0].get("forecast", "")
-                precip = weather_row.iloc[0].get("precip", "")
-                wind = weather_row.iloc[0].get("wind", "")
+            # Find matching game by converting weather team names to TLA codes
+            weather_row = None
+            for _, row in weather_df.iterrows():
+                weather_away_tla = weather_to_tla.get(row['away'], '')
+                weather_home_tla = weather_to_tla.get(row['home'], '')
+                
+                if (weather_away_tla == away_tla and weather_home_tla == home_tla):
+                    weather_row = row
+                    break
+            
+            if weather_row is not None:
+                forecast = weather_row.get("forecast", "")
+                precip = weather_row.get("precip", "")
+                wind = weather_row.get("wind", "")
                 
                 weather_analysis = WeatherAnalyzer.analyze_from_csv_row(
                     forecast=forecast,
@@ -2248,7 +2275,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
                 )
                 print(f"🌦️ Weather for {away_tla}@{home_tla}: {weather_analysis['description']}")
             else:
-                print(f"❌ No weather match found for {away_tla}@{home_tla} in {found_file}")
+                print(f"❌ No weather match found for {away_tla}@{home_tla}")
         else:
             print("❌ No weather file found")
                 
