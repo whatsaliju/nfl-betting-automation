@@ -2086,7 +2086,6 @@ def normalize_matchup(s: str) -> str:
 
 def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df, rotowire_data=None):
     # 1. First, define the TLAs for the current game from the input team names
-    #(The canonical function is what converts 'Ravens'/'Baltimore Ravens' to 'BAL')
     away_tla = canonical(away_team)
     home_tla = canonical(home_team)
     
@@ -2107,7 +2106,7 @@ def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df,
                     'position': injury['pos'],
                     'status': injury['status'],
                     'team': team_name,
-                    'team_tla': away_tla  # Use the correct, standardized TLA
+                    'team_tla': away_tla
                 })
                 print(f"✅ Found away injury: {injury['player']} ({away_team})")
                 
@@ -2117,24 +2116,44 @@ def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df,
                     'position': injury['pos'],
                     'status': injury['status'],
                     'team': team_name,
-                    'team_tla': home_tla  # Use the correct, standardized TLA
+                    'team_tla': home_tla
                 })
                 print(f"✅ Found home injury: {injury['player']} ({home_team})")
     
-    print(f"🔍 FINAL: {away_team} has {len(away_injuries)} injuries, {home_team} has {len(home_injuries)} injuries")
+    # ← THIS IS WHERE THE WHITELIST CODE SHOULD GO (OUTSIDE ALL LOOPS)
+    print(f"🔍 RAW DATA: {away_team} has {len(away_injuries)} injuries, {home_team} has {len(home_injuries)} injuries")
+    
+    # Apply whitelist filtering
+    analyzer = InjuryAnalyzer()
+    
+    # Filter to whitelist-only injuries
+    whitelist_away = []
+    whitelist_home = []
+    
+    for injury in away_injuries:
+        if analyzer.enhanced_match_player(injury['player'], injury['team_tla']):
+            whitelist_away.append(injury)
+    
+    for injury in home_injuries:
+        if analyzer.enhanced_match_player(injury['player'], injury['team_tla']):
+            whitelist_home.append(injury)
+    
+    # Calculate impact using whitelist players only
+    away_impact = analyzer.calculate_team_impact(whitelist_away, away_team)
+    home_impact = analyzer.calculate_team_impact(whitelist_home, home_team)
+    
+    print(f"🎯 WHITELIST: {away_team} has {len(whitelist_away)} high-impact injuries, {home_team} has {len(whitelist_home)} high-impact injuries")
     
     return {
-        'away_injuries': away_injuries,
-        'home_injuries': home_injuries,
-        'away_impact': away_injuries,
-        'home_impact': home_injuries,
-        'score': len(home_injuries) - len(away_injuries),  # Simple scoring
-        'edge': 'EDGE' if abs(len(home_injuries) - len(away_injuries)) >= 1 else 'NO EDGE',
-        'description': f"Found {len(away_injuries + home_injuries)} total injuries",
+        'away_injuries': whitelist_away,
+        'home_injuries': whitelist_home,
+        'away_impact': away_impact,
+        'home_impact': home_impact,
+        'score': home_impact - away_impact,
+        'edge': 'EDGE' if abs(home_impact - away_impact) >= 2 else 'NO EDGE',
+        'description': f"Found {len(whitelist_away + whitelist_home)} high-impact injuries",
         'factors': []
     }
-
-
 
 # ================================================================
 # SINGLE GAME ANALYSIS (REFRACTORED FOR PARALLELISM)
