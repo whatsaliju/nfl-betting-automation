@@ -52,7 +52,7 @@ def generate_report():
         
         # Weather (FIXED)
         weather_data = game.get('weather_analysis', {})
-        weather_text = weather_data.get('description', 'No weather impact') if weather_data.get('score', 0) != 0 else 'Indoor/No weather concerns'
+        weather_text = weather_data.get('description', 'Indoor/No weather concerns')
         
         # Total score (FIXED)
         total_score = game.get('total_score', 0)
