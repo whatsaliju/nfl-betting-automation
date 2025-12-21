@@ -1746,10 +1746,16 @@ class NarrativeEngine:
         
         # Strong edges
         if abs(spread['differential']) >= 15:
-            stories.append(f"💰 MASSIVE EDGE: {abs(spread['differential']):.1f}% differential on spread")
+            if spread['differential'] > 0:
+                stories.append(f"💰 MASSIVE EDGE: +{spread['differential']:.1f}% sharp money on AWAY team")
+            else:
+                stories.append(f"⚠️ SHARP CONFLICT: {spread['differential']:.1f}% sharp money on HOME team")
         
         if abs(total['differential']) >= 15:
-            stories.append(f"💰 MASSIVE EDGE: {abs(total['differential']):.1f}% differential on total")
+            if total['differential'] > 0:
+                stories.append(f"💰 MASSIVE EDGE: +{total['differential']:.1f}% sharp money on OVER")
+            else:
+                stories.append(f"⚠️ SHARP CONFLICT: {total['differential']:.1f}% sharp money on UNDER")
         
         return stories if stories else ["Sharp action relatively balanced across markets"]
     
