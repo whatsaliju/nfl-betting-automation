@@ -2186,26 +2186,55 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         sharp_analysis['total']      = SharpMoneyAnalyzer.analyze_market(total_data, "Total")
         sharp_analysis['moneyline']  = SharpMoneyAnalyzer.analyze_market(ml_data, "Moneyline")
     
+    # ======================================================
     # STEP 3.5 — SHARP STORIES (add after sharp analysis)
+    # ======================================================
     sharp_stories = NarrativeEngine.generate_sharp_story(sharp_analysis)
     
     # ======================================================
     # STEP 4 — WEATHER
     # ======================================================
-    if action_row is not None and not action_row.empty:
-        # Extract the CSV weather fields
-        forecast = action_row.iloc[0].get("forecast", "")
-        precip = action_row.iloc[0].get("precip", "")
-        wind = action_row.iloc[0].get("wind", "")
+    weather_analysis = {'score': 0, 'description': 'Good conditions', 'factors': []}
+    
+    # Load weather data from separate CSV file
+    try:
+        import os
+        from datetime import datetime
         
-        # Use the new CSV-aware analyzer
-        weather_analysis = WeatherAnalyzer.analyze_from_csv_row(
-            forecast=forecast,
-            precip=precip, 
-            wind=wind
-        )
-    else:
-        weather_analysis = {'score': 0, 'description': 'N/A', 'factors': []}
+        # Try to find the weather file (adjust date format as needed)
+        possible_files = [
+            f'data/action_weather_{datetime.now().strftime("%Y-%m-%d")}.csv',
+            f'data/action_weather_{datetime.now().strftime("%m-%d-%Y")}.csv',
+            f'data/action_weather_{datetime.now().strftime("%Y%m%d")}.csv'
+        ]
+        
+        weather_df = None
+        for weather_file in possible_files:
+            if os.path.exists(weather_file):
+                weather_df = pd.read_csv(weather_file)
+                break
+        
+        if weather_df is not None and not weather_df.empty:
+            # Find matching game in weather data
+            weather_row = weather_df[
+                (weather_df['away'].str.contains(away_tla, case=False, na=False)) |
+                (weather_df['home'].str.contains(home_tla, case=False, na=False))
+            ]
+            
+            if not weather_row.empty:
+                forecast = weather_row.iloc[0].get("forecast", "")
+                precip = weather_row.iloc[0].get("precip", "")
+                wind = weather_row.iloc[0].get("wind", "")
+                
+                weather_analysis = WeatherAnalyzer.analyze_from_csv_row(
+                    forecast=forecast,
+                    precip=precip, 
+                    wind=wind
+                )
+                
+    except Exception as e:
+        print(f"⚠️  Weather analysis failed: {e}")
+        weather_analysis = {'score': 0, 'description': 'Good conditions', 'factors': []}
 
     # ======================================================
     # STEP 5 — REFEREE (FIXED)
