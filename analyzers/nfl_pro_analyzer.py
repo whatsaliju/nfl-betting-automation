@@ -2194,6 +2194,10 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     # ======================================================
     # STEP 4 — WEATHER
     # ======================================================
+
+    # ======================================================
+    # STEP 4 — WEATHER (DEBUG VERSION)
+    # ======================================================
     weather_analysis = {'score': 0, 'description': 'Good conditions', 'factors': []}
     
     # Load weather data from separate CSV file
@@ -2205,35 +2209,54 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         possible_files = [
             f'data/action_weather_{datetime.now().strftime("%Y-%m-%d")}.csv',
             f'data/action_weather_{datetime.now().strftime("%m-%d-%Y")}.csv',
-            f'data/action_weather_{datetime.now().strftime("%Y%m%d")}.csv'
+            f'data/action_weather_{datetime.now().strftime("%Y%m%d")}.csv',
+            'data/action_weather.csv',  # Try without date
+            'action_weather.csv'  # Try current directory
         ]
+        
+        print(f"🔍 DEBUG: Looking for weather data for {away_tla}@{home_tla}")
         
         weather_df = None
         for weather_file in possible_files:
+            print(f"🔍 DEBUG: Trying {weather_file}... exists: {os.path.exists(weather_file)}")
             if os.path.exists(weather_file):
                 weather_df = pd.read_csv(weather_file)
+                print(f"✅ DEBUG: Loaded {weather_file} with {len(weather_df)} rows")
                 break
         
         if weather_df is not None and not weather_df.empty:
+            print(f"🔍 DEBUG: Weather columns: {list(weather_df.columns)}")
+            print(f"🔍 DEBUG: First few rows:\n{weather_df.head()}")
+            
             # Find matching game in weather data
             weather_row = weather_df[
                 (weather_df['away'].str.contains(away_tla, case=False, na=False)) |
                 (weather_df['home'].str.contains(home_tla, case=False, na=False))
             ]
+            print(f"🔍 DEBUG: Found {len(weather_row)} matching weather rows")
             
             if not weather_row.empty:
                 forecast = weather_row.iloc[0].get("forecast", "")
                 precip = weather_row.iloc[0].get("precip", "")
                 wind = weather_row.iloc[0].get("wind", "")
                 
+                print(f"🔍 DEBUG: forecast='{forecast}', precip='{precip}', wind='{wind}'")
+                
                 weather_analysis = WeatherAnalyzer.analyze_from_csv_row(
                     forecast=forecast,
                     precip=precip, 
                     wind=wind
                 )
+                print(f"✅ DEBUG: Weather analysis: {weather_analysis}")
+            else:
+                print(f"❌ DEBUG: No weather match found for {away_tla}@{home_tla}")
+        else:
+            print("❌ DEBUG: No weather file found")
                 
     except Exception as e:
-        print(f"⚠️  Weather analysis failed: {e}")
+        print(f"⚠️ DEBUG: Weather analysis failed: {e}")
+        import traceback
+        traceback.print_exc()
         weather_analysis = {'score': 0, 'description': 'Good conditions', 'factors': []}
 
     # ======================================================
