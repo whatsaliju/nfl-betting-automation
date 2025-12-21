@@ -399,52 +399,44 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Stage all relevant updated data files
-          git add data/action_all_markets_*.csv \
-                    data/action_injuries_*.csv \
-                    data/action_weather_*.csv \
-                    data/rotowire_lineups_*.csv \
-                    data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv \
-                    data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv \
-                    data/historical/sdql_results.csv || true
+          # Use individual add commands or a loop to prevent "fatal" pathspec errors
+          # from blocking other files.
+          FILES_TO_ADD=(
+            "data/action_all_markets_*.csv"
+            "data/action_injuries_*.csv"
+            "data/action_weather_*.csv"
+            "data/rotowire_lineups_*.csv"
+            "data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv"
+            "data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv"
+            "data/historical/sdql_results.csv"
+          )
+
+          for pattern in "${FILES_TO_ADD[@]}"; do
+            git add $pattern 2>/dev/null || echo "No files matching $pattern found to stage."
+          done
           
-          # Attempt to commit; if no changes, echo message and proceed
-          git commit -m "📊 Week ${{ steps.get_week.outputs.week }} market & lineup update (${{ steps.line_flips.outputs.flip_count }} line flips) - ${{ steps.line_flips.outputs.analysis_type }}" || echo "No changes to commit for market & lineup update."
-          
-          # Pull remote changes with rebase to integrate them cleanly.
-          # If conflicts occur, attempt to resolve them for the generated files (take 'ours').
-          git fetch origin
-          git rebase origin/main || {
-              echo "Rebase conflict detected during market data commit. Resolving generated files automatically."
-              
-              # Resolve specific generated files, taking 'ours' (our newly generated data)
-              # Ensure dynamic week number
-              git checkout --ours data/action_all_markets_*.csv || true # Take our latest scrape
-              git checkout --ours data/action_injuries_*.csv || true
-              git checkout --ours data/action_weather_*.csv || true
-              git checkout --ours data/rotowire_lineups_*.csv || true
-              git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv || true
-              git checkout --ours data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv || true
-              git checkout --ours data/historical/sdql_results.csv || true # Take our latest SDQL results
-              
-              # Stage the resolved files
-              git add data/action_all_markets_*.csv
-              git add data/action_injuries_*.csv
-              git add data/action_weather_*.csv
-              git add data/rotowire_lineups_*.csv
-              git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv
-              git add data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv
-              git add data/historical/sdql_results.csv
-              
-              # Continue the rebase
-              git rebase --continue || {
-                  echo "ERROR: Failed to continue rebase after automatic conflict resolution for market data. Manual intervention may be needed."
-                  exit 1
-              }
-          }
-          
-          # Push the resulting changes
-          git push --force-with-lease
+          # Check if there are actually changes to commit
+          if git diff --cached --quiet; then
+            echo "No changes to commit for market & lineup update. Skipping commit/push."
+          else
+            git commit -m "📊 Week ${{ steps.get_week.outputs.week }} market & lineup update (${{ steps.line_flips.outputs.flip_count }} line flips) - ${{ steps.line_flips.outputs.analysis_type }}"
+            
+            # Rebase and Sync
+            git fetch origin
+            git rebase origin/main || {
+                echo "Rebase conflict detected. Resolving by taking our newly generated data."
+                # Direct folder-based resolution is safer than individual files here
+                git checkout --ours data/action_*.csv 2>/dev/null || true
+                git checkout --ours data/rotowire_*.csv 2>/dev/null || true
+                git checkout --ours data/week${{ steps.get_week.outputs.week }}/*.csv 2>/dev/null || true
+                git checkout --ours data/historical/sdql_results.csv 2>/dev/null || true
+                
+                git add data/ 2>/dev/null || true
+                git rebase --continue
+            }
+            
+            git push --force-with-lease
+          fi
       
       - name: Trigger Pro Analysis
         uses: peter-evans/repository-dispatch@v2
