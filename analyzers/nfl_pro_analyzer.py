@@ -23,6 +23,8 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial 
 # >>> END NEW IMPORTS <<<
 from data.schedule_rest_2025 import SCHEDULE_REST_DATA_2025
+sys.path.append(os.path.dirname(__file__))
+import performance_tracker
 
 # ================================================================
 # CONFIGURATION AND WEIGHTS (NEW)
