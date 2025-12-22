@@ -2683,7 +2683,7 @@ def analyze_week(week):
 
     # After generating outputs, log performance tracking (UNCHANGED)
     try:
-        from analysis.performance_tracker import PerformanceTracker
+        from performance_tracker import PerformanceTracker
         tracker = PerformanceTracker()
         tracker.log_week_recommendations(week, f"data/week{week}/week{week}_analytics.json")
         print(f"📊 Performance tracking logged for Week {week}")
