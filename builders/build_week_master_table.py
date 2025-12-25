@@ -14,6 +14,33 @@ DATA_DIR = "data"
 OUTPUT_BASE = os.path.join("data", "historical")
 ESPN_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 
+# -----------------------------
+# MATCHUP KEY NORMALIZATION (BUILDER-ONLY)
+# -----------------------------
+MATCHUP_KEY_ALIASES = {
+    # Washington
+    "PHI@WAS": "PHI@WSH",
+    "DAL@WAS": "DAL@WSH",
+    "NYG@WAS": "NYG@WSH",
+    "WAS@PHI": "WSH@PHI",
+    "WAS@DAL": "WSH@DAL",
+    "WAS@NYG": "WSH@NYG",
+}
+
+def normalize_snapshot_keys(snapshot: dict) -> dict:
+    normalized = {}
+
+    for key, game in snapshot.items():
+        canonical_key = MATCHUP_KEY_ALIASES.get(key, key)
+
+        # Preserve original key for audit / ML
+        game = dict(game)
+        game["original_matchup_key"] = key
+
+        normalized[canonical_key] = game
+
+    return normalized
+
 
 # -----------------------------
 # ESPN SCHEDULE (SOURCE OF TRUTH)
@@ -167,9 +194,18 @@ def build_week_master(season: int, week: int):
     week_dir = os.path.join(DATA_DIR, "week" + str(week))
 
     print("📥 Loading snapshots...")
-    initial = load_snapshot(os.path.join(week_dir, "initial.json"))
-    update = load_snapshot(os.path.join(week_dir, "update.json"))
-    lock = load_snapshot(os.path.join(week_dir, "lock.json"))
+    initial = normalize_snapshot_keys(
+    load_snapshot(os.path.join(week_dir, "initial.json"))
+    )
+    
+    update = normalize_snapshot_keys(
+        load_snapshot(os.path.join(week_dir, "update.json"))
+    )
+    
+    lock = normalize_snapshot_keys(
+        load_snapshot(os.path.join(week_dir, "lock.json"))
+    )
+
 
     print("🧩 Attaching snapshots...")
     df = attach_snapshot(df, initial, "initial")
