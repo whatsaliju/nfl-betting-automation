@@ -1,0 +1,51 @@
+name: 9. Analysis – Model vs Actual Bets (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      week:
+        description: "Optional: restrict to a single week (leave blank for all weeks)"
+        required: false
+        type: string
+
+jobs:
+  join-model-and-actuals:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pandas
+
+      - name: Run Model vs Actuals Join
+        env:
+          WEEK: ${{ github.event.inputs.week }}
+        run: |
+          python3 analysis/join_model_and_actuals.py
+
+      - name: Upload Analysis Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-vs-actuals
+          path: data/analysis/*.csv
+
+      # OPTIONAL: auto-commit analysis output (safe to remove)
+      - name: Commit Analysis Output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ -n "$(git status --porcelain data/analysis)" ]; then
+            git add data/analysis
+            git commit -m "📊 Analysis: model vs actual bets"
+            git push
+          else
+            echo "ℹ️ No analysis changes to commit"
