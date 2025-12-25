@@ -54,10 +54,24 @@ jobs:
           [ -z "$TYPE" ] && TYPE="final"
           
           case "$TYPE" in
-            "initial") STAGE="initial" ; PREFIX="🏈 Initial" ;;
-            "update") STAGE="update" ; PREFIX="🔄 Update" ;;
-            *) STAGE="final" ; PREFIX="🚨 Final" ;;
+            "initial")
+              STAGE="initial"
+              PREFIX="🏈 Initial"
+              ;;
+            "update")
+              STAGE="update"
+              PREFIX="🔄 Update"
+              ;;
+            "lock")
+              STAGE="lock"
+              PREFIX="🔒 Locked Picks"
+              ;;
+            *)
+              STAGE="final"
+              PREFIX="🚨 Final"
+              ;;
           esac
+
           
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "stage=$STAGE" >> $GITHUB_OUTPUT
