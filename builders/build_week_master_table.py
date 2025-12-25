@@ -11,7 +11,7 @@ from datetime import datetime
 # CONFIG
 # -----------------------------
 DATA_DIR = "data"
-OUTPUT_DIR = "data/historical"
+OUTPUT_DIR = os.path.join("data", f"week{week}")
 ESPN_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 
 
@@ -169,18 +169,22 @@ def build_week_master(season: int, week: int):
     print("📥 Loading snapshots...")
     initial = load_snapshot(os.path.join(week_dir, "initial.json"))
     update = load_snapshot(os.path.join(week_dir, "update.json"))
-    final = load_snapshot(os.path.join(week_dir, "final.json"))
+    lock = load_snapshot(os.path.join(week_dir, "lock.json"))
 
     print("🧩 Attaching snapshots...")
     df = attach_snapshot(df, initial, "initial")
     df = attach_snapshot(df, update, "update")
-    df = attach_snapshot(df, final, "final")
+    df = attach_snapshot(df, lock, "lock")
 
     print("🏈 Attaching results...")
     df = attach_results(df, season, week)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    out_path = os.path.join(OUTPUT_DIR, "week" + str(week) + "_master.csv")
+    out_path = os.path.join(OUTPUT_DIR, f"week{week}_master.csv")
+    if os.path.exists(out_path):
+        existing = pd.read_csv(out_path)
+        df = existing.combine_first(df)
+    df = df.sort_values("matchup_key").reset_index(drop=True)
     df.to_csv(out_path, index=False)
 
     print("✅ Master table written to:", out_path)
