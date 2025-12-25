@@ -192,6 +192,13 @@ jobs:
           except Exception as e:
               print(f"Attachment error: {e}")
           EOF
+
+      - name: Build Week Master Table
+        run: |
+          python3 builders/build_week_master_table.py \
+            --season 2025 \
+            --week ${{ steps.info.outputs.week }}
+
       - name: Commit Changes
         run: |
           git config user.name "github-actions[bot]"
