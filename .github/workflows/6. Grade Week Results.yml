@@ -1,0 +1,35 @@
+name: 6. Grade Week Results
+
+on:
+  workflow_dispatch:
+    inputs:
+      week:
+        description: "NFL Week Number"
+        required: true
+        type: number
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - run: pip install pandas requests
+
+      - name: Grade Week
+        run: |
+          python3 graders/grade_week_results.py \
+            --season 2025 \
+            --week ${{ github.event.inputs.week }}
+
+      - name: Commit Results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/historical/
+          git commit -m "📊 Grade Week ${{ github.event.inputs.week }} results" || exit 0
+          git push
