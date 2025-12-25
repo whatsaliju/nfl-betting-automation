@@ -185,7 +185,14 @@ def build_week_master(season: int, week: int):
     
     if os.path.exists(out_path):
         existing = pd.read_csv(out_path)
-        df = existing.combine_first(df)
+    
+        df = (
+            df.set_index("matchup_key")
+              .combine_first(
+                  existing.set_index("matchup_key")
+              )
+              .reset_index()
+        )
     df = df.sort_values("matchup_key").reset_index(drop=True)
     df.to_csv(out_path, index=False)
 
