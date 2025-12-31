@@ -2260,7 +2260,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         if not total_data.empty:
             sharp_analysis['total'] = SharpMoneyAnalyzer.analyze_market(total_data, "Total")
         if not ml_data.empty:
-            sharp_analysis['moneyline'] = SharpMoneyAnalyzer.analyze_market(ml_data, "Moneyline
+            sharp_analysis['moneyline'] = SharpMoneyAnalyzer.analyze_market(ml_data, "Moneyline")
     # ======================================================
     # STEP 3.5 — SHARP STORIES (add after sharp analysis)
     # ======================================================
