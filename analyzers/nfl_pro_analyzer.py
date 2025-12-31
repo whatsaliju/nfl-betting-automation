@@ -2195,8 +2195,9 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     # ======================================================
     # STEP 0 — RAW INPUT
     # ======================================================
-    print(f"🔍 COLUMNS: {list(row.index) if hasattr(row, 'index') else 'NO INDEX'}")
-    print(f"🔍 RAW ROW: {dict(row) if hasattr(row, '__iter__') else row}")
+    # REPLACE the debug lines with this:
+    print(f"🔍 COLUMNS: {list(row.keys()) if hasattr(row, 'keys') else 'NO KEYS'}")
+    print(f"🔍 RAW ROW: {dict(row) if hasattr(row, 'items') else str(row)}")
     away_raw = getattr(row, 'away', '').strip()
     home_raw = getattr(row, 'home', '').strip()
     matchup_raw = getattr(row, 'matchup', '').strip()
