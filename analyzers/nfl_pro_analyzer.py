@@ -1778,7 +1778,7 @@ class NarrativeEngine:
             else:
                 stories.append(f"⚠️ SHARP CONFLICT: {total['differential']:.1f}% sharp money on UNDER")
         
-        return stories if stories else ["Sharp action relatively balanced across markets
+        return stories if stories else ["Sharp action relatively balanced across markets"]
     
     @staticmethod
     def generate_game_narrative(game_data):
@@ -2220,20 +2220,47 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     # STEP 3 — SHARP MONEY
     # ======================================================
     sharp_analysis = {
-        'spread': {},
-        'total': {},
-        'moneyline': {}
+        'spread': {
+            'differential': 0, 
+            'score': 0, 
+            'direction': 'NEUTRAL', 
+            'bets_pct': 0, 
+            'money_pct': 0, 
+            'line': '', 
+            'description': 'No data'
+        },
+        'total': {
+            'differential': 0, 
+            'score': 0, 
+            'direction': 'NEUTRAL', 
+            'bets_pct': 0, 
+            'money_pct': 0, 
+            'line': '', 
+            'description': 'No data'
+        },
+        'moneyline': {
+            'differential': 0, 
+            'score': 0, 
+            'direction': 'NEUTRAL', 
+            'bets_pct': 0, 
+            'money_pct': 0, 
+            'line': '', 
+            'description': 'No data'
+        }
     }
-
+    
     if action_row is not None and not action_row.empty:
         spread_data = action_row[action_row['Market'].str.contains("Spread", case=False)]
         total_data  = action_row[action_row['Market'].str.contains("Total", case=False)]
         ml_data     = action_row[action_row['Market'].str.contains("Money", case=False)]
-
-        sharp_analysis['spread']     = SharpMoneyAnalyzer.analyze_market(spread_data, "Spread")
-        sharp_analysis['total']      = SharpMoneyAnalyzer.analyze_market(total_data, "Total")
-        sharp_analysis['moneyline']  = SharpMoneyAnalyzer.analyze_market(ml_data, "Moneyline")
-    
+        
+        # Only update if we actually find data
+        if not spread_data.empty:
+            sharp_analysis['spread'] = SharpMoneyAnalyzer.analyze_market(spread_data, "Spread")
+        if not total_data.empty:
+            sharp_analysis['total'] = SharpMoneyAnalyzer.analyze_market(total_data, "Total")
+        if not ml_data.empty:
+            sharp_analysis['moneyline'] = SharpMoneyAnalyzer.analyze_market(ml_data, "Moneyline
     # ======================================================
     # STEP 3.5 — SHARP STORIES (add after sharp analysis)
     # ======================================================
