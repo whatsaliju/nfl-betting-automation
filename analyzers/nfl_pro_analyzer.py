@@ -2548,8 +2548,12 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         }
     )
 
-
-
+    # Add these debug lines before line 2510
+    print(f"🔍 DEBUG away_tla: '{away_tla}'")
+    print(f"🔍 DEBUG home_tla: '{home_tla}'") 
+    print(f"🔍 DEBUG away_full: '{away_full}'")
+    print(f"🔍 DEBUG home_full: '{home_full}'")
+    print(f"🔍 DEBUG TEAM_MAP['GB']: '{TEAM_MAP.get('GB', 'NOT_FOUND')}'")
 
     return {
         'matchup': f"{away_full} @ {home_full}",
