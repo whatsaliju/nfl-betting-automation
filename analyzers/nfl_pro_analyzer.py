@@ -1907,27 +1907,27 @@ class ClassificationEngine:
         ref_score = game_analysis['referee_analysis']['ats_score']
         injury_score = game_analysis['injury_analysis']['score']
         
-        # Blue Chip: Strong alignment across all factors
-        if total >= 8 and sharp_score >= 2 and (ref_score >= 2 or injury_score >= 3):
-            return "🔵 BLUE CHIP", "STRONG PLAY", 9
+        # Blue Chip: Strong alignment across all factors (15+ confidence)
+        if total >= 15 and sharp_score >= 2 and (ref_score >= 2 or injury_score >= 3):
+            return "🔵 BLUE CHIP", "STRONG PLAY", 15
         
-        # Targeted Play: Good edge with supporting factors  
-        if total >= 5 and (sharp_score >= 1 or injury_score >= 2):
-            return "🎯 TARGETED PLAY", "SOLID EDGE", 7
+        # Targeted Play: Good edge with supporting factors (7+ confidence)
+        if total >= 7 and (sharp_score >= 1 or injury_score >= 2):
+            return "🎯 TARGETED PLAY", "SOLID EDGE", 10
             
-        # Lean: Modest edge
-        if total >= 3:
+        # Lean: Modest edge (5-7 confidence)
+        if total >= 5:
             return "📊 LEAN", "SLIGHT EDGE", 5
         
         # Trap Game: Public/sharp divergence
-        if sharp_score >= 2 and game_analysis['public_exposure'] >= 65:
+        if sharp_score >= 2 and game_analysis.get('public_exposure', 0) >= 65:
             return "🚨 TRAP GAME", "FADE PUBLIC", 4
         
         # Fade: Multiple negative factors
         if total <= -2:
             return "❌ FADE", "AVOID", 2
         
-        # Landmine: Mixed signals
+        # Landmine: Mixed signals (anything else)
         return "⚠️ LANDMINE", "PASS", 3
     
     @staticmethod
