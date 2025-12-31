@@ -116,8 +116,8 @@ def generate_report():
     targeted = [g for g in games_data if 'TARGETED' in g.get('classification', '').upper()]
     landmines = [g for g in games_data if 'LANDMINE' in g.get('classification', '').upper()]
     
-    # Find best edge game
-    best_edge_game = max(games_data, key=lambda x: x.get('confidence', 0))
+    # Find best edge game  
+    best_edge_game = max(games_data, key=lambda x: x.get('total_score', -999))
     
     summary_html = f"""
     <div style="background:#f8f9fa; padding:15px; border-radius:8px; margin:20px 0; border-left:4px solid #007bff;">
