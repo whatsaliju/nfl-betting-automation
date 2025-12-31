@@ -1716,9 +1716,27 @@ class NarrativeEngine:
     @staticmethod
     def generate_sharp_story(sharp_analysis):
         """Create narrative from sharp money analysis"""
-        spread = sharp_analysis['spread']
-        total = sharp_analysis['total']
-        ml = sharp_analysis['moneyline']
+        # Defensive checks for required data
+        if not sharp_analysis or 'spread' not in sharp_analysis:
+            return ["Sharp analysis data unavailable"]
+        
+        spread = sharp_analysis.get('spread', {})
+        total = sharp_analysis.get('total', {})
+        ml = sharp_analysis.get('moneyline', {})
+        
+        # Check if required keys exist
+        required_keys = ['direction', 'differential']
+        if not all(key in spread for key in required_keys):
+            print(f"🔍 DEBUG: Missing keys in spread: {list(spread.keys())}")
+            return ["Sharp spread analysis incomplete"]
+        
+        if not all(key in total for key in required_keys):
+            print(f"🔍 DEBUG: Missing keys in total: {list(total.keys())}")
+            return ["Sharp total analysis incomplete"]
+        
+        if 'direction' not in ml:
+            print(f"🔍 DEBUG: Missing keys in moneyline: {list(ml.keys())}")
+            return ["Sharp moneyline analysis incomplete"]
         
         stories = []
         
@@ -1741,7 +1759,7 @@ class NarrativeEngine:
             stories.append("📈 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing")
         
         # Trap game detection
-        if abs(spread['differential']) >= 10 and spread['bets_pct'] > 65:
+        if abs(spread['differential']) >= 10 and spread.get('bets_pct', 0) > 65:
             if spread['differential'] > 0:
                 stories.append("🚨 TRAP ALERT: Public hammering home, sharps quietly on away")
             else:
@@ -1760,7 +1778,7 @@ class NarrativeEngine:
             else:
                 stories.append(f"⚠️ SHARP CONFLICT: {total['differential']:.1f}% sharp money on UNDER")
         
-        return stories if stories else ["Sharp action relatively balanced across markets"]
+        return stories if stories else ["Sharp action relatively balanced across markets
     
     @staticmethod
     def generate_game_narrative(game_data):
