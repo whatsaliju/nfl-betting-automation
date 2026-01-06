@@ -2287,7 +2287,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         base_date = datetime.now()
         possible_files = []
         
-        for days_offset in [-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3]:  # Try past week through next few days
+        for days_offset in [3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7]:  # Try past week through next few days
             date_obj = base_date + timedelta(days=days_offset)
             possible_files.extend([
                 f'data/action_weather_{date_obj.strftime("%Y-%m-%d")}_.csv',  # ✅ Added trailing underscore!
@@ -2366,9 +2366,6 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         weather_analysis = {'score': 0, 'description': 'Good conditions', 'factors': []}
     # ======================================================
     # STEP 5 — REFEREE (FIXED)
-    # ======================================================
-    # ======================================================
-    #     # STEP 5 — REFEREE (FIXED AGAIN)
     # ======================================================
     # --- FIX START: Initialize referee_analysis ---
     referee_analysis = {
