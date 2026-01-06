@@ -2854,5 +2854,10 @@ def generate_outputs(week, games):
 
 if __name__ == "__main__":
     import sys
-    week = int(sys.argv[1]) if len(sys.argv) > 1 else 11
+    # Handle both numeric weeks (1-18) and playoff codes (WC, DIV, CONF, SB)
+    week_arg = sys.argv[1] if len(sys.argv) > 1 else "11"
+    try:
+        week = int(week_arg)
+    except ValueError:
+        week = week_arg  # Keep as string for playoffs
     analyze_week(week)
