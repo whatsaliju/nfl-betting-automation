@@ -275,6 +275,19 @@ try:
 except:
     pass
 
+def get_action_network_week_value(week):
+    """Map internal week codes to Action Network dropdown values"""
+    playoff_mapping = {
+        'WC': 'Wild Card',
+        'DIV': 'Divisional Round', 
+        'CONF': 'Conf Champ',
+        'SB': 'Super Bowl'
+    }
+    
+    if week in playoff_mapping:
+        return playoff_mapping[week]
+    else:
+        return f"Week {week}"
 # --- Find dropdowns ---
 print("🔍 Looking for dropdowns...")
 all_selects = driver.find_elements(By.TAG_NAME, "select")
@@ -291,7 +304,7 @@ for sel in all_selects:
     elif "nfl" in options and "nba" in options:
         sport_select = Select(sel)
         print("  ✅ Found SPORT dropdown")
-    elif "Week 1" in options or "Week 11" in options:
+    elif any(x in options for x in ["Week 1", "Week 11", "Wild Card", "Divisional Round", "Conf Champ", "Super Bowl"]):
         week_select = Select(sel)
         print("  ✅ Found WEEK dropdown")
 
@@ -306,8 +319,9 @@ if sport_select:
     time.sleep(2)
 if week_select:
     try:
-        week_select.select_by_value(f"Week {WEEK_NUMBER}")
-        print(f"✅ Set week to Week {WEEK_NUMBER}")
+        week_value = get_action_network_week_value(WEEK_NUMBER)
+        week_select.select_by_visible_text(week_value)
+        print(f"✅ Set week to {week_value}")
         time.sleep(2)
     except:
         print(f"⚠️ Could not set week. Using default.")
