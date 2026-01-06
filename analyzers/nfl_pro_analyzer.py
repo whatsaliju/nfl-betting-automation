@@ -1327,13 +1327,13 @@ class SituationalAnalyzer:
         return factors
         
     def get_week_number(week):
-    """Convert week to numeric for comparisons"""
-    playoff_weeks = {
-        'WC': 19,      # Wild Card = Week 19
-        'DIV': 20,     # Divisional = Week 20  
-        'CONF': 21,    # Conference = Week 21
-        'SB': 22       # Super Bowl = Week 22
-    }
+        """Convert week to numeric for comparisons"""
+        playoff_weeks = {
+            'WC': 19,      # Wild Card = Week 19
+            'DIV': 20,     # Divisional = Week 20  
+            'CONF': 21,    # Conference = Week 21
+            'SB': 22       # Super Bowl = Week 22
+        }
     
     if isinstance(week, str) and week in playoff_weeks:
         return playoff_weeks[week]
