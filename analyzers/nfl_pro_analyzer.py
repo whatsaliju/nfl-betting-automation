@@ -1335,9 +1335,9 @@ class SituationalAnalyzer:
             'SB': 22       # Super Bowl = Week 22
         }
     
-    if isinstance(week, str) and week in playoff_weeks:
-        return playoff_weeks[week]
-    return int(week)
+        if isinstance(week, str) and week in playoff_weeks:
+            return playoff_weeks[week]
+        return int(week)
     
     @staticmethod
     def detect_let_down_spots(away_team, home_team, week):
