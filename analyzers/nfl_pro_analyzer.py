@@ -1345,7 +1345,7 @@ class SituationalAnalyzer:
         factors = []
         
         # Teams that might have motivation issues in certain weeks
-        if week >= 15:  # Late season games where playoff spots are locked
+        if get_week_number(week) >= 15:  # Late season games where playoff spots are locked
             factors.append("Late season - motivation concerns")
             
         return factors
