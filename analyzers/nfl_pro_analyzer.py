@@ -117,7 +117,18 @@ INTERNATIONAL_HANGOVER_WEEKS = {
 
 # NOTE: The last international game (Week 12 in Germany) is not visible in the provided schedule, 
 # so its subsequent hangover week (Week 13) is not included here.
-
+def get_week_number(week):
+        """Convert week to numeric for comparisons"""
+        playoff_weeks = {
+            'WC': 19,      # Wild Card = Week 19
+            'DIV': 20,     # Divisional = Week 20  
+            'CONF': 21,    # Conference = Week 21
+            'SB': 22       # Super Bowl = Week 22
+        }
+    
+        if isinstance(week, str) and week in playoff_weeks:
+            return playoff_weeks[week]
+        return int(week)
 # ================================================================
 # UTILITY FUNCTIONS
 # ================================================================
@@ -1325,19 +1336,6 @@ class SituationalAnalyzer:
             pass
             
         return factors
-        
-    def get_week_number(week):
-        """Convert week to numeric for comparisons"""
-        playoff_weeks = {
-            'WC': 19,      # Wild Card = Week 19
-            'DIV': 20,     # Divisional = Week 20  
-            'CONF': 21,    # Conference = Week 21
-            'SB': 22       # Super Bowl = Week 22
-        }
-    
-        if isinstance(week, str) and week in playoff_weeks:
-            return playoff_weeks[week]
-        return int(week)
     
     @staticmethod
     def detect_let_down_spots(away_team, home_team, week):
