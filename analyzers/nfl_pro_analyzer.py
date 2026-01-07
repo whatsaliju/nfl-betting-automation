@@ -2669,20 +2669,20 @@ def analyze_week(week):
         action["game_time"] = action["Game Time"]
     
     # Detect and remove completed games
-    final_games = set()
-    if not action.empty:
-        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
-        action["normalized_matchup"] = action["normalized_matchup"].str.strip()
+    #final_games = set()
+    #if not action.empty:
+    #    action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
+    #   action["normalized_matchup"] = action["normalized_matchup"].str.strip()
         
         # Better filtering that catches all completed games
-        final_games = set(
-            action[action["game_time"].astype(str).str.contains("Final", na=False)]["normalized_matchup"]
-        )
+        ##final_games = set(
+        #    action[action["game_time"].astype(str).str.contains("Final", na=False)]["normalized_matchup"]
+        #)
         
-        if final_games:
-            print(f"🧹 Detected {len(final_games)} completed games")
+        #if final_games:
+        #    print(f"🧹 Detected {len(final_games)} completed games")
             # Remove completed games from Action data
-            action = action[~action["normalized_matchup"].isin(final_games)].copy()
+        #   action = action[~action["normalized_matchup"].isin(final_games)].copy()
     
     # Build kickoff time lookup for time-based filtering
     kickoff_lookup = {}
@@ -2710,29 +2710,29 @@ def analyze_week(week):
     final["normalized_matchup"] = final["matchup"].apply(normalize_matchup)
     
     # Filter out completed games
-    before_filter = len(final)
-    final = final[~final["normalized_matchup"].isin(final_games)].copy()
-    completed_removed = before_filter - len(final)
-    
+    #before_filter = len(final)
+    #final = final[~final["normalized_matchup"].isin(final_games)].copy()
+    #completed_removed = before_filter - len(final)
+    #
     # Filter out games that have already started
-    if kickoff_lookup:
-        time_filtered = []
-        for _, row in final.iterrows():
-            kickoff = kickoff_lookup.get(row.get("normalized_matchup", ""))
-            # Keep games with no kickoff time (safer) or future kickoff times
-            if kickoff is None or pd.isna(kickoff) or kickoff > now:
-                time_filtered.append(True)
-            else:
-                time_filtered.append(False)
-        
-        before_time = len(final)
-        final = final[time_filtered].copy()
-        started_removed = before_time - len(final)
-    else:
-        started_removed = 0
-    
-    if completed_removed or started_removed:
-        print(f"🧹 Filtered out {completed_removed} completed + {started_removed} started games")
+    #if kickoff_lookup:
+    #    time_filtered = []
+    #    for _, row in final.iterrows():
+    #        kickoff = kickoff_lookup.get(row.get("normalized_matchup", ""))
+    #        # Keep games with no kickoff time (safer) or future kickoff times
+    #        if kickoff is None or pd.isna(kickoff) or kickoff > now:
+    #            time_filtered.append(True)
+    #        else:
+    #            time_filtered.append(False)
+    #    
+    #    before_time = len(final)
+    #    final = final[time_filtered].copy()
+    #    started_removed = before_time - len(final)
+    #else:
+    #    started_removed = 0
+   # 
+   # if completed_removed or started_removed:
+   #     print(f"🧹 Filtered out {completed_removed} completed + {started_removed} started games")
 
     # Process each game IN PARALLEL
     games = []
