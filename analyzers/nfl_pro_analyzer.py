@@ -26,6 +26,7 @@ from functools import partial
 from data.schedule_rest_2025 import SCHEDULE_REST_DATA_2025
 sys.path.append(os.path.dirname(__file__))
 import performance_tracker
+from playoff_stats_enhancement import PlayoffStatsAnalyzer
 
 # ================================================================
 # CONFIGURATION AND WEIGHTS (NEW)
