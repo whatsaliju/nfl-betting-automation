@@ -2197,6 +2197,9 @@ def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df,
 # SINGLE GAME ANALYSIS (REFRACTORED FOR PARALLELISM)
 # ================================================================
 def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
+    print(f"🔍 ANALYZE_SINGLE_GAME DEBUG:")
+    print(f"  Action data has {len(action)} total records")
+    print(f"  Action normalized_matchups: {action['normalized_matchup'].unique().tolist()}")
     # Add sdql parameter
     """
     Core deterministic single-game analysis.
