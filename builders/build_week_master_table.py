@@ -15,6 +15,33 @@ OUTPUT_BASE = os.path.join("data", "historical")
 ESPN_SCOREBOARD_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 
 # -----------------------------
+# PLAYOFF WEEK HANDLING
+# -----------------------------
+def get_espn_params(week_str):
+    """Convert week to ESPN API parameters"""
+    
+    # Regular season weeks (1-18)
+    try:
+        week_num = int(week_str)
+        return {"seasontype": 2, "week": week_num}  # Regular season
+    except ValueError:
+        pass
+    
+    # Playoff weeks
+    playoff_mapping = {
+        'WC': {"seasontype": 3, "week": 1},      # Wild Card
+        'DIV': {"seasontype": 3, "week": 2},     # Divisional  
+        'CONF': {"seasontype": 3, "week": 3},    # Conference
+        'SB': {"seasontype": 3, "week": 4}       # Super Bowl
+    }
+    
+    if week_str in playoff_mapping:
+        return playoff_mapping[week_str]
+    
+    raise ValueError(f"Unknown week format: {week_str}")
+
+
+# -----------------------------
 # MATCHUP KEY NORMALIZATION (BUILDER-ONLY)
 # -----------------------------
 MATCHUP_KEY_ALIASES = {
@@ -45,11 +72,9 @@ def normalize_snapshot_keys(snapshot: dict) -> dict:
 # -----------------------------
 # ESPN SCHEDULE (SOURCE OF TRUTH)
 # -----------------------------
-def fetch_week_schedule(season: int, week: int):
-    params = {
-        "seasontype": 2,  # regular season
-        "week": week
-    }
+def fetch_week_schedule(season: int, week: str):
+    """Fetch schedule for given season and week (supports playoffs)"""
+    params = get_espn_params(week)
 
     r = requests.get(ESPN_SCOREBOARD_URL, params=params, timeout=10)
     r.raise_for_status()
@@ -73,7 +98,7 @@ def fetch_week_schedule(season: int, week: int):
 
         games.append({
             "season": season,
-            "week": week,
+            "week": week,  # Keep as string (e.g., "WC", "18")
             "matchup_key": away["team"]["abbreviation"] + "@" + home["team"]["abbreviation"],
             "away_team": away["team"]["displayName"],
             "home_team": home["team"]["displayName"],
@@ -130,11 +155,9 @@ def attach_snapshot(df, snapshot, prefix):
 # -----------------------------
 # RESULTS ATTACHMENT
 # -----------------------------
-def attach_results(df, season, week):
-    params = {
-        "seasontype": 2,
-        "week": week
-    }
+def attach_results(df, season, week: str):
+    """Attach final scores for given week (supports playoffs)"""
+    params = get_espn_params(week)
 
     r = requests.get(ESPN_SCOREBOARD_URL, params=params, timeout=10)
     r.raise_for_status()
@@ -187,15 +210,15 @@ def attach_results(df, season, week):
 # -----------------------------
 # MAIN BUILDER
 # -----------------------------
-def build_week_master(season: int, week: int):
-    print("📅 Fetching authoritative schedule...")
+def build_week_master(season: int, week: str):
+    print(f"📅 Fetching authoritative schedule for {season} Week {week}...")
     df = fetch_week_schedule(season, week)
 
-    week_dir = os.path.join(DATA_DIR, "week" + str(week))
+    week_dir = os.path.join(DATA_DIR, "week" + week)  # e.g., "weekWC", "week18"
 
     print("📥 Loading snapshots...")
     initial = normalize_snapshot_keys(
-    load_snapshot(os.path.join(week_dir, "initial.json"))
+        load_snapshot(os.path.join(week_dir, "initial.json"))
     )
     
     update = normalize_snapshot_keys(
@@ -205,7 +228,6 @@ def build_week_master(season: int, week: int):
     lock = normalize_snapshot_keys(
         load_snapshot(os.path.join(week_dir, "lock.json"))
     )
-
 
     print("🧩 Attaching snapshots...")
     df = attach_snapshot(df, initial, "initial")
@@ -218,7 +240,6 @@ def build_week_master(season: int, week: int):
     os.makedirs(OUTPUT_BASE, exist_ok=True)
     out_path = os.path.join(OUTPUT_BASE, f"week{week}_master.csv")
 
-    
     if os.path.exists(out_path):
         existing = pd.read_csv(out_path)
     
@@ -241,9 +262,12 @@ def build_week_master(season: int, week: int):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--season", type=int, required=True)
-    parser.add_argument("--week", type=int, required=True)
+    parser = argparse.ArgumentParser(
+        description="Build master table for NFL week (supports regular season 1-18 and playoffs WC/DIV/CONF/SB)"
+    )
+    parser.add_argument("--season", type=int, required=True, help="NFL season year")
+    parser.add_argument("--week", type=str, required=True, 
+                       help="Week number (1-18) or playoff round (WC/DIV/CONF/SB)")
     args = parser.parse_args()
 
     build_week_master(args.season, args.week)
