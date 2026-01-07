@@ -98,11 +98,19 @@ jobs:
           python3 << 'EOF'
           import json, os, datetime
           week, stage = os.environ['WEEK'], os.environ['STAGE']
+          
+          # Handle playoff weeks
+          def get_week_number(week_str):
+              playoff_weeks = {'WC': 19, 'DIV': 20, 'CONF': 21, 'SB': 22}
+              if week_str in playoff_weeks:
+                  return playoff_weeks[week_str]
+              return int(week_str)
+          
           path = f'data/week{week}/metadata.json'
           if os.path.exists(path):
               with open(path, 'r') as f: meta = json.load(f)
           else:
-              meta = {'week': int(week), 'stages': []}
+              meta = {'week': get_week_number(week), 'stages': []}  # ✅ Now handles "WC"
           
           g_count = 0
           try:
