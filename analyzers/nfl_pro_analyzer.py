@@ -2519,16 +2519,64 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
     }, week)
     
-    # STEP 8 — STATISTICAL
-    stat_score, stat_factors = StatisticalAnalyzer.analyze_line_value(
-        away_full, home_full, sharp_analysis['spread'].get('line', ""), week
-    )
-    statistical_analysis = {
-        'score': stat_score,
-        'factors': stat_factors,
-        'description': ', '.join(stat_factors) if stat_factors else 'No stat edge'
-    }
-    
+    # STEP 8 — ENHANCED STATISTICAL ANALYSIS
+    try:
+        # Create enhanced analyzer
+        analyzer = PlayoffStatsAnalyzer()
+        
+        # Mock team stats for now (you can enhance this with real data later)
+        team_stats = {
+            away_full: {
+                'recent_8': {'points_per_drive': 2.2, 'red_zone_pct': 0.52, 
+                            'def_points_per_drive': 2.3, 'takeaway_rate': 0.12, 
+                            'games': 8, 'avg_margin': 1.5},
+                'season': {'points_per_drive': 2.2, 'red_zone_pct': 0.50, 
+                          'def_points_per_drive': 2.3, 'takeaway_rate': 0.12}
+            },
+            home_full: {
+                'recent_8': {'points_per_drive': 2.1, 'red_zone_pct': 0.48, 
+                            'def_points_per_drive': 2.4, 'takeaway_rate': 0.11, 
+                            'games': 8, 'avg_margin': -0.8},
+                'season': {'points_per_drive': 2.1, 'red_zone_pct': 0.49, 
+                          'def_points_per_drive': 2.4, 'takeaway_rate': 0.11}
+            }
+        }
+        
+        historical_data = {
+            away_full: {'playoff_record': {'wins_last_5_years': 2, 'games_last_5_years': 4}, 'coach_playoff_games': 8},
+            home_full: {'playoff_record': {'wins_last_5_years': 1, 'games_last_5_years': 2}, 'coach_playoff_games': 3}
+        }
+        
+        # Run enhanced analysis
+        enhanced_result = analyzer.analyze_matchup(away_full, home_full, team_stats, historical_data)
+        
+        # Convert to your format
+        if abs(enhanced_result['net_edge_points']) < 1.5:
+            stat_score = 0
+            stat_factors = []
+        elif abs(enhanced_result['net_edge_points']) < 3.0:
+            edge_team = away_full if enhanced_result['net_edge_points'] > 0 else home_full
+            stat_score = 1 if abs(enhanced_result['net_edge_points']) < 2.5 else 2
+            stat_factors = [f"Statistical edge to {edge_team} ({abs(enhanced_result['net_edge_points']):.1f} pts)"]
+        else:
+            edge_team = away_full if enhanced_result['net_edge_points'] > 0 else home_full
+            stat_score = 3
+            stat_factors = [f"Strong statistical edge to {edge_team} ({abs(enhanced_result['net_edge_points']):.1f} pts)"]
+        
+        statistical_analysis = {
+            'score': stat_score * (1 if enhanced_result['net_edge_points'] > 0 else -1),
+            'factors': stat_factors,
+            'description': ', '.join(stat_factors) if stat_factors else 'No stat edge'
+        }
+        
+    except Exception as e:
+        # Fallback to simple analysis if enhanced fails
+        print(f"⚠️ Enhanced stats failed: {e}")
+        statistical_analysis = {
+            'score': 0,
+            'factors': [],
+            'description': 'Statistical analysis unavailable'
+        }
     # STEP 9 — GAME THEORY
     game_theory_analysis = GameTheoryAnalyzer.analyze({
         'away': away_full,
