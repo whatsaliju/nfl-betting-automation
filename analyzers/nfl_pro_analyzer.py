@@ -2375,6 +2375,20 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     except Exception as e:
         print(f"⚠️ Weather analysis failed: {e}")
         weather_analysis = {'score': 0, 'description': 'Good conditions', 'factors': []}
+   
+    # Add this debug after the matchup_key creation:
+    matchup_key = f"{away_tla}@{home_tla}"
+    normalized_matchup = f"{away_tla}@{home_tla}"
+    
+    print(f"🔍 Looking for: '{normalized_matchup}' in Action data")
+    if not action.empty:
+        available_matchups = action['normalized_matchup'].unique()
+        print(f"🔍 Available Action matchups: {list(available_matchups)[:3]}...")
+        
+    action_row = None
+    if not action.empty:
+        action_row = action[action['normalized_matchup'] == normalized_matchup]
+        print(f"🔍 Found {len(action_row) if action_row is not None else 0} Action Network rows")
     # ======================================================
     # STEP 5 — REFEREE (FIXED)
     # ======================================================
@@ -2622,6 +2636,23 @@ def analyze_week(week):
     action_file_path = find_latest("action_all_markets_") 
     action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame()
     
+    # 🔍 DEBUG BLOCK - Add this:
+    if not action.empty:
+        print(f"🔍 DEBUG: Loaded {len(action)} Action Network records")
+        print(f"🔍 DEBUG: Sample Action matchups:")
+        unique_matchups = action['Matchup'].unique()[:5]
+        for matchup in unique_matchups:
+            normalized = normalize_matchup(matchup)
+            print(f"    '{matchup}' → '{normalized}'")
+        
+        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
+        
+        print(f"🔍 DEBUG: Normalized Action matchups:")
+        for norm_matchup in action["normalized_matchup"].unique()[:5]:
+            print(f"    '{norm_matchup}'")
+    else:
+        print("❌ DEBUG: No Action Network data loaded!")
+        
     # Load Action Network injuries
     action_injuries_path = find_latest("action_injuries_")
     action_injuries = safe_load_csv(action_injuries_path) if action_injuries_path else pd.DataFrame()
