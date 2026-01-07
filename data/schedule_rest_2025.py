@@ -109,5 +109,53 @@ SCHEDULE_REST_DATA_2025 = {
         'DAL': 10, 'DEN': 10, 'DET': 10, 'GB': 6, 'HOU': 6, 'IND': 7, 'JAX': 7, 'KC': 10,
         'LAC': 6, 'LAR': 6, 'LV': 6, 'MIA': 7, 'MIN': 10, 'NE': 7, 'NO': 7, 'NYG': 6,
         'NYJ': 7, 'PHI': 7, 'PIT': 7, 'SEA': 6, 'SF': 7, 'TB': 7, 'TEN': 7, 'WAS': 10
+    },
+    'WC': {
+        # Teams playing in Wild Card (12 teams)
+        'LAR': 7, 'CAR': 7,        # Rams @ Panthers
+        'GB': 7, 'CHI': 7,         # Packers @ Bears  
+        'BUF': 7, 'JAX': 7,        # Bills @ Jaguars
+        'SF': 7, 'PHI': 7,         # 49ers @ Eagles
+        'LAC': 7, 'NE': 7,         # Chargers @ Patriots  
+        'HOU': 7, 'PIT': 7,        # Texans @ Steelers
+        
+        # Teams eliminated from playoffs (20 teams) - longer rest
+        'ARI': 14, 'ATL': 14, 'BAL': 14, 'CIN': 14, 'CLE': 14, 'DAL': 14, 
+        'DEN': 14, 'DET': 14, 'IND': 14, 'KC': 14, 'LV': 14, 'MIA': 14, 
+        'MIN': 14, 'NYG': 14, 'NYJ': 14, 'NO': 14, 'SEA': 14, 'TB': 14, 
+        'TEN': 14, 'WAS': 14
     }
+
+def get_playoff_rest_days(team, week, playing_teams=None):
+    """
+    Dynamically calculate rest days for playoff weeks
+    """
+    if playing_teams is None:
+        playing_teams = get_teams_playing_this_week(week)
+    
+    # Teams playing this week get standard rest
+    if team in playing_teams:
+        if week == 'SB':
+            return 14  # Super Bowl gets 2 weeks
+        else:
+            return 7   # Standard playoff rest
+    
+    # For eliminated teams, use longer rest
+    # (You can expand this logic later)
+    return 14  # Default for non-playing teams
+
+def get_teams_playing_this_week(week):
+    """Return list of teams playing in given playoff week"""
+    playoff_matchups = {
+        'WC': ['LAR', 'CAR', 'GB', 'CHI', 'BUF', 'JAX', 'SF', 'PHI', 'LAC', 'NE', 'HOU', 'PIT'],
+        # DIV, CONF, SB will be determined later
+    }
+    return playoff_matchups.get(week, [])
+
+def get_team_rest_days(team, week):
+    """Get rest days for any team/week combination"""
+    if week in ['WC', 'DIV', 'CONF', 'SB']:
+        return get_playoff_rest_days(team, week)
+    else:
+        return SCHEDULE_REST_DATA_2025[week][team]
 }
