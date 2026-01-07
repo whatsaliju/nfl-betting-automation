@@ -125,7 +125,7 @@ SCHEDULE_REST_DATA_2025 = {
         'MIN': 14, 'NYG': 14, 'NYJ': 14, 'NO': 14, 'SEA': 14, 'TB': 14, 
         'TEN': 14, 'WAS': 14
     }
-
+}
 def get_playoff_rest_days(team, week, playing_teams=None):
     """
     Dynamically calculate rest days for playoff weeks
