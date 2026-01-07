@@ -158,4 +158,3 @@ def get_team_rest_days(team, week):
         return get_playoff_rest_days(team, week)
     else:
         return SCHEDULE_REST_DATA_2025[week][team]
-}
