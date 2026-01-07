@@ -2520,57 +2520,117 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     }, week)
     
     # STEP 8 — ENHANCED STATISTICAL ANALYSIS
+    # STEP 8 — ENHANCED STATISTICAL ANALYSIS (COMPLETE 2025 PLAYOFF DATA)
     try:
-        # Create enhanced analyzer
-        analyzer = PlayoffStatsAnalyzer()
-        
-        # Mock team stats for now (you can enhance this with real data later)
-        team_stats = {
-            away_full: {
-                'recent_8': {'points_per_drive': 2.2, 'red_zone_pct': 0.52, 
-                            'def_points_per_drive': 2.3, 'takeaway_rate': 0.12, 
-                            'games': 8, 'avg_margin': 1.5},
-                'season': {'points_per_drive': 2.2, 'red_zone_pct': 0.50, 
-                          'def_points_per_drive': 2.3, 'takeaway_rate': 0.12}
-            },
-            home_full: {
-                'recent_8': {'points_per_drive': 2.1, 'red_zone_pct': 0.48, 
-                            'def_points_per_drive': 2.4, 'takeaway_rate': 0.11, 
-                            'games': 8, 'avg_margin': -0.8},
-                'season': {'points_per_drive': 2.1, 'red_zone_pct': 0.49, 
-                          'def_points_per_drive': 2.4, 'takeaway_rate': 0.11}
+        def get_real_2025_team_stats(team_name):
+            """Complete real 2025 NFL team statistics from SDQL queries"""
+            
+            # Complete Wild Card + Bye teams with real 2025 data
+            nfl_2025_stats = {
+                # Wild Card Teams (Complete)
+                'Green Bay Packers': {
+                    'ppg': 23.0, 'papg': 21.2, 'total_ypg': 357.8, 'total_yapg': 322.5, 'to_diff_per_game': 0.0
+                },
+                'Chicago Bears': {
+                    'ppg': 25.9, 'papg': 24.4, 'total_ypg': 380.7, 'total_yapg': 368.0, 'to_diff_per_game': -1.3
+                },
+                'Los Angeles Rams': {
+                    'ppg': 30.5, 'papg': 20.4, 'total_ypg': 405.2, 'total_yapg': 350.2, 'to_diff_per_game': -0.6
+                },
+                'Carolina Panthers': {
+                    'ppg': 18.3, 'papg': 22.4, 'total_ypg': 312.2, 'total_yapg': 339.8, 'to_diff_per_game': 0.2
+                },
+                'San Francisco 49ers': {
+                    'ppg': 25.7, 'papg': 21.8, 'total_ypg': 364.7, 'total_yapg': 354.1, 'to_diff_per_game': 0.4
+                },
+                'Philadelphia Eagles': {
+                    'ppg': 22.3, 'papg': 19.1, 'total_ypg': 320.5, 'total_yapg': 333.5, 'to_diff_per_game': -0.3
+                },
+                'Houston Texans': {
+                    'ppg': 23.8, 'papg': 17.4, 'total_ypg': 343.3, 'total_yapg': 293.7, 'to_diff_per_game': -1.0
+                },
+                'Pittsburgh Steelers': {
+                    'ppg': 23.4, 'papg': 22.8, 'total_ypg': 311.9, 'total_yapg': 375.5, 'to_diff_per_game': -0.7
+                },
+                'Buffalo Bills': {
+                    'ppg': 28.3, 'papg': 21.5, 'total_ypg': 392.2, 'total_yapg': 313.4, 'to_diff_per_game': -0.1  # 159.6+232.6, 136.2+177.1, 1.1-1.2
+                },
+                'Jacksonville Jaguars': {
+                    'ppg': 27.9, 'papg': 19.8, 'total_ypg': 349.8, 'total_yapg': 323.7, 'to_diff_per_game': -0.7  # 115.1+234.7, 85.6+238.1, 1.1-1.8
+                },
+                'Los Angeles Chargers': {
+                    'ppg': 21.6, 'papg': 20.0, 'total_ypg': 360.2, 'total_yapg': 304.0, 'to_diff_per_game': -0.2  # 121.6+238.6, 105.4+198.3, 1.2-1.4
+                },
+                'New England Patriots': {
+                    'ppg': 28.8, 'papg': 18.8, 'total_ypg': 394.2, 'total_yapg': 311.6, 'to_diff_per_game': -0.2  # 128.9+265.3, 101.7+210.9, 0.9-1.1
+                },
+                # Bye Week Teams (Next Round)
+                'Denver Broncos': {
+                    'ppg': 23.6, 'papg': 18.3, 'total_ypg': 355.6, 'total_yapg': 308.0, 'to_diff_per_game': 0.2  # 118.7+236.9, 91.1+216.9, 1.0-0.8
+                },
+                'Seattle Seahawks': {
+                    'ppg': 28.4, 'papg': 17.2, 'total_ypg': 362.3, 'total_yapg': 304.8, 'to_diff_per_game': 0.1  # 123.3+239.0, 91.9+212.9, 1.6-1.5
+                }
             }
-        }
+            
+            return nfl_2025_stats.get(team_name, {
+                'ppg': 22.5, 'papg': 22.5, 'total_ypg': 340.0, 'total_yapg': 340.0, 'to_diff_per_game': 0.0
+            })
+    
+        def calculate_realistic_statistical_edge(away_stats, home_stats):
+            """Calculate realistic statistical edge from real 2025 performance"""
+            
+            # Net scoring differential (offense - defense)
+            away_net_scoring = away_stats['ppg'] - away_stats['papg']
+            home_net_scoring = home_stats['ppg'] - home_stats['papg']
+            
+            # Yardage efficiency differential (converted to point equivalent)
+            away_yard_eff = (away_stats['total_ypg'] - away_stats['total_yapg']) / 20.0  # ~20 yards per point
+            home_yard_eff = (home_stats['total_ypg'] - home_stats['total_yapg']) / 20.0
+            
+            # Turnover impact (4 points per turnover differential)
+            away_to_impact = away_stats['to_diff_per_game'] * 4.0
+            home_to_impact = home_stats['to_diff_per_game'] * 4.0
+            
+            # Combined efficiency scores
+            away_total_eff = away_net_scoring + away_yard_eff + away_to_impact
+            home_total_eff = home_net_scoring + home_yard_eff + home_to_impact
+            
+            # Home field advantage (reduced for playoffs)
+            home_advantage = 2.0
+            
+            # Net statistical edge (capped at realistic ±5.0 points)
+            raw_edge = away_total_eff - (home_total_eff + home_advantage)
+            return max(-5.0, min(5.0, raw_edge))
         
-        historical_data = {
-            away_full: {'playoff_record': {'wins_last_5_years': 2, 'games_last_5_years': 4}, 'coach_playoff_games': 8},
-            home_full: {'playoff_record': {'wins_last_5_years': 1, 'games_last_5_years': 2}, 'coach_playoff_games': 3}
-        }
+        # Get real team data
+        away_stats = get_real_2025_team_stats(away_full)
+        home_stats = get_real_2025_team_stats(home_full)
         
-        # Run enhanced analysis
-        enhanced_result = analyzer.analyze_matchup(away_full, home_full, team_stats, historical_data)
+        # Calculate realistic statistical edge
+        net_edge = calculate_realistic_statistical_edge(away_stats, home_stats)
         
-        # Convert to your format
-        if abs(enhanced_result['net_edge_points']) < 1.5:
+        # Convert to analysis format
+        if abs(net_edge) < 1.0:
             stat_score = 0
-            stat_factors = []
-        elif abs(enhanced_result['net_edge_points']) < 3.0:
-            edge_team = away_full if enhanced_result['net_edge_points'] > 0 else home_full
-            stat_score = 1 if abs(enhanced_result['net_edge_points']) < 2.5 else 2
-            stat_factors = [f"Statistical edge to {edge_team} ({abs(enhanced_result['net_edge_points']):.1f} pts)"]
+            description = 'No significant statistical edge'
+        elif abs(net_edge) < 2.5:
+            edge_team = away_full if net_edge > 0 else home_full
+            stat_score = 1 if net_edge > 0 else -1
+            description = f"Statistical edge to {edge_team} ({abs(net_edge):.1f} pts)"
         else:
-            edge_team = away_full if enhanced_result['net_edge_points'] > 0 else home_full
-            stat_score = 3
-            stat_factors = [f"Strong statistical edge to {edge_team} ({abs(enhanced_result['net_edge_points']):.1f} pts)"]
+            edge_team = away_full if net_edge > 0 else home_full
+            stat_score = 2 if abs(net_edge) < 4.0 else 3
+            stat_score = stat_score if net_edge > 0 else -stat_score
+            description = f"Strong statistical edge to {edge_team} ({abs(net_edge):.1f} pts)"
         
         statistical_analysis = {
-            'score': stat_score * (1 if enhanced_result['net_edge_points'] > 0 else -1),
-            'factors': stat_factors,
-            'description': ', '.join(stat_factors) if stat_factors else 'No stat edge'
+            'score': stat_score,
+            'factors': [description] if stat_score != 0 else [],
+            'description': description
         }
         
     except Exception as e:
-        # Fallback to simple analysis if enhanced fails
         print(f"⚠️ Enhanced stats failed: {e}")
         statistical_analysis = {
             'score': 0,
