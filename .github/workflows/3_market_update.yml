@@ -60,13 +60,15 @@ jobs:
           
           # Priority 2: Auto-detect from existing files if no input provided
           if [ -z "$WEEK" ]; then
-            WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
-          fi
-          
-          # Final safety check: Default to 1 if detection failed
-          if [ -z "$WEEK" ]; then
-              WEEK=1
-              echo "⚠️ Warning: Could not auto-detect week. Defaulting to Week 1."
+            # First try to find playoff weeks (WC, DIV, CONF, SB)
+            PLAYOFF_WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K(WC|DIV|CONF|SB)' | tail -1)
+            
+            if [ -n "$PLAYOFF_WEEK" ]; then
+              WEEK="$PLAYOFF_WEEK"
+            else
+              # Fall back to numeric weeks
+              WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
+            fi
           fi
 
           # Ensure WEEK is an integer
