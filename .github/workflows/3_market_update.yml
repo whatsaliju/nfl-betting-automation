@@ -60,14 +60,22 @@ jobs:
           
           # Priority 2: Auto-detect from existing files if no input provided
           if [ -z "$WEEK" ]; then
-            # First try to find playoff weeks (WC, DIV, CONF, SB)
-            PLAYOFF_WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K(WC|DIV|CONF|SB)' | tail -1)
-            
-            if [ -n "$PLAYOFF_WEEK" ]; then
-              WEEK="$PLAYOFF_WEEK"
+            # Check for playoff weeks in chronological order: WC -> DIV -> CONF -> SB
+            if [ -f "data/weekSB/weekSB_referees.csv" ]; then
+              WEEK="SB"
+            elif [ -f "data/weekCONF/weekCONF_referees.csv" ]; then
+              WEEK="SB"  # Next week after CONF
+            elif [ -f "data/weekDIV/weekDIV_referees.csv" ]; then
+              WEEK="CONF"  # Next week after DIV
+            elif [ -f "data/weekWC/weekWC_referees.csv" ]; then
+              WEEK="DIV"  # Next week after WC
             else
-              # Fall back to numeric weeks
+              # Fall back to numeric weeks (regular season)
               WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
+              # If we have week 18, next should be WC
+              if [ "$WEEK" = "18" ]; then
+                WEEK="WC"
+              fi
             fi
           fi
 
