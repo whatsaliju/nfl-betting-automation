@@ -9,6 +9,11 @@ on:
         description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB)'
         required: true
         type: string
+      season:
+        description: 'NFL season'
+        required: false
+        default: '2026'
+        type: string
 
 jobs:
   collect_initial_market:
@@ -52,6 +57,10 @@ jobs:
       - name: Get Week Number
         id: get_week
         run: |
+          SEASON="${{ github.event.inputs.season }}"
+          [ -z "$SEASON" ] && SEASON="${{ github.event.client_payload.season }}"
+          [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
+          [ -z "$SEASON" ] && SEASON="2026"
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK=${{ github.event.inputs.week }}
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
@@ -61,7 +70,9 @@ jobs:
             WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "season=$SEASON" >> $GITHUB_OUTPUT
           echo "📅 Collecting initial market data for Week $WEEK"
+          echo "🏈 NFL Season: $SEASON"
       
       - name: Create config folder
         run: mkdir -p config
@@ -80,6 +91,23 @@ jobs:
         run: |
           echo "🩹 Scraping Action Network injuries & weather..."
           python3 scrapers/action_network_injuries_weather.py
+
+      - name: Capture Generated Input Files
+        id: generated_files
+        run: |
+          latest_file() {
+            python3 -c 'import glob, os, sys; files=[]; [files.extend(glob.glob(p)) for p in sys.argv[1:]]; files.sort(key=os.path.getmtime, reverse=True); print(files[0] if files else "")' "$@"
+          }
+
+          ACTION_MARKETS_FILE=$(latest_file "data/action_all_markets_*.csv")
+          ACTION_INJURIES_FILE=$(latest_file "data/action_injuries_*.csv")
+          ACTION_WEATHER_FILE=$(latest_file "data/action_weather_*.csv")
+          echo "action_markets_file=$ACTION_MARKETS_FILE" >> $GITHUB_OUTPUT
+          echo "action_injuries_file=$ACTION_INJURIES_FILE" >> $GITHUB_OUTPUT
+          echo "action_weather_file=$ACTION_WEATHER_FILE" >> $GITHUB_OUTPUT
+          echo "Markets: $ACTION_MARKETS_FILE"
+          echo "Injuries: $ACTION_INJURIES_FILE"
+          echo "Weather: $ACTION_WEATHER_FILE"
       
       - name: Commit Market Data
         run: |
@@ -103,7 +131,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: initial-market-data
-          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "analysis_type": "initial"}'
+          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "initial", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}"}'
       
       - name: Summary
         run: |

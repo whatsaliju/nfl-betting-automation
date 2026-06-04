@@ -1,0 +1,44 @@
+name: 0 Engine Contracts
+
+on:
+  push:
+    branches:
+      - main
+      - "codex/**"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate-engine-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: python -m pip install pandas numpy requests
+
+      - name: Compile engine scripts
+        run: |
+          python -m py_compile \
+            analyzers/nfl_common.py \
+            analyzers/nfl_pro_analyzer.py \
+            analyzers/nflverse_referee_trends.py \
+            scripts/replay_2025_engine.py \
+            scripts/compare_replay_to_results.py \
+            scripts/audit_recommendation_traces.py \
+            scripts/calibrate_selector_thresholds.py \
+            scripts/walk_forward_selector_validation.py \
+            scripts/generate_model_readiness_report.py \
+            scripts/validate_engine_contracts.py \
+            graders/grade_week_results.py \
+            builders/build_week_master_table.py \
+            builders/build_matrix_engine_feed.py
+
+      - name: Validate engine contracts
+        run: python scripts/validate_engine_contracts.py

@@ -9,6 +9,11 @@ on:
         description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB)'
         required: false
         type: string
+      season:
+        description: 'NFL season'
+        required: false
+        default: '2026'
+        type: string
 
 jobs:
   collect_referee_data:
@@ -40,13 +45,20 @@ jobs:
       - name: Get Week Number
         id: get_week
         run: |
+          SEASON="${{ github.event.inputs.season }}"
+          [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
+          [ -z "$SEASON" ] && SEASON="2026"
+          START_DATE="${{ vars.NFL_SEASON_START_DATE }}"
+          [ -z "$START_DATE" ] && START_DATE="${SEASON}-09-10"
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK="${{ github.event.inputs.week }}"
           else
-            WEEK=$(python3 -c "from datetime import datetime; start=datetime(2025,9,5); days=(datetime.now()-start).days; week=min((days//7)+1+(1 if datetime.now().weekday()>=1 else 0),18); print(week)")
+            WEEK=$(python3 -c "from datetime import datetime; start=datetime.strptime('$START_DATE','%Y-%m-%d'); days=(datetime.now()-start).days; week=max(1,min((days//7)+1+(1 if datetime.now().weekday()>=1 else 0),18)); print(week)")
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "season=$SEASON" >> $GITHUB_OUTPUT
           echo "📅 NFL Week: $WEEK"
+          echo "🏈 NFL Season: $SEASON"
 
       - name: Normalize week input
         id: clean_week
@@ -73,37 +85,17 @@ jobs:
           print(f"✅ Got {len(df)} games")
           PYTHON_EOF
       
-      - name: Generate SDQL Queries (using Odds API)
+      - name: Generate Referee Context Queries (using Odds API)
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: |
-          echo "🔍 Generating SDQL queries using Odds API..."
+          echo "🔍 Generating referee context queries using Odds API..."
           python3 analyzers/query_generator.py ${{ steps.clean_week.outputs.week }}
       
-      - name: Run SDQL Queries
-        env:
-          GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
-          GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
+      - name: Build Referee Trends from nflverse
         run: |
-          echo "📈 Running SDQL historical queries..."
-          python3 << PYTHON_EOF
-          import sys
-          import os # <--- ADDED
-          sys.path.append('scrapers')
-          from sdql_test import run_sdql_queries
-          
-          week = int("${{ steps.clean_week.outputs.week }}")
-          with open(f'data/week{week}/week{week}_queries.txt', 'r') as f:
-              queries = [line.strip() for line in f if line.strip()]
-          
-          run_sdql_queries(
-              email=os.environ.get("GIMMETHEDOG_EMAIL"), # <--- CORRECTED
-              password=os.environ.get("GIMMETHEDOG_PASSWORD"), # <--- CORRECTED
-              queries=queries,
-              headless=True
-          )
-          print("✅ SDQL queries complete")
-          PYTHON_EOF
+          echo "📈 Building referee trends from public nflverse schedules..."
+          python3 analyzers/nflverse_referee_trends.py ${{ steps.clean_week.outputs.week }}
 
       
       - name: Generate Referee Trends Digest
@@ -131,7 +123,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: referee-data-ready
-          client-payload: '{"week": "${{ steps.clean_week.outputs.week }}"}'
+          client-payload: '{"week": "${{ steps.clean_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}"}'
       
       - name: Summary
         run: |

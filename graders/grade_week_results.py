@@ -3,8 +3,16 @@
 import pandas as pd
 import requests
 import re
+import sys
 from datetime import datetime
 import argparse
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from analyzers.nfl_common import espn_season_type, espn_week, normalize_season_type
 
 ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 
@@ -12,8 +20,13 @@ ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboar
 # -----------------------------
 # SCORE FETCH
 # -----------------------------
-def fetch_scores(season, week):
-    params = {"seasontype": 2, "week": week}
+def fetch_scores(season, week, season_type=None):
+    season_type = normalize_season_type(season_type, week)
+    params = {
+        "dates": season,
+        "seasontype": espn_season_type(season_type, week),
+        "week": espn_week(season_type, week),
+    }
     r = requests.get(ESPN_URL, params=params, timeout=10)
     r.raise_for_status()
     data = r.json()
@@ -117,11 +130,11 @@ def evaluate(row, score):
 # -----------------------------
 # MAIN
 # -----------------------------
-def grade_week(season, week):
+def grade_week(season, week, season_type=None):
     path = f"data/historical/week{week}_master.csv"
     df = pd.read_csv(path)
 
-    scores = fetch_scores(season, week)
+    scores = fetch_scores(season, week, season_type)
 
     df["graded"] = df.get("graded", False)
     df["result"] = df.get("result")
@@ -151,6 +164,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--season", type=int, required=True)
     parser.add_argument("--week", type=int, required=True)
+    parser.add_argument("--season-type", default=None, help="REG or POST. Defaults to POST for weeks above 18.")
     args = parser.parse_args()
 
-    grade_week(args.season, args.week)
+    grade_week(args.season, args.week, args.season_type)

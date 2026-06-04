@@ -14,6 +14,11 @@ on:
         description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB)'
         required: true
         type: string
+      season:
+        description: 'NFL season'
+        required: false
+        default: '2026'
+        type: string
       analysis_type:
         description: 'Override analysis type (e.g., update, initial, final)'
         required: false
@@ -55,6 +60,9 @@ jobs:
       - name: Get Week Number
         id: get_week
         run: |
+          SEASON="${{ github.event.inputs.season }}"
+          [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
+          [ -z "$SEASON" ] && SEASON="2026"
           WEEK=""
           # Priority 1: workflow_dispatch input
           if [ -n "${{ github.event.inputs.week }}" ]; then
@@ -82,11 +90,13 @@ jobs:
             fi
           fi
 
-          # Ensure WEEK is an integer
+          # Normalize a possible decimal-looking manual value while preserving playoff labels.
           WEEK="${WEEK%.*}"
 
           echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "season=$SEASON" >> $GITHUB_OUTPUT
           echo "📅 Updating market data for Week $WEEK"
+          echo "🏈 NFL Season: $SEASON"
 
       - name: Create config folder
         run: mkdir -p config data/week${{ steps.get_week.outputs.week }}
@@ -110,12 +120,29 @@ jobs:
         run: |
           echo "🏈 Scraping RotoWire lineups & injuries for Week ${{ steps.get_week.outputs.week }}..."
           python3 scrapers/rotowire_scraper.py ${{ steps.get_week.outputs.week }}
+
+      - name: Capture Generated Input Files
+        id: generated_files
+        run: |
+          latest_file() {
+            python3 -c 'import glob, os, sys; files=[]; [files.extend(glob.glob(p)) for p in sys.argv[1:]]; files.sort(key=os.path.getmtime, reverse=True); print(files[0] if files else "")' "$@"
+          }
+
+          ACTION_MARKETS_FILE=$(latest_file "data/action_all_markets_*.csv")
+          ACTION_INJURIES_FILE=$(latest_file "data/action_injuries_*.csv")
+          ACTION_WEATHER_FILE=$(latest_file "data/action_weather_*.csv")
+          ROTOWIRE_FILE=$(latest_file "data/rotowire_lineups_week${{ steps.get_week.outputs.week }}_*.csv" "data/rotowire_lineups_*.csv")
+          echo "action_markets_file=$ACTION_MARKETS_FILE" >> $GITHUB_OUTPUT
+          echo "action_injuries_file=$ACTION_INJURIES_FILE" >> $GITHUB_OUTPUT
+          echo "action_weather_file=$ACTION_WEATHER_FILE" >> $GITHUB_OUTPUT
+          echo "rotowire_file=$ROTOWIRE_FILE" >> $GITHUB_OUTPUT
+          echo "Markets: $ACTION_MARKETS_FILE"
+          echo "Injuries: $ACTION_INJURIES_FILE"
+          echo "Weather: $ACTION_WEATHER_FILE"
+          echo "RotoWire: $ROTOWIRE_FILE"
           
-      - name: Detect Line Flips & Update SDQL
+      - name: Detect Line Flips & Update Referee Trends
         id: line_flips
-        env:
-          GIMMETHEDOG_EMAIL: ${{ secrets.GIMMETHEDOG_EMAIL }}
-          GIMMETHEDOG_PASSWORD: ${{ secrets.GIMMETHEDOG_PASSWORD }}
         run: |
           python3 << 'PYTHON_EOF'
           import sys
@@ -124,19 +151,13 @@ jobs:
           import re
           import datetime
           
-          # Add scraper path to system path for imports
-          sys.path.append('scrapers')
-          
-          # Import SDQL runner
+          sys.path.append('analyzers')
           try:
-              from sdql_test import run_sdql_queries
-              from selenium import webdriver
-              from selenium.webdriver.chrome.service import Service
-              from webdriver_manager.chrome import ChromeDriverManager
-              sdql_available = True
+              from nflverse_referee_trends import build_referee_trends
+              trend_builder_available = True
           except ImportError as e:
-              print(f"WARNING: Could not import SDQL dependencies: {e}. SDQL updates will be skipped.")
-              sdql_available = False
+              print(f"WARNING: Could not import nflverse referee trend builder: {e}. Trend refresh will be skipped.")
+              trend_builder_available = False
           
           week = "${{ steps.get_week.outputs.week }}"
           
@@ -351,19 +372,9 @@ jobs:
                       continue
           
           # --- HANDLE LINE FLIPS (INDEPENDENT OF ANALYSIS TYPE) ---
-          if flips and sdql_available:
+          if flips:
               flips_detected = "true"
-              print(f"\n📊 Running {len(flips)} updated SDQL queries...")
-              
-              new_queries_list = [flip['query'] for flip in flips]
-              
-              run_sdql_queries(
-                  email=os.environ["GIMMETHEDOG_EMAIL"],
-                  password=os.environ["GIMMETHEDOG_PASSWORD"],
-                  queries=new_queries_list,
-                  headless=True,
-                  output_dir='data/historical'
-              )
+              print(f"\n📊 Updating {len(flips)} flipped referee contexts...")
               
               # Update baseline queries CSV
               for flip in flips:
@@ -380,15 +391,20 @@ jobs:
                   baseline.loc[mask, 'query'] = flip['query']
               
               baseline.to_csv(baseline_queries_path, index=False)
+
+              if trend_builder_available:
+                  build_referee_trends(int(week))
+                  print(f"✅ Updated referee trend context for {flip_count} flipped games")
+              else:
+                  print("⚠️ Referee trend context was not refreshed because the trend builder was unavailable")
               
               flip_df = pd.DataFrame(flips)
               flip_df_path = f'data/week{week}/week{week}_line_flips_{datetime.datetime.now().strftime("%Y%m%d_%H%M")}.csv'
               flip_df.to_csv(flip_df_path, index=False)
               
-              print(f"✅ Updated SDQL data for {flip_count} flipped games")
               print(f"📄 Saved flip report to {flip_df_path}")
           else:
-              print("✅ No line flips detected or SDQL updates skipped.")
+              print("✅ No line flips detected.")
               flips_detected = "false"
           
           # --- OUTPUT FOR GITHUB ACTIONS ---
@@ -447,7 +463,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: market-data-ready
-          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "analysis_type": "${{ steps.line_flips.outputs.analysis_type }}", "line_flips": "${{ steps.line_flips.outputs.flip_count }}"}'
+          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "${{ steps.line_flips.outputs.analysis_type }}", "line_flips": "${{ steps.line_flips.outputs.flip_count }}", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}", "rotowire_file": "${{ steps.generated_files.outputs.rotowire_file }}"}'
       
       - name: Summary
         run: |

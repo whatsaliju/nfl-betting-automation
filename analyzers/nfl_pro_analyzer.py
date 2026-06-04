@@ -17,25 +17,108 @@ import numpy as np
 import os
 import json
 import sys
+import re
+import hashlib
 from datetime import datetime, timezone
 from collections import defaultdict
 # >>> NEW IMPORTS FOR CONCURRENCY <<<
 from concurrent.futures import ThreadPoolExecutor
-from functools import partial 
+from functools import partial, lru_cache
 # >>> END NEW IMPORTS <<<
 from data.schedule_rest_2025 import SCHEDULE_REST_DATA_2025
 sys.path.append(os.path.dirname(__file__))
 import performance_tracker
 from playoff_stats_enhancement import PlayoffStatsAnalyzer
+try:
+    from analyzers.nfl_common import (
+        FULL_NAME_TO_TLA,
+        TEAM_MAP,
+        canonical_team,
+        home_spread_from_line,
+        normalize_matchup_key,
+        normalize_season_type,
+        nflverse_game_types,
+    )
+except ImportError:
+    from nfl_common import (
+        FULL_NAME_TO_TLA,
+        TEAM_MAP,
+        canonical_team,
+        home_spread_from_line,
+        normalize_matchup_key,
+        normalize_season_type,
+        nflverse_game_types,
+    )
+
+DEBUG_ANALYZER = os.getenv("DEBUG_ANALYZER") == "1"
+
+
+def debug_log(message):
+    if DEBUG_ANALYZER:
+        print(message)
 
 # ================================================================
 # CONFIGURATION AND WEIGHTS (NEW)
 # ================================================================
 
-# Define weights for each factor's score contribution to the total_score
-# You can tune these multipliers to increase or decrease a factor's influence.
-# Example tuning: Giving Statistical and Sharp a higher weight.
-FACTOR_WEIGHTS = {
+DEFAULT_MODEL_CONFIG = {
+    'model_version': '2026.1',
+    'factor_weights': {
+        'sharp_consensus_score': 1.5,
+        'referee_ats_score': 0.7,
+        'referee_ou_score': 0.7,
+        'weather_score': 0.5,
+        'injury_score': 1.2,
+        'situational_score': 1.0,
+        'statistical_score': 1.8,
+        'game_theory_score': 0.0,
+        'schedule_score': 0.8
+    },
+    'selector': {
+        'spread_threshold_strong_signal': 3,
+        'spread_threshold_default': 4,
+        'total_threshold': 4,
+        'targeted_score': 4,
+        'strong_score': 6,
+        'require_sharp_spread_edge': True,
+        'block_spread_on_team_rating_conflict': True,
+        'injury_spread_mode': 'context'
+    },
+    'source_quality': {
+        'max_age_days': 4,
+        'critical_sources': ['queries', 'action_markets', 'referee_trends'],
+        'supporting_sources': ['action_injuries', 'action_weather', 'rotowire'],
+        'strict_sources': False,
+        'block_picks_on_unsafe': True
+    }
+}
+
+def load_model_config():
+    path = os.getenv("NFL_MODEL_CONFIG", "config/model_config.json")
+    config = dict(DEFAULT_MODEL_CONFIG)
+    try:
+        if os.path.exists(path):
+            with open(path, "r") as f:
+                loaded = json.load(f)
+            config.update({k: v for k, v in loaded.items() if k != "factor_weights"})
+            weights = dict(DEFAULT_MODEL_CONFIG["factor_weights"])
+            weights.update(loaded.get("factor_weights", {}))
+            config["factor_weights"] = weights
+            selector = dict(DEFAULT_MODEL_CONFIG["selector"])
+            selector.update(loaded.get("selector", {}))
+            config["selector"] = selector
+            source_quality = dict(DEFAULT_MODEL_CONFIG["source_quality"])
+            source_quality.update(loaded.get("source_quality", {}))
+            config["source_quality"] = source_quality
+    except Exception as e:
+        print(f"⚠️ Could not load model config {path}: {e}")
+    return config
+
+MODEL_CONFIG = load_model_config()
+MODEL_VERSION = MODEL_CONFIG.get('model_version', 'unknown')
+
+# Define weights for each factor's score contribution to the total_score.
+FACTOR_WEIGHTS = MODEL_CONFIG.get('factor_weights', {
     'sharp_consensus_score': 1.5,   # High influence
     'referee_ats_score': 0.7,
     'referee_ou_score': 0.7,
@@ -43,9 +126,11 @@ FACTOR_WEIGHTS = {
     'injury_score': 1.2,
     'situational_score': 1.0,
     'statistical_score': 1.8,       # Highest influence
-    'game_theory_score': 1.0,
+    'game_theory_score': 0.0,
     'schedule_score': 0.8
-}
+})
+SELECTOR_CONFIG = MODEL_CONFIG.get('selector', DEFAULT_MODEL_CONFIG['selector'])
+SOURCE_QUALITY_CONFIG = MODEL_CONFIG.get('source_quality', DEFAULT_MODEL_CONFIG['source_quality'])
 
 # Define conflict penalties and caps (Now externalized)
 ANALYSIS_CONFIG = {
@@ -59,24 +144,11 @@ ANALYSIS_CONFIG = {
     'CONFIDENCE_CAP_TOTAL_CONFLICT': 4 
 }
 
+NFLVERSE_SCHEDULES_URL = "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv"
+
 # ================================================================
 # CONSTANTS
 # ================================================================
-
-TEAM_MAP = {
-    "ARI": "Arizona Cardinals", "ATL": "Atlanta Falcons", "BAL": "Baltimore Ravens",
-    "BUF": "Buffalo Bills", "CAR": "Carolina Panthers", "CHI": "Chicago Bears",
-    "CIN": "Cincinnati Bengals", "CLE": "Cleveland Browns", "DAL": "Dallas Cowboys",
-    "DEN": "Denver Broncos", "DET": "Detroit Lions", "GB": "Green Bay Packers",
-    "HOU": "Houston Texans", "IND": "Indianapolis Colts", "JAX": "Jacksonville Jaguars",
-    "KC": "Kansas City Chiefs", "LAC": "Los Angeles Chargers", "LAR": "Los Angeles Rams",
-    "LV": "Las Vegas Raiders", "MIA": "Miami Dolphins", "MIN": "Minnesota Vikings",
-    "NE": "New England Patriots", "NO": "New Orleans Saints", "NYG": "New York Giants",
-    "NYJ": "New York Jets", "PHI": "Philadelphia Eagles", "PIT": "Pittsburgh Steelers",
-    "SEA": "Seattle Seahawks", "SF": "San Francisco 49ers", "TB": "Tampa Bay Buccaneers",
-    "TEN": "Tennessee Titans", "WAS": "Washington Commanders"
-}
-FULL_NAME_TO_TLA = {v.lower(): k for k, v in TEAM_MAP.items()}
 
 # --- DATA CONSTANT: SCHEDULE REST DATA ---
 # This dictionary holds the rest days for all teams entering each week of the 2025 NFL season.
@@ -203,30 +275,290 @@ def find_latest(prefix):
     return None
 
 
-def normalize_matchup(s):
-    """Normalize matchup string for consistent matching"""
-    if not s:
-        return ""
-    s = s.lower().strip()
+def exact_file_or_latest(env_name, prefix):
+    if env_name in os.environ:
+        return os.environ.get(env_name) or None
+    return find_latest(prefix)
 
-    # Unify separators
-    s = s.replace(" at ", " @ ")
-    s = s.replace(" vs ", " @ ")
-    s = s.replace(" vs. ", " @ ")
-    s = s.replace("  ", " ")
-    
-    # Split into teams
-    parts = [p.strip() for p in s.split("@")]
-    if len(parts) != 2:
-        return s
 
-    left, right = parts
+def parse_date_from_text(text):
+    if not text:
+        return None
+    match = re.search(r"(\d{4}-\d{2}-\d{2})", str(text))
+    if not match:
+        return None
+    try:
+        return datetime.strptime(match.group(1), "%Y-%m-%d").date()
+    except ValueError:
+        return None
 
-    # Convert abbreviations to full names
-    left = TEAM_MAP[left.upper()] if left.upper() in TEAM_MAP else left
-    right = TEAM_MAP[right.upper()] if right.upper() in TEAM_MAP else right
 
-    return f"{left.lower()} @ {right.lower()}"
+def parse_datetime_from_text(text):
+    if not text:
+        return None
+    raw = str(text).strip()
+    try:
+        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+    except ValueError:
+        parsed_date = parse_date_from_text(raw)
+        if parsed_date:
+            return datetime.combine(parsed_date, datetime.min.time(), tzinfo=timezone.utc)
+    return None
+
+
+def file_week_from_name(path):
+    if not path:
+        return None
+    match = re.search(r"week(\d+)", os.path.basename(str(path)).lower())
+    return int(match.group(1)) if match else None
+
+
+def latest_date_from_column(df, column):
+    if df.empty or column not in df.columns:
+        return None
+    parsed = pd.to_datetime(df[column], errors="coerce")
+    if parsed.dropna().empty:
+        return None
+    return parsed.max().date()
+
+
+def source_quality(name, path, df, week=None, target_date=None, required=False):
+    info = {
+        "name": name,
+        "path": path or "",
+        "rows": int(len(df)) if isinstance(df, pd.DataFrame) else 0,
+        "status": "OK",
+        "warnings": [],
+        "critical_warnings": []
+    }
+    if not path:
+        info["warnings"].append("missing file path")
+    elif not os.path.exists(path):
+        info["critical_warnings"].append("file does not exist")
+    if required and info["rows"] == 0:
+        info["critical_warnings"].append("required source has no rows")
+
+    filename_date = parse_date_from_text(path)
+    if filename_date:
+        info["filename_date"] = filename_date.isoformat()
+
+    fetched_date = latest_date_from_column(df, "Fetched") or latest_date_from_column(df, "fetched")
+    if fetched_date:
+        info["fetched_date"] = fetched_date.isoformat()
+
+    source_date = fetched_date or filename_date
+    if source_date and target_date:
+        max_age_days = int(os.getenv("DATA_QUALITY_MAX_AGE_DAYS", str(SOURCE_QUALITY_CONFIG.get("max_age_days", 4))))
+        age_days = (target_date - source_date).days
+        info["age_days"] = age_days
+        if age_days > max_age_days:
+            info["warnings"].append(f"source is {age_days} days older than target date")
+        if age_days < -1:
+            info["critical_warnings"].append(f"source date is after target date by {abs(age_days)} days")
+
+    embedded_week = file_week_from_name(path)
+    if embedded_week is not None:
+        info["file_week"] = embedded_week
+        if week is not None and embedded_week != week:
+            info["critical_warnings"].append(f"file week {embedded_week} does not match analysis week {week}")
+
+    if info["critical_warnings"]:
+        info["status"] = "UNSAFE"
+    elif info["warnings"]:
+        info["status"] = "DEGRADED"
+
+    return info
+
+
+def build_data_quality_report(week, sources):
+    target_date = parse_date_from_text(os.getenv("ANALYZER_TARGET_DATE"))
+    critical_sources = set(SOURCE_QUALITY_CONFIG.get("critical_sources", []))
+    strict_sources = bool(SOURCE_QUALITY_CONFIG.get("strict_sources", False))
+    report = {
+        "status": "OK",
+        "target_date": target_date.isoformat() if target_date else "",
+        "sources": {},
+        "warnings": [],
+        "critical_warnings": [],
+        "degraded_sources": [],
+        "unsafe_sources": []
+    }
+    for name, payload in sources.items():
+        info = source_quality(
+            name,
+            payload.get("path"),
+            payload.get("df", pd.DataFrame()),
+            week=week,
+            target_date=target_date,
+            required=payload.get("required", False)
+        )
+        if info["status"] == "UNSAFE" or (name in critical_sources and (info["warnings"] or info["critical_warnings"])):
+            info["status"] = "UNSAFE"
+        elif strict_sources and info["warnings"]:
+            info["status"] = "UNSAFE"
+
+        report["sources"][name] = info
+        report["warnings"].extend([f"{name}: {warning}" for warning in info["warnings"]])
+        report["critical_warnings"].extend([f"{name}: {warning}" for warning in info["critical_warnings"]])
+        if info["status"] == "UNSAFE":
+            report["unsafe_sources"].append(name)
+        elif info["status"] == "DEGRADED":
+            report["degraded_sources"].append(name)
+
+    if report["unsafe_sources"] or report["critical_warnings"]:
+        report["status"] = "UNSAFE"
+    elif report["degraded_sources"] or report["warnings"]:
+        report["status"] = "DEGRADED"
+    return report
+
+
+def analysis_reference_time():
+    reference_time = parse_datetime_from_text(os.getenv("ANALYZER_REFERENCE_TIME"))
+    if reference_time:
+        return reference_time
+    target_time = parse_datetime_from_text(os.getenv("ANALYZER_TARGET_DATE"))
+    if target_time:
+        return target_time
+    return datetime.now(timezone.utc)
+
+
+def file_fingerprint(path):
+    info = {
+        "path": path or "",
+        "exists": False,
+        "size_bytes": None,
+        "modified_at": "",
+        "sha256": "",
+    }
+    if not path or not os.path.exists(path):
+        return info
+
+    stat = os.stat(path)
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+
+    info.update({
+        "exists": True,
+        "size_bytes": stat.st_size,
+        "modified_at": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
+        "sha256": digest.hexdigest(),
+    })
+    return info
+
+
+def manifest_input_files(data_quality):
+    sources = data_quality.get("sources", {}) if isinstance(data_quality, dict) else {}
+    files = {
+        name: file_fingerprint(source.get("path", ""))
+        for name, source in sources.items()
+    }
+    config_path = os.getenv("NFL_MODEL_CONFIG", "config/model_config.json")
+    files["model_config"] = file_fingerprint(config_path)
+    return files
+
+
+def build_source_health(run_manifest):
+    data_quality = run_manifest.get("data_quality", {})
+    sources = data_quality.get("sources", {})
+    input_files = run_manifest.get("input_files", {})
+    source_rows = []
+
+    for name, source in sources.items():
+        fingerprint = input_files.get(name, {})
+        source_rows.append({
+            "name": name,
+            "status": source.get("status", "UNKNOWN"),
+            "rows": source.get("rows", 0),
+            "path": source.get("path", ""),
+            "exists": fingerprint.get("exists", False),
+            "size_bytes": fingerprint.get("size_bytes"),
+            "modified_at": fingerprint.get("modified_at", ""),
+            "sha256": fingerprint.get("sha256", ""),
+            "age_days": source.get("age_days"),
+            "file_week": source.get("file_week"),
+            "filename_date": source.get("filename_date", ""),
+            "fetched_date": source.get("fetched_date", ""),
+            "warnings": source.get("warnings", []),
+            "critical_warnings": source.get("critical_warnings", []),
+        })
+
+    return {
+        "week": run_manifest.get("week"),
+        "model_version": run_manifest.get("model_version", ""),
+        "generated_at": run_manifest.get("generated_at", ""),
+        "analysis_reference_time": run_manifest.get("analysis_reference_time", ""),
+        "analysis_target_date": run_manifest.get("analysis_target_date", ""),
+        "status": data_quality.get("status", "UNKNOWN"),
+        "unsafe_sources": data_quality.get("unsafe_sources", []),
+        "degraded_sources": data_quality.get("degraded_sources", []),
+        "warnings": data_quality.get("warnings", []),
+        "critical_warnings": data_quality.get("critical_warnings", []),
+        "sources": source_rows,
+    }
+
+
+def write_source_health_text(path, source_health):
+    with open(path, "w") as f:
+        f.write(f"NFL WEEK {source_health.get('week')} - SOURCE HEALTH\n")
+        f.write(f"Status: {source_health.get('status', 'UNKNOWN')}\n")
+        f.write(f"Model: {source_health.get('model_version', '')}\n")
+        f.write(f"Reference Time: {source_health.get('analysis_reference_time', '')}\n")
+        f.write("=" * 70 + "\n\n")
+        for source in source_health.get("sources", []):
+            f.write(f"{source['name']}: {source['status']}\n")
+            f.write(f"  Rows: {source.get('rows', 0)} | Exists: {source.get('exists')}\n")
+            f.write(f"  Path: {source.get('path', '')}\n")
+            if source.get("sha256"):
+                f.write(f"  SHA256: {source['sha256']}\n")
+            if source.get("age_days") is not None:
+                f.write(f"  Age Days: {source['age_days']}\n")
+            for warning in source.get("critical_warnings", []):
+                f.write(f"  CRITICAL: {warning}\n")
+            for warning in source.get("warnings", []):
+                f.write(f"  Warning: {warning}\n")
+            f.write("\n")
+
+
+def apply_source_safety_policy(game_analysis, data_quality):
+    if (
+        data_quality.get("status") == "UNSAFE"
+        and SOURCE_QUALITY_CONFIG.get("block_picks_on_unsafe", True)
+        and game_analysis.get("pick_metadata", {}).get("market") != "none"
+    ):
+        game_analysis["source_blocked_recommendation"] = game_analysis.get("recommendation", "")
+        game_analysis["source_blocked_pick_metadata"] = game_analysis.get("pick_metadata", {})
+        game_analysis["classification"] = "⚠️ PASS"
+        game_analysis["classification_label"] = "PASS"
+        game_analysis["tier_score"] = 3
+        game_analysis["recommendation"] = "⚠️ PASS: Unsafe source quality blocked recommendation"
+        game_analysis["pick_metadata"] = {
+            "market": "none",
+            "reason": "unsafe source quality",
+            "blocked_market": game_analysis["source_blocked_pick_metadata"].get("market"),
+            "blocked_side": game_analysis["source_blocked_pick_metadata"].get("side"),
+            "blocked_score": game_analysis["source_blocked_pick_metadata"].get("score"),
+        }
+        trace = game_analysis.get("recommendation_trace") or {}
+        trace["source_policy"] = {
+            "status": data_quality.get("status"),
+            "blocked": True,
+            "unsafe_sources": data_quality.get("unsafe_sources", []),
+            "critical_warnings": data_quality.get("critical_warnings", []),
+        }
+        trace["final_decision"] = {
+            "market": "none",
+            "side": None,
+            "reason": "unsafe source quality",
+            "blocked_previous_market": game_analysis["source_blocked_pick_metadata"].get("market"),
+            "blocked_previous_side": game_analysis["source_blocked_pick_metadata"].get("side"),
+        }
+        game_analysis["recommendation_trace"] = trace
+    return game_analysis
 
 
 def parse_injury_entry(entry_text, away_team, home_team):
@@ -327,7 +659,7 @@ def match_player_to_whitelist(player_name, team):
                 if (name_lower in player_whitelist_name or 
                     player_whitelist_name in name_lower):
                     if team_abbrev == player_data['team']:
-                        print(f"✅ MATCH FOUND: {player_id}")
+                        debug_log(f"✅ MATCH FOUND: {player_id}")
                         return player_id
         
         return None
@@ -854,7 +1186,7 @@ class InjuryAnalyzer:
                 player_data = self.players_dict[player_id]
                 impact = self.calculate_player_impact(injury, player_data)
                 total_impact += impact
-                print(f"🏥 INJURY IMPACT: {injury['player']} ({team_for_matching}) = {impact:.1f} points")
+                debug_log(f"🏥 INJURY IMPACT: {injury['player']} ({team_for_matching}) = {impact:.1f} points")
         
         return min(total_impact, 10)  # Cap at 10 points
 
@@ -981,9 +1313,9 @@ class InjuryAnalyzer:
                 # Your enhanced function logic here
                 pass
         
-        print("Testing enhanced player matching:")
+        debug_log("Testing enhanced player matching:")
         for player, team, expected in test_cases:
-            print(f"'{player}' + '{team}' -> Expected: {expected}")
+            debug_log(f"'{player}' + '{team}' -> Expected: {expected}")
     
     if __name__ == "__main__":
         test_enhanced_matching()
@@ -1420,7 +1752,7 @@ class SituationalAnalyzer:
 # ================================================================
 
 class StatisticalAnalyzer:
-    """Advanced statistical modeling for team performance"""
+    """Current-season team rating model from nflverse results."""
     
     @staticmethod
     def calculate_implied_probability(line):
@@ -1442,30 +1774,169 @@ class StatisticalAnalyzer:
             return 0.5
     
     @staticmethod
-    def estimate_team_rating(team_name, week):
-        """Estimate team strength rating"""
-        # Rough estimates based on general team strength
-        strong_teams = ['Chiefs', 'Bills', 'Ravens', '49ers', 'Cowboys', 'Eagles']
-        weak_teams = ['Panthers', 'Cardinals', 'Patriots', 'Broncos']
-        
-        if team_name in strong_teams:
-            return 85
-        elif team_name in weak_teams:
-            return 65
-        else:
-            return 75  # Average
-    
+    def default_season():
+        env_season = os.getenv("NFL_SEASON")
+        if env_season:
+            try:
+                return int(env_season)
+            except ValueError:
+                pass
+
+        now = datetime.now()
+        return now.year - 1 if now.month <= 2 else now.year
+
     @staticmethod
-    def calculate_expected_margin(away_team, home_team, week):
-        """Calculate expected point margin based on team ratings"""
-        away_rating = StatisticalAnalyzer.estimate_team_rating(away_team, week)
-        home_rating = StatisticalAnalyzer.estimate_team_rating(home_team, week)
-        
-        # Home field advantage (~3 points)
-        home_advantage = 3
-        expected_margin = (home_rating + home_advantage) - away_rating
-        
-        return expected_margin
+    def default_season_type(week=None):
+        return normalize_season_type(os.getenv("NFL_SEASON_TYPE"), week)
+
+    @staticmethod
+    @lru_cache(maxsize=16)
+    def load_completed_games(season, week, season_type="REG"):
+        """Load completed games before the week being analyzed."""
+        try:
+            season_type = normalize_season_type(season_type, week)
+            usecols = [
+                'season', 'game_type', 'week',
+                'away_team', 'home_team', 'away_score', 'home_score'
+            ]
+            games = pd.read_csv(NFLVERSE_SCHEDULES_URL, usecols=usecols)
+            if season_type == "POST":
+                game_mask = (
+                    (games['game_type'] == 'REG')
+                    | (
+                        games['game_type'].isin(nflverse_game_types("POST"))
+                        & (games['week'] < week)
+                    )
+                )
+            else:
+                game_mask = (
+                    games['game_type'].isin(nflverse_game_types("REG"))
+                    & (games['week'] < week)
+                )
+            games = games[
+                (games['season'] == season)
+                & game_mask
+            ].copy()
+            games = games.dropna(subset=['away_score', 'home_score'])
+            return games
+        except Exception as e:
+            print(f"⚠️ Statistical model could not load nflverse schedules: {e}")
+            return pd.DataFrame()
+
+    @staticmethod
+    def team_code(team_name):
+        if team_name in TEAM_MAP:
+            return team_name
+        return FULL_NAME_TO_TLA.get(str(team_name).lower(), str(team_name).upper())
+
+    @staticmethod
+    @lru_cache(maxsize=64)
+    def build_team_ratings(season, week, season_type="REG"):
+        season_type = normalize_season_type(season_type, week)
+        games = StatisticalAnalyzer.load_completed_games(season, week, season_type)
+        source_season = season
+        source_label = f"season {season}, {season_type} pre-Week {week}"
+
+        if games.empty and season_type == "REG" and week <= 4:
+            source_season = season - 1
+            source_label = f"previous-season prior ({source_season})"
+            games = StatisticalAnalyzer.load_completed_games(source_season, 99, "REG")
+
+        if games.empty:
+            return {}
+
+        rows = []
+        for _, game in games.iterrows():
+            away = game['away_team']
+            home = game['home_team']
+            away_score = float(game['away_score'])
+            home_score = float(game['home_score'])
+
+            rows.append({
+                'team': away,
+                'opponent': home,
+                'week': int(game['week']),
+                'margin': away_score - home_score,
+                'points_for': away_score,
+                'points_against': home_score,
+            })
+            rows.append({
+                'team': home,
+                'opponent': away,
+                'week': int(game['week']),
+                'margin': home_score - away_score,
+                'points_for': home_score,
+                'points_against': away_score,
+            })
+
+        team_games = pd.DataFrame(rows)
+        base = team_games.groupby('team').agg(
+            games=('margin', 'count'),
+            avg_margin=('margin', 'mean'),
+            avg_points_for=('points_for', 'mean'),
+            avg_points_against=('points_against', 'mean'),
+        )
+
+        latest_weeks = sorted(team_games['week'].unique())[-4:]
+        recent = (
+            team_games[team_games['week'].isin(latest_weeks)]
+            .groupby('team')['margin']
+            .mean()
+            .rename('recent_margin')
+        )
+        base = base.join(recent, how='left')
+        base['recent_margin'] = base['recent_margin'].fillna(base['avg_margin'])
+
+        opponent_strength = {}
+        for team, group in team_games.groupby('team'):
+            opponent_margins = []
+            for opponent in group['opponent']:
+                if opponent in base.index:
+                    opponent_margins.append(base.at[opponent, 'avg_margin'])
+            opponent_strength[team] = float(np.mean(opponent_margins)) if opponent_margins else 0.0
+
+        ratings = {}
+        for team, row in base.iterrows():
+            sos = opponent_strength.get(team, 0.0)
+            rating = (
+                row['avg_margin'] * 0.60
+                + row['recent_margin'] * 0.25
+                + sos * 0.15
+            )
+            ratings[team] = {
+                'rating': round(float(rating), 2),
+                'games': int(row['games']),
+                'avg_margin': round(float(row['avg_margin']), 2),
+                'recent_margin': round(float(row['recent_margin']), 2),
+                'sos': round(float(sos), 2),
+                'avg_points_for': round(float(row['avg_points_for']), 1),
+                'avg_points_against': round(float(row['avg_points_against']), 1),
+                'source_season': source_season,
+                'source_label': source_label,
+            }
+
+        return ratings
+
+    @staticmethod
+    def parse_home_spread(spread_line):
+        """Extract the home team's spread from an Action Network line string."""
+        return home_spread_from_line(spread_line)
+
+    @staticmethod
+    def calculate_expected_home_margin(away_team, home_team, week, season=None, season_type=None):
+        """Estimate home-team margin using actual current-season results."""
+        season = season or StatisticalAnalyzer.default_season()
+        season_type = normalize_season_type(season_type or StatisticalAnalyzer.default_season_type(week), week)
+        ratings = StatisticalAnalyzer.build_team_ratings(season, week, season_type)
+        away_tla = StatisticalAnalyzer.team_code(away_team)
+        home_tla = StatisticalAnalyzer.team_code(home_team)
+
+        if away_tla not in ratings or home_tla not in ratings:
+            return None, {}, {}
+
+        home_field = 1.5
+        expected_margin = ratings[home_tla]['rating'] - ratings[away_tla]['rating'] + home_field
+        return round(expected_margin, 1), ratings[away_tla], ratings[home_tla]
     
     @staticmethod
     def analyze_line_value(away_team, home_team, spread_line, week):
@@ -1474,28 +1945,51 @@ class StatisticalAnalyzer:
         score = 0
         
         try:
-            # Extract spread value
-            import re
-            spread_match = re.search(r'([+-]?\d+\.?\d*)', str(spread_line))
-            if not spread_match:
+            season = StatisticalAnalyzer.default_season()
+            season_type = StatisticalAnalyzer.default_season_type(week)
+            home_spread = StatisticalAnalyzer.parse_home_spread(spread_line)
+            if home_spread is None:
                 return score, factors
-            
-            market_spread = float(spread_match.group(1))
-            expected_margin = StatisticalAnalyzer.calculate_expected_margin(away_team, home_team, week)
-            
-            # Compare market line to our expectation
-            value_difference = expected_margin - market_spread
-            
+
+            expected_home_margin, away_rating, home_rating = StatisticalAnalyzer.calculate_expected_home_margin(
+                away_team, home_team, week, season=season, season_type=season_type
+            )
+            if expected_home_margin is None:
+                factors.append(f"No current-season team rating yet for {season} {season_type} Week {week}")
+                return score, factors
+
+            # Positive edge favors home against the spread; negative favors away.
+            value_difference = expected_home_margin + home_spread
+
             if abs(value_difference) >= 3:
                 if value_difference > 0:
                     score += 2
-                    factors.append(f"Statistical value on home team ({value_difference:+.1f} points)")
+                    factors.append(
+                        f"Current-season value on home team ({value_difference:+.1f} pts; "
+                        f"projected home margin {expected_home_margin:+.1f})"
+                    )
                 else:
                     score += 2
-                    factors.append(f"Statistical value on away team ({abs(value_difference):.1f} points)")
+                    factors.append(
+                        f"Current-season value on away team ({abs(value_difference):.1f} pts; "
+                        f"projected home margin {expected_home_margin:+.1f})"
+                    )
             elif abs(value_difference) >= 1.5:
                 score += 1
-                factors.append(f"Modest statistical edge ({abs(value_difference):.1f} points)")
+                side = "home" if value_difference > 0 else "away"
+                factors.append(
+                    f"Modest current-season edge on {side} ({abs(value_difference):.1f} pts; "
+                    f"projected home margin {expected_home_margin:+.1f})"
+                )
+
+            if factors:
+                away_tla = StatisticalAnalyzer.team_code(away_team)
+                home_tla = StatisticalAnalyzer.team_code(home_team)
+                factors.append(
+                    f"Ratings: {away_tla} {away_rating.get('rating', 0):+.1f}, "
+                    f"{home_tla} {home_rating.get('rating', 0):+.1f} "
+                    f"({home_rating.get('source_label', f'season {season}, pre-Week {week}')})"
+                )
                 
         except (ValueError, TypeError):
             pass
@@ -1514,67 +2008,54 @@ class GameTheoryAnalyzer:
     def analyze_market_efficiency(sharp_edge, public_pct):
         """Analyze how efficiently the market is pricing this game"""
         factors = []
-        score = 0
         
         # Large sharp edges suggest market inefficiency
         if abs(sharp_edge) >= 10:
-            score += 2
             factors.append(f"Market inefficiency detected ({sharp_edge:+.1f}% sharp edge)")
         elif abs(sharp_edge) >= 5:
-            score += 1
             factors.append(f"Market mispricing possible ({sharp_edge:+.1f}% edge)")
         
         # Extreme public betting percentages
         if public_pct >= 80 or public_pct <= 20:
-            score += 1
             factors.append(f"Extreme public sentiment ({public_pct:.0f}% on one side)")
         
-        return score, factors
+        return 0, factors
     
     @staticmethod
     def detect_steam_moves(sharp_edge, public_pct):
         """Detect potential steam move scenarios"""
         factors = []
-        score = 0
         
         # Steam move: Sharp money against public sentiment
         if sharp_edge > 8 and public_pct > 65:
-            score += 3
             factors.append("STEAM MOVE: Sharps heavily against public")
         elif sharp_edge < -8 and public_pct < 35:
-            score += 3
             factors.append("STEAM MOVE: Sharps heavily against public")
         elif abs(sharp_edge) >= 5 and ((sharp_edge > 0 and public_pct > 60) or (sharp_edge < 0 and public_pct < 40)):
-            score += 2
             factors.append("Potential steam move developing")
             
-        return score, factors
+        return 0, factors
     
     @staticmethod
     def analyze_contrarian_value(public_pct, prime_time, team_popularity):
         """Identify contrarian betting opportunities"""
         factors = []
-        score = 0
         
         # High public percentage + popular team = contrarian opportunity
         if public_pct >= 70:
-            score += 1
             factors.append("High contrarian value (fade the public)")
             
             if prime_time:
-                score += 1
                 factors.append("Primetime public overreaction")
                 
             if team_popularity == "high":
-                score += 1
                 factors.append("Popular team getting overbet")
         
         # Low public percentage on popular team = potential value
         elif public_pct <= 30 and team_popularity == "high":
-            score += 1
             factors.append("Popular team getting underbet")
             
-        return score, factors
+        return 0, factors
     
     @staticmethod
     def analyze(game_data):
@@ -1739,15 +2220,15 @@ class NarrativeEngine:
         # Check if required keys exist
         required_keys = ['direction', 'differential']
         if not all(key in spread for key in required_keys):
-            print(f"🔍 DEBUG: Missing keys in spread: {list(spread.keys())}")
+            debug_log(f"🔍 DEBUG: Missing keys in spread: {list(spread.keys())}")
             return ["Sharp spread analysis incomplete"]
         
         if not all(key in total for key in required_keys):
-            print(f"🔍 DEBUG: Missing keys in total: {list(total.keys())}")
+            debug_log(f"🔍 DEBUG: Missing keys in total: {list(total.keys())}")
             return ["Sharp total analysis incomplete"]
         
         if 'direction' not in ml:
-            print(f"🔍 DEBUG: Missing keys in moneyline: {list(ml.keys())}")
+            debug_log(f"🔍 DEBUG: Missing keys in moneyline: {list(ml.keys())}")
             return ["Sharp moneyline analysis incomplete"]
         
         stories = []
@@ -1915,9 +2396,9 @@ class ClassificationEngine:
     def classify_game(game_analysis):
         """Determine game classification"""
         total = game_analysis['total_score']
-        sharp_score = game_analysis['sharp_consensus_score']
-        ref_score = game_analysis['referee_analysis']['ats_score']
-        injury_score = game_analysis['injury_analysis']['score']
+        sharp_score = abs(game_analysis['sharp_consensus_score'])
+        ref_score = abs(game_analysis['referee_analysis']['ats_score'])
+        injury_score = abs(game_analysis['injury_analysis']['score'])
         
         # Blue Chip: Strong alignment across all factors (15+ confidence)
         if total >= 15 and sharp_score >= 2 and (ref_score >= 2 or injury_score >= 3):
@@ -1935,7 +2416,7 @@ class ClassificationEngine:
         if sharp_score >= 2 and game_analysis.get('public_exposure', 0) >= 65:
             return "🚨 TRAP GAME", "FADE PUBLIC", 4
         
-        # Fade: Multiple negative factors
+        # Fade: reserved for true negative aggregate risk
         if total <= -2:
             return "❌ FADE", "AVOID", 2
         
@@ -2084,44 +2565,380 @@ class ClassificationEngine:
         else:
             return '-' + spread_str
 
+
+class RecommendationSelector:
+    """Choose the bet market that best matches the strongest aligned signals."""
+
+    @staticmethod
+    def spread_side_from_stat_factors(factors):
+        text = " ".join(factors).lower()
+        if "value on home" in text or "edge on home" in text:
+            return "HOME"
+        if "value on away" in text or "edge on away" in text:
+            return "AWAY"
+        return "NEUTRAL"
+
+    @staticmethod
+    def total_side_from_context(referee_analysis, weather_analysis):
+        score = 0
+        factors = []
+
+        ou_score = referee_analysis.get('ou_score', 0)
+        if ou_score > 0:
+            score += ou_score
+            factors.append("referee over trend")
+        elif ou_score < 0:
+            score += ou_score
+            factors.append("referee under trend")
+
+        weather_score = weather_analysis.get('score', 0)
+        weather_text = " ".join(weather_analysis.get('factors', [])).lower()
+        if weather_score >= 2 and any(term in weather_text for term in ['wind', 'cold', 'snow', 'rain']):
+            score -= min(weather_score, 3)
+            factors.append("weather suppresses scoring")
+
+        return score, factors
+
+    @staticmethod
+    def format_spread(side, away_team, home_team, spread_num):
+        return ClassificationEngine.generate_primary_bet(side, away_team, home_team, spread_num)
+
+    @staticmethod
+    def format_total(side, total_num):
+        return ClassificationEngine.generate_total_bet(side, total_num)
+
+    @staticmethod
+    def label_for_score(score):
+        if score >= SELECTOR_CONFIG.get('strong_score', 6):
+            return "✅ STRONG PLAY"
+        if score >= SELECTOR_CONFIG.get('targeted_score', 4):
+            return "🎯 TARGETED PLAY"
+        return "👀 LEAN"
+
+    @staticmethod
+    def classification_for_pick(pick_metadata):
+        market = pick_metadata.get('market')
+        if market in (None, 'none'):
+            reason = pick_metadata.get('reason', '')
+            if 'fade' in reason:
+                return "❌ FADE", "AVOID", 2
+            return "⚠️ PASS", "PASS", 3
+
+        score = pick_metadata.get('score', 0)
+        if score >= SELECTOR_CONFIG.get('strong_score', 6):
+            return "🔵 BLUE CHIP", "STRONG PLAY", 9
+        if score >= SELECTOR_CONFIG.get('targeted_score', 4):
+            return "🎯 TARGETED PLAY", "SOLID EDGE", 7
+        return "📊 LEAN", "SLIGHT EDGE", 5
+
+    @staticmethod
+    def pass_metadata(reason, spread_trace=None, total_trace=None, final_reason=None):
+        trace = {
+            "selector_version": MODEL_VERSION,
+            "market_candidates": {
+                "spread": spread_trace or {},
+                "total": total_trace or {},
+            },
+            "final_decision": {
+                "market": "none",
+                "side": None,
+                "reason": final_reason or reason,
+            }
+        }
+        return {
+            'market': 'none',
+            'reason': reason,
+            'spread_score': (spread_trace or {}).get('score'),
+            'total_score': (total_trace or {}).get('score'),
+            'trace': trace,
+        }
+
+    @staticmethod
+    def play_metadata(market, side, score, reasons, spread_trace, total_trace):
+        trace = {
+            "selector_version": MODEL_VERSION,
+            "market_candidates": {
+                "spread": spread_trace,
+                "total": total_trace,
+            },
+            "final_decision": {
+                "market": market,
+                "side": side,
+                "score": score,
+                "reason": f"{market} candidate cleared threshold and ranked highest",
+            }
+        }
+        return {
+            'market': market,
+            'side': side,
+            'score': score,
+            'reasons': reasons,
+            'spread_score': spread_trace.get('score'),
+            'total_score': total_trace.get('score'),
+            'trace': trace,
+        }
+
+    @staticmethod
+    def select(classification, game_analysis):
+        if "FADE" in classification:
+            return "❌ AVOID: Multiple negative factors align", RecommendationSelector.pass_metadata(
+                "fade classification",
+                final_reason="signal classification was FADE"
+            )
+        if "LANDMINE" in classification:
+            return "⚠️ PASS: Mixed signals, no clear edge identified", RecommendationSelector.pass_metadata(
+                "landmine classification",
+                final_reason="signal classification was LANDMINE"
+            )
+
+        sharp = game_analysis['sharp_analysis']
+        away_team = game_analysis.get('away', '')
+        home_team = game_analysis.get('home', '')
+        spread_num = ClassificationEngine.extract_spread_number(sharp.get('spread', {}).get('line', ''))
+        total_num = ClassificationEngine.extract_total_number(sharp.get('total', {}).get('line', ''))
+
+        spread_score = 0
+        spread_reasons = []
+        spread_signals = []
+        spread_conflicts = []
+        spread_blockers = []
+        spread_side = sharp.get('spread', {}).get('direction', 'NEUTRAL')
+        sharp_spread_score = sharp.get('spread', {}).get('score', 0)
+        has_sharp_spread_edge = spread_side in {'AWAY', 'HOME'} and sharp_spread_score != 0
+        spread_blocked = False
+        if spread_side in {'AWAY', 'HOME'}:
+            spread_score += abs(sharp_spread_score)
+            if sharp_spread_score:
+                spread_reasons.append("sharp spread edge")
+                spread_signals.append({
+                    "source": "sharp",
+                    "side": spread_side,
+                    "score": sharp_spread_score,
+                    "impact": abs(sharp_spread_score),
+                    "status": "aligned",
+                })
+        else:
+            spread_blockers.append("no sharp spread side")
+
+        stat_side = RecommendationSelector.spread_side_from_stat_factors(
+            game_analysis.get('statistical_analysis', {}).get('factors', [])
+        )
+        stat_score = game_analysis.get('statistical_analysis', {}).get('score', 0) or 0
+        if stat_side in {'AWAY', 'HOME'}:
+            if spread_side == 'NEUTRAL':
+                spread_side = stat_side
+            if stat_side == spread_side:
+                spread_score += stat_score
+                spread_reasons.append("team-rating edge aligns")
+                spread_signals.append({
+                    "source": "team_rating",
+                    "side": stat_side,
+                    "score": stat_score,
+                    "impact": stat_score,
+                    "status": "aligned",
+                })
+            else:
+                if SELECTOR_CONFIG.get('block_spread_on_team_rating_conflict', True):
+                    spread_score = 0
+                    spread_blocked = True
+                    spread_blockers.append("team-rating conflict")
+                else:
+                    spread_score -= stat_score
+                spread_reasons.append("team-rating edge conflicts")
+                spread_conflicts.append({
+                    "source": "team_rating",
+                    "side": stat_side,
+                    "score": stat_score,
+                    "status": "conflict",
+                })
+
+        injury_score = game_analysis.get('injury_analysis', {}).get('score', 0) or 0
+        injury_context_present = False
+        if injury_score > 0:
+            injury_side = 'HOME'
+        elif injury_score < 0:
+            injury_side = 'AWAY'
+        else:
+            injury_side = 'NEUTRAL'
+        if injury_side in {'AWAY', 'HOME'}:
+            injury_context_present = True
+            if spread_side == 'NEUTRAL':
+                spread_side = injury_side
+            if injury_side == spread_side:
+                if SELECTOR_CONFIG.get('injury_spread_mode', 'context') == 'score':
+                    spread_score += min(abs(injury_score), 3)
+                    spread_reasons.append("injury edge aligns")
+                    impact = min(abs(injury_score), 3)
+                else:
+                    spread_reasons.append("injury context aligns")
+                    impact = 0
+                spread_signals.append({
+                    "source": "injury",
+                    "side": injury_side,
+                    "score": injury_score,
+                    "impact": impact,
+                    "status": "aligned",
+                })
+            else:
+                if SELECTOR_CONFIG.get('injury_spread_mode', 'context') == 'score':
+                    spread_score -= min(abs(injury_score), 3)
+                    spread_reasons.append("injury edge conflicts")
+                    impact = -min(abs(injury_score), 3)
+                else:
+                    spread_reasons.append("injury context conflicts")
+                    impact = 0
+                spread_conflicts.append({
+                    "source": "injury",
+                    "side": injury_side,
+                    "score": injury_score,
+                    "impact": impact,
+                    "status": "conflict",
+                })
+
+        if spread_blocked or (SELECTOR_CONFIG.get('require_sharp_spread_edge', True) and not has_sharp_spread_edge):
+            if SELECTOR_CONFIG.get('require_sharp_spread_edge', True) and not has_sharp_spread_edge:
+                spread_blockers.append("sharp spread edge required")
+            spread_score = 0
+
+        total_score = 0
+        total_reasons = []
+        total_signals = []
+        total_conflicts = []
+        total_blockers = []
+        total_side = sharp.get('total', {}).get('direction', 'NEUTRAL')
+        sharp_total_score = sharp.get('total', {}).get('score', 0)
+        if total_side in {'OVER', 'UNDER'}:
+            total_score += abs(sharp_total_score)
+            if sharp_total_score:
+                total_reasons.append("sharp total edge")
+                total_signals.append({
+                    "source": "sharp",
+                    "side": total_side,
+                    "score": sharp_total_score,
+                    "impact": abs(sharp_total_score),
+                    "status": "aligned",
+                })
+        else:
+            total_blockers.append("no sharp total side")
+
+        context_total_score, context_reasons = RecommendationSelector.total_side_from_context(
+            game_analysis.get('referee_analysis', {}),
+            game_analysis.get('weather_analysis', {})
+        )
+        context_side = 'OVER' if context_total_score > 0 else 'UNDER' if context_total_score < 0 else 'NEUTRAL'
+        if context_side in {'OVER', 'UNDER'}:
+            if total_side == 'NEUTRAL':
+                total_side = context_side
+            if context_side == total_side:
+                impact = min(abs(context_total_score), 4)
+                total_score += impact
+                total_reasons.extend(context_reasons)
+                total_signals.append({
+                    "source": "ref_weather_context",
+                    "side": context_side,
+                    "score": context_total_score,
+                    "impact": impact,
+                    "status": "aligned",
+                    "reasons": context_reasons,
+                })
+            else:
+                impact = -min(abs(context_total_score), 4)
+                total_score += impact
+                total_reasons.append("ref/weather total context conflicts")
+                total_conflicts.append({
+                    "source": "ref_weather_context",
+                    "side": context_side,
+                    "score": context_total_score,
+                    "impact": impact,
+                    "status": "conflict",
+                    "reasons": context_reasons,
+                })
+
+        if "BLUE CHIP" in classification or "TARGETED" in classification:
+            spread_threshold = SELECTOR_CONFIG.get('spread_threshold_strong_signal', 3)
+        else:
+            spread_threshold = SELECTOR_CONFIG.get('spread_threshold_default', 4)
+        spread_threshold_adjustments = []
+        injury_threshold_bump = SELECTOR_CONFIG.get('injury_context_threshold_bump', 0)
+        if injury_context_present and injury_threshold_bump:
+            spread_threshold += injury_threshold_bump
+            spread_threshold_adjustments.append({
+                "reason": "injury context present",
+                "delta": injury_threshold_bump,
+            })
+        total_threshold = SELECTOR_CONFIG.get('total_threshold', 4)
+
+        spread_trace = {
+            "market": "spread",
+            "side": spread_side,
+            "score": spread_score,
+            "threshold": spread_threshold,
+            "threshold_adjustments": spread_threshold_adjustments,
+            "cleared_threshold": spread_score >= spread_threshold and spread_side in {'AWAY', 'HOME'},
+            "requires_sharp_edge": SELECTOR_CONFIG.get('require_sharp_spread_edge', True),
+            "has_sharp_edge": has_sharp_spread_edge,
+            "blocked": spread_blocked or bool(spread_blockers),
+            "blockers": sorted(set(spread_blockers)),
+            "signals": spread_signals,
+            "conflicts": spread_conflicts,
+            "reasons": spread_reasons,
+        }
+        total_trace = {
+            "market": "total",
+            "side": total_side,
+            "score": total_score,
+            "threshold": total_threshold,
+            "cleared_threshold": total_score >= total_threshold and total_side in {'OVER', 'UNDER'},
+            "blocked": bool(total_blockers) and total_score == 0,
+            "blockers": sorted(set(total_blockers)) if total_score == 0 else [],
+            "signals": total_signals,
+            "conflicts": total_conflicts,
+            "reasons": total_reasons,
+        }
+
+        if spread_score < spread_threshold and total_score < total_threshold:
+            return "⚠️ PASS: Edge score did not isolate a playable market", RecommendationSelector.pass_metadata(
+                "no market cleared threshold",
+                spread_trace,
+                total_trace,
+            )
+
+        if total_score >= total_threshold and total_score > spread_score and total_side in {'OVER', 'UNDER'}:
+            label = RecommendationSelector.label_for_score(total_score)
+            rec = RecommendationSelector.format_total(total_side, total_num)
+            return f"{label}: {rec}", RecommendationSelector.play_metadata(
+                'total',
+                total_side,
+                total_score,
+                total_reasons,
+                spread_trace,
+                total_trace,
+            )
+
+        if spread_score >= spread_threshold and spread_side in {'AWAY', 'HOME'}:
+            label = RecommendationSelector.label_for_score(spread_score)
+            rec = RecommendationSelector.format_spread(spread_side, away_team, home_team, spread_num)
+            caution = " (proceed with caution)" if label == "👀 LEAN" else ""
+            return f"{label}: {rec}{caution}", RecommendationSelector.play_metadata(
+                'spread',
+                spread_side,
+                spread_score,
+                spread_reasons,
+                spread_trace,
+                total_trace,
+            )
+
+        return "⚠️ PASS: No playable spread or total isolated", RecommendationSelector.pass_metadata(
+            "no formatted candidate",
+            spread_trace,
+            total_trace,
+        )
+
 def canonical(team_raw: str) -> str:
-    if not team_raw:
-        return ""
-
-    t = team_raw.strip().lower()
-    
-    # STRIP PLAYOFF SEEDS/RANKINGS (e.g., "panthers4/0" → "panthers")
-    import re
-    t = re.sub(r'[*\d/]+$', '', t)  # Remove numbers, *, / from end
-    
-    # Already TLA
-    if t.upper() in TEAM_MAP:
-        return t.upper()
-
-    # Exact full-name match
-    if t in FULL_NAME_TO_TLA:
-        return FULL_NAME_TO_TLA[t]
-
-    # Partial match
-    for tla, fullname in TEAM_MAP.items():
-        lf = fullname.lower()
-        if t == lf or t in lf or lf in t:
-            return tla
-
-    # Last-chance uppercase
-    return t.upper()
+    return canonical_team(team_raw)
 
 def normalize_matchup(s: str) -> str:
-    if not s:
-        return ""
-
-    s = s.lower().replace(" vs ", "@").replace(" at ", "@").replace(" ", "")
-    parts = s.split("@")
-
-    if len(parts) != 2:
-        return s
-
-    return f"{canonical(parts[0])}@{canonical(parts[1])}"
+    return normalize_matchup_key(s)
 
 def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df, rotowire_data=None):
     # 1. First, define the TLAs for the current game from the input team names
@@ -2147,7 +2964,7 @@ def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df,
                     'team': team_name,
                     'team_tla': away_tla
                 })
-                print(f"✅ Found away injury: {injury['player']} ({away_team})")
+                debug_log(f"✅ Found away injury: {injury['player']} ({away_team})")
                 
             elif injury_tla == home_tla:
                 home_injuries.append({
@@ -2157,10 +2974,51 @@ def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df,
                     'team': team_name,
                     'team_tla': home_tla
                 })
-                print(f"✅ Found home injury: {injury['player']} ({home_team})")
+                debug_log(f"✅ Found home injury: {injury['player']} ({home_team})")
+
+    if rotowire_data is not None and not rotowire_data.empty:
+        try:
+            rotowire_match = rotowire_data[
+                (rotowire_data.get('away_std') == away_tla)
+                & (rotowire_data.get('home_std') == home_tla)
+            ]
+            if not rotowire_match.empty:
+                injury_str = rotowire_match.iloc[0].get('injuries', '')
+                for injury in InjuryAnalyzer.parse_rotowire_injuries(injury_str):
+                    candidate = {
+                        'player': injury.get('player', ''),
+                        'position': injury.get('position', ''),
+                        'status': injury.get('status', ''),
+                        'team': '',
+                        'team_tla': '',
+                        'source': 'rotowire'
+                    }
+
+                    analyzer = InjuryAnalyzer()
+                    away_match = analyzer.enhanced_match_player(candidate['player'], away_tla)
+                    home_match = analyzer.enhanced_match_player(candidate['player'], home_tla)
+
+                    if away_match:
+                        candidate['team'] = away_team
+                        candidate['team_tla'] = away_tla
+                        if not any(
+                            existing['player'].lower() == candidate['player'].lower()
+                            for existing in away_injuries
+                        ):
+                            away_injuries.append(candidate)
+                    elif home_match:
+                        candidate['team'] = home_team
+                        candidate['team_tla'] = home_tla
+                        if not any(
+                            existing['player'].lower() == candidate['player'].lower()
+                            for existing in home_injuries
+                        ):
+                            home_injuries.append(candidate)
+        except Exception as e:
+            print(f"⚠️ RotoWire injury merge failed for {away_tla}@{home_tla}: {e}")
     
     # ← THIS IS WHERE THE WHITELIST CODE SHOULD GO (OUTSIDE ALL LOOPS)
-    print(f"🔍 RAW DATA: {away_team} has {len(away_injuries)} injuries, {home_team} has {len(home_injuries)} injuries")
+    debug_log(f"🔍 RAW DATA: {away_team} has {len(away_injuries)} injuries, {home_team} has {len(home_injuries)} injuries")
     
     # Apply whitelist filtering
     analyzer = InjuryAnalyzer()
@@ -2181,7 +3039,7 @@ def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df,
     away_impact = analyzer.calculate_team_impact(whitelist_away, away_team)
     home_impact = analyzer.calculate_team_impact(whitelist_home, home_team)
     
-    print(f"🎯 WHITELIST: {away_team} has {len(whitelist_away)} high-impact injuries, {home_team} has {len(whitelist_home)} high-impact injuries")
+    debug_log(f"🎯 WHITELIST: {away_team} has {len(whitelist_away)} high-impact injuries, {home_team} has {len(whitelist_home)} high-impact injuries")
     
     return {
         'away_injuries': whitelist_away,
@@ -2197,11 +3055,7 @@ def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df,
 # ================================================================
 # SINGLE GAME ANALYSIS (REFRACTORED FOR PARALLELISM)
 # ================================================================
-def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
-    print(f"🔍 ANALYZE_SINGLE_GAME DEBUG:")
-    print(f"  Action data has {len(action)} total records")
-    print(f"  Action normalized_matchups: {action['normalized_matchup'].unique().tolist()}")
-    # Add sdql parameter
+def analyze_single_game(row, week, action, action_injuries, rotowire, referee_trends, weather=None):
     """
     Core deterministic single-game analysis.
     Input row → output dict
@@ -2211,8 +3065,8 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     # STEP 0 — RAW INPUT
     # ======================================================
     # REPLACE the debug lines with this:
-    print(f"🔍 COLUMNS: {list(row.keys()) if hasattr(row, 'keys') else 'NO KEYS'}")
-    print(f"🔍 RAW ROW: {dict(row) if hasattr(row, 'items') else str(row)}")
+    debug_log(f"🔍 COLUMNS: {list(row.keys()) if hasattr(row, 'keys') else 'NO KEYS'}")
+    debug_log(f"🔍 RAW ROW: {dict(row) if hasattr(row, 'items') else str(row)}")
     away_raw = getattr(row, 'away', '').strip()
     home_raw = getattr(row, 'home', '').strip()
     matchup_raw = getattr(row, 'matchup', '').strip()
@@ -2317,16 +3171,17 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
             'action_weather.csv'
         ])
         
-        weather_df = None
-        found_file = None
+        weather_df = weather if weather is not None and not weather.empty else None
+        found_file = os.getenv("ACTION_WEATHER_FILE") if weather_df is not None else None
         
-        # FIRST: Find and load the weather file
-        for weather_file in possible_files:
-            if os.path.exists(weather_file):
-                weather_df = pd.read_csv(weather_file)
-                found_file = weather_file
-                print(f"✅ Found weather data: {weather_file} ({len(weather_df)} games)")
-                break
+        # FIRST: Find and load the weather file if one was not provided by workflow/env
+        if weather_df is None:
+            for weather_file in possible_files:
+                if os.path.exists(weather_file):
+                    weather_df = pd.read_csv(weather_file)
+                    found_file = weather_file
+                    debug_log(f"✅ Found weather data: {weather_file} ({len(weather_df)} games)")
+                    break
         
         # SECOND: Process the weather data if found
         if weather_df is not None and not weather_df.empty:
@@ -2370,65 +3225,42 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
                     precip=precip, 
                     wind=wind
                 )
-                print(f"🌦️ Weather for {away_tla}@{home_tla}: {weather_analysis['description']}")
+                debug_log(f"🌦️ Weather for {away_tla}@{home_tla}: {weather_analysis['description']}")
             else:
-                print(f"❌ No weather match found for {away_tla}@{home_tla}")
+                debug_log(f"❌ No weather match found for {away_tla}@{home_tla}")
         else:
-            print("❌ No weather file found")
+            debug_log("❌ No weather file found")
                 
     except Exception as e:
         print(f"⚠️ Weather analysis failed: {e}")
         weather_analysis = {'score': 0, 'description': 'Good conditions', 'factors': []}
-   
-    # Add this debug after the matchup_key creation:
-    matchup_key = f"{away_tla}@{home_tla}"
-    normalized_matchup = f"{away_tla}@{home_tla}"
-    
-    print(f"🔍 Looking for: '{normalized_matchup}' in Action data")
-    if not action.empty:
-        available_matchups = action['normalized_matchup'].unique()
-        print(f"🔍 Available Action matchups: {list(available_matchups)[:3]}...")
-        
-    action_row = None
-    if not action.empty:
-        action_row = action[action['normalized_matchup'] == normalized_matchup]
-        print(f"🔍 Found {len(action_row) if action_row is not None else 0} Action Network rows")
     # ======================================================
-    # STEP 5 — REFEREE (FIXED)
+    # STEP 5 — REFEREE
     # ======================================================
-    # --- FIX START: Initialize referee_analysis ---
     referee_analysis = {
         'ats_score': 0, 
         'ou_score': 0, 
         'factors': [], 
         'ats_pct': 50.0, 
         'ou_pct': 50.0, 
-        'referee': 'Initialization Error', # Set a safe default description
+        'referee': 'Data unavailable',
         'ats_tendency': 'NEUTRAL',
         'ou_tendency': 'NEUTRAL TOTAL'
     }
-    # --- FIX END ---
     try:
         referee_file = f"data/week{week}/week{week}_referees.csv"
-        if os.path.exists(referee_file) and sdql is not None and not sdql.empty:
+        if os.path.exists(referee_file) and referee_trends is not None and not referee_trends.empty:
             referee_assignments = pd.read_csv(referee_file)
             
-            # 1. Get canonical full names and derive the essential Nicknames
             away_full_name = TEAM_MAP.get(away_tla, away_tla)
             home_full_name = TEAM_MAP.get(home_tla, home_tla)
 
-            # --- KEY ADJUSTMENT: Extract the nickname (last word) and lower case ---
-            # e.g., 'Atlanta Falcons' -> 'falcons'
             away_nickname = away_full_name.split()[-1].lower()
             home_nickname = home_full_name.split()[-1].lower()
 
-            # 2. Prepare CSV team columns for lower-cased string matching
-            # Ensure the CSV columns are converted to lowercase strings for robust matching
             referee_assignments['away_team_lower'] = referee_assignments['away_team'].astype(str).str.lower()
             referee_assignments['home_team_lower'] = referee_assignments['home_team'].astype(str).str.lower()
             
-            # 3. Create the primary match condition (Away@Home)
-            # Match if the CSV team name CONTAINS the Nickname
             match_condition_forward = (
                 referee_assignments['away_team_lower'].str.contains(away_nickname, na=False)
             ) & (
@@ -2437,7 +3269,6 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
 
             game_match = referee_assignments[match_condition_forward]
             
-            # 4. Check the reverse match condition (Home@Away)
             if game_match.empty:
                 match_condition_reverse = (
                     referee_assignments['away_team_lower'].str.contains(home_nickname, na=False)
@@ -2446,27 +3277,22 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
                 )
                 game_match = referee_assignments[match_condition_reverse]
 
-            # --- END OF MATCHING LOGIC ---
-            
             if not game_match.empty:
                 referee_name = game_match['referee'].iloc[0]
                 
-                # Find this referee's stats in SDQL data
-                # We need to ensure the referee name in the SDQL query is also case-insensitive if needed
-                ref_row = sdql[sdql['query'].str.contains(referee_name, case=False, na=False)]
+                # Find this referee's trend row from the historical referee context data.
+                ref_row = referee_trends[referee_trends['query'].str.contains(referee_name, case=False, na=False)]
                 
                 if not ref_row.empty:
-                    # The ref_data object passed here MUST have 'referee', 'ats_pct', 'ou_pct' attributes
                     referee_analysis = RefereeAnalyzer.analyze(ref_row.iloc[0])
                     referee_analysis['referee'] = referee_name
                     if 'factors' not in referee_analysis:
                         referee_analysis['factors'] = []
-                    # Add logic to include factors from the ref_row data if available
                 else:
                     referee_analysis = {
                         'ats_score': 0, 'ou_score': 0, 'factors': [], 
                         'ats_pct': 50.0, 'ou_pct': 50.0, 
-                        'referee': referee_name, # Successfully found name, but no SDQL stats
+                        'referee': referee_name, # Successfully found name, but no trend row
                         'ats_tendency':'NEUTRAL',
                         'ou_tendency': 'NEUTRAL TOTAL' 
                     }
@@ -2497,7 +3323,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     
     # STEP 6 — INJURIES (FIXED)
     try:
-        injury_analysis = analyze_injuries_with_team_mapping(away_full, home_full, action_injuries)
+        injury_analysis = analyze_injuries_with_team_mapping(away_full, home_full, action_injuries, rotowire)
         if not injury_analysis.get('description'):
             injury_analysis['description'] = 'No significant injury impacts identified'
     except Exception as e:
@@ -2656,21 +3482,23 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
     # ======================================================
     # STEP 11 — SCORE
     # ======================================================
+    # Directional factors use sign to indicate side/market, not quality. The
+    # aggregate score measures edge strength; the selector decides the market.
     total_score = round(
         (
-        FACTOR_WEIGHTS['sharp_consensus_score'] * sharp_analysis['spread'].get('score', 0)
-        + FACTOR_WEIGHTS['weather_score']      * weather_analysis.get('score', 0)
-        + FACTOR_WEIGHTS['referee_ats_score']  * referee_analysis.get('ats_score', 0)
-        + FACTOR_WEIGHTS['referee_ou_score']   * referee_analysis.get('ou_score', 0)
-        + FACTOR_WEIGHTS['injury_score']       * injury_analysis.get('score', 0)
-        + FACTOR_WEIGHTS['situational_score']  * situational_analysis.get('score', 0)
-        + FACTOR_WEIGHTS['statistical_score']  * statistical_analysis['score']
-        + FACTOR_WEIGHTS['game_theory_score']  * game_theory_analysis.get('score', 0)
-        + FACTOR_WEIGHTS['schedule_score']     * schedule_analysis['score']
+        FACTOR_WEIGHTS['sharp_consensus_score'] * abs(sharp_analysis['spread'].get('score', 0))
+        + FACTOR_WEIGHTS['weather_score']       * max(weather_analysis.get('score', 0), 0)
+        + FACTOR_WEIGHTS['referee_ats_score']   * abs(referee_analysis.get('ats_score', 0))
+        + FACTOR_WEIGHTS['referee_ou_score']    * abs(referee_analysis.get('ou_score', 0))
+        + FACTOR_WEIGHTS['injury_score']        * abs(injury_analysis.get('score', 0))
+        + FACTOR_WEIGHTS['situational_score']   * situational_analysis.get('score', 0)
+        + FACTOR_WEIGHTS['statistical_score']   * statistical_analysis['score']
+        + FACTOR_WEIGHTS['game_theory_score']   * game_theory_analysis.get('score', 0)
+        + FACTOR_WEIGHTS['schedule_score']      * abs(schedule_analysis['score'])
     ),
-    1 #round the entire result
+    1
     )
-    classification, recommendation_label, tier_score = ClassificationEngine.classify_game({
+    signal_classification, signal_recommendation_label, signal_tier_score = ClassificationEngine.classify_game({
         'total_score': total_score,
         'sharp_consensus_score': sharp_analysis['spread'].get('score', 0),
         'referee_analysis': referee_analysis,
@@ -2678,23 +3506,21 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
     })
     
-    recommendation = ClassificationEngine.generate_enhanced_recommendation(
-        classification,
+    recommendation, pick_metadata = RecommendationSelector.select(
+        signal_classification,
         {
             'away': away_full,
             'home': home_full,
             'sharp_analysis': sharp_analysis,
+            'referee_analysis': referee_analysis,
+            'weather_analysis': weather_analysis,
             'injury_analysis': injury_analysis,
+            'statistical_analysis': statistical_analysis,
             'public_exposure': sharp_analysis['spread'].get('bets_pct', 50)
         }
     )
-
-    # Add these debug lines before line 2510
-    print(f"🔍 DEBUG away_tla: '{away_tla}'")
-    print(f"🔍 DEBUG home_tla: '{home_tla}'") 
-    print(f"🔍 DEBUG away_full: '{away_full}'")
-    print(f"🔍 DEBUG home_full: '{home_full}'")
-    print(f"🔍 DEBUG TEAM_MAP['GB']: '{TEAM_MAP.get('GB', 'NOT_FOUND')}'")
+    classification, recommendation_label, tier_score = RecommendationSelector.classification_for_pick(pick_metadata)
+    recommendation_trace = pick_metadata.get('trace', {})
 
     return {
         'matchup': f"{away_full} @ {home_full}",
@@ -2705,7 +3531,13 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
         'home_tla': home_tla,
         'classification': classification,
         'classification_label': recommendation_label,
+        'signal_classification': signal_classification,
+        'signal_classification_label': signal_recommendation_label,
+        'signal_tier_score': signal_tier_score,
         'recommendation': recommendation,
+        'pick_metadata': pick_metadata,
+        'recommendation_trace': recommendation_trace,
+        'model_version': MODEL_VERSION,
         'tier_score': tier_score,
         'total_score': total_score,
         'confidence': round(abs(total_score),1),
@@ -2726,9 +3558,10 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, sdql):
 
 def analyze_week(week):
     """Main analysis pipeline"""
+    season_type = StatisticalAnalyzer.default_season_type(week)
     
     print(f"\n{'='*70}")
-    print(f"NFL WEEK {week} PROFESSIONAL ANALYSIS ENGINE")
+    print(f"NFL {season_type} WEEK {week} PROFESSIONAL ANALYSIS ENGINE")
     print(f"{'='*70}\n")
     
     # Load data
@@ -2738,43 +3571,28 @@ def analyze_week(week):
     queries["home_std"] = queries["home"].apply(canonical)
     queries["normalized_matchup"] = queries["matchup"].apply(normalize_matchup)
 
-    sdql = safe_load_csv("data/historical/sdql_results.csv")
-    
+    referee_trends_file = os.getenv("REFEREE_TRENDS_FILE", "data/historical/sdql_results.csv")
+    referee_trends = safe_load_csv(referee_trends_file)
+
     if queries.empty:
         print("❌ No games found")
         return
-    
+
     # Load Action Network data
-    action_file_path = find_latest("action_all_markets_") 
+    action_file_path = exact_file_or_latest("ACTION_MARKETS_FILE", "action_all_markets_")
     action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame()
-    
-    # 🔍 DEBUG BLOCK - Add this:
-    if not action.empty:
-        print(f"🔍 DEBUG: Loaded {len(action)} Action Network records")
-        print(f"🔍 DEBUG: Sample Action matchups:")
-        unique_matchups = action['Matchup'].unique()[:5]
-        for matchup in unique_matchups:
-            normalized = normalize_matchup(matchup)
-            print(f"    '{matchup}' → '{normalized}'")
-        
-        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup)
-        
-        print(f"🔍 DEBUG: Normalized Action matchups:")
-        for norm_matchup in action["normalized_matchup"].unique()[:5]:
-            print(f"    '{norm_matchup}'")
-    else:
-        print("❌ DEBUG: No Action Network data loaded!")
-        
+    action_raw = action.copy()
     # Load Action Network injuries
-    action_injuries_path = find_latest("action_injuries_")
+    action_injuries_path = exact_file_or_latest("ACTION_INJURIES_FILE", "action_injuries_")
     action_injuries = safe_load_csv(action_injuries_path) if action_injuries_path else pd.DataFrame()
+    action_injuries_raw = action_injuries.copy()
     if not action_injuries.empty:
         print(f"  ✓ Loaded {len(action_injuries)} injury records from Action Network")
     else:
         print(f"  ⚠️ No Action Network injury data")
     
     # Set up time tracking
-    now = datetime.now(timezone.utc)
+    now = analysis_reference_time()
     
     # Standardize game time column
     if not action.empty and "Game Time" in action.columns:
@@ -2808,9 +3626,30 @@ def analyze_week(week):
             )
             kickoff_lookup[matchup_key] = pd.to_datetime(kickoff, utc=True, errors="coerce")
 
+    weather_file = exact_file_or_latest("ACTION_WEATHER_FILE", "action_weather_")
+    weather = safe_load_csv(weather_file) if weather_file else pd.DataFrame()
+    weather_raw = weather.copy()
+    if not weather.empty:
+        print(f"  ✓ Loaded {len(weather)} weather records from {weather_file}")
+    else:
+        print(f"  ⚠️ No Action Network weather data")
+
     # Load supplemental data
-    rotowire_file = find_latest("rotowire_lineups_")
+    rotowire_file = exact_file_or_latest("ROTOWIRE_FILE", "rotowire_lineups_")
     rotowire = safe_load_csv(rotowire_file) if rotowire_file else pd.DataFrame()
+    rotowire_raw = rotowire.copy()
+    data_quality = build_data_quality_report(week, {
+        "queries": {"path": f"data/week{week}/week{week}_queries.csv", "df": queries, "required": True},
+        "referee_trends": {"path": referee_trends_file, "df": referee_trends, "required": False},
+        "action_markets": {"path": action_file_path, "df": action_raw, "required": True},
+        "action_injuries": {"path": action_injuries_path, "df": action_injuries_raw, "required": False},
+        "action_weather": {"path": weather_file, "df": weather_raw, "required": False},
+        "rotowire": {"path": rotowire_file, "df": rotowire_raw, "required": False},
+    })
+    if data_quality["status"] != "OK":
+        print(f"⚠️ Data quality status: {data_quality['status']}")
+        for warning in data_quality["critical_warnings"] + data_quality["warnings"]:
+            print(f"  - {warning}")
 
     # Prepare rotowire data
     if not rotowire.empty:
@@ -2818,7 +3657,7 @@ def analyze_week(week):
         rotowire['away_std'] = rotowire['away'].apply(canonical)
     
     # Merge base data
-    final = queries.merge(sdql, on='query', how='left') if not sdql.empty else queries
+    final = queries.merge(referee_trends, on='query', how='left') if not referee_trends.empty else queries
     final["normalized_matchup"] = final["matchup"].apply(normalize_matchup)
     
     # Filter out completed games
@@ -2858,7 +3697,8 @@ def analyze_week(week):
         action=action, 
         action_injuries=action_injuries, 
         rotowire=rotowire,
-        sdql=sdql
+        referee_trends=referee_trends,
+        weather=weather
     )
 
     # Use ThreadPoolExecutor to run the single-game analysis concurrently
@@ -2870,6 +3710,9 @@ def analyze_week(week):
         
         # Collect and print results as they complete
         for game_analysis in game_analyses:
+            game_analysis["season_type"] = season_type
+            game_analysis["data_quality"] = data_quality
+            game_analysis = apply_source_safety_policy(game_analysis, data_quality)
             games.append(game_analysis)
             # Printing inside the loop provides real-time feedback on completion
             print(f"  ✓ {game_analysis['matchup']}: {game_analysis['classification']} (Score: {game_analysis['total_score']:+.1f})")
@@ -2880,40 +3723,89 @@ def analyze_week(week):
         '🎯 TARGETED PLAY': 2,
         '📊 LEAN': 3,
         '🚨 TRAP GAME': 4,
-        '⚠️ LANDMINE': 5,
-        '❌ FADE': 6
+        '⚠️ PASS': 5,
+        '⚠️ LANDMINE': 6,
+        '❌ FADE': 7
     }
     games.sort(key=lambda x: (tier_order.get(x['classification'], 99), -x['confidence']))
     
     # Generate outputs (UNCHANGED)
     print(f"\n📝 Generating reports...")
-    generate_outputs(week, games)
+    output_dir = os.getenv("ANALYZER_OUTPUT_DIR")
+    generate_outputs(week, games, output_dir=output_dir)
     
     print(f"\n✅ Analysis complete!\n")
 
     # After generating outputs, log performance tracking (UNCHANGED)
-    try:
-        from performance_tracker import EnhancedPerformanceTracker
-        tracker = EnhancedPerformanceTracker()
-        tracker.log_week_recommendations(week, f"data/week{week}/week{week}_analytics.json")
-        print(f"📊 Performance tracking logged for Week {week}")
-    except Exception as e:
-        print(f"⚠️ Performance tracking failed: {e}")
+    if os.getenv("SKIP_PERFORMANCE_TRACKING") == "1" or output_dir:
+        print("📊 Performance tracking skipped for replay/output-dir run")
+    else:
+        try:
+            from performance_tracker import EnhancedPerformanceTracker
+            tracker = EnhancedPerformanceTracker()
+            tracker.log_week_recommendations(week, f"data/week{week}/week{week}_analytics.json")
+            print(f"📊 Performance tracking logged for Week {week}")
+        except Exception as e:
+            print(f"⚠️ Performance tracking failed: {e}")
        
 
-def generate_outputs(week, games):
+def generate_outputs(week, games, output_dir=None):
     """Generate all output files"""
+    season_type = StatisticalAnalyzer.default_season_type(week)
     
     # Create week directory
-    os.makedirs(f"data/week{week}", exist_ok=True)
+    week_dir = output_dir or f"data/week{week}"
+    os.makedirs(week_dir, exist_ok=True)
     
     print(f"📝 Generating reports for {len(games)} games...")
+    data_quality = games[0].get('data_quality', {}) if games else {}
+    run_manifest = {
+        "week": week,
+        "season_type": season_type,
+        "model_version": MODEL_VERSION,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "analysis_reference_time": analysis_reference_time().isoformat(),
+        "analysis_target_date": os.getenv("ANALYZER_TARGET_DATE", ""),
+        "output_dir": week_dir,
+        "game_count": len(games),
+        "play_count": sum(1 for game in games if game.get("pick_metadata", {}).get("market") not in (None, "none")),
+        "pass_count": sum(1 for game in games if game.get("pick_metadata", {}).get("market") in (None, "none")),
+        "data_quality": data_quality,
+        "input_files": manifest_input_files(data_quality),
+        "config": {
+            "factor_weights": FACTOR_WEIGHTS,
+            "selector": SELECTOR_CONFIG,
+            "source_quality": SOURCE_QUALITY_CONFIG,
+        },
+        "environment": {
+            "NFL_SEASON": os.getenv("NFL_SEASON", ""),
+            "NFL_SEASON_TYPE": season_type,
+            "NFL_MODEL_CONFIG": os.getenv("NFL_MODEL_CONFIG", "config/model_config.json"),
+            "ACTION_MARKETS_FILE": os.getenv("ACTION_MARKETS_FILE", ""),
+            "ACTION_INJURIES_FILE": os.getenv("ACTION_INJURIES_FILE", ""),
+            "ACTION_WEATHER_FILE": os.getenv("ACTION_WEATHER_FILE", ""),
+            "ROTOWIRE_FILE": os.getenv("ROTOWIRE_FILE", ""),
+            "REFEREE_TRENDS_FILE": os.getenv("REFEREE_TRENDS_FILE", ""),
+        }
+    }
+    source_health = build_source_health(run_manifest)
     
     # Executive Summary
-    with open(f"data/week{week}/week{week}_executive_summary.txt", "w") as f:
-        f.write(f"NFL WEEK {week} - EXECUTIVE SUMMARY\n")
+    with open(f"{week_dir}/week{week}_executive_summary.txt", "w") as f:
+        f.write(f"NFL {season_type} WEEK {week} - EXECUTIVE SUMMARY\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S ET')}\n")
         f.write("="*70 + "\n\n")
+        if games and games[0].get('data_quality', {}).get('status') != "OK":
+            dq = games[0]['data_quality']
+            f.write(f"DATA QUALITY: {dq.get('status', 'UNKNOWN')}\n")
+            f.write("-"*70 + "\n")
+            if dq.get('unsafe_sources'):
+                f.write(f"  Unsafe Sources: {', '.join(dq['unsafe_sources'])}\n")
+            if dq.get('degraded_sources'):
+                f.write(f"  Degraded Sources: {', '.join(dq['degraded_sources'])}\n")
+            for warning in dq.get('critical_warnings', []) + dq.get('warnings', []):
+                f.write(f"  - {warning}\n")
+            f.write("\n")
         
         # Group by tier
         tiers = defaultdict(list)
@@ -2921,7 +3813,7 @@ def generate_outputs(week, games):
             tiers[game['classification']].append(game)
         
         # Updated to match actual classifications + enhanced details
-        for tier_name in ['🔵 BLUE CHIP', '🎯 TARGETED PLAY', '📊 LEAN', '⚠️ LANDMINE', '❌ FADE']:
+        for tier_name in ['🔵 BLUE CHIP', '🎯 TARGETED PLAY', '📊 LEAN', '⚠️ PASS', '⚠️ LANDMINE', '❌ FADE']:
             if tier_name in tiers:
                 f.write(f"{tier_name}\n")
                 f.write("-"*70 + "\n")
@@ -2948,11 +3840,15 @@ def generate_outputs(week, games):
                     
                     # Add score for quick reference  
                     f.write(f"  → Score: {game.get('total_score', 'N/A')} | Confidence: {game.get('confidence', 'N/A')}\n")
+                    pick_meta = game.get('pick_metadata', {})
+                    if pick_meta.get('market') and pick_meta.get('market') != 'none':
+                        reasons = ', '.join(pick_meta.get('reasons', [])[:2])
+                        f.write(f"  → Pick Basis: {pick_meta.get('market').title()} ({reasons})\n")
                     f.write("\n")
     
     # Full Analysis
-    with open(f"data/week{week}/week{week}_pro_analysis.txt", "w") as f:
-        f.write(f"NFL WEEK {week} - PROFESSIONAL ANALYSIS\n")
+    with open(f"{week_dir}/week{week}_pro_analysis.txt", "w") as f:
+        f.write(f"NFL {season_type} WEEK {week} - PROFESSIONAL ANALYSIS\n")
         f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S ET')}\n")
         f.write("="*70 + "\n\n")
         
@@ -2962,12 +3858,95 @@ def generate_outputs(week, games):
     
     # Analytics CSV
     data_rows = []
+    audit_rows = []
     for game in games:
+        pick_meta = game.get('pick_metadata', {})
+        trace = game.get('recommendation_trace', {})
+        spread_trace = (trace.get('market_candidates') or {}).get('spread') or {}
+        total_trace = (trace.get('market_candidates') or {}).get('total') or {}
+        final_trace = trace.get('final_decision') or {}
+        audit_rows.append({
+            'matchup': game['matchup'],
+            'season_type': season_type,
+            'classification': game['classification'],
+            'signal_classification': game.get('signal_classification', ''),
+            'data_quality_status': game.get('data_quality', {}).get('status', ''),
+            'unsafe_sources': ', '.join(game.get('data_quality', {}).get('unsafe_sources', [])),
+            'degraded_sources': ', '.join(game.get('data_quality', {}).get('degraded_sources', [])),
+            'recommendation': game.get('recommendation', ''),
+            'pick_market': pick_meta.get('market', ''),
+            'pick_side': pick_meta.get('side', ''),
+            'selector_score': pick_meta.get('score', ''),
+            'source_blocked_market': pick_meta.get('blocked_market', ''),
+            'source_blocked_side': pick_meta.get('blocked_side', ''),
+            'source_blocked_score': pick_meta.get('blocked_score', ''),
+            'source_blocked_recommendation': game.get('source_blocked_recommendation', ''),
+            'spread_candidate_score': pick_meta.get('spread_score', ''),
+            'total_candidate_score': pick_meta.get('total_score', ''),
+            'pass_reason': pick_meta.get('reason', ''),
+            'selector_reasons': '; '.join(pick_meta.get('reasons', [])),
+            'trace_final_market': final_trace.get('market', ''),
+            'trace_final_side': final_trace.get('side', ''),
+            'trace_final_reason': final_trace.get('reason', ''),
+            'trace_spread_side': spread_trace.get('side', ''),
+            'trace_spread_threshold': spread_trace.get('threshold', ''),
+            'trace_spread_cleared': spread_trace.get('cleared_threshold', ''),
+            'trace_spread_blockers': '; '.join(spread_trace.get('blockers', [])),
+            'trace_spread_signals': '; '.join(
+                f"{signal.get('source')}:{signal.get('side')}:{signal.get('impact')}"
+                for signal in spread_trace.get('signals', [])
+            ),
+            'trace_spread_conflicts': '; '.join(
+                f"{signal.get('source')}:{signal.get('side')}:{signal.get('impact')}"
+                for signal in spread_trace.get('conflicts', [])
+            ),
+            'trace_total_side': total_trace.get('side', ''),
+            'trace_total_threshold': total_trace.get('threshold', ''),
+            'trace_total_cleared': total_trace.get('cleared_threshold', ''),
+            'trace_total_blockers': '; '.join(total_trace.get('blockers', [])),
+            'trace_total_signals': '; '.join(
+                f"{signal.get('source')}:{signal.get('side')}:{signal.get('impact')}"
+                for signal in total_trace.get('signals', [])
+            ),
+            'trace_total_conflicts': '; '.join(
+                f"{signal.get('source')}:{signal.get('side')}:{signal.get('impact')}"
+                for signal in total_trace.get('conflicts', [])
+            ),
+            'aggregate_score': game['total_score'],
+            'sharp_spread_direction': game['sharp_analysis'].get('spread', {}).get('direction', ''),
+            'sharp_spread_score': game['sharp_analysis'].get('spread', {}).get('score', 0),
+            'sharp_total_direction': game['sharp_analysis'].get('total', {}).get('direction', ''),
+            'sharp_total_score': game['sharp_analysis'].get('total', {}).get('score', 0),
+            'statistical_score': game['statistical_analysis']['score'],
+            'injury_score': game['injury_analysis']['score'],
+            'referee_ats_score': game['referee_analysis'].get('ats_score', 0),
+            'referee_ou_score': game['referee_analysis'].get('ou_score', 0),
+            'weather_score': game['weather_analysis']['score'],
+            'data_quality_warnings': '; '.join(game.get('data_quality', {}).get('warnings', [])),
+            'data_quality_critical_warnings': '; '.join(game.get('data_quality', {}).get('critical_warnings', [])),
+        })
         data_rows.append({
             'matchup': game['matchup'],
+            'season_type': season_type,
+            'model_version': game.get('model_version', MODEL_VERSION),
             'classification': game['classification'],
+            'signal_classification': game.get('signal_classification', ''),
+            'data_quality_status': game.get('data_quality', {}).get('status', ''),
+            'unsafe_sources': ', '.join(game.get('data_quality', {}).get('unsafe_sources', [])),
+            'degraded_sources': ', '.join(game.get('data_quality', {}).get('degraded_sources', [])),
+            'data_quality_warnings': '; '.join(game.get('data_quality', {}).get('warnings', [])),
+            'data_quality_critical_warnings': '; '.join(game.get('data_quality', {}).get('critical_warnings', [])),
             'total_score': game['total_score'],
             'confidence': game['confidence'],
+            'pick_market': game.get('pick_metadata', {}).get('market', ''),
+            'pick_side': game.get('pick_metadata', {}).get('side', ''),
+            'pick_basis': '; '.join(game.get('pick_metadata', {}).get('reasons', [])),
+            'recommendation_trace_summary': (
+                f"spread {spread_trace.get('side', 'NA')} {spread_trace.get('score', 'NA')}/"
+                f"{spread_trace.get('threshold', 'NA')} | total {total_trace.get('side', 'NA')} "
+                f"{total_trace.get('score', 'NA')}/{total_trace.get('threshold', 'NA')} | "
+                f"final {final_trace.get('market', 'none')} {final_trace.get('side') or ''}"
+            ),
             'sharp_spread_diff': game['sharp_analysis'].get('spread', {}).get('differential', 0),
             'sharp_total_diff': game['sharp_analysis'].get('total', {}).get('differential', 0),
             'ref_ats_pct': game['referee_analysis'].get('ats_pct', 50),
@@ -2987,16 +3966,26 @@ def generate_outputs(week, games):
             'schedule_factors': game['schedule_analysis']['description']
         })
     
-    pd.DataFrame(data_rows).to_csv(f"data/week{week}/week{week}_analytics.csv", index=False)
+    pd.DataFrame(data_rows).to_csv(f"{week_dir}/week{week}_analytics.csv", index=False)
+    pd.DataFrame(audit_rows).to_csv(f"{week_dir}/week{week}_selector_audit.csv", index=False)
     
     # JSON export
-    with open(f"data/week{week}/week{week}_analytics.json", "w") as f:
+    with open(f"{week_dir}/week{week}_analytics.json", "w") as f:
         json.dump(games, f, indent=2, default=str)
+    with open(f"{week_dir}/week{week}_run_manifest.json", "w") as f:
+        json.dump(run_manifest, f, indent=2, default=str)
+    with open(f"{week_dir}/week{week}_source_health.json", "w") as f:
+        json.dump(source_health, f, indent=2, default=str)
+    write_source_health_text(f"{week_dir}/week{week}_source_health.txt", source_health)
     
     print(f"  ✓ week{week}_executive_summary.txt")
     print(f"  ✓ week{week}_pro_analysis.txt")
     print(f"  ✓ week{week}_analytics.csv")
+    print(f"  ✓ week{week}_selector_audit.csv")
     print(f"  ✓ week{week}_analytics.json")
+    print(f"  ✓ week{week}_run_manifest.json")
+    print(f"  ✓ week{week}_source_health.json")
+    print(f"  ✓ week{week}_source_health.txt")
 
 
 # ================================================================

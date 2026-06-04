@@ -7,6 +7,16 @@ on:
         description: "NFL Week Number"
         required: true
         type: number
+      season:
+        description: "NFL season"
+        required: false
+        default: "2026"
+        type: string
+      season_type:
+        description: "Season type (REG or POST)"
+        required: false
+        default: "REG"
+        type: string
 
 jobs:
   grade:
@@ -23,8 +33,17 @@ jobs:
       - name: Grade Week
         run: |
           python3 graders/grade_week_results.py \
-            --season 2025 \
-            --week ${{ github.event.inputs.week }}
+            --season ${{ github.event.inputs.season }} \
+            --week ${{ github.event.inputs.week }} \
+            --season-type ${{ github.event.inputs.season_type }}
+
+      - name: Refresh Week Master and Matrix Feed
+        run: |
+          python3 builders/build_week_master_table.py \
+            --season ${{ github.event.inputs.season }} \
+            --week ${{ github.event.inputs.week }} \
+            --season-type ${{ github.event.inputs.season_type }}
+          python3 builders/build_matrix_engine_feed.py
 
       - name: Commit Results
         run: |

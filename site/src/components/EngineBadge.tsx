@@ -1,0 +1,32 @@
+import { Activity, CheckCircle2, ShieldAlert } from "lucide-react";
+import type { EngineTeamCell } from "../types";
+
+function shortClassification(value?: string | null) {
+  if (!value) return null;
+  return value.replace(/[^\w\s]/g, "").trim().split(/\s+/).slice(0, 2).join(" ");
+}
+
+export function EngineBadge({ cell }: { cell?: EngineTeamCell }) {
+  if (!cell?.analysis_available) return null;
+
+  const sourceRisk = cell.source_health_status && cell.source_health_status !== "OK";
+  const pickText = cell.pick_market && cell.pick_market !== "none"
+    ? `${cell.pick_market}${cell.pick_side ? ` ${cell.pick_side}` : ""}`
+    : null;
+
+  return (
+    <div className="engine-badge" title={cell.source_health_status || "Engine analysis available"}>
+      <span className="engine-stage">
+        {sourceRisk ? <ShieldAlert size={11} /> : <CheckCircle2 size={11} />}
+        {cell.latest_stage || "run"}
+      </span>
+      {shortClassification(cell.classification) && <span>{shortClassification(cell.classification)}</span>}
+      {pickText && (
+        <span className={cell.pick_on_team ? "pick-on-team" : "pick-other-team"}>
+          <Activity size={11} />
+          {pickText}
+        </span>
+      )}
+    </div>
+  );
+}

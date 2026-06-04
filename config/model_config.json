@@ -1,0 +1,45 @@
+{
+  "model_version": "2026.1",
+  "factor_weights": {
+    "sharp_consensus_score": 1.5,
+    "referee_ats_score": 0.7,
+    "referee_ou_score": 0.7,
+    "weather_score": 0.5,
+    "injury_score": 1.2,
+    "situational_score": 1.0,
+    "statistical_score": 1.8,
+    "game_theory_score": 0.0,
+    "schedule_score": 0.8
+  },
+  "selector": {
+    "spread_threshold_strong_signal": 3,
+    "spread_threshold_default": 4,
+    "total_threshold": 4,
+    "targeted_score": 4,
+    "strong_score": 6,
+    "require_sharp_spread_edge": true,
+    "block_spread_on_team_rating_conflict": true,
+    "injury_spread_mode": "context",
+    "injury_context_threshold_bump": 1
+  },
+  "source_quality": {
+    "max_age_days": 4,
+    "critical_sources": [
+      "queries",
+      "action_markets",
+      "referee_trends"
+    ],
+    "supporting_sources": [
+      "action_injuries",
+      "action_weather",
+      "rotowire"
+    ],
+    "strict_sources": false,
+    "block_picks_on_unsafe": true
+  },
+  "notes": {
+    "game_theory_score": "Market dynamics are reported as descriptive tags only to avoid double-counting sharp money.",
+    "selector": "Replay-tested against 2025 Weeks 11-18. Injury is spread context only; spread plays require sharp confirmation; totals need stronger alignment; injury-context spread candidates require one extra selector point.",
+    "source_quality": "Critical source warnings mark the run unsafe. Supporting source warnings mark the run degraded unless strict_sources is enabled. block_picks_on_unsafe forces all recommendations to pass when run status is unsafe."
+  }
+}

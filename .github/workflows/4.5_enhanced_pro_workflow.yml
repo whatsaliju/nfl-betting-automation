@@ -9,6 +9,11 @@ on:
         description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB)'
         required: true
         type: string
+      season:
+        description: 'NFL season'
+        required: false
+        default: '2026'
+        type: string
       analysis_type:
         description: 'Type of analysis'
         required: false
@@ -39,6 +44,10 @@ jobs:
       - name: Get Week and Detect Type
         id: info
         run: |
+          SEASON="${{ github.event.inputs.season }}"
+          [ -z "$SEASON" ] && SEASON="${{ github.event.client_payload.season }}"
+          [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
+          [ -z "$SEASON" ] && SEASON="2026"
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK="${{ github.event.inputs.week }}"
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
@@ -74,14 +83,27 @@ jobs:
 
           
           echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "season=$SEASON" >> $GITHUB_OUTPUT
           echo "stage=$STAGE" >> $GITHUB_OUTPUT
           echo "prefix=$PREFIX" >> $GITHUB_OUTPUT
           echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
 
       - name: Run Pro Analyzer
+        env:
+          ACTION_MARKETS_FILE: ${{ github.event.client_payload.action_markets_file }}
+          ACTION_INJURIES_FILE: ${{ github.event.client_payload.action_injuries_file }}
+          ACTION_WEATHER_FILE: ${{ github.event.client_payload.action_weather_file }}
+          ROTOWIRE_FILE: ${{ github.event.client_payload.rotowire_file }}
+          REFEREE_TRENDS_FILE: data/historical/sdql_results.csv
+          NFL_SEASON: ${{ steps.info.outputs.season }}
         run: |
           WEEK=${{ steps.info.outputs.week }}
           python3 -m analyzers.nfl_pro_analyzer $WEEK
+
+      - name: Validate Analysis Artifacts
+        run: |
+          WEEK=${{ steps.info.outputs.week }}
+          python3 scripts/validate_engine_contracts.py --run-dir data/week$WEEK
 
       - name: Organize and Metadata
         env:
@@ -93,6 +115,10 @@ jobs:
           [ -f "$WEEK_DIR/week${WEEK}_analytics.json" ] && cp "$WEEK_DIR/week${WEEK}_analytics.json" "$WEEK_DIR/$STAGE.json"
           [ -f "$WEEK_DIR/week${WEEK}_analytics.csv" ] && cp "$WEEK_DIR/week${WEEK}_analytics.csv" "$WEEK_DIR/$STAGE.csv"
           [ -f "$WEEK_DIR/week${WEEK}_pro_analysis.txt" ] && cp "$WEEK_DIR/week${WEEK}_pro_analysis.txt" "$WEEK_DIR/${STAGE}_pro_analysis.txt"
+          [ -f "$WEEK_DIR/week${WEEK}_selector_audit.csv" ] && cp "$WEEK_DIR/week${WEEK}_selector_audit.csv" "$WEEK_DIR/${STAGE}_selector_audit.csv"
+          [ -f "$WEEK_DIR/week${WEEK}_run_manifest.json" ] && cp "$WEEK_DIR/week${WEEK}_run_manifest.json" "$WEEK_DIR/${STAGE}_run_manifest.json"
+          [ -f "$WEEK_DIR/week${WEEK}_source_health.json" ] && cp "$WEEK_DIR/week${WEEK}_source_health.json" "$WEEK_DIR/${STAGE}_source_health.json"
+          [ -f "$WEEK_DIR/week${WEEK}_source_health.txt" ] && cp "$WEEK_DIR/week${WEEK}_source_health.txt" "$WEEK_DIR/${STAGE}_source_health.txt"
 
           # 2. Advanced Metadata Python
           python3 << 'EOF'
@@ -137,6 +163,7 @@ jobs:
           TIMESTAMP: ${{ steps.info.outputs.time }}
           ANALYSIS_TYPE: ${{ steps.info.outputs.stage }}
           SUBJECT_PREFIX: ${{ steps.info.outputs.prefix }}
+          NFL_SEASON: ${{ steps.info.outputs.season }}
           # This variable doesn't exist in your logic yet, but keeping it as a placeholder
           FLIP_ALERT: "" 
           # Fix: This ensures analyzers/performance_tracker.py is found
@@ -187,6 +214,14 @@ jobs:
               files_attached.append("CSV") 
           if attach_file(f"data/week{week}/{stage}_pro_analysis.txt", f"week{week}_{stage}_analysis.txt"):
               files_attached.append("TXT")
+          if attach_file(f"data/week{week}/{stage}_selector_audit.csv", f"week{week}_{stage}_selector_audit.csv"):
+              files_attached.append("Selector Audit")
+          if attach_file(f"data/week{week}/{stage}_run_manifest.json", f"week{week}_{stage}_run_manifest.json"):
+              files_attached.append("Run Manifest")
+          if attach_file(f"data/week{week}/{stage}_source_health.json", f"week{week}_{stage}_source_health.json"):
+              files_attached.append("Source Health JSON")
+          if attach_file(f"data/week{week}/{stage}_source_health.txt", f"week{week}_{stage}_source_health.txt"):
+              files_attached.append("Source Health TXT")
           
           msg.attach(MIMEText(f"Week {week} {stage} analysis files: {', '.join(files_attached)}", 'plain'))
           
@@ -204,8 +239,12 @@ jobs:
       - name: Build Week Master Table
         run: |
           python3 builders/build_week_master_table.py \
-            --season 2025 \
+            --season ${{ steps.info.outputs.season }} \
             --week ${{ steps.info.outputs.week }}
+
+      - name: Build Matrix Engine Feed
+        run: |
+          python3 builders/build_matrix_engine_feed.py
 
       - name: Commit Changes
         run: |
