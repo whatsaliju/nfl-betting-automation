@@ -68,10 +68,22 @@ jobs:
               except Exception:
                   pass
 
+          has_private_header = "PRIVATE KEY-----" in raw
+          line_count = len(raw.splitlines())
+          print(f"SSH key secret normalized: private_header={has_private_header}, line_count={line_count}")
           Path.home().joinpath(".ssh", "bluehost_deploy_key").write_text(raw.rstrip() + "\n")
           PY
           chmod 600 ~/.ssh/bluehost_deploy_key
-          ssh-keygen -y -f ~/.ssh/bluehost_deploy_key > /dev/null
+          if ! ssh-keygen -y -f ~/.ssh/bluehost_deploy_key > /dev/null 2>/tmp/bluehost_key_error.txt; then
+            if grep -qi "passphrase" /tmp/bluehost_key_error.txt; then
+              echo "::error title=BLUEHOST_SSH_KEY has a passphrase::GitHub Actions needs an unencrypted private key for non-interactive deploys."
+            elif grep -qi "invalid format\\|error in libcrypto" /tmp/bluehost_key_error.txt; then
+              echo "::error title=BLUEHOST_SSH_KEY is not a valid private key::Paste the full private key, including BEGIN/END lines, not the .pub public key."
+            else
+              echo "::error title=BLUEHOST_SSH_KEY could not be parsed::Use an unencrypted OpenSSH private key and make sure the full key was pasted."
+            fi
+            exit 1
+          fi
           ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Test SSH connection
