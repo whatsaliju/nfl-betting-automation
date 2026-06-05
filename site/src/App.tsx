@@ -38,6 +38,7 @@ function App() {
   const [compareB, setCompareB] = useState("ATL");
   const [engineFeed, setEngineFeed] = useState<EngineFeed | null>(null);
   const [engineError, setEngineError] = useState<string | null>(null);
+  const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState<GameResult[]>([]);
   const [resultsLoading, setResultsLoading] = useState(false);
   const [resultsError, setResultsError] = useState<string | null>(null);
@@ -77,7 +78,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if ((viewMode !== "results" && viewMode !== "matrix") || results.length || resultsLoading) return;
+    if ((viewMode !== "results" && !(viewMode === "matrix" && showResults)) || results.length || resultsLoading) return;
     setResultsLoading(true);
     loadEspnResults()
       .then((loaded) => {
@@ -88,7 +89,7 @@ function App() {
         setResultsError(error.message || "ESPN scores unavailable");
       })
       .finally(() => setResultsLoading(false));
-  }, [results.length, resultsLoading, viewMode]);
+  }, [results.length, resultsLoading, viewMode, showResults]);
 
   return (
     <div className="app-shell">
@@ -144,6 +145,10 @@ function App() {
           <input type="checkbox" checked={showHeatmap} onChange={(event) => setShowHeatmap(event.target.checked)} />
           Opponent heatmap
         </label>
+        <label className="toggle">
+          <input type="checkbox" checked={showResults} onChange={(event) => setShowResults(event.target.checked)} />
+          W/L results
+        </label>
         {selectedTeam && (
           <button className="text-button" onClick={() => setSelectedTeam(null)}>
             <RotateCcw size={15} /> Clear {selectedTeam}
@@ -197,7 +202,7 @@ function App() {
             selectedTeam={selectedTeam}
             showHeatmap={showHeatmap}
             expectations={teamExpectations}
-            results={results}
+            results={showResults ? results : []}
             onSelectTeam={setSelectedTeam}
             onOpenTeam={setModalTeam}
           />
