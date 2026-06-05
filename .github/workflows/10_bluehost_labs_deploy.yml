@@ -86,12 +86,7 @@ jobs:
           fi
           ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Test SSH connection
-        run: |
-          SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
-          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "printf 'Bluehost SSH connection ready\n'"
-
-      - name: Create remote target directory
+      - name: Prepare remote target directory
         run: |
           test -n "$BLUEHOST_TARGET_VALUE"
           REMOTE_TARGET="$BLUEHOST_TARGET_VALUE"
@@ -100,7 +95,7 @@ jobs:
           esac
           echo "Remote target directory style normalized."
           SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
-          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "mkdir -p -- '$REMOTE_TARGET'"
+          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "printf 'Bluehost SSH connection ready\n' && mkdir -p -- '$REMOTE_TARGET'"
 
       - name: Upload static site by SSH
         run: |
