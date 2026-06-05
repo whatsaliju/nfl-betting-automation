@@ -168,16 +168,16 @@ function App() {
           </div>
           <div className="hub-grid">
             <article className="hub-card primary">
-              <Target size={20} />
-              <h3>NFL Edge Board</h3>
-              <p>Weekly play/watch/pass decisions with source gates, promoted factor matches, and concise pick explanations.</p>
-              <button className="text-button" onClick={() => setViewMode("edges")}>Open edges</button>
-            </article>
-            <article className="hub-card">
               <Grid3X3 size={20} />
               <h3>NFL Matrix</h3>
               <p>Schedule context, team filters, postseason support, matchup overlays, and expectation signals.</p>
               <button className="text-button" onClick={() => setViewMode("matrix")}>Open matrix</button>
+            </article>
+            <article className="hub-card">
+              <Target size={20} />
+              <h3>NFL Edge Board</h3>
+              <p>Weekly play/watch/pass decisions with source gates, promoted factor matches, and concise pick explanations.</p>
+              <button className="text-button" onClick={() => setViewMode("edges")}>Open edges</button>
             </article>
             <article className="hub-card">
               <Brain size={20} />
