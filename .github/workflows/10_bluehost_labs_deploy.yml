@@ -94,13 +94,22 @@ jobs:
       - name: Create remote target directory
         run: |
           test -n "$BLUEHOST_TARGET_VALUE"
+          REMOTE_TARGET="$BLUEHOST_TARGET_VALUE"
+          case "$REMOTE_TARGET" in
+            /public_html/*) REMOTE_TARGET="/home/${{ secrets.BLUEHOST_USER }}${REMOTE_TARGET}" ;;
+          esac
+          echo "Remote target directory style normalized."
           SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
-          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "mkdir -p '$BLUEHOST_TARGET_VALUE'"
+          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "mkdir -p -- '$REMOTE_TARGET'"
 
       - name: Upload static site by SSH
         run: |
           test -n "$BLUEHOST_TARGET_VALUE"
+          REMOTE_TARGET="$BLUEHOST_TARGET_VALUE"
+          case "$REMOTE_TARGET" in
+            /public_html/*) REMOTE_TARGET="/home/${{ secrets.BLUEHOST_USER }}${REMOTE_TARGET}" ;;
+          esac
           rsync -az --delete \
             -e "ssh -i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa" \
             dist/ \
-            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:$BLUEHOST_TARGET_VALUE/"
+            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:$REMOTE_TARGET/"
