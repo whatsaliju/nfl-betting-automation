@@ -19,9 +19,16 @@ function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
+const VALID_VIEWS = new Set<AppViewMode>(["home", "matrix", "edges", "expectations", "research", "week", "compare", "results"]);
+
+function hashToView(): AppViewMode {
+  const h = window.location.hash.replace("#", "") as AppViewMode;
+  return VALID_VIEWS.has(h) ? h : "home";
+}
+
 function App() {
   const [filter, setFilter] = useState<Filter>("All");
-  const [viewMode, setViewMode] = useState<AppViewMode>("home");
+  const [viewMode, setViewMode] = useState<AppViewMode>(hashToView);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [modalTeam, setModalTeam] = useState<TeamProfile | null>(null);
   const [showHeatmap, setShowHeatmap] = useState(true);
@@ -34,6 +41,16 @@ function App() {
   const [results, setResults] = useState<GameResult[]>([]);
   const [resultsLoading, setResultsLoading] = useState(false);
   const [resultsError, setResultsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    window.location.hash = viewMode === "home" ? "" : viewMode;
+  }, [viewMode]);
+
+  useEffect(() => {
+    const onHashChange = () => setViewMode(hashToView());
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
 
   const allTeams = useMemo(() => buildTeams(), []);
   const teams = useMemo(
