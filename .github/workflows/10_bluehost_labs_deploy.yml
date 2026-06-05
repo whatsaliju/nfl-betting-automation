@@ -1,6 +1,13 @@
 name: 10 Deploy NFL Edge Hub to Bluehost
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/10_bluehost_labs_deploy.yml"
+      - "data/historical/matrix_engine_feed.json"
+      - "site/**"
   workflow_dispatch:
     inputs:
       engine_feed_url:
