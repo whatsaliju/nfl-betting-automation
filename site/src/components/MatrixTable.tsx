@@ -17,16 +17,34 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
   return (
     <div className="table-shell">
       <div className="matrix-legend">
-        <span className="legend-item"><span className="legend-swatch" style={{background:"#bbf7d0",border:"1px solid #86efac"}} />Home</span>
-        <span className="legend-item"><span className="legend-swatch" style={{background:"#bfdbfe",border:"1px solid #93c5fd"}} />Away</span>
-        <span className="legend-item"><span className="legend-swatch" style={{background:"#86efac",border:"2px solid #16a34a"}} />Home Div</span>
-        <span className="legend-item"><span className="legend-swatch" style={{background:"#93c5fd",border:"2px solid #2563eb"}} />Away Div</span>
-        <span className="legend-item"><span className="legend-swatch" style={{background:"#d9dee6"}} />Bye</span>
-        <span className="legend-item"><span className="legend-dot" style={{background:"#4338ca"}} /><span style={{color:"#4338ca",fontWeight:800}}>Thu/Mon</span> primetime</span>
-        <span className="legend-item"><span className="legend-dot" style={{background:"#7c3aed"}} /><span style={{color:"#7c3aed",fontWeight:800}}>4d</span> short rest</span>
-        <span className="legend-item"><span className="legend-dot" style={{background:"#15803d"}} /><span style={{color:"#15803d",fontWeight:700}}>9d</span> long rest</span>
-        <span className="legend-item"><span className="legend-dot" style={{background:"#9a4b05"}} /><span style={{color:"#9a4b05",fontWeight:800}}>b2b</span> back-to-back away</span>
-        <span className="legend-item"><span className="legend-dot" style={{background:"#dc2626"}} />heatmap = opp SoS</span>
+        <div className="legend-group">
+          <div className="legend-group-title">Game Type</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#bbf7d0",border:"1px solid #86efac"}} />Home</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#bfdbfe",border:"1px solid #93c5fd"}} />Away</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#86efac",border:"2px solid #16a34a"}} />Home Div</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#93c5fd",border:"2px solid #2563eb"}} />Away Div</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#d9dee6"}} />Bye</div>
+        </div>
+        <div className="legend-group">
+          <div className="legend-group-title">Conference</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#fee2e2",border:"1px solid #fca5a5"}} /><span style={{color:"#991b1b",fontWeight:700}}>AFC</span> row</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#dbeafe",border:"1px solid #93c5fd"}} /><span style={{color:"#1e40af",fontWeight:700}}>NFC</span> row</div>
+        </div>
+        <div className="legend-group">
+          <div className="legend-group-title">Indicators</div>
+          <div className="legend-item"><span style={{color:"#4338ca",fontWeight:800}}>Thu/Mon</span> primetime</div>
+          <div className="legend-item"><span style={{color:"#7c3aed",fontWeight:800}}>4d</span> short rest</div>
+          <div className="legend-item"><span style={{color:"#15803d",fontWeight:700}}>14d</span> post-bye</div>
+          <div className="legend-item"><span style={{color:"#9a4b05",fontWeight:800}}>b2b</span> 2nd consec. away</div>
+          <div className="legend-item"><span style={{color:"#a41414",fontWeight:800}}>b2b2b</span> 3rd+ away</div>
+        </div>
+        <div className="legend-group">
+          <div className="legend-group-title">Analytics</div>
+          <div className="legend-item">SoS rank (1=hardest)</div>
+          <div className="legend-item">Rest+ = 10+ day rest</div>
+          <div className="legend-item">✈️ significant travel</div>
+          <div className="legend-item" style={{color:"#64748b"}}>Heatmap = opp strength</div>
+        </div>
       </div>
       <table className="matrix-table">
         <thead>
@@ -36,8 +54,8 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
             <th>SoS</th>
             <th>Wins</th>
             <th>Rest+</th>
-            <th>Travel</th>
-            {weeks.map((week) => <th key={week}>W{week}</th>)}
+            <th>✈️</th>
+            {weeks.map((week) => <th key={week}>{week}</th>)}
           </tr>
         </thead>
         <tbody>
@@ -46,8 +64,13 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
             const record = exp ? `${exp.actual_wins}-${exp.actual_losses}` : null;
             const [conf, ...regionParts] = team.division.split(" ");
             const region = regionParts.join(" ");
+            const isAfc = team.conference === "AFC";
+            const rowClass = [
+              isAfc ? "afc-row" : "nfc-row",
+              selectedTeam === team.name ? "selected-team" : "",
+            ].join(" ");
             return (
-              <tr key={team.name} className={selectedTeam === team.name ? "selected-team" : ""} onClick={() => onSelectTeam(selectedTeam === team.name ? null : team.name)}>
+              <tr key={team.name} className={rowClass} onClick={() => onSelectTeam(selectedTeam === team.name ? null : team.name)}>
                 <td className="sticky-col team-col">
                   <button className="team-button" onClick={(event) => { event.stopPropagation(); onOpenTeam(team); }}>
                     <img src={teamLogos[team.name]} alt="" />
@@ -77,19 +100,19 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
                   const isDiv = isDivisionGame(team.name, opponent);
                   const dayTag = game?.dayOfWeek && game.dayOfWeek !== "Sun" ? game.dayOfWeek : null;
                   const isPrimetime = dayTag === "Thu" || dayTag === "Mon";
+                  const hasTravel = opponent.startsWith("@") && isSignificantTravel(team.name, opponent, week);
                   return (
                     <td key={week} className={`game-cell ${heatmap}`}>
-                      <div className={`game-chip ${classifyCell(team.name, opponent)}${isDiv ? " division-chip" : ""} ${highlighted ? "highlight-opponent" : ""}`}>
-                        <strong>{opponent}</strong>
+                      <div className={`game-chip ${classifyCell(team.name, opponent)}${isDiv ? " division-chip" : ""}${highlighted ? " highlight-opponent" : ""}`}>
+                        <div className="chip-name">{opponent}</div>
                         <div className="cell-tags">
                           {dayTag && <span className={isPrimetime ? "primetime-tag" : ""}>{dayTag}</span>}
                           {game?.daysRest !== null && game?.daysRest !== 7 && (
                             <span className={(game?.daysRest ?? 7) <= 4 ? "short-rest-tag" : "long-rest-tag"}>{game?.daysRest}d</span>
                           )}
                           {flag && <span>{flag}</span>}
-                          {opponent.startsWith("@") && isSignificantTravel(team.name, opponent, week) && <span>Travel</span>}
+                          {hasTravel && <span>✈️</span>}
                           {b2b && <span className={b2b.type === "b2b" ? "orange-tag" : "red-tag"}>{b2b.type}</span>}
-                          {isDiv && <span className="div-tag">Div</span>}
                         </div>
                         <EngineBadge cell={engine} />
                         {engine?.score_for !== null && engine?.score_for !== undefined && (

@@ -141,10 +141,18 @@ button { cursor: pointer; }
 .matrix-table td {
   border-right: 1px solid #dce3ea;
   border-bottom: 1px solid #dce3ea;
-  padding: 4px;
+  padding: 3px;
   text-align: center;
   background: #fff;
 }
+tr.afc-row td { background: #fff5f5; }
+tr.nfc-row td { background: #eff6ff; }
+tr.afc-row td.sticky-col { background: #fee2e2; }
+tr.nfc-row td.sticky-col { background: #dbeafe; }
+tr.afc-row .team-button { color: #991b1b; }
+tr.nfc-row .team-button { color: #1e40af; }
+tr.selected-team td { background: linear-gradient(90deg, rgba(59,130,246,0.25), rgba(59,130,246,0.08)) !important; }
+tr.selected-team td.sticky-col { border-left: 3px solid #3b82f6; }
 .sticky-col {
   position: sticky;
   left: 0;
@@ -178,40 +186,44 @@ button { cursor: pointer; }
   height: 22px;
   object-fit: contain;
 }
-.selected-team td { background: #e8f2ff; }
 .subtle-cell { color: #64748b; font-size: 11px; }
 .div-cell { display: flex; flex-direction: column; gap: 1px; align-items: center; }
-.div-conf { font-size: 9px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; }
+.div-conf { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+tr.afc-row .div-conf { color: #dc2626; }
+tr.nfc-row .div-conf { color: #2563eb; }
 
-.game-cell { min-width: 66px; vertical-align: top; }
+.game-cell { min-width: 64px; vertical-align: top; padding: 2px !important; }
 .game-chip {
-  min-height: 62px;
-  border-radius: 5px;
-  padding: 4px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  align-items: center;
-  justify-content: flex-start;
+  gap: 2px;
+  align-items: stretch;
 }
-.home-cell { background: #bbf7d0; color: #14532d; }
-.away-cell { background: #bfdbfe; color: #1e3a8a; }
-.home-cell.division-chip { background: #86efac; color: #14532d; border: 2px solid #16a34a; }
-.away-cell.division-chip { background: #93c5fd; color: #1e3a8a; border: 2px solid #2563eb; }
-.bye-cell { background: #d9dee6; color: #4b5563; font-weight: 800; justify-content: center; }
-.highlight-opponent { box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.38); }
+.chip-name {
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
+}
+.home-cell .chip-name { background: #bbf7d0; color: #14532d; }
+.away-cell .chip-name { background: #bfdbfe; color: #1e3a8a; }
+.home-cell.division-chip .chip-name { background: #86efac; color: #14532d; border: 2px solid #16a34a; }
+.away-cell.division-chip .chip-name { background: #93c5fd; color: #1e3a8a; border: 2px solid #2563eb; }
+.bye-cell .chip-name { background: #d9dee6; color: #4b5563; }
+.highlight-opponent .chip-name { box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.6); }
 .cell-tags, .mini-flags {
   display: flex;
-  gap: 3px;
+  gap: 2px;
   flex-wrap: wrap;
   justify-content: center;
 }
 .cell-tags span, .mini-flags span {
-  background: rgba(255,255,255,0.72);
   border-radius: 999px;
-  padding: 1px 4px;
+  padding: 0px 3px;
   font-size: 10px;
-  color: #334155;
+  color: #475569;
 }
 .primetime-tag { color: #4338ca !important; font-weight: 800; }
 .short-rest-tag { color: #7c3aed !important; font-weight: 800; }
@@ -219,17 +231,32 @@ button { cursor: pointer; }
 .div-tag { color: #1d4ed8 !important; font-weight: 800; }
 .orange-tag { color: #9a4b05 !important; font-weight: 800; }
 .red-tag { color: #a41414 !important; font-weight: 800; }
-.score-line { font-size: 11px; font-weight: 800; color: #111827; }
+.score-line { font-size: 10px; font-weight: 800; color: #111827; text-align: center; }
 
 .matrix-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  padding: 7px 10px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
   border-bottom: 1px solid #e2e8f0;
   font-size: 10px;
   color: #475569;
   background: #f8fafc;
+}
+.legend-group {
+  padding: 8px 10px;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.legend-group:last-child { border-right: 0; }
+.legend-group-title {
+  font-weight: 700;
+  font-size: 10px;
+  color: #1e293b;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 .legend-item {
   display: flex;
@@ -241,12 +268,6 @@ button { cursor: pointer; }
   width: 12px;
   height: 12px;
   border-radius: 3px;
-  flex-shrink: 0;
-}
-.legend-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
   flex-shrink: 0;
 }
 
