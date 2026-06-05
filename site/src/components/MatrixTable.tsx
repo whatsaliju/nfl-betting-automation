@@ -16,6 +16,18 @@ interface Props {
 export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, expectations, onSelectTeam, onOpenTeam }: Props) {
   return (
     <div className="table-shell">
+      <div className="matrix-legend">
+        <span className="legend-item"><span className="legend-swatch" style={{background:"#bbf7d0",border:"1px solid #86efac"}} />Home</span>
+        <span className="legend-item"><span className="legend-swatch" style={{background:"#bfdbfe",border:"1px solid #93c5fd"}} />Away</span>
+        <span className="legend-item"><span className="legend-swatch" style={{background:"#86efac",border:"2px solid #16a34a"}} />Home Div</span>
+        <span className="legend-item"><span className="legend-swatch" style={{background:"#93c5fd",border:"2px solid #2563eb"}} />Away Div</span>
+        <span className="legend-item"><span className="legend-swatch" style={{background:"#d9dee6"}} />Bye</span>
+        <span className="legend-item"><span className="legend-dot" style={{background:"#4338ca"}} /><span style={{color:"#4338ca",fontWeight:800}}>Thu/Mon</span> primetime</span>
+        <span className="legend-item"><span className="legend-dot" style={{background:"#7c3aed"}} /><span style={{color:"#7c3aed",fontWeight:800}}>4d</span> short rest</span>
+        <span className="legend-item"><span className="legend-dot" style={{background:"#15803d"}} /><span style={{color:"#15803d",fontWeight:700}}>9d</span> long rest</span>
+        <span className="legend-item"><span className="legend-dot" style={{background:"#9a4b05"}} /><span style={{color:"#9a4b05",fontWeight:800}}>b2b</span> back-to-back away</span>
+        <span className="legend-item"><span className="legend-dot" style={{background:"#dc2626"}} />heatmap = opp SoS</span>
+      </div>
       <table className="matrix-table">
         <thead>
           <tr>

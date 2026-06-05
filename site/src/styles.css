@@ -183,14 +183,14 @@ button { cursor: pointer; }
 .div-cell { display: flex; flex-direction: column; gap: 1px; align-items: center; }
 .div-conf { font-size: 9px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; }
 
-.game-cell { min-width: 78px; vertical-align: top; }
+.game-cell { min-width: 66px; vertical-align: top; }
 .game-chip {
-  min-height: 78px;
-  border-radius: 6px;
-  padding: 5px;
+  min-height: 62px;
+  border-radius: 5px;
+  padding: 4px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   align-items: center;
   justify-content: flex-start;
 }
@@ -220,6 +220,35 @@ button { cursor: pointer; }
 .orange-tag { color: #9a4b05 !important; font-weight: 800; }
 .red-tag { color: #a41414 !important; font-weight: 800; }
 .score-line { font-size: 11px; font-weight: 800; color: #111827; }
+
+.matrix-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 7px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 10px;
+  color: #475569;
+  background: #f8fafc;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
 
 .engine-badge {
   display: flex;
@@ -812,8 +841,8 @@ select {
   .brand-block h1 { font-size: 18px; }
   .matrix-table { font-size: 11px; }
   .team-col { min-width: 76px; }
-  .game-cell { min-width: 72px; }
-  .game-chip { min-height: 72px; }
+  .game-cell { min-width: 58px; }
+  .game-chip { min-height: 56px; }
   .compare-grid, .metric-grid, .research-kpis { grid-template-columns: repeat(2, 1fr); }
   .market-row { grid-template-columns: 1fr; }
   .expectation-mini { grid-template-columns: 1fr; }
