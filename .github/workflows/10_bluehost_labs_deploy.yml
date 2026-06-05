@@ -22,6 +22,9 @@ on:
 jobs:
   deploy-nfl-edge-hub:
     runs-on: ubuntu-latest
+    env:
+      BLUEHOST_PORT_VALUE: ${{ secrets.BLUEHOST_PORT || '22' }}
+      BLUEHOST_TARGET_VALUE: ${{ github.event.inputs.target_dir || secrets.BLUEHOST_TARGET_DIR }}
     defaults:
       run:
         working-directory: site
@@ -50,20 +53,24 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.BLUEHOST_SSH_KEY }}" > ~/.ssh/bluehost_deploy_key
           chmod 600 ~/.ssh/bluehost_deploy_key
-          ssh-keyscan -p "${{ secrets.BLUEHOST_PORT || '22' }}" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keygen -y -f ~/.ssh/bluehost_deploy_key > /dev/null
+          ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
+          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "printf 'Bluehost SSH connection ready\n'"
 
       - name: Create remote target directory
         run: |
-          TARGET="${{ github.event.inputs.target_dir || secrets.BLUEHOST_TARGET_DIR }}"
-          ssh -i ~/.ssh/bluehost_deploy_key \
-            -p "${{ secrets.BLUEHOST_PORT || '22' }}" \
-            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" \
-            "mkdir -p '$TARGET'"
+          test -n "$BLUEHOST_TARGET_VALUE"
+          SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
+          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "mkdir -p '$BLUEHOST_TARGET_VALUE'"
 
       - name: Upload static site
         run: |
-          TARGET="${{ github.event.inputs.target_dir || secrets.BLUEHOST_TARGET_DIR }}"
+          test -n "$BLUEHOST_TARGET_VALUE"
           rsync -az --delete \
-            -e "ssh -i ~/.ssh/bluehost_deploy_key -p ${{ secrets.BLUEHOST_PORT || '22' }}" \
+            -e "ssh -i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa" \
             dist/ \
-            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:$TARGET/"
+            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:$BLUEHOST_TARGET_VALUE/"
