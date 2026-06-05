@@ -51,7 +51,8 @@ jobs:
       - name: Prepare SSH key
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.BLUEHOST_SSH_KEY }}" > ~/.ssh/bluehost_deploy_key
+          printf '%s' "${{ secrets.BLUEHOST_SSH_KEY }}" | sed 's/\\n/\n/g' > ~/.ssh/bluehost_deploy_key
+          printf '\n' >> ~/.ssh/bluehost_deploy_key
           chmod 600 ~/.ssh/bluehost_deploy_key
           ssh-keygen -y -f ~/.ssh/bluehost_deploy_key > /dev/null
           ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
