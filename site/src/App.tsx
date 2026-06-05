@@ -31,7 +31,7 @@ function App() {
   const [viewMode, setViewMode] = useState<AppViewMode>(hashToView);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [modalTeam, setModalTeam] = useState<TeamProfile | null>(null);
-  const [showHeatmap, setShowHeatmap] = useState(true);
+  const [showHeatmap, setShowHeatmap] = useState(false);
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [dayFilter, setDayFilter] = useState("all");
   const [compareA, setCompareA] = useState("ARI");
