@@ -1,4 +1,4 @@
-import { BarChart3, Brain, CalendarDays, ExternalLink, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
+import { BarChart3, Brain, CalendarDays, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CompareView } from "./components/CompareView";
 import { EdgeBoardView } from "./components/EdgeBoardView";
@@ -97,7 +97,7 @@ function App() {
             <Grid3X3 size={26} />
           <div>
             <h1>NFL Edge Hub</h1>
-            <p>Matrix, betting edges, source health, and model research</p>
+            <p>2025 Season · Matrix, betting edges, source health, and model research</p>
           </div>
         </div>
         <div className="status-row">
@@ -184,19 +184,6 @@ function App() {
               <h3>Model Lab</h3>
               <p>Factor leaderboard, promotion rules, candidate overlays, and source reliability in one research surface.</p>
               <button className="text-button" onClick={() => setViewMode("research")}>Open research</button>
-            </article>
-            <article className="hub-card">
-              <BarChart3 size={20} />
-              <h3>Val Cap Quant</h3>
-              <p>Existing valuation and long-hold dashboards live under the YTTS research area.</p>
-              <div className="hub-links">
-                <a href="https://lijuvarughese.com/ytts/research_dashboard_app.html" target="_blank" rel="noreferrer">
-                  Screener <ExternalLink size={13} />
-                </a>
-                <a href="https://lijuvarughese.com/ytts/longhold_dashboard.html" target="_blank" rel="noreferrer">
-                  Longhold <ExternalLink size={13} />
-                </a>
-              </div>
             </article>
           </div>
         </section>
