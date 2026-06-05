@@ -14,8 +14,8 @@ on:
         description: "Optional engine feed URL override"
         required: false
         type: string
-      target_dir:
-        description: "Optional Bluehost target directory override"
+      ftp_dir:
+        description: "Optional Bluehost FTP directory override"
         required: false
         type: string
 
@@ -23,8 +23,9 @@ jobs:
   deploy-nfl-edge-hub:
     runs-on: ubuntu-latest
     env:
-      BLUEHOST_PORT_VALUE: ${{ secrets.BLUEHOST_PORT || '22' }}
-      BLUEHOST_TARGET_VALUE: ${{ github.event.inputs.target_dir || secrets.BLUEHOST_TARGET_DIR }}
+      BLUEHOST_FTP_SERVER_VALUE: ${{ secrets.BLUEHOST_FTP_SERVER || secrets.BLUEHOST_HOST }}
+      BLUEHOST_FTP_USER_VALUE: ${{ secrets.BLUEHOST_FTP_USER || secrets.BLUEHOST_USER }}
+      BLUEHOST_FTP_DIR_VALUE: ${{ github.event.inputs.ftp_dir || secrets.BLUEHOST_FTP_DIR || '/public_html/labs/nfl-edge/' }}
     defaults:
       run:
         working-directory: site
@@ -48,59 +49,33 @@ jobs:
           VITE_ENGINE_FEED_URL: ${{ github.event.inputs.engine_feed_url }}
         run: npm run build
 
-      - name: Prepare SSH key
+      - name: Validate FTP config
         env:
-          BLUEHOST_SSH_KEY_VALUE: ${{ secrets.BLUEHOST_SSH_KEY }}
+          BLUEHOST_FTP_PASSWORD_VALUE: ${{ secrets.BLUEHOST_FTP_PASSWORD }}
         run: |
-          mkdir -p ~/.ssh
-          python3 - <<'PY'
-          import base64
-          import os
-          from pathlib import Path
-
-          raw = os.environ["BLUEHOST_SSH_KEY_VALUE"].strip()
-          if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in {"'", '"'}:
-              raw = raw[1:-1].strip()
-          raw = raw.replace("\\n", "\n").replace("\r", "")
-          if "BEGIN" not in raw:
-              try:
-                  raw = base64.b64decode(raw).decode("utf-8").replace("\r", "")
-              except Exception:
-                  pass
-
-          has_private_header = "PRIVATE KEY-----" in raw
-          line_count = len(raw.splitlines())
-          print(f"SSH key secret normalized: private_header={has_private_header}, line_count={line_count}")
-          Path.home().joinpath(".ssh", "bluehost_deploy_key").write_text(raw.rstrip() + "\n")
-          PY
-          chmod 600 ~/.ssh/bluehost_deploy_key
-          if ! ssh-keygen -y -f ~/.ssh/bluehost_deploy_key > /dev/null 2>/tmp/bluehost_key_error.txt; then
-            if grep -qi "passphrase" /tmp/bluehost_key_error.txt; then
-              echo "::error title=BLUEHOST_SSH_KEY has a passphrase::GitHub Actions needs an unencrypted private key for non-interactive deploys."
-            elif grep -qi "invalid format\\|error in libcrypto" /tmp/bluehost_key_error.txt; then
-              echo "::error title=BLUEHOST_SSH_KEY is not a valid private key::Paste the full private key, including BEGIN/END lines, not the .pub public key."
-            else
-              echo "::error title=BLUEHOST_SSH_KEY could not be parsed::Use an unencrypted OpenSSH private key and make sure the full key was pasted."
-            fi
+          if [ -z "$BLUEHOST_FTP_SERVER_VALUE" ]; then
+            echo "::error title=Missing FTP server::Set BLUEHOST_FTP_SERVER or reuse BLUEHOST_HOST."
             exit 1
           fi
-          ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
+          if [ -z "$BLUEHOST_FTP_USER_VALUE" ]; then
+            echo "::error title=Missing FTP user::Set BLUEHOST_FTP_USER or reuse BLUEHOST_USER."
+            exit 1
+          fi
+          if [ -z "$BLUEHOST_FTP_PASSWORD_VALUE" ]; then
+            echo "::error title=Missing FTP password::Set BLUEHOST_FTP_PASSWORD for Bluehost FTP deploy."
+            exit 1
+          fi
+          if [ -z "$BLUEHOST_FTP_DIR_VALUE" ]; then
+            echo "::error title=Missing FTP directory::Set BLUEHOST_FTP_DIR, for example /public_html/labs/nfl-edge/."
+            exit 1
+          fi
+          echo "FTP deploy config present."
 
-      - name: Test SSH connection
-        run: |
-          SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
-          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "printf 'Bluehost SSH connection ready\n'"
-
-      - name: Create remote target directory
-        run: |
-          test -n "$BLUEHOST_TARGET_VALUE"
-          SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
-          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "mkdir -p '$BLUEHOST_TARGET_VALUE'"
-
-      - name: Upload static site
-        run: |
-          test -n "$BLUEHOST_TARGET_VALUE"
-          rsync -az --delete \
-            -e "ssh -i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa" \
-            dist/ \
-            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:$BLUEHOST_TARGET_VALUE/"
+      - name: Publish NFL Edge Hub to Bluehost
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ env.BLUEHOST_FTP_SERVER_VALUE }}
+          username: ${{ env.BLUEHOST_FTP_USER_VALUE }}
+          password: ${{ secrets.BLUEHOST_FTP_PASSWORD }}
+          local-dir: site/dist/
+          server-dir: ${{ env.BLUEHOST_FTP_DIR_VALUE }}
