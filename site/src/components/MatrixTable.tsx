@@ -1,4 +1,4 @@
-import { teamLogos, teamStats, weeks } from "../data/nflData";
+import { divisions, teamLogos, teamStats, weeks } from "../data/nflData";
 import { classifyCell, cleanOpponent, flagEmoji, getOpponentStrengthClass, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
 import type { EngineTeamCell, TeamExpectation, TeamProfile } from "../types";
 import { EngineBadge } from "./EngineBadge";
@@ -13,22 +13,31 @@ interface Props {
   onOpenTeam: (team: TeamProfile) => void;
 }
 
+function oppConference(code: string): "AFC" | "NFC" | null {
+  if (!code) return null;
+  for (const [div, teams] of Object.entries(divisions)) {
+    if (teams.includes(code)) return div.startsWith("AFC") ? "AFC" : "NFC";
+  }
+  return null;
+}
+
 export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, expectations, onSelectTeam, onOpenTeam }: Props) {
   return (
     <div className="table-shell">
       <div className="matrix-legend">
         <div className="legend-group">
           <div className="legend-group-title">Game Type</div>
-          <div className="legend-item"><span className="legend-swatch" style={{background:"#bbf7d0",border:"1px solid #86efac"}} />Home</div>
-          <div className="legend-item"><span className="legend-swatch" style={{background:"#bfdbfe",border:"1px solid #93c5fd"}} />Away</div>
-          <div className="legend-item"><span className="legend-swatch" style={{background:"#86efac",border:"2px solid #16a34a"}} />Home Div</div>
-          <div className="legend-item"><span className="legend-swatch" style={{background:"#93c5fd",border:"2px solid #2563eb"}} />Away Div</div>
-          <div className="legend-item"><span className="legend-swatch" style={{background:"#d9dee6"}} />Bye</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#f8fafc",border:"1px solid #e2e8f0"}} />Home</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#dbeafe",border:"1px solid #93c5fd"}} />Away</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#f8fafc",border:"2px solid #16a34a"}} />Home Div</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#bfdbfe",border:"2px solid #2563eb"}} />Away Div</div>
+          <div className="legend-item"><span className="legend-swatch" style={{background:"#e2e8f0"}} />Bye</div>
         </div>
         <div className="legend-group">
-          <div className="legend-group-title">Conference</div>
-          <div className="legend-item"><span className="legend-swatch" style={{background:"#fee2e2",border:"1px solid #fca5a5"}} /><span style={{color:"#991b1b",fontWeight:700}}>AFC</span> row</div>
-          <div className="legend-item"><span className="legend-swatch" style={{background:"#dbeafe",border:"1px solid #93c5fd"}} /><span style={{color:"#1e40af",fontWeight:700}}>NFC</span> row</div>
+          <div className="legend-group-title">Opponent</div>
+          <div className="legend-item"><span style={{color:"#b91c1c",fontWeight:800}}>AFC</span> opponent</div>
+          <div className="legend-item"><span style={{color:"#1d4ed8",fontWeight:800}}>NFC</span> opponent</div>
+          <div className="legend-item" style={{color:"#64748b"}}>Row tint = your conf</div>
         </div>
         <div className="legend-group">
           <div className="legend-group-title">Indicators</div>
@@ -101,23 +110,29 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
                   const dayTag = game?.dayOfWeek && game.dayOfWeek !== "Sun" ? game.dayOfWeek : null;
                   const isPrimetime = dayTag === "Thu" || dayTag === "Mon";
                   const hasTravel = opponent.startsWith("@") && isSignificantTravel(team.name, opponent, week);
+                  const oppConf = opponentCode ? oppConference(opponentCode) : null;
+                  const daysRest = game?.daysRest ?? null;
+                  const showRest = daysRest !== null && daysRest !== 7 && (daysRest <= 5 || daysRest >= 10);
+                  const scoreTooltip = engine?.score_for != null ? `Proj: ${engine.score_for}–${engine.score_against}` : undefined;
                   return (
                     <td key={week} className={`game-cell ${heatmap}`}>
-                      <div className={`game-chip ${classifyCell(team.name, opponent)}${isDiv ? " division-chip" : ""}${highlighted ? " highlight-opponent" : ""}`}>
-                        <div className="chip-name">{opponent}</div>
+                      <div
+                        className={`game-chip ${classifyCell(team.name, opponent)}${isDiv ? " division-chip" : ""}${highlighted ? " highlight-opponent" : ""}`}
+                        title={scoreTooltip}
+                      >
+                        <div className={`chip-name${oppConf ? ` opp-${oppConf.toLowerCase()}` : ""}`}>
+                          {opponent}
+                        </div>
                         <div className="cell-tags">
                           {dayTag && <span className={isPrimetime ? "primetime-tag" : ""}>{dayTag}</span>}
-                          {game?.daysRest !== null && game?.daysRest !== 7 && (
-                            <span className={(game?.daysRest ?? 7) <= 4 ? "short-rest-tag" : "long-rest-tag"}>{game?.daysRest}d</span>
+                          {showRest && (
+                            <span className={daysRest <= 5 ? "short-rest-tag" : "long-rest-tag"}>{daysRest}d</span>
                           )}
                           {flag && <span>{flag}</span>}
                           {hasTravel && <span>✈️</span>}
                           {b2b && <span className={b2b.type === "b2b" ? "orange-tag" : "red-tag"}>{b2b.type}</span>}
                         </div>
                         <EngineBadge cell={engine} />
-                        {engine?.score_for !== null && engine?.score_for !== undefined && (
-                          <div className="score-line">{engine.score_for}-{engine.score_against}</div>
-                        )}
                       </div>
                     </td>
                   );

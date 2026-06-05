@@ -145,13 +145,13 @@ button { cursor: pointer; }
   text-align: center;
   background: #fff;
 }
-tr.afc-row td { background: #fff5f5; }
-tr.nfc-row td { background: #eff6ff; }
-tr.afc-row td.sticky-col { background: #fee2e2; }
-tr.nfc-row td.sticky-col { background: #dbeafe; }
+tr.afc-row td { background: #fdf8f8; }
+tr.nfc-row td { background: #f8fafd; }
+tr.afc-row td.sticky-col { background: #fef2f2; }
+tr.nfc-row td.sticky-col { background: #eff6ff; }
 tr.afc-row .team-button { color: #991b1b; }
 tr.nfc-row .team-button { color: #1e40af; }
-tr.selected-team td { background: linear-gradient(90deg, rgba(59,130,246,0.25), rgba(59,130,246,0.08)) !important; }
+tr.selected-team td { background: linear-gradient(90deg, rgba(59,130,246,0.18), rgba(59,130,246,0.05)) !important; }
 tr.selected-team td.sticky-col { border-left: 3px solid #3b82f6; }
 .sticky-col {
   position: sticky;
@@ -207,12 +207,14 @@ tr.nfc-row .div-conf { color: #2563eb; }
   text-align: center;
   width: 100%;
 }
-.home-cell .chip-name { background: #f8fafc; color: #1e293b; border: 1px solid #e2e8f0; }
-.away-cell .chip-name { background: #dbeafe; color: #1e3a8a; }
-.home-cell.division-chip .chip-name { background: #f8fafc; color: #1e293b; border: 2px solid #16a34a; }
-.away-cell.division-chip .chip-name { background: #bfdbfe; color: #1e3a8a; border: 2px solid #2563eb; }
-.bye-cell .chip-name { background: #e2e8f0; color: #64748b; font-style: italic; }
+.home-cell .chip-name { background: #f8fafc; border: 1px solid #e2e8f0; }
+.away-cell .chip-name { background: #dbeafe; }
+.home-cell.division-chip .chip-name { background: #f8fafc; border: 2px solid #16a34a; }
+.away-cell.division-chip .chip-name { background: #bfdbfe; border: 2px solid #2563eb; }
+.bye-cell .chip-name { background: #e2e8f0; color: #94a3b8; font-style: italic; }
 .highlight-opponent .chip-name { box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.6); }
+.chip-name.opp-afc { color: #b91c1c; }
+.chip-name.opp-nfc { color: #1d4ed8; }
 .cell-tags, .mini-flags {
   display: flex;
   gap: 2px;
@@ -295,6 +297,10 @@ tr.nfc-row .div-conf { color: #2563eb; }
 }
 .engine-badge .pick-on-team { background: #0f766e; }
 .engine-badge .pick-other-team { background: #7c3aed; }
+.engine-stage { display: none; }
+.engine-stage-risk { display: inline-flex !important; }
+.engine-badge:has(.pick-on-team) .engine-stage,
+.engine-badge:has(.pick-other-team) .engine-stage { display: inline-flex; }
 
 .sos-very-hard { background: rgba(220, 38, 38, 0.14) !important; }
 .sos-hard { background: rgba(249, 115, 22, 0.12) !important; }
