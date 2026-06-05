@@ -209,6 +209,7 @@ function App() {
             engineCells={engineCells}
             selectedTeam={selectedTeam}
             showHeatmap={showHeatmap}
+            expectations={teamExpectations}
             onSelectTeam={setSelectedTeam}
             onOpenTeam={setModalTeam}
           />
