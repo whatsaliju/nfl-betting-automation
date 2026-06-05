@@ -49,10 +49,27 @@ jobs:
         run: npm run build
 
       - name: Prepare SSH key
+        env:
+          BLUEHOST_SSH_KEY_VALUE: ${{ secrets.BLUEHOST_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s' "${{ secrets.BLUEHOST_SSH_KEY }}" | sed 's/\\n/\n/g' > ~/.ssh/bluehost_deploy_key
-          printf '\n' >> ~/.ssh/bluehost_deploy_key
+          python3 - <<'PY'
+          import base64
+          import os
+          from pathlib import Path
+
+          raw = os.environ["BLUEHOST_SSH_KEY_VALUE"].strip()
+          if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in {"'", '"'}:
+              raw = raw[1:-1].strip()
+          raw = raw.replace("\\n", "\n").replace("\r", "")
+          if "BEGIN" not in raw:
+              try:
+                  raw = base64.b64decode(raw).decode("utf-8").replace("\r", "")
+              except Exception:
+                  pass
+
+          Path.home().joinpath(".ssh", "bluehost_deploy_key").write_text(raw.rstrip() + "\n")
+          PY
           chmod 600 ~/.ssh/bluehost_deploy_key
           ssh-keygen -y -f ~/.ssh/bluehost_deploy_key > /dev/null
           ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
