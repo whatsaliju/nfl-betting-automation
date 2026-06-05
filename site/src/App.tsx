@@ -77,7 +77,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (viewMode !== "results" || results.length || resultsLoading) return;
+    if ((viewMode !== "results" && viewMode !== "matrix") || results.length || resultsLoading) return;
     setResultsLoading(true);
     loadEspnResults()
       .then((loaded) => {
@@ -197,6 +197,7 @@ function App() {
             selectedTeam={selectedTeam}
             showHeatmap={showHeatmap}
             expectations={teamExpectations}
+            results={results}
             onSelectTeam={setSelectedTeam}
             onOpenTeam={setModalTeam}
           />

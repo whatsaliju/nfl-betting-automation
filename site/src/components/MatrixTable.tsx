@@ -1,6 +1,6 @@
 import { divisions, teamLogos, teamStats, weeks } from "../data/nflData";
 import { classifyCell, cleanOpponent, flagEmoji, getOpponentStrengthClass, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
-import type { EngineTeamCell, TeamExpectation, TeamProfile } from "../types";
+import type { EngineTeamCell, GameResult, TeamExpectation, TeamProfile } from "../types";
 import { EngineBadge } from "./EngineBadge";
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
   selectedTeam: string | null;
   showHeatmap: boolean;
   expectations: Record<string, TeamExpectation>;
+  results: GameResult[];
   onSelectTeam: (team: string | null) => void;
   onOpenTeam: (team: TeamProfile) => void;
 }
@@ -21,7 +22,23 @@ function oppConference(code: string): "AFC" | "NFC" | null {
   return null;
 }
 
-export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, expectations, onSelectTeam, onOpenTeam }: Props) {
+function buildResultIndex(results: GameResult[]): Map<string, GameResult> {
+  const map = new Map<string, GameResult>();
+  for (const r of results) {
+    map.set(`${r.homeTeam}:${r.week}`, r);
+    map.set(`${r.awayTeam}:${r.week}`, r);
+  }
+  return map;
+}
+
+function divAbbr(division: string) {
+  const parts = division.split(" ");
+  return `${parts[0]} ${parts[1]?.[0] ?? ""}`;
+}
+
+export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, expectations, results, onSelectTeam, onOpenTeam }: Props) {
+  const resultIndex = buildResultIndex(results);
+
   return (
     <div className="table-shell">
       <div className="matrix-legend">
@@ -61,7 +78,7 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
             <th className="sticky-col team-col">Team</th>
             <th>Div</th>
             <th>SoS</th>
-            <th>Wins</th>
+            <th title="Vegas over/under win total">O/U</th>
             <th>Rest+</th>
             <th>✈️</th>
             {weeks.map((week) => <th key={week}>{week}</th>)}
@@ -71,8 +88,6 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
           {teams.map((team) => {
             const exp = expectations[team.name];
             const record = exp ? `${exp.actual_wins}-${exp.actual_losses}` : null;
-            const [conf, ...regionParts] = team.division.split(" ");
-            const region = regionParts.join(" ");
             const isAfc = team.conference === "AFC";
             const rowClass = [
               isAfc ? "afc-row" : "nfc-row",
@@ -89,10 +104,7 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
                     </div>
                   </button>
                 </td>
-                <td className="subtle-cell div-cell">
-                  <span className="div-conf">{conf}</span>
-                  <span>{region}</span>
-                </td>
+                <td className="subtle-cell">{divAbbr(team.division)}</td>
                 <td>{team.sos}</td>
                 <td>{team.projectedWins}</td>
                 <td>{team.restAdvantages}</td>
@@ -113,16 +125,31 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
                   const oppConf = opponentCode ? oppConference(opponentCode) : null;
                   const daysRest = game?.daysRest ?? null;
                   const showRest = daysRest !== null && daysRest !== 7 && (daysRest <= 5 || daysRest >= 10);
-                  const scoreTooltip = engine?.score_for != null ? `Proj: ${engine.score_for}–${engine.score_against}` : undefined;
+
+                  const result = opponent && opponent !== "BYE" ? resultIndex.get(`${team.name}:${week}`) ?? null : null;
+                  const isWin = result?.winner === team.name;
+                  const isLoss = result?.winner && result.winner !== team.name;
+                  const isTie = result && !result.winner;
+                  let resultScore: string | null = null;
+                  if (result?.homeScore != null && result?.awayScore != null) {
+                    const teamIsHome = result.homeTeam === team.name;
+                    const teamScore = teamIsHome ? result.homeScore : result.awayScore;
+                    const oppScore = teamIsHome ? result.awayScore : result.homeScore;
+                    resultScore = `${teamScore}-${oppScore}`;
+                  }
+                  const resultLabel = isWin ? "W" : isLoss ? "L" : isTie ? "T" : null;
+
                   return (
                     <td key={week} className={`game-cell ${heatmap}`}>
-                      <div
-                        className={`game-chip ${classifyCell(team.name, opponent)}${isDiv ? " division-chip" : ""}${highlighted ? " highlight-opponent" : ""}`}
-                        title={scoreTooltip}
-                      >
+                      <div className={`game-chip ${classifyCell(team.name, opponent)}${isDiv ? " division-chip" : ""}${highlighted ? " highlight-opponent" : ""}`}>
                         <div className={`chip-name${oppConf ? ` opp-${oppConf.toLowerCase()}` : ""}`}>
                           {opponent}
                         </div>
+                        {resultLabel && (
+                          <div className={`game-result result-${resultLabel.toLowerCase()}`}>
+                            {resultLabel}{resultScore ? ` ${resultScore}` : ""}
+                          </div>
+                        )}
                         <div className="cell-tags">
                           {dayTag && <span className={isPrimetime ? "primetime-tag" : ""}>{dayTag}</span>}
                           {showRest && (
