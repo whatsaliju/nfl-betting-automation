@@ -10,8 +10,20 @@ on:
       - "site/**"
   workflow_dispatch:
     inputs:
+      deploy_method:
+        description: "Deploy method"
+        required: false
+        default: "ssh"
+        type: choice
+        options:
+          - ssh
+          - ftp
       engine_feed_url:
         description: "Optional engine feed URL override"
+        required: false
+        type: string
+      target_dir:
+        description: "Optional Bluehost SSH target directory override"
         required: false
         type: string
       ftp_dir:
@@ -23,6 +35,9 @@ jobs:
   deploy-nfl-edge-hub:
     runs-on: ubuntu-latest
     env:
+      DEPLOY_METHOD_VALUE: ${{ github.event.inputs.deploy_method || 'ssh' }}
+      BLUEHOST_PORT_VALUE: ${{ secrets.BLUEHOST_PORT || '22' }}
+      BLUEHOST_TARGET_VALUE: ${{ github.event.inputs.target_dir || secrets.BLUEHOST_TARGET_DIR || '/home/lijuvaru/public_html/labs/nfl-edge' }}
       BLUEHOST_FTP_SERVER_VALUE: ${{ secrets.BLUEHOST_FTP_SERVER || secrets.BLUEHOST_HOST }}
       BLUEHOST_FTP_USER_VALUE: ${{ secrets.BLUEHOST_FTP_USER || secrets.BLUEHOST_USER }}
       BLUEHOST_FTP_DIR_VALUE: ${{ github.event.inputs.ftp_dir || secrets.BLUEHOST_FTP_DIR || '/public_html/labs/nfl-edge/' }}
@@ -49,7 +64,69 @@ jobs:
           VITE_ENGINE_FEED_URL: ${{ github.event.inputs.engine_feed_url }}
         run: npm run build
 
+      - name: Prepare SSH key
+        if: ${{ env.DEPLOY_METHOD_VALUE == 'ssh' }}
+        env:
+          BLUEHOST_SSH_KEY_VALUE: ${{ secrets.BLUEHOST_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          python3 - <<'PY'
+          import base64
+          import os
+          from pathlib import Path
+
+          raw = os.environ["BLUEHOST_SSH_KEY_VALUE"].strip()
+          if len(raw) >= 2 and raw[0] == raw[-1] and raw[0] in {"'", '"'}:
+              raw = raw[1:-1].strip()
+          raw = raw.replace("\\n", "\n").replace("\r", "")
+          if "BEGIN" not in raw:
+              try:
+                  raw = base64.b64decode(raw).decode("utf-8").replace("\r", "")
+              except Exception:
+                  pass
+
+          has_private_header = "PRIVATE KEY-----" in raw
+          line_count = len(raw.splitlines())
+          print(f"SSH key secret normalized: private_header={has_private_header}, line_count={line_count}")
+          Path.home().joinpath(".ssh", "bluehost_deploy_key").write_text(raw.rstrip() + "\n")
+          PY
+          chmod 600 ~/.ssh/bluehost_deploy_key
+          if ! ssh-keygen -y -f ~/.ssh/bluehost_deploy_key > /dev/null 2>/tmp/bluehost_key_error.txt; then
+            if grep -qi "passphrase" /tmp/bluehost_key_error.txt; then
+              echo "::error title=BLUEHOST_SSH_KEY has a passphrase::GitHub Actions needs an unencrypted private key for non-interactive deploys."
+            elif grep -qi "invalid format\\|error in libcrypto" /tmp/bluehost_key_error.txt; then
+              echo "::error title=BLUEHOST_SSH_KEY is not a valid private key::Paste the full private key, including BEGIN/END lines, not the .pub public key."
+            else
+              echo "::error title=BLUEHOST_SSH_KEY could not be parsed::Use an unencrypted OpenSSH private key and make sure the full key was pasted."
+            fi
+            exit 1
+          fi
+          ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        if: ${{ env.DEPLOY_METHOD_VALUE == 'ssh' }}
+        run: |
+          SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
+          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "printf 'Bluehost SSH connection ready\n'"
+
+      - name: Create remote target directory
+        if: ${{ env.DEPLOY_METHOD_VALUE == 'ssh' }}
+        run: |
+          test -n "$BLUEHOST_TARGET_VALUE"
+          SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa"
+          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "mkdir -p '$BLUEHOST_TARGET_VALUE'"
+
+      - name: Upload static site by SSH
+        if: ${{ env.DEPLOY_METHOD_VALUE == 'ssh' }}
+        run: |
+          test -n "$BLUEHOST_TARGET_VALUE"
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o PubkeyAcceptedAlgorithms=+ssh-rsa -o HostkeyAlgorithms=+ssh-rsa" \
+            dist/ \
+            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:$BLUEHOST_TARGET_VALUE/"
+
       - name: Validate FTP config
+        if: ${{ env.DEPLOY_METHOD_VALUE == 'ftp' }}
         env:
           BLUEHOST_FTP_PASSWORD_VALUE: ${{ secrets.BLUEHOST_FTP_PASSWORD }}
         run: |
@@ -72,6 +149,7 @@ jobs:
           echo "FTP deploy config present."
 
       - name: Publish NFL Edge Hub to Bluehost
+        if: ${{ env.DEPLOY_METHOD_VALUE == 'ftp' }}
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ env.BLUEHOST_FTP_SERVER_VALUE }}
