@@ -1,16 +1,21 @@
 import { X } from "lucide-react";
 import { teamLogos } from "../data/nflData";
 import { cleanOpponent, flagEmoji, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
-import type { EngineTeamCell, TeamProfile } from "../types";
+import type { EngineTeamCell, TeamExpectation, TeamProfile } from "../types";
 import { EngineBadge } from "./EngineBadge";
 
 interface Props {
   team: TeamProfile;
   engineCells: Map<string, EngineTeamCell>;
+  expectation?: TeamExpectation;
   onClose: () => void;
 }
 
-export function TeamModal({ team, engineCells, onClose }: Props) {
+function format(value?: number | null) {
+  return typeof value === "number" ? value.toFixed(1) : "n/a";
+}
+
+export function TeamModal({ team, engineCells, expectation, onClose }: Props) {
   const homeGames = team.weeks.filter((game) => game.opponent && game.opponent !== "BYE" && !game.opponent.startsWith("@")).length;
   const awayGames = team.weeks.filter((game) => game.opponent.startsWith("@")).length;
 
@@ -34,6 +39,14 @@ export function TeamModal({ team, engineCells, onClose }: Props) {
             <div><strong>{team.restAdvantages}</strong><span>Rest+</span></div>
             <div><strong>{team.significantTravel}</strong><span>Travel</span></div>
           </div>
+          {expectation && (
+            <div className="metric-grid compact-metrics">
+              <div><strong>{format(expectation.pythagorean_wins_17_game_pace)}</strong><span>Pyth</span></div>
+              <div><strong>{format(expectation.vegas_win_total)}</strong><span>Vegas</span></div>
+              <div><strong>{format(expectation.pythagorean_pace_vs_vegas)}</strong><span>Py-Vegas</span></div>
+              <div><strong>{format(expectation.actual_vs_pythagorean)}</strong><span>Act-Py</span></div>
+            </div>
+          )}
           <div className="modal-schedule">
             {team.weeks.map((game) => {
               const engine = engineCells.get(`${team.name}:W${game.week}`);

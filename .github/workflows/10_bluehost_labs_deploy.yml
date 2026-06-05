@@ -1,0 +1,62 @@
+name: 10 Deploy NFL Edge Hub to Bluehost
+
+on:
+  workflow_dispatch:
+    inputs:
+      engine_feed_url:
+        description: "Optional engine feed URL override"
+        required: false
+        type: string
+      target_dir:
+        description: "Optional Bluehost target directory override"
+        required: false
+        type: string
+
+jobs:
+  deploy-nfl-edge-hub:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static site
+        env:
+          VITE_ENGINE_FEED_URL: ${{ github.event.inputs.engine_feed_url }}
+        run: npm run build
+
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.BLUEHOST_SSH_KEY }}" > ~/.ssh/bluehost_deploy_key
+          chmod 600 ~/.ssh/bluehost_deploy_key
+          ssh-keyscan -p "${{ secrets.BLUEHOST_PORT || '22' }}" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Create remote target directory
+        run: |
+          TARGET="${{ github.event.inputs.target_dir || secrets.BLUEHOST_TARGET_DIR }}"
+          ssh -i ~/.ssh/bluehost_deploy_key \
+            -p "${{ secrets.BLUEHOST_PORT || '22' }}" \
+            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" \
+            "mkdir -p '$TARGET'"
+
+      - name: Upload static site
+        run: |
+          TARGET="${{ github.event.inputs.target_dir || secrets.BLUEHOST_TARGET_DIR }}"
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/bluehost_deploy_key -p ${{ secrets.BLUEHOST_PORT || '22' }}" \
+            dist/ \
+            "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:$TARGET/"

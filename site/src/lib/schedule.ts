@@ -1,5 +1,5 @@
 import { gameSchedule, getConference, getDivision, intlGames, scheduleRows, teamStats, teamTimeZones, weekStartDates, weeks } from "../data/nflData";
-import type { EngineFeed, EngineTeamCell, GameResult, ScheduleRow, TeamProfile, TeamWeek } from "../types";
+import type { EdgeBoardGame, EngineFeed, EngineTeamCell, GameResult, ScheduleRow, TeamProfile, TeamWeek } from "../types";
 
 export const ENGINE_FEED_URL =
   import.meta.env.VITE_ENGINE_FEED_URL ||
@@ -171,6 +171,18 @@ export function indexEngineCells(feed: EngineFeed | null) {
 
 export function postseasonCells(feed: EngineFeed | null) {
   return engineCellValues(feed).filter((cell) => cell.season_type === "POST");
+}
+
+export function edgeBoardGames(feed: EngineFeed | null) {
+  return feed?.edge_board || [];
+}
+
+export function indexEdgeBoard(feed: EngineFeed | null) {
+  const map = new Map<string, EdgeBoardGame>();
+  for (const game of edgeBoardGames(feed)) {
+    if (game.season_type === "REG") map.set(game.matchup_key, game);
+  }
+  return map;
 }
 
 export async function loadEspnResults(): Promise<GameResult[]> {

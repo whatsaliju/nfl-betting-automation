@@ -35,10 +35,21 @@ jobs:
             scripts/calibrate_selector_thresholds.py \
             scripts/walk_forward_selector_validation.py \
             scripts/generate_model_readiness_report.py \
+            scripts/audit_expectation_edges.py \
+            scripts/audit_game_features.py \
+            scripts/audit_moneyline_pricing.py \
+            scripts/audit_source_reliability.py \
+            scripts/build_pick_explanations.py \
+            scripts/build_model_training_dataset.py \
+            scripts/evaluate_factor_promotion.py \
+            scripts/simulate_promotion_overlays.py \
+            scripts/generate_feature_research_report.py \
+            scripts/simulate_feature_policies.py \
             scripts/validate_engine_contracts.py \
             graders/grade_week_results.py \
             builders/build_week_master_table.py \
-            builders/build_matrix_engine_feed.py
+            builders/build_matrix_engine_feed.py \
+            builders/build_game_feature_table.py
 
       - name: Validate engine contracts
         run: python scripts/validate_engine_contracts.py

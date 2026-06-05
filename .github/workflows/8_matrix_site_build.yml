@@ -1,4 +1,4 @@
-name: 8 Matrix Site Build
+name: 8 NFL Edge Hub Site Build
 
 on:
   push:
@@ -8,11 +8,13 @@ on:
     paths:
       - "site/**"
       - "data/historical/matrix_engine_feed.json"
+      - "data/historical/pick_explanations.json"
       - ".github/workflows/8_matrix_site_build.yml"
   pull_request:
     paths:
       - "site/**"
       - "data/historical/matrix_engine_feed.json"
+      - "data/historical/pick_explanations.json"
       - ".github/workflows/8_matrix_site_build.yml"
   workflow_dispatch:
     inputs:
@@ -22,7 +24,7 @@ on:
         type: string
 
 jobs:
-  build-matrix-site:
+  build-nfl-edge-hub:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -50,6 +52,6 @@ jobs:
       - name: Upload static site artifact
         uses: actions/upload-artifact@v4
         with:
-          name: nfl-matrix-site-dist
+          name: nfl-edge-hub-dist
           path: site/dist
           if-no-files-found: error

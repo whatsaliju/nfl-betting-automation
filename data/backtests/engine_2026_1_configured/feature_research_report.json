@@ -1,0 +1,98 @@
+{
+  "feature_rows": 109,
+  "graded_bets": 18,
+  "wins": 14,
+  "losses": 4,
+  "win_rate": 0.7778,
+  "by_dimension": {
+    "best_edge_market": [],
+    "pythagorean_pick_alignment": [],
+    "value_gap_pick_alignment": [],
+    "market_expectation_pick_alignment": [],
+    "overperformance_pick_alignment": [],
+    "division_game": [],
+    "data_quality_status": []
+  },
+  "policy_simulations": [
+    {
+      "policy": "baseline",
+      "description": "Keep every graded engine pick.",
+      "plays": 18,
+      "wins": 14,
+      "losses": 4,
+      "win_rate": 0.7778,
+      "removed_plays": 0,
+      "removed_wins": 0,
+      "removed_losses": 0,
+      "win_rate_delta": 0.0
+    },
+    {
+      "policy": "value_gap_no_conflict",
+      "description": "Keep totals; remove spread picks when value-gap side conflicts with the pick.",
+      "plays": 14,
+      "wins": 12,
+      "losses": 2,
+      "win_rate": 0.8571,
+      "removed_plays": 4,
+      "removed_wins": 2,
+      "removed_losses": 2,
+      "win_rate_delta": 0.0793
+    },
+    {
+      "policy": "pythagorean_no_conflict",
+      "description": "Keep totals; remove spread picks when Pythagorean side conflicts with the pick.",
+      "plays": 14,
+      "wins": 12,
+      "losses": 2,
+      "win_rate": 0.8571,
+      "removed_plays": 4,
+      "removed_wins": 2,
+      "removed_losses": 2,
+      "win_rate_delta": 0.0793
+    },
+    {
+      "policy": "expectation_no_conflict",
+      "description": "Keep totals; remove spread picks when either value-gap or Pythagorean side conflicts.",
+      "plays": 14,
+      "wins": 12,
+      "losses": 2,
+      "win_rate": 0.8571,
+      "removed_plays": 4,
+      "removed_wins": 2,
+      "removed_losses": 2,
+      "win_rate_delta": 0.0793
+    },
+    {
+      "policy": "value_gap_aligned",
+      "description": "Keep totals; require spread picks to align with value-gap side.",
+      "plays": 14,
+      "wins": 12,
+      "losses": 2,
+      "win_rate": 0.8571,
+      "removed_plays": 4,
+      "removed_wins": 2,
+      "removed_losses": 2,
+      "win_rate_delta": 0.0793
+    },
+    {
+      "policy": "pythagorean_aligned",
+      "description": "Keep totals; require spread picks to align with Pythagorean side.",
+      "plays": 13,
+      "wins": 11,
+      "losses": 2,
+      "win_rate": 0.8462,
+      "removed_plays": 5,
+      "removed_wins": 3,
+      "removed_losses": 2,
+      "win_rate_delta": 0.0684
+    }
+  ],
+  "observations": [
+    "Do not make this a hard gate yet; every expectation row in the current replay uses a thin result sample.",
+    "Best simple overlay in this sample is value_gap_no_conflict: 12-2 over 14 plays."
+  ],
+  "candidate_policy": {
+    "status": "monitor_candidate_overlay",
+    "recommendation": "Track expectation alignment as an annotation and candidate spread threshold bump. Do not hard-gate production picks until more full-season feature rows are available."
+  }
+}

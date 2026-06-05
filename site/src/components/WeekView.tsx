@@ -1,6 +1,6 @@
 import { teamLogos } from "../data/nflData";
 import { cleanOpponent, flagEmoji, internationalCode } from "../lib/schedule";
-import type { EngineTeamCell, TeamProfile } from "../types";
+import type { EdgeBoardGame, EngineTeamCell, TeamProfile } from "../types";
 import { EngineBadge } from "./EngineBadge";
 
 interface Props {
@@ -8,11 +8,20 @@ interface Props {
   week: number;
   dayFilter: string;
   engineCells: Map<string, EngineTeamCell>;
+  edgeIndex: Map<string, EdgeBoardGame>;
   onWeekChange: (week: number) => void;
   onDayChange: (day: string) => void;
 }
 
-export function WeekView({ teams, week, dayFilter, engineCells, onWeekChange, onDayChange }: Props) {
+function edgeSummary(edge?: EdgeBoardGame) {
+  if (!edge) return null;
+  if (edge.best_edge.status === "play" && edge.best_edge.market) {
+    return `${edge.best_edge.market.toUpperCase()} ${edge.best_edge.side || ""} (${edge.best_edge.score ?? "n/a"})`;
+  }
+  return "PASS";
+}
+
+export function WeekView({ teams, week, dayFilter, engineCells, edgeIndex, onWeekChange, onDayChange }: Props) {
   const games = teams
     .flatMap((team) => {
       const game = team.weeks.find((item) => item.week === week);
@@ -43,6 +52,7 @@ export function WeekView({ teams, week, dayFilter, engineCells, onWeekChange, on
         {games.map(({ awayTeam, homeTeam, game }) => {
           const awayEngine = engineCells.get(`${awayTeam}:W${week}`);
           const homeEngine = engineCells.get(`${homeTeam}:W${week}`);
+          const edge = edgeIndex.get(`${awayTeam}@${homeTeam}`);
           const flag = flagEmoji(internationalCode(homeTeam, week, game.opponent));
           return (
             <article className="game-card" key={`${awayTeam}@${homeTeam}`}>
@@ -58,6 +68,14 @@ export function WeekView({ teams, week, dayFilter, engineCells, onWeekChange, on
                 <strong>{homeTeam}</strong>
               </div>
               <EngineBadge cell={awayEngine || homeEngine} />
+              {edge && (
+                <div className={`week-edge-summary ${edge.best_edge.status}`}>
+                  <strong>{edgeSummary(edge)}</strong>
+                  <span>
+                    Spread {edge.markets.spread.status} · Total {edge.markets.total.status} · ML {edge.markets.moneyline.status.replace("_", " ")}
+                  </span>
+                </div>
+              )}
             </article>
           );
         })}

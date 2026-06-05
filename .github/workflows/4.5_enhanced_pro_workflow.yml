@@ -245,6 +245,26 @@ jobs:
       - name: Build Matrix Engine Feed
         run: |
           python3 builders/build_matrix_engine_feed.py
+          python3 builders/build_game_feature_table.py
+          python3 scripts/audit_game_features.py
+          python3 scripts/generate_feature_research_report.py \
+            --features data/historical/game_features.csv \
+            --audit data/historical/game_feature_audit.csv \
+            --json-output data/historical/feature_research_report.json \
+            --md-output data/historical/feature_research_report.md
+          if [ -f data/backtests/engine_2026_1_configured/game_features.csv ]; then
+            python3 scripts/build_model_training_dataset.py
+            python3 scripts/evaluate_factor_promotion.py
+            python3 scripts/simulate_promotion_overlays.py
+            python3 scripts/audit_source_reliability.py
+            python3 scripts/build_pick_explanations.py \
+              --features data/backtests/engine_2026_1_configured/game_features.csv \
+              --json-output data/backtests/engine_2026_1_configured/pick_explanations.json \
+              --csv-output data/backtests/engine_2026_1_configured/pick_explanations.csv \
+              --md-output data/backtests/engine_2026_1_configured/pick_explanations.md
+          fi
+          python3 scripts/build_pick_explanations.py
+          python3 builders/build_matrix_engine_feed.py
 
       - name: Commit Changes
         run: |

@@ -1,0 +1,212 @@
+{
+  "overall_status": "DEGRADED",
+  "overall_score": 97.6,
+  "weeks": [
+    {
+      "week": 11,
+      "status": "OK",
+      "source_count": 6,
+      "score": 100.0,
+      "unsafe_sources": [],
+      "degraded_sources": [],
+      "warnings": [],
+      "critical_warnings": []
+    },
+    {
+      "week": 12,
+      "status": "OK",
+      "source_count": 6,
+      "score": 100.0,
+      "unsafe_sources": [],
+      "degraded_sources": [],
+      "warnings": [],
+      "critical_warnings": []
+    },
+    {
+      "week": 13,
+      "status": "OK",
+      "source_count": 6,
+      "score": 100.0,
+      "unsafe_sources": [],
+      "degraded_sources": [],
+      "warnings": [],
+      "critical_warnings": []
+    },
+    {
+      "week": 14,
+      "status": "OK",
+      "source_count": 6,
+      "score": 100.0,
+      "unsafe_sources": [],
+      "degraded_sources": [],
+      "warnings": [],
+      "critical_warnings": []
+    },
+    {
+      "week": 15,
+      "status": "OK",
+      "source_count": 6,
+      "score": 100.0,
+      "unsafe_sources": [],
+      "degraded_sources": [],
+      "warnings": [],
+      "critical_warnings": []
+    },
+    {
+      "week": 16,
+      "status": "OK",
+      "source_count": 6,
+      "score": 100.0,
+      "unsafe_sources": [],
+      "degraded_sources": [],
+      "warnings": [],
+      "critical_warnings": []
+    },
+    {
+      "week": 17,
+      "status": "OK",
+      "source_count": 6,
+      "score": 100.0,
+      "unsafe_sources": [],
+      "degraded_sources": [],
+      "warnings": [],
+      "critical_warnings": []
+    },
+    {
+      "week": 18,
+      "status": "DEGRADED",
+      "source_count": 6,
+      "score": 80.8,
+      "unsafe_sources": [],
+      "degraded_sources": [
+        "rotowire"
+      ],
+      "warnings": [
+        "rotowire: missing file path"
+      ],
+      "critical_warnings": []
+    }
+  ],
+  "by_source": [
+    {
+      "source": "rotowire",
+      "weeks": 8,
+      "avg_score": 87.5,
+      "min_score": 0,
+      "ok_weeks": 7,
+      "degraded_weeks": 1,
+      "unsafe_weeks": 0,
+      "missing_weeks": 1,
+      "total_warnings": 1,
+      "total_critical_warnings": 0
+    },
+    {
+      "source": "action_injuries",
+      "weeks": 8,
+      "avg_score": 99.4,
+      "min_score": 95,
+      "ok_weeks": 8,
+      "degraded_weeks": 0,
+      "unsafe_weeks": 0,
+      "missing_weeks": 0,
+      "total_warnings": 0,
+      "total_critical_warnings": 0
+    },
+    {
+      "source": "action_markets",
+      "weeks": 8,
+      "avg_score": 99.4,
+      "min_score": 95,
+      "ok_weeks": 8,
+      "degraded_weeks": 0,
+      "unsafe_weeks": 0,
+      "missing_weeks": 0,
+      "total_warnings": 0,
+      "total_critical_warnings": 0
+    },
+    {
+      "source": "action_weather",
+      "weeks": 8,
+      "avg_score": 99.4,
+      "min_score": 95,
+      "ok_weeks": 8,
+      "degraded_weeks": 0,
+      "unsafe_weeks": 0,
+      "missing_weeks": 0,
+      "total_warnings": 0,
+      "total_critical_warnings": 0
+    },
+    {
+      "source": "queries",
+      "weeks": 8,
+      "avg_score": 100.0,
+      "min_score": 100,
+      "ok_weeks": 8,
+      "degraded_weeks": 0,
+      "unsafe_weeks": 0,
+      "missing_weeks": 0,
+      "total_warnings": 0,
+      "total_critical_warnings": 0
+    },
+    {
+      "source": "referee_trends",
+      "weeks": 8,
+      "avg_score": 100.0,
+      "min_score": 100,
+      "ok_weeks": 8,
+      "degraded_weeks": 0,
+      "unsafe_weeks": 0,
+      "missing_weeks": 0,
+      "total_warnings": 0,
+      "total_critical_warnings": 0
+    }
+  ],
+  "feature_status_buckets": [
+    {
+      "bucket": "DEGRADED",
+      "games": 16,
+      "graded_picks": 2,
+      "wins": 2,
+      "losses": 0,
+      "pushes": 0,
+      "win_rate": 1.0,
+      "dimension": "source_health_status"
+    },
+    {
+      "bucket": "OK",
+      "games": 93,
+      "graded_picks": 16,
+      "wins": 12,
+      "losses": 4,
+      "pushes": 0,
+      "win_rate": 0.75,
+      "dimension": "source_health_status"
+    },
+    {
+      "bucket": "DEGRADED",
+      "games": 16,
+      "graded_picks": 2,
+      "wins": 2,
+      "losses": 0,
+      "pushes": 0,
+      "win_rate": 1.0,
+      "dimension": "data_quality_status"
+    },
+    {
+      "bucket": "OK",
+      "games": 93,
+      "graded_picks": 16,
+      "wins": 12,
+      "losses": 4,
+      "pushes": 0,
+      "win_rate": 0.75,
+      "dimension": "data_quality_status"
+    }
+  ],
+  "recommendations": [
+    "Monitor lower-scoring source groups: rotowire.",
+    "Keep degraded source status visible; current sample is too small for a hard veto.",
+    "Do not promote factor overlays to production when critical sources are unsafe or missing.",
+    "For live 2026 runs, require action markets, queries, and referee trends before final recommendations."
+  ]
+}

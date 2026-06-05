@@ -74,11 +74,269 @@ export interface EngineGame {
   };
 }
 
+export interface EdgeMarket {
+  market: "spread" | "total" | "moneyline";
+  side: string | null;
+  score: number | null;
+  threshold: number | null;
+  cleared_threshold?: boolean;
+  blocked?: boolean;
+  blockers?: string[];
+  signals?: Array<{
+    source?: string;
+    side?: string;
+    score?: number;
+    impact?: number;
+    status?: string;
+  }>;
+  conflicts?: Array<{
+    source?: string;
+    side?: string;
+    score?: number;
+    impact?: number;
+    status?: string;
+  }>;
+  reasons?: string[];
+  status: "playable" | "lean" | "blocked" | "unavailable" | "not_priced";
+  reason?: string;
+}
+
+export interface EdgeBoardGame {
+  season: number;
+  season_type: SeasonType;
+  week: number;
+  matchup_key: string;
+  game: string;
+  away_team: string;
+  home_team: string;
+  away_tla: string;
+  home_tla: string;
+  stage: string | null;
+  analysis_available: boolean;
+  best_edge: {
+    market: "spread" | "total" | null;
+    side: string | null;
+    score: number | null;
+    label: string | null;
+    recommendation: string | null;
+    status: "play" | "pass";
+  };
+  markets: {
+    spread: EdgeMarket;
+    total: EdgeMarket;
+    moneyline: EdgeMarket;
+  };
+  factor_summary: Array<{
+    market: string;
+    source: string;
+    side?: string;
+    impact?: number;
+    status?: string;
+  }>;
+  schedule_context: {
+    division_game: boolean;
+    conference_game: boolean;
+    away_division: string;
+    home_division: string;
+  };
+  expectation_context?: {
+    away_team: string;
+    home_team: string;
+    away?: TeamExpectation;
+    home?: TeamExpectation;
+    games_tracked_min: number;
+    pythagorean_wins_delta: number | null;
+    vegas_win_total_delta: number | null;
+    pythagorean_vs_vegas_delta: number | null;
+    actual_vs_pythagorean_delta: number | null;
+    pythagorean_side: "AWAY" | "HOME" | "NEUTRAL" | null;
+    market_expectation_side: "AWAY" | "HOME" | "NEUTRAL" | null;
+    value_gap_side: "AWAY" | "HOME" | "NEUTRAL" | null;
+    overperformance_side: "AWAY" | "HOME" | "NEUTRAL" | null;
+    sample_warning: boolean;
+  };
+  source_health_status: string | null;
+  data_quality_status: string | null;
+  result: {
+    away_score: number | null;
+    home_score: number | null;
+    final_margin: number | null;
+    final_total: number | null;
+  };
+  explanation?: PickExplanation | null;
+}
+
+export interface PickExplanation {
+  key: string;
+  raw_action: "play" | "lean" | "pass" | string;
+  quality_action: "play" | "lean" | "watch" | "pass" | string;
+  quality_gate: "clear" | "warn" | "blocked" | string;
+  confidence: "high" | "standard" | "watch" | "blocked" | "none" | string;
+  market?: string | null;
+  side?: string | null;
+  selector_score?: string | number | null;
+  label?: string | null;
+  recommendation?: string | null;
+  source_health_status?: string | null;
+  data_quality_status?: string | null;
+  promoted_matches?: Array<{
+    factor: string;
+    status: string;
+    allowed: boolean;
+    plays?: number | null;
+    wins?: number | null;
+    losses?: number | null;
+    lift?: number | null;
+  }>;
+  source_blockers?: string[];
+  source_warnings?: string[];
+  market_signals?: string[];
+  market_conflicts?: string[];
+  market_blockers?: string[];
+  reasons?: string[];
+}
+
+export interface TeamExpectation {
+  team: string;
+  conference: string;
+  division: string;
+  games_tracked: number;
+  actual_wins: number;
+  actual_losses: number;
+  actual_win_pct: number | null;
+  points_for: number;
+  points_against: number;
+  vegas_win_total: number | null;
+  pythagorean_exponent: number;
+  pythagorean_win_pct: number | null;
+  pythagorean_wins_tracked: number | null;
+  pythagorean_wins_17_game_pace: number | null;
+  actual_vs_pythagorean: number | null;
+  pythagorean_pace_vs_vegas: number | null;
+  actual_pace_vs_vegas: number | null;
+  expectation_band: "overperforming" | "underperforming" | "in_line" | "unknown";
+}
+
+export interface PolicySimulation {
+  policy: string;
+  description?: string | null;
+  plays?: number | null;
+  wins?: number | null;
+  losses?: number | null;
+  win_rate?: number | null;
+  removed_plays?: number | null;
+  removed_wins?: number | null;
+  removed_losses?: number | null;
+  win_rate_delta?: number | null;
+}
+
+export interface FactorLeaderboardRow {
+  feature: string;
+  value: string;
+  actionability?: string | null;
+  plays?: number | null;
+  wins?: number | null;
+  losses?: number | null;
+  win_rate?: number | null;
+  win_rate_lift?: number | null;
+  sample_flag?: string | null;
+}
+
+export interface PromotedFactor {
+  factor: string;
+  feature?: string | null;
+  value?: string | null;
+  actionability?: string | null;
+  plays?: number | null;
+  wins?: number | null;
+  losses?: number | null;
+  win_rate?: number | null;
+  win_rate_lift?: number | null;
+  promotion_status?: "production_ready" | "candidate" | "monitor" | "research" | string;
+  selector_influence_allowed?: boolean | null;
+  recommendation?: string | null;
+  warnings?: string[];
+  blockers?: string[];
+}
+
+export interface PromotionOverlaySimulation {
+  overlay: string;
+  factor?: string | null;
+  description?: string | null;
+  plays?: number | null;
+  wins?: number | null;
+  losses?: number | null;
+  win_rate?: number | null;
+  removed_plays?: number | null;
+  removed_wins?: number | null;
+  removed_losses?: number | null;
+  win_rate_delta?: number | null;
+  recommendation?: string | null;
+}
+
+export interface SourceReliability {
+  overall_status?: string | null;
+  overall_score?: number | null;
+  weeks_audited?: number | null;
+  recommendations?: string[];
+  by_source?: Array<{
+    source: string;
+    weeks: number;
+    avg_score: number;
+    min_score: number;
+    ok_weeks: number;
+    degraded_weeks: number;
+    unsafe_weeks: number;
+    missing_weeks: number;
+    total_warnings: number;
+    total_critical_warnings: number;
+  }>;
+  feature_status_buckets?: Array<{
+    dimension: string;
+    bucket: string;
+    games: number;
+    graded_picks: number;
+    wins: number;
+    losses: number;
+    pushes: number;
+    win_rate: number | null;
+  }>;
+}
+
+export interface ResearchSummary {
+  available: boolean;
+  status: "BUILDING_SAMPLE" | "MONITORING" | "READY_FOR_MODELING" | string;
+  sample_warning: boolean;
+  feature_rows: number;
+  graded_bets: number;
+  wins: number;
+  losses: number;
+  win_rate: number | null;
+  observations: string[];
+  candidate_policy: {
+    status: string;
+    recommendation: string;
+  };
+  top_policy_simulations: PolicySimulation[];
+  top_factor_leaderboard?: FactorLeaderboardRow[];
+  promotion_summary?: {
+    production_ready?: number;
+    candidate?: number;
+    monitor?: number;
+    research?: number;
+    [key: string]: number | undefined;
+  };
+  promoted_factors?: PromotedFactor[];
+  promotion_overlay_simulations?: PromotionOverlaySimulation[];
+  source_reliability?: SourceReliability | null;
+}
+
 export interface EngineFeed {
   feed_version: string;
   source: string;
   game_count: number;
   team_cell_count: number;
+  edge_board_count?: number;
   model_readiness?: {
     available: boolean;
     status: string;
@@ -102,8 +360,11 @@ export interface EngineFeed {
       win_rate?: number;
     };
   };
+  research_summary?: ResearchSummary;
   games: EngineGame[];
   team_cells: Record<string, EngineTeamCell> | EngineTeamCell[];
+  edge_board?: EdgeBoardGame[];
+  team_expectations?: Record<string, TeamExpectation>;
 }
 
 export interface GameResult {

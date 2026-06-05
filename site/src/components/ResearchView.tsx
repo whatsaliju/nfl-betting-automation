@@ -1,0 +1,340 @@
+import { AlertTriangle, Brain, CheckCircle2, FlaskConical, ShieldCheck, TrendingUp } from "lucide-react";
+import type { FactorLeaderboardRow, PolicySimulation, PromotedFactor, PromotionOverlaySimulation, ResearchSummary } from "../types";
+
+function pct(value?: number | null) {
+  return typeof value === "number" ? `${(value * 100).toFixed(1)}%` : "n/a";
+}
+
+function signed(value?: number | null) {
+  if (typeof value !== "number") return "n/a";
+  return `${value > 0 ? "+" : ""}${(value * 100).toFixed(1)} pts`;
+}
+
+function record(row: Pick<PolicySimulation, "wins" | "losses">) {
+  return `${row.wins ?? 0}-${row.losses ?? 0}`;
+}
+
+function factorRecord(row: Pick<FactorLeaderboardRow, "wins" | "losses">) {
+  return `${row.wins ?? 0}-${row.losses ?? 0}`;
+}
+
+function promotedRecord(row: Pick<PromotedFactor, "wins" | "losses">) {
+  return `${row.wins ?? 0}-${row.losses ?? 0}`;
+}
+
+function overlayRecord(row: Pick<PromotionOverlaySimulation, "wins" | "losses">) {
+  return `${row.wins ?? 0}-${row.losses ?? 0}`;
+}
+
+const fallback: ResearchSummary = {
+  available: false,
+  status: "BUILDING_SAMPLE",
+  sample_warning: true,
+  feature_rows: 0,
+  graded_bets: 0,
+  wins: 0,
+  losses: 0,
+  win_rate: null,
+  observations: ["Research summary is not available in the current engine feed."],
+  candidate_policy: {
+    status: "monitor_only",
+    recommendation: "Keep the selector as the source of truth while feature evidence is still building."
+  },
+  top_policy_simulations: [],
+  top_factor_leaderboard: [],
+  promotion_summary: {
+    production_ready: 0,
+    candidate: 0,
+    monitor: 0,
+    research: 0
+  },
+  promoted_factors: [],
+  promotion_overlay_simulations: [],
+  source_reliability: null
+};
+
+export function ResearchView({ summary }: { summary?: ResearchSummary }) {
+  const report = summary || fallback;
+  const policies = report.top_policy_simulations || [];
+  const baseline = policies.find((row) => row.policy === "baseline");
+  const overlays = policies.filter((row) => row.policy !== "baseline");
+  const factors = report.top_factor_leaderboard || [];
+  const promoted = report.promoted_factors || [];
+  const promotionOverlays = report.promotion_overlay_simulations || [];
+  const promotionSummary = report.promotion_summary || {};
+  const sourceReliability = report.source_reliability;
+
+  return (
+    <section className="panel research-panel">
+      <div className="panel-toolbar">
+        <div>
+          <h2>Model Research</h2>
+          <p className="panel-subtitle">Feature learning, policy overlays, and sample discipline</p>
+        </div>
+        <span className={`research-status ${report.sample_warning ? "warning" : "ok"}`}>
+          {report.sample_warning ? <AlertTriangle size={15} /> : <CheckCircle2 size={15} />}
+          {report.status.replace(/_/g, " ")}
+        </span>
+      </div>
+
+      <div className="research-kpis">
+        <div>
+          <span>Feature Rows</span>
+          <strong>{report.feature_rows}</strong>
+        </div>
+        <div>
+          <span>Graded Bets</span>
+          <strong>{report.graded_bets}</strong>
+        </div>
+        <div>
+          <span>Replay Record</span>
+          <strong>{report.wins}-{report.losses}</strong>
+        </div>
+        <div>
+          <span>Replay Win Rate</span>
+          <strong>{pct(report.win_rate)}</strong>
+        </div>
+        <div>
+          <span>Candidates</span>
+          <strong>{promotionSummary.candidate ?? 0}</strong>
+        </div>
+      </div>
+
+      <div className="research-grid">
+        <article className="research-card">
+          <h3><Brain size={16} /> Current Thesis</h3>
+          <p>{report.candidate_policy.recommendation}</p>
+          <span>{report.candidate_policy.status.replace(/_/g, " ")}</span>
+        </article>
+        <article className="research-card">
+          <h3><FlaskConical size={16} /> Baseline</h3>
+          {baseline ? (
+            <p>{record(baseline)} over {baseline.plays} plays at {pct(baseline.win_rate)}.</p>
+          ) : (
+            <p>No baseline policy simulation is available yet.</p>
+          )}
+          <span>Selector source of truth</span>
+        </article>
+      </div>
+
+      {report.observations.length > 0 && (
+        <div className="research-observations">
+          {report.observations.slice(0, 4).map((item) => (
+            <p key={item}>{item}</p>
+          ))}
+        </div>
+      )}
+
+      <div className="policy-table-shell">
+        <h3 className="table-heading">Promotion Rules</h3>
+        <table className="compare-table policy-table">
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Status</th>
+              <th>Allowed</th>
+              <th>Plays</th>
+              <th>Record</th>
+              <th>Lift</th>
+              <th>Rule Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {promoted.map((row) => (
+              <tr key={row.factor}>
+                <td>
+                  <span className="policy-name">
+                    <ShieldCheck size={14} />
+                    {row.factor.replace(/_/g, " ")}
+                  </span>
+                </td>
+                <td>
+                  <span className={`promotion-pill ${(row.promotion_status || "research").replace(/_/g, "-")}`}>
+                    {(row.promotion_status || "research").replace(/_/g, " ")}
+                  </span>
+                </td>
+                <td>{row.selector_influence_allowed ? "yes" : "no"}</td>
+                <td>{row.plays ?? 0}</td>
+                <td>{promotedRecord(row)}</td>
+                <td className={(row.win_rate_lift ?? 0) >= 0 ? "positive" : "negative"}>{signed(row.win_rate_lift)}</td>
+                <td>{row.warnings?.[0] || row.blockers?.[0] || row.recommendation || "n/a"}</td>
+              </tr>
+            ))}
+            {!promoted.length && (
+              <tr>
+                <td colSpan={7}>No factor promotion report is available yet.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="policy-table-shell">
+        <h3 className="table-heading">Candidate Overlay Tests</h3>
+        <table className="compare-table policy-table">
+          <thead>
+            <tr>
+              <th>Overlay</th>
+              <th>Plays</th>
+              <th>Record</th>
+              <th>Win Rate</th>
+              <th>Removed</th>
+              <th>Delta</th>
+              <th>Read</th>
+            </tr>
+          </thead>
+          <tbody>
+            {promotionOverlays.map((row) => (
+              <tr key={row.overlay}>
+                <td>
+                  <span className="policy-name">
+                    <TrendingUp size={14} />
+                    {row.overlay.replace(/_/g, " ")}
+                  </span>
+                </td>
+                <td>{row.plays ?? 0}</td>
+                <td>{overlayRecord(row)}</td>
+                <td>{pct(row.win_rate)}</td>
+                <td>{row.removed_wins ?? 0}-{row.removed_losses ?? 0}</td>
+                <td className={(row.win_rate_delta ?? 0) >= 0 ? "positive" : "negative"}>{signed(row.win_rate_delta)}</td>
+                <td>{row.recommendation || "n/a"}</td>
+              </tr>
+            ))}
+            {!promotionOverlays.length && (
+              <tr>
+                <td colSpan={7}>No candidate overlay simulations are available yet.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="policy-table-shell">
+        <h3 className="table-heading">Source Reliability</h3>
+        <div className="source-reliability-head">
+          <span className={`research-status ${sourceReliability?.overall_status === "OK" ? "ok" : "warning"}`}>
+            {sourceReliability?.overall_status || "unknown"}
+          </span>
+          <span>{sourceReliability?.overall_score ?? "n/a"} score</span>
+          <span>{sourceReliability?.weeks_audited ?? 0} weeks audited</span>
+        </div>
+        {sourceReliability?.recommendations?.length ? (
+          <div className="research-observations source-notes">
+            {sourceReliability.recommendations.slice(0, 3).map((item) => (
+              <p key={item}>{item}</p>
+            ))}
+          </div>
+        ) : null}
+        <table className="compare-table policy-table">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Avg</th>
+              <th>Min</th>
+              <th>OK</th>
+              <th>Degraded</th>
+              <th>Missing</th>
+              <th>Warnings</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(sourceReliability?.by_source || []).map((row) => (
+              <tr key={row.source}>
+                <td>{row.source.replace(/_/g, " ")}</td>
+                <td>{row.avg_score}</td>
+                <td>{row.min_score}</td>
+                <td>{row.ok_weeks}</td>
+                <td>{row.degraded_weeks}</td>
+                <td>{row.missing_weeks}</td>
+                <td>{row.total_warnings + row.total_critical_warnings}</td>
+              </tr>
+            ))}
+            {!sourceReliability?.by_source?.length && (
+              <tr>
+                <td colSpan={7}>No source reliability report is available yet.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="policy-table-shell">
+        <h3 className="table-heading">Policy Simulations</h3>
+        <table className="compare-table policy-table">
+          <thead>
+            <tr>
+              <th>Overlay</th>
+              <th>Plays</th>
+              <th>Record</th>
+              <th>Win Rate</th>
+              <th>Removed</th>
+              <th>Delta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {overlays.map((row) => (
+              <tr key={row.policy}>
+                <td>
+                  <span className="policy-name">
+                    <TrendingUp size={14} />
+                    {row.policy.replace(/_/g, " ")}
+                  </span>
+                </td>
+                <td>{row.plays ?? 0}</td>
+                <td>{record(row)}</td>
+                <td>{pct(row.win_rate)}</td>
+                <td>{row.removed_wins ?? 0}-{row.removed_losses ?? 0}</td>
+                <td className={(row.win_rate_delta ?? 0) >= 0 ? "positive" : "negative"}>{signed(row.win_rate_delta)}</td>
+              </tr>
+            ))}
+            {!overlays.length && (
+              <tr>
+                <td colSpan={6}>No policy simulations are available yet.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="policy-table-shell">
+        <h3 className="table-heading">Factor Leaderboard</h3>
+        <table className="compare-table policy-table">
+          <thead>
+            <tr>
+              <th>Factor</th>
+              <th>Type</th>
+              <th>Plays</th>
+              <th>Record</th>
+              <th>Win Rate</th>
+              <th>Lift</th>
+              <th>Sample</th>
+            </tr>
+          </thead>
+          <tbody>
+            {factors.map((row) => (
+              <tr key={`${row.feature}-${row.value}`}>
+                <td>
+                  <span className="policy-name">
+                    <TrendingUp size={14} />
+                    {row.feature.replace(/_/g, " ")}: {row.value.replace(/_/g, " ")}
+                  </span>
+                </td>
+                <td>{(row.actionability || "research").replace(/_/g, " ")}</td>
+                <td>{row.plays ?? 0}</td>
+                <td>{factorRecord(row)}</td>
+                <td>{pct(row.win_rate)}</td>
+                <td className={(row.win_rate_lift ?? 0) >= 0 ? "positive" : "negative"}>{signed(row.win_rate_lift)}</td>
+                <td>{row.sample_flag || "n/a"}</td>
+              </tr>
+            ))}
+            {!factors.length && (
+              <tr>
+                <td colSpan={7}>No factor leaderboard is available yet.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}

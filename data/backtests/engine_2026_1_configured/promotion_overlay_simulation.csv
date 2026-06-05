@@ -1,0 +1,6 @@
+overlay,factor,description,plays,wins,losses,pushes,win_rate,removed_plays,removed_wins,removed_losses,win_rate_delta,recommendation
+best_edge_score_bin=4_to_5:only,best_edge_score_bin=4_to_5,Keep only picks matching this promoted factor.,9,8,1,0,0.8889,9,6,3,0.1111,Too restrictive for production; useful as a confidence tag.
+value_gap_pick_alignment=aligned:only,value_gap_pick_alignment=aligned,Keep only picks matching this promoted factor.,8,7,1,0,0.875,10,7,3,0.0972,Too restrictive for production; useful as a confidence tag.
+value_gap_pick_alignment=aligned:aligned_or_total,value_gap_pick_alignment=aligned,Keep totals; require side picks to align with this factor.,14,12,2,0,0.8571,4,2,2,0.0793,Candidate threshold-bump policy; keep monitoring play starvation.
+value_gap_pick_alignment=aligned:no_conflict,value_gap_pick_alignment=aligned,Keep totals; remove spread picks when this alignment factor conflicts.,14,12,2,0,0.8571,4,2,2,0.0793,"Best candidate for a soft veto simulation, not production gating."
+baseline,,Keep every graded engine pick.,18,14,4,0,0.7778,0,0,0,0.0,Current selector baseline.
