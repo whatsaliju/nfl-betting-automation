@@ -8,6 +8,17 @@ export interface ScheduleRow {
   [weekKey: `W${number}`]: string;
 }
 
+export interface SeasonSchedule {
+  season: number;
+  weeks: number[];
+  hasResults: boolean;
+  scheduleRows: ScheduleRow[];
+  gameDays: Record<string, Record<string, string>>;
+  gameDates: Record<string, Record<string, string | null>>;
+  teamStats: Record<string, { sos: number; wins: number | null }>;
+  results: GameResult[];
+}
+
 export interface TeamWeek {
   week: number;
   opponent: string;
@@ -21,7 +32,7 @@ export interface TeamProfile {
   division: string;
   conference: Conference;
   sos: number;
-  projectedWins: number;
+  projectedWins: number | null;
   weeks: TeamWeek[];
   backToBackInfo: Array<{ week: number; type: "b2b" | "b2b2b" }>;
   restAdvantages: number;

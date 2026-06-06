@@ -1,25 +1,38 @@
-import { gameSchedule, getConference, getDivision, intlGames, scheduleRows, teamStats, teamTimeZones, weekStartDates, weeks } from "../data/nflData";
-import type { EdgeBoardGame, EngineFeed, EngineTeamCell, GameResult, ScheduleRow, TeamProfile, TeamWeek } from "../types";
+import seasonScheduleData from "../data/seasonSchedules.json";
+import { getConference, getDivision, intlGames, teamStats as defaultSeasonTeamStats, teamTimeZones } from "../data/nflData";
+import type { EdgeBoardGame, EngineFeed, EngineTeamCell, GameResult, ScheduleRow, SeasonSchedule, TeamProfile, TeamWeek } from "../types";
 
 export const ENGINE_FEED_URL =
   import.meta.env.VITE_ENGINE_FEED_URL ||
   "https://raw.githubusercontent.com/whatsaliju/nfl-betting-automation/main/data/historical/matrix_engine_feed.json";
 
+const schedulesBySeason = seasonScheduleData as Record<string, SeasonSchedule>;
+
+export const availableSeasons = Object.keys(schedulesBySeason)
+  .map(Number)
+  .sort((a, b) => a - b);
+
+export const DEFAULT_SEASON = 2025;
+
+export function getSeasonSchedule(season: number): SeasonSchedule {
+  return schedulesBySeason[String(season)] || schedulesBySeason[String(DEFAULT_SEASON)];
+}
+
+export function getDisplayTeamStats(schedule: SeasonSchedule) {
+  return schedule.season === DEFAULT_SEASON ? defaultSeasonTeamStats : schedule.teamStats;
+}
+
 export function cleanOpponent(opponent: string) {
   return opponent.replace("@", "").trim();
 }
 
-export function getGameDay(team: string, week: number) {
-  return gameSchedule[week]?.[team] || "Sun";
+export function getGameDay(team: string, week: number, schedule: SeasonSchedule) {
+  return schedule.gameDays[String(week)]?.[team] || "Sun";
 }
 
-export function getGameDate(team: string, week: number) {
-  const start = weekStartDates[week];
-  if (!start) return null;
-  const date = new Date(`${start}T12:00:00Z`);
-  const offsets: Record<string, number> = { Thu: -3, Fri: -2, Sat: -1, Sun: 0, Mon: 1 };
-  date.setUTCDate(date.getUTCDate() + (offsets[getGameDay(team, week)] ?? 0));
-  return date;
+export function getGameDate(team: string, week: number, schedule: SeasonSchedule) {
+  const raw = schedule.gameDates[String(week)]?.[team];
+  return raw ? new Date(`${raw}T12:00:00Z`) : null;
 }
 
 export function calculateDaysRest(previous: Date | null, next: Date | null) {
@@ -62,15 +75,15 @@ export function isSignificantTravel(team: string, opponent: string, week: number
   );
 }
 
-export function buildWeeks(row: ScheduleRow): TeamWeek[] {
+export function buildWeeks(row: ScheduleRow, schedule: SeasonSchedule): TeamWeek[] {
   const team = row.Team;
-  const built = weeks.map((week) => {
+  const built = schedule.weeks.map((week) => {
     const opponent = row[`W${week}`] || "";
     return {
       week,
       opponent,
-      dayOfWeek: getGameDay(team, week),
-      gameDate: opponent ? getGameDate(team, week) : null,
+      dayOfWeek: getGameDay(team, week, schedule),
+      gameDate: opponent && opponent !== "BYE" ? getGameDate(team, week, schedule) : null,
       daysRest: null
     };
   });
@@ -102,32 +115,34 @@ export function analyzeBackToBack(teamWeeks: TeamWeek[]) {
   return info;
 }
 
-export function calculateRemainingSOS(team: string, currentWeek = 1) {
-  const row = scheduleRows.find((item) => item.Team === team);
+export function calculateRemainingSOS(team: string, schedule: SeasonSchedule, currentWeek = 1) {
+  const row = schedule.scheduleRows.find((item) => item.Team === team);
   if (!row) return null;
-  const opponents = weeks
+  const opponents = schedule.weeks
     .filter((week) => week >= currentWeek)
     .map((week) => cleanOpponent(row[`W${week}`] || ""))
     .filter((opponent) => opponent && opponent !== "BYE");
   if (!opponents.length) return null;
-  return opponents.reduce((sum, opponent) => sum + (teamStats[opponent]?.sos || 16), 0) / opponents.length;
+  const displayStats = getDisplayTeamStats(schedule);
+  return opponents.reduce((sum, opponent) => sum + (displayStats[opponent]?.sos || 16), 0) / opponents.length;
 }
 
-export function buildTeams(): TeamProfile[] {
-  return scheduleRows.map((row) => {
-    const teamWeeks = buildWeeks(row);
+export function buildTeams(schedule = getSeasonSchedule(DEFAULT_SEASON)): TeamProfile[] {
+  const displayStats = getDisplayTeamStats(schedule);
+  return schedule.scheduleRows.map((row) => {
+    const teamWeeks = buildWeeks(row, schedule);
     const team = row.Team;
     return {
       name: team,
       division: getDivision(team),
       conference: getConference(team),
-      sos: teamStats[team]?.sos || 0,
-      projectedWins: teamStats[team]?.wins || 0,
+      sos: displayStats[team]?.sos || 0,
+      projectedWins: displayStats[team]?.wins ?? null,
       weeks: teamWeeks,
       backToBackInfo: analyzeBackToBack(teamWeeks),
       restAdvantages: teamWeeks.filter((game) => game.daysRest !== null && game.daysRest >= 10).length,
       significantTravel: teamWeeks.filter((game) => game.opponent.startsWith("@") && isSignificantTravel(team, game.opponent, game.week)).length,
-      remainingSOS: calculateRemainingSOS(team)
+      remainingSOS: calculateRemainingSOS(team, schedule)
     };
   });
 }
@@ -161,55 +176,30 @@ function engineCellValues(feed: EngineFeed | null) {
   return Array.isArray(cells) ? cells : Object.values(cells);
 }
 
-export function indexEngineCells(feed: EngineFeed | null) {
+export function indexEngineCells(feed: EngineFeed | null, season = DEFAULT_SEASON) {
   const map = new Map<string, EngineTeamCell>();
   for (const cell of engineCellValues(feed)) {
-    if (cell.season_type === "REG") map.set(cell.key, cell);
+    if (cell.season_type === "REG" && cell.season === season) map.set(cell.key, cell);
   }
   return map;
 }
 
-export function postseasonCells(feed: EngineFeed | null) {
-  return engineCellValues(feed).filter((cell) => cell.season_type === "POST");
+export function postseasonCells(feed: EngineFeed | null, season = DEFAULT_SEASON) {
+  return engineCellValues(feed).filter((cell) => cell.season_type === "POST" && cell.season === season);
 }
 
-export function edgeBoardGames(feed: EngineFeed | null) {
-  return feed?.edge_board || [];
+export function edgeBoardGames(feed: EngineFeed | null, season = DEFAULT_SEASON) {
+  return (feed?.edge_board || []).filter((game) => game.season === season);
 }
 
-export function indexEdgeBoard(feed: EngineFeed | null) {
+export function indexEdgeBoard(feed: EngineFeed | null, season = DEFAULT_SEASON) {
   const map = new Map<string, EdgeBoardGame>();
-  for (const game of edgeBoardGames(feed)) {
+  for (const game of edgeBoardGames(feed, season)) {
     if (game.season_type === "REG") map.set(game.matchup_key, game);
   }
   return map;
 }
 
-export async function loadEspnResults(): Promise<GameResult[]> {
-  const all: GameResult[] = [];
-  for (const week of weeks) {
-    const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=2025&seasontype=2&week=${week}`);
-    if (!response.ok) continue;
-    const data = await response.json();
-    for (const event of data.events || []) {
-      const competition = event.competitions?.[0];
-      const competitors = competition?.competitors || [];
-      const home = competitors.find((item: { homeAway: string }) => item.homeAway === "home");
-      const away = competitors.find((item: { homeAway: string }) => item.homeAway === "away");
-      if (!home || !away) continue;
-      const homeScore = Number(home.score ?? 0);
-      const awayScore = Number(away.score ?? 0);
-      all.push({
-        week,
-        homeTeam: home.team.abbreviation,
-        awayTeam: away.team.abbreviation,
-        homeScore,
-        awayScore,
-        status: competition.status?.type?.description || "",
-        winner: homeScore === awayScore ? null : homeScore > awayScore ? home.team.abbreviation : away.team.abbreviation,
-        date: event.date || null
-      });
-    }
-  }
-  return all;
+export function getSeasonResults(schedule: SeasonSchedule): GameResult[] {
+  return schedule.results || [];
 }

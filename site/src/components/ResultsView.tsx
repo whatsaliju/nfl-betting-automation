@@ -28,7 +28,7 @@ export function ResultsView({ results, loading, error }: Props) {
             <small>{game.status}</small>
           </article>
         ))}
-        {!loading && !results.length && <p className="empty-state">No results loaded yet.</p>}
+        {!loading && !error && !results.length && <p className="empty-state">No results loaded yet.</p>}
       </div>
     </section>
   );

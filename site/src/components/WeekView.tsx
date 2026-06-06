@@ -5,6 +5,7 @@ import { EngineBadge } from "./EngineBadge";
 
 interface Props {
   teams: TeamProfile[];
+  weeks: number[];
   week: number;
   dayFilter: string;
   engineCells: Map<string, EngineTeamCell>;
@@ -21,7 +22,7 @@ function edgeSummary(edge?: EdgeBoardGame) {
   return "PASS";
 }
 
-export function WeekView({ teams, week, dayFilter, engineCells, edgeIndex, onWeekChange, onDayChange }: Props) {
+export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex, onWeekChange, onDayChange }: Props) {
   const games = teams
     .flatMap((team) => {
       const game = team.weeks.find((item) => item.week === week);
@@ -35,7 +36,7 @@ export function WeekView({ teams, week, dayFilter, engineCells, edgeIndex, onWee
       <div className="panel-toolbar">
         <h2>Week View</h2>
         <div className="segmented compact">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((item) => (
+          {weeks.map((item) => (
             <button key={item} className={item === week ? "active" : ""} onClick={() => onWeekChange(item)}>W{item}</button>
           ))}
         </div>

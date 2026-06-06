@@ -9,8 +9,8 @@ import { ResearchView } from "./components/ResearchView";
 import { ResultsView } from "./components/ResultsView";
 import { TeamModal } from "./components/TeamModal";
 import { WeekView } from "./components/WeekView";
-import { buildTeams, edgeBoardGames, indexEdgeBoard, indexEngineCells, loadEngineFeed, loadEspnResults, postseasonCells } from "./lib/schedule";
-import type { EngineFeed, Filter, GameResult, TeamProfile } from "./types";
+import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDisplayTeamStats, getSeasonResults, getSeasonSchedule, indexEdgeBoard, indexEngineCells, loadEngineFeed, postseasonCells } from "./lib/schedule";
+import type { EngineFeed, Filter, TeamProfile } from "./types";
 
 type ViewMode = "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results";
 type AppViewMode = ViewMode | "home";
@@ -26,9 +26,15 @@ function hashToView(): AppViewMode {
   return VALID_VIEWS.has(h) ? h : "home";
 }
 
+function urlToSeason() {
+  const parsed = Number(new URLSearchParams(window.location.search).get("season"));
+  return availableSeasons.includes(parsed) ? parsed : DEFAULT_SEASON;
+}
+
 function App() {
   const [filter, setFilter] = useState<Filter>("All");
   const [viewMode, setViewMode] = useState<AppViewMode>(hashToView);
+  const [selectedSeason, setSelectedSeason] = useState(urlToSeason);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [modalTeam, setModalTeam] = useState<TeamProfile | null>(null);
   const [showHeatmap, setShowHeatmap] = useState(false);
@@ -39,32 +45,47 @@ function App() {
   const [engineFeed, setEngineFeed] = useState<EngineFeed | null>(null);
   const [engineError, setEngineError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
-  const [results, setResults] = useState<GameResult[]>([]);
-  const [resultsLoading, setResultsLoading] = useState(false);
-  const [resultsError, setResultsError] = useState<string | null>(null);
 
   useEffect(() => {
-    window.location.hash = viewMode === "home" ? "" : viewMode;
-  }, [viewMode]);
+    const params = new URLSearchParams(window.location.search);
+    if (selectedSeason === DEFAULT_SEASON) {
+      params.delete("season");
+    } else {
+      params.set("season", String(selectedSeason));
+    }
+    const query = params.toString();
+    const hash = viewMode === "home" ? "" : `#${viewMode}`;
+    window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}${hash}`);
+  }, [selectedSeason, viewMode]);
 
   useEffect(() => {
-    const onHashChange = () => setViewMode(hashToView());
+    const onHashChange = () => {
+      setViewMode(hashToView());
+      setSelectedSeason(urlToSeason());
+    };
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  const allTeams = useMemo(() => buildTeams(), []);
+  const seasonSchedule = useMemo(() => getSeasonSchedule(selectedSeason), [selectedSeason]);
+  const displayTeamStats = useMemo(() => getDisplayTeamStats(seasonSchedule), [seasonSchedule]);
+  const allTeams = useMemo(() => buildTeams(seasonSchedule), [seasonSchedule]);
   const teams = useMemo(
     () => allTeams.filter((team) => filter === "All" || team.conference === filter),
     [allTeams, filter]
   );
-  const engineCells = useMemo(() => indexEngineCells(engineFeed), [engineFeed]);
-  const edgeGames = useMemo(() => edgeBoardGames(engineFeed), [engineFeed]);
-  const edgeIndex = useMemo(() => indexEdgeBoard(engineFeed), [engineFeed]);
-  const playoffCells = useMemo(() => postseasonCells(engineFeed), [engineFeed]);
-  const teamExpectations = engineFeed?.team_expectations || {};
-  const researchSummary = engineFeed?.research_summary;
-  const readiness = engineFeed?.model_readiness;
+  const engineCells = useMemo(() => indexEngineCells(engineFeed, selectedSeason), [engineFeed, selectedSeason]);
+  const edgeGames = useMemo(() => edgeBoardGames(engineFeed, selectedSeason), [engineFeed, selectedSeason]);
+  const edgeIndex = useMemo(() => indexEdgeBoard(engineFeed, selectedSeason), [engineFeed, selectedSeason]);
+  const playoffCells = useMemo(() => postseasonCells(engineFeed, selectedSeason), [engineFeed, selectedSeason]);
+  const overlayCount = engineCells.size + playoffCells.length;
+  const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSchedule]);
+  const engineSeason = engineFeed?.games?.find((game) => game.season)?.season || DEFAULT_SEASON;
+  const hasEngineForSeason = selectedSeason === engineSeason;
+  const teamExpectations = hasEngineForSeason ? engineFeed?.team_expectations || {} : {};
+  const researchSummary = hasEngineForSeason ? engineFeed?.research_summary : undefined;
+  const readiness = hasEngineForSeason ? engineFeed?.model_readiness : undefined;
+  const metricLabel = hasEngineForSeason ? "O/U" : "Wins";
 
   useEffect(() => {
     loadEngineFeed()
@@ -78,18 +99,15 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if ((viewMode !== "results" && !(viewMode === "matrix" && showResults)) || results.length || resultsLoading) return;
-    setResultsLoading(true);
-    loadEspnResults()
-      .then((loaded) => {
-        setResults(loaded);
-        setResultsError(null);
-      })
-      .catch((error: Error) => {
-        setResultsError(error.message || "ESPN scores unavailable");
-      })
-      .finally(() => setResultsLoading(false));
-  }, [results.length, resultsLoading, viewMode, showResults]);
+    if (!seasonSchedule.weeks.includes(selectedWeek)) {
+      setSelectedWeek(seasonSchedule.weeks[0] || 1);
+    }
+  }, [seasonSchedule, selectedWeek]);
+
+  useEffect(() => {
+    setSelectedTeam(null);
+    setModalTeam(null);
+  }, [selectedSeason]);
 
   return (
     <div className="app-shell">
@@ -98,7 +116,7 @@ function App() {
             <Grid3X3 size={26} />
           <div>
             <h1>NFL Edge Hub</h1>
-            <p>2025 Season · Matrix, betting edges, source health, and model research</p>
+            <p>{selectedSeason} Season · Matrix, betting edges, source health, and model research</p>
           </div>
         </div>
         <div className="status-row">
@@ -119,11 +137,17 @@ function App() {
               )}
             </span>
           )}
-          {engineFeed && <span className="status-pill">{engineFeed.team_cell_count} overlays</span>}
+          {engineFeed && <span className="status-pill">{overlayCount} overlays</span>}
+          {!hasEngineForSeason && <span className="status-pill">matrix only</span>}
         </div>
       </header>
 
       <section className="controls">
+        <select className="season-select" value={selectedSeason} onChange={(event) => setSelectedSeason(Number(event.target.value))}>
+          {availableSeasons.map((season) => (
+            <option key={season} value={season}>{season}</option>
+          ))}
+        </select>
         <div className="segmented">
           {(["All", "AFC", "NFC"] as Filter[]).map((item) => (
             <button key={item} className={filter === item ? "active" : ""} onClick={() => setFilter(item)}>
@@ -143,7 +167,7 @@ function App() {
         </div>
         <label className="toggle">
           <input type="checkbox" checked={showHeatmap} onChange={(event) => setShowHeatmap(event.target.checked)} />
-          Opponent heatmap
+          🔥 Heatmap
         </label>
         <label className="toggle">
           <input type="checkbox" checked={showResults} onChange={(event) => setShowResults(event.target.checked)} />
@@ -170,6 +194,20 @@ function App() {
               <p className="panel-subtitle">Experimental dashboards for football edges, model research, and investing screens</p>
             </div>
             <span className="status-pill warning">experimental</span>
+          </div>
+          <div className="season-jump-row">
+            {availableSeasons.map((season) => (
+              <button
+                key={season}
+                className={selectedSeason === season ? "active" : ""}
+                onClick={() => {
+                  setSelectedSeason(season);
+                  setViewMode("matrix");
+                }}
+              >
+                {season}
+              </button>
+            ))}
           </div>
           <div className="hub-grid">
             <article className="hub-card primary">
@@ -198,11 +236,14 @@ function App() {
         <>
           <MatrixTable
             teams={teams}
+            weeks={seasonSchedule.weeks}
+            teamStats={displayTeamStats}
+            metricLabel={metricLabel}
             engineCells={engineCells}
             selectedTeam={selectedTeam}
             showHeatmap={showHeatmap}
             expectations={teamExpectations}
-            results={showResults ? results : []}
+            results={showResults ? seasonResults : []}
             onSelectTeam={setSelectedTeam}
             onOpenTeam={setModalTeam}
           />
@@ -219,6 +260,7 @@ function App() {
       {viewMode === "week" && (
         <WeekView
           teams={allTeams}
+          weeks={seasonSchedule.weeks}
           week={selectedWeek}
           dayFilter={dayFilter}
           engineCells={engineCells}
@@ -232,7 +274,7 @@ function App() {
         <CompareView teams={allTeams} expectations={teamExpectations} teamA={compareA} teamB={compareB} onTeamA={setCompareA} onTeamB={setCompareB} />
       )}
 
-      {viewMode === "results" && <ResultsView results={results} loading={resultsLoading} error={resultsError} />}
+      {viewMode === "results" && <ResultsView results={seasonResults} loading={false} error={seasonSchedule.hasResults ? null : `${selectedSeason} results are not available yet.`} />}
 
       <footer className="footer-note">
         <BarChart3 size={15} />

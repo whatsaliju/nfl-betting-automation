@@ -30,7 +30,7 @@ export function TeamModal({ team, engineCells, expectation, onClose }: Props) {
             <img src={teamLogos[team.name]} alt="" />
             <div>
               <h2>{team.name}</h2>
-              <p>{team.division} · SoS {team.sos} · Projected {team.projectedWins}</p>
+              <p>{team.division} · SoS {team.sos} · Wins {format(team.projectedWins)}</p>
             </div>
           </div>
           <div className="metric-grid">

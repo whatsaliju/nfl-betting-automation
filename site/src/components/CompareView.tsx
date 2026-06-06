@@ -35,7 +35,7 @@ export function CompareView({ teams, expectations, teamA, teamB, onTeamA, onTeam
             </div>
             <div className="metric-grid">
               <div><strong>{team.sos}</strong><span>SoS</span></div>
-              <div><strong>{team.projectedWins}</strong><span>Wins</span></div>
+              <div><strong>{format(team.projectedWins)}</strong><span>Wins</span></div>
               <div><strong>{team.restAdvantages}</strong><span>Rest+</span></div>
               <div><strong>{team.significantTravel}</strong><span>Travel</span></div>
             </div>

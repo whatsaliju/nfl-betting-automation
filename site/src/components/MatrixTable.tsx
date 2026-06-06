@@ -1,10 +1,13 @@
-import { divisions, teamLogos, teamStats, weeks } from "../data/nflData";
+import { divisions, teamLogos } from "../data/nflData";
 import { classifyCell, cleanOpponent, flagEmoji, getOpponentStrengthClass, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
 import type { EngineTeamCell, GameResult, TeamExpectation, TeamProfile } from "../types";
 import { EngineBadge } from "./EngineBadge";
 
 interface Props {
   teams: TeamProfile[];
+  weeks: number[];
+  teamStats: Record<string, { sos: number; wins: number | null }>;
+  metricLabel: string;
   engineCells: Map<string, EngineTeamCell>;
   selectedTeam: string | null;
   showHeatmap: boolean;
@@ -36,7 +39,11 @@ function divAbbr(division: string) {
   return `${parts[0]} ${parts[1]?.[0] ?? ""}`;
 }
 
-export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, expectations, results, onSelectTeam, onOpenTeam }: Props) {
+function formatMetric(value: number | null) {
+  return typeof value === "number" ? value : "";
+}
+
+export function MatrixTable({ teams, weeks, teamStats, metricLabel, engineCells, selectedTeam, showHeatmap, expectations, results, onSelectTeam, onOpenTeam }: Props) {
   const resultIndex = buildResultIndex(results);
 
   return (
@@ -78,7 +85,7 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
             <th className="sticky-col team-col">Team</th>
             <th>Div</th>
             <th>SoS</th>
-            <th title="Vegas over/under win total">O/U</th>
+            <th title={metricLabel === "O/U" ? "Vegas over/under win total" : "Actual regular-season wins"}>{metricLabel}</th>
             <th>Rest+</th>
             <th>✈️</th>
             {weeks.map((week) => <th key={week}>{week}</th>)}
@@ -106,7 +113,7 @@ export function MatrixTable({ teams, engineCells, selectedTeam, showHeatmap, exp
                 </td>
                 <td className="subtle-cell">{divAbbr(team.division)}</td>
                 <td>{team.sos}</td>
-                <td>{team.projectedWins}</td>
+                <td>{formatMetric(team.projectedWins)}</td>
                 <td>{team.restAdvantages}</td>
                 <td>{team.significantTravel}</td>
                 {weeks.map((week) => {
