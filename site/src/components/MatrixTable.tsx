@@ -8,11 +8,14 @@ interface Props {
   weeks: number[];
   teamStats: Record<string, { sos: number; wins: number | null }>;
   metricLabel: string;
+  metricTitle: string;
+  metricLegend: string;
   engineCells: Map<string, EngineTeamCell>;
   selectedTeam: string | null;
   showHeatmap: boolean;
   expectations: Record<string, TeamExpectation>;
   results: GameResult[];
+  showCellResults: boolean;
   onSelectTeam: (team: string | null) => void;
   onOpenTeam: (team: TeamProfile) => void;
 }
@@ -34,17 +37,49 @@ function buildResultIndex(results: GameResult[]): Map<string, GameResult> {
   return map;
 }
 
+function buildRecordIndex(results: GameResult[]): Map<string, string> {
+  const records = new Map<string, { wins: number; losses: number; ties: number }>();
+  const ensure = (team: string) => {
+    if (!records.has(team)) records.set(team, { wins: 0, losses: 0, ties: 0 });
+    return records.get(team)!;
+  };
+
+  for (const result of results) {
+    if (result.homeScore == null || result.awayScore == null) continue;
+    const home = ensure(result.homeTeam);
+    const away = ensure(result.awayTeam);
+    if (!result.winner) {
+      home.ties += 1;
+      away.ties += 1;
+    } else if (result.winner === result.homeTeam) {
+      home.wins += 1;
+      away.losses += 1;
+    } else {
+      away.wins += 1;
+      home.losses += 1;
+    }
+  }
+
+  return new Map(
+    Array.from(records.entries()).map(([team, record]) => [
+      team,
+      record.ties ? `${record.wins}-${record.losses}-${record.ties}` : `${record.wins}-${record.losses}`,
+    ])
+  );
+}
+
 function divAbbr(division: string) {
   const parts = division.split(" ");
   return `${parts[0]} ${parts[1]?.[0] ?? ""}`;
 }
 
 function formatMetric(value: number | null) {
-  return typeof value === "number" ? value : "";
+  return typeof value === "number" ? value : "-";
 }
 
-export function MatrixTable({ teams, weeks, teamStats, metricLabel, engineCells, selectedTeam, showHeatmap, expectations, results, onSelectTeam, onOpenTeam }: Props) {
-  const resultIndex = buildResultIndex(results);
+export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle, metricLegend, engineCells, selectedTeam, showHeatmap, expectations, results, showCellResults, onSelectTeam, onOpenTeam }: Props) {
+  const resultIndex = showCellResults ? buildResultIndex(results) : new Map<string, GameResult>();
+  const recordIndex = buildRecordIndex(results);
 
   return (
     <div className="table-shell">
@@ -74,6 +109,7 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, engineCells,
         <div className="legend-group">
           <div className="legend-group-title">Analytics</div>
           <div className="legend-item">SoS rank (1=hardest)</div>
+          <div className="legend-item">{metricLegend}</div>
           <div className="legend-item">Rest+ = 10+ day rest</div>
           <div className="legend-item">✈️ significant travel</div>
           <div className="legend-item" style={{color:"#64748b"}}>Heatmap = opp strength</div>
@@ -85,7 +121,7 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, engineCells,
             <th className="sticky-col team-col">Team</th>
             <th>Div</th>
             <th>SoS</th>
-            <th title={metricLabel === "O/U" ? "Vegas over/under win total" : "Actual regular-season wins"}>{metricLabel}</th>
+            <th title={metricTitle}>{metricLabel}</th>
             <th>Rest+</th>
             <th>✈️</th>
             {weeks.map((week) => <th key={week}>{week}</th>)}
@@ -94,7 +130,7 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, engineCells,
         <tbody>
           {teams.map((team) => {
             const exp = expectations[team.name];
-            const record = exp ? `${exp.actual_wins}-${exp.actual_losses}` : null;
+            const record = recordIndex.get(team.name) || (exp ? `${exp.actual_wins}-${exp.actual_losses}` : null);
             const isAfc = team.conference === "AFC";
             const rowClass = [
               isAfc ? "afc-row" : "nfc-row",

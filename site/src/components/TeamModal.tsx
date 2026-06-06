@@ -8,6 +8,7 @@ interface Props {
   team: TeamProfile;
   engineCells: Map<string, EngineTeamCell>;
   expectation?: TeamExpectation;
+  metricLabel: string;
   onClose: () => void;
 }
 
@@ -15,7 +16,7 @@ function format(value?: number | null) {
   return typeof value === "number" ? value.toFixed(1) : "n/a";
 }
 
-export function TeamModal({ team, engineCells, expectation, onClose }: Props) {
+export function TeamModal({ team, engineCells, expectation, metricLabel, onClose }: Props) {
   const homeGames = team.weeks.filter((game) => game.opponent && game.opponent !== "BYE" && !game.opponent.startsWith("@")).length;
   const awayGames = team.weeks.filter((game) => game.opponent.startsWith("@")).length;
 
@@ -30,7 +31,7 @@ export function TeamModal({ team, engineCells, expectation, onClose }: Props) {
             <img src={teamLogos[team.name]} alt="" />
             <div>
               <h2>{team.name}</h2>
-              <p>{team.division} · SoS {team.sos} · Wins {format(team.projectedWins)}</p>
+              <p>{team.division} · SoS {team.sos} · {metricLabel} {format(team.projectedWins)}</p>
             </div>
           </div>
           <div className="metric-grid">

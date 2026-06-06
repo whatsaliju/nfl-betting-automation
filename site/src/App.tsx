@@ -85,7 +85,23 @@ function App() {
   const teamExpectations = hasEngineForSeason ? engineFeed?.team_expectations || {} : {};
   const researchSummary = hasEngineForSeason ? engineFeed?.research_summary : undefined;
   const readiness = hasEngineForSeason ? engineFeed?.model_readiness : undefined;
-  const metricLabel = hasEngineForSeason ? "O/U" : "Wins";
+  const metricMeta = hasEngineForSeason
+    ? {
+        label: "Vegas O/U",
+        title: "Preseason Vegas regular-season win total",
+        legend: "Vegas O/U = preseason win total",
+      }
+    : seasonSchedule.hasResults
+      ? {
+          label: "Final W",
+          title: "Completed regular-season wins",
+          legend: "Final W = regular-season wins",
+        }
+      : {
+          label: "Wins TBD",
+          title: "Future season wins are not available yet",
+          legend: "Wins TBD = future season",
+        };
 
   useEffect(() => {
     loadEngineFeed()
@@ -238,12 +254,15 @@ function App() {
             teams={teams}
             weeks={seasonSchedule.weeks}
             teamStats={displayTeamStats}
-            metricLabel={metricLabel}
+            metricLabel={metricMeta.label}
+            metricTitle={metricMeta.title}
+            metricLegend={metricMeta.legend}
             engineCells={engineCells}
             selectedTeam={selectedTeam}
             showHeatmap={showHeatmap}
             expectations={teamExpectations}
-            results={showResults ? seasonResults : []}
+            results={seasonResults}
+            showCellResults={showResults}
             onSelectTeam={setSelectedTeam}
             onOpenTeam={setModalTeam}
           />
@@ -271,7 +290,7 @@ function App() {
       )}
 
       {viewMode === "compare" && (
-        <CompareView teams={allTeams} expectations={teamExpectations} teamA={compareA} teamB={compareB} onTeamA={setCompareA} onTeamB={setCompareB} />
+        <CompareView teams={allTeams} expectations={teamExpectations} teamA={compareA} teamB={compareB} metricLabel={metricMeta.label} onTeamA={setCompareA} onTeamB={setCompareB} />
       )}
 
       {viewMode === "results" && <ResultsView results={seasonResults} loading={false} error={seasonSchedule.hasResults ? null : `${selectedSeason} results are not available yet.`} />}
@@ -281,7 +300,7 @@ function App() {
         Public feed source: raw GitHub engine artifacts. The site remains static and embeddable.
       </footer>
 
-      {modalTeam && <TeamModal team={modalTeam} engineCells={engineCells} expectation={teamExpectations[modalTeam.name]} onClose={() => setModalTeam(null)} />}
+      {modalTeam && <TeamModal team={modalTeam} engineCells={engineCells} expectation={teamExpectations[modalTeam.name]} metricLabel={metricMeta.label} onClose={() => setModalTeam(null)} />}
     </div>
   );
 }

@@ -6,6 +6,7 @@ interface Props {
   expectations: Record<string, TeamExpectation>;
   teamA: string;
   teamB: string;
+  metricLabel: string;
   onTeamA: (team: string) => void;
   onTeamB: (team: string) => void;
 }
@@ -14,7 +15,7 @@ function format(value?: number | null) {
   return typeof value === "number" ? value.toFixed(1) : "n/a";
 }
 
-export function CompareView({ teams, expectations, teamA, teamB, onTeamA, onTeamB }: Props) {
+export function CompareView({ teams, expectations, teamA, teamB, metricLabel, onTeamA, onTeamB }: Props) {
   const first = teams.find((team) => team.name === teamA) || teams[0];
   const second = teams.find((team) => team.name === teamB) || teams[1];
   const options = teams.map((team) => <option key={team.name} value={team.name}>{team.name}</option>);
@@ -35,7 +36,7 @@ export function CompareView({ teams, expectations, teamA, teamB, onTeamA, onTeam
             </div>
             <div className="metric-grid">
               <div><strong>{team.sos}</strong><span>SoS</span></div>
-              <div><strong>{format(team.projectedWins)}</strong><span>Wins</span></div>
+              <div><strong>{format(team.projectedWins)}</strong><span>{metricLabel}</span></div>
               <div><strong>{team.restAdvantages}</strong><span>Rest+</span></div>
               <div><strong>{team.significantTravel}</strong><span>Travel</span></div>
             </div>
