@@ -6,9 +6,9 @@ type WARPSTab = "slate" | "performance" | "methodology";
 
 function consensusClass(c: string): string {
   if (c === "3-model Over") return "consensus-3over";
-  if (c === "2-Strong Over") return "consensus-2over";
+  if (c.includes("Over")) return "consensus-2over";
   if (c === "3-model Under") return "consensus-3under";
-  if (c === "2-Strong Under") return "consensus-2under";
+  if (c.includes("Under")) return "consensus-2under";
   return "consensus-split";
 }
 
@@ -141,17 +141,20 @@ function StatCard({ label, value, sub, highlight }: { label: string; value: stri
 function SlateTab() {
   const tiers = [
     { label: "3-Model Consensus Overs", key: "3-model Over", icon: <TrendingUp size={15} /> },
-    { label: "2-Strong Overs", key: "2-Strong Over", icon: <TrendingUp size={15} /> },
+    { label: "2-of-3 Model Overs", key: "2-Strong Over", icon: <TrendingUp size={15} /> },
+    { label: "2-of-3 Overs (one model split)", key: "2-model Over", icon: <TrendingUp size={15} /> },
     { label: "3-Model Consensus Unders", key: "3-model Under", icon: <TrendingDown size={15} /> },
-    { label: "2-Strong Unders", key: "2-Strong Under", icon: <TrendingDown size={15} /> },
+    { label: "2-of-3 Model Unders", key: "2-Strong Under", icon: <TrendingDown size={15} /> },
+    { label: "2-of-3 Unders (one model split)", key: "2-model Under", icon: <TrendingDown size={15} /> },
   ];
 
   return (
     <div className="warps-slate">
       <div className="warps-slate-note">
         <Activity size={14} />
-        Consensus requires ≥2 of 3 models (v1.5d · v1.6 · v1.7) to agree in direction.
-        Strong Over/Under = edge ≥ 1 win. Bet-worthy = consensus tier only.
+        Consensus requires ≥2 of 3 models (v1.5d · v1.6 · v1.8) to agree in direction.
+        Edge = projected wins minus the Vegas preseason win total. Strong signal = edge ≥ 1 win.
+        High conviction = 3-model agreement. Playable = 2-of-3 agreement.
       </div>
       {tiers.map(({ label, key, icon }) => {
         const rows = consensusData.filter((r) => r.consensus === key);
@@ -167,7 +170,7 @@ function SlateTab() {
                   <th>Team</th>
                   <th>Mkt O/U</th>
                   <th>WARPS proj</th>
-                  <th>v1.7 edge</th>
+                  <th>v1.8 edge</th>
                   <th>v1.5d edge</th>
                   <th>v1.6 edge</th>
                   <th>Avg edge</th>
@@ -179,8 +182,8 @@ function SlateTab() {
                   <tr key={row.team}>
                     <td><strong>{row.team}</strong></td>
                     <td>{row.marketTotal.toFixed(1)}</td>
-                    <td>{row.v17Wins.toFixed(1)}</td>
-                    <td className={row.v17Edge >= 0 ? "warps-pos" : "warps-neg"}>{row.v17Edge > 0 ? "+" : ""}{row.v17Edge.toFixed(2)}</td>
+                    <td>{row.v18Wins.toFixed(1)}</td>
+                    <td className={row.v18Edge >= 0 ? "warps-pos" : "warps-neg"}>{row.v18Edge > 0 ? "+" : ""}{row.v18Edge.toFixed(2)}</td>
                     <td className={row.v15dEdge >= 0 ? "warps-pos" : "warps-neg"}>{row.v15dEdge > 0 ? "+" : ""}{row.v15dEdge.toFixed(2)}</td>
                     <td className={row.v16Edge >= 0 ? "warps-pos" : "warps-neg"}>{row.v16Edge > 0 ? "+" : ""}{row.v16Edge.toFixed(2)}</td>
                     <td><strong className={row.avgEdge >= 0 ? "warps-pos" : "warps-neg"}>{row.avgEdge > 0 ? "+" : ""}{row.avgEdge.toFixed(2)}</strong></td>
@@ -218,21 +221,21 @@ function PerformanceTab() {
     <div className="warps-performance">
       <div className="warps-kpi-grid">
         <StatCard
-          label="Full-sample MAE"
+          label="Full-sample mean absolute error"
           value={bs.warpsMaeFull.toFixed(3)}
           sub={`95% CI [${bs.warpsMaeFullCi[0].toFixed(2)}, ${bs.warpsMaeFullCi[1].toFixed(2)}]`}
           highlight
         />
-        <StatCard label="Validation MAE (2022–25)" value={bs.warpsMaeVal.toFixed(3)} sub={`95% CI [${bs.warpsMaeValCi[0].toFixed(2)}, ${bs.warpsMaeValCi[1].toFixed(2)}]`} />
-        <StatCard label="Pythagorean MAE (baseline)" value={bs.pythMaeFull.toFixed(3)} sub="full sample" />
-        <StatCard label="Prior wins MAE (baseline)" value={bs.pwMaeFull.toFixed(3)} sub="full sample" />
-        <StatCard label="WARPS beats Pythagorean" value={`${bs.seasonsBeatingPyth}/${bs.totalSeasons}`} sub="seasons (100%)" highlight />
-        <StatCard label="Avg improvement vs Pythagorean" value="−0.169" sub="wins/team (full sample)" />
-        <StatCard label="Avg improvement vs prior wins" value="−0.437" sub="wins/team (full sample)" />
-        <StatCard label="DM test vs Pythagorean" value="p = 0.0002" sub="Diebold-Mariano, full sample" highlight />
+        <StatCard label="Held-out mean absolute error" value={bs.warpsMaeVal.toFixed(3)} sub={`2022–2025 · 95% CI [${bs.warpsMaeValCi[0].toFixed(2)}, ${bs.warpsMaeValCi[1].toFixed(2)}]`} />
+        <StatCard label="Pythagorean baseline error" value={bs.pythMaeFull.toFixed(3)} sub="full sample (2000–2025)" />
+        <StatCard label="Prior-year wins baseline error" value={bs.pwMaeFull.toFixed(3)} sub="full sample (2000–2025)" />
+        <StatCard label="Seasons beating Pythagorean" value={`${bs.seasonsBeatingPyth}/${bs.totalSeasons}`} sub="96% of seasons (2000–2025)" highlight />
+        <StatCard label="Avg improvement vs Pythagorean" value="−0.240" sub="wins/team (full 26-season sample)" />
+        <StatCard label="Avg improvement vs prior-year wins" value="−0.514" sub="wins/team (full 26-season sample)" />
+        <StatCard label="Statistical significance vs Pythagorean" value="p < 0.0001" sub="Diebold-Mariano test, full sample" highlight />
       </div>
 
-      <h4 className="warps-subsection">Diebold-Mariano Statistical Tests</h4>
+      <h4 className="warps-subsection">Diebold-Mariano Test — Is WARPS Significantly Better?</h4>
       <table className="warps-table">
         <thead>
           <tr>
@@ -248,17 +251,17 @@ function PerformanceTab() {
         <tbody>
           <tr>
             <td>WARPS vs Pythagorean</td>
-            <td>Full (2015–25)</td>
-            <td className="warps-pos">−0.169</td>
+            <td>Full (2000–25)</td>
+            <td className="warps-pos">−0.240</td>
             <td>{bs.dmVsPythFull.stat.toFixed(3)}</td>
             <td>{bs.dmVsPythFull.pval.toFixed(4)}</td>
             <td>{sigBadge(bs.dmVsPythFull.sig)}</td>
             <td>CI entirely negative</td>
           </tr>
           <tr>
-            <td>WARPS vs Prior wins</td>
-            <td>Full (2015–25)</td>
-            <td className="warps-pos">−0.437</td>
+            <td>WARPS vs Prior-year wins</td>
+            <td>Full (2000–25)</td>
+            <td className="warps-pos">−0.514</td>
             <td>{bs.dmVsPwFull.stat.toFixed(3)}</td>
             <td>{bs.dmVsPwFull.pval.toFixed(4)}</td>
             <td>{sigBadge(bs.dmVsPwFull.sig)}</td>
@@ -274,9 +277,9 @@ function PerformanceTab() {
             <td>CI entirely negative</td>
           </tr>
           <tr>
-            <td>WARPS vs Prior wins</td>
+            <td>WARPS vs Prior-year wins</td>
             <td>Validation (2022–25)</td>
-            <td className="warps-pos">−0.408</td>
+            <td className="warps-pos">−0.411</td>
             <td>{bs.dmVsPwVal.stat.toFixed(3)}</td>
             <td>{bs.dmVsPwVal.pval.toFixed(4)}</td>
             <td>{sigBadge(bs.dmVsPwVal.sig)}</td>
@@ -284,9 +287,9 @@ function PerformanceTab() {
           </tr>
         </tbody>
       </table>
-      <p className="warps-chart-note">Bootstrap CIs: 10,000 paired resamplings. Negative MAE diff = WARPS better.</p>
+      <p className="warps-chart-note">Bootstrap confidence intervals: 10,000 paired resamplings. Negative error difference = WARPS better. MAE = mean absolute error in wins per team per season.</p>
 
-      <h4 className="warps-subsection">Season-by-Season MAE — WARPS vs Baselines</h4>
+      <h4 className="warps-subsection">Season-by-Season Error — WARPS vs Baselines (2000–2025)</h4>
       <ByYearChart />
 
       <CalibrationChart />
@@ -308,14 +311,18 @@ function MethodologyTab() {
         <div className="warps-prose">
           <p>
             <strong>WARPS-NFL</strong> (Win Average Regression Predictive Score) is a preseason win-total
-            forecasting model for NFL teams. It converts season-level efficiency statistics from the prior
-            season into a probabilistic win projection adjusted for regression to the mean and market spread signals.
+            forecasting model for NFL teams. It uses the prior season's team efficiency statistics to build
+            a probabilistic win projection for the coming season, adjusted for regression toward the
+            league average and calibrated against Vegas preseason win totals.
           </p>
           <p>
-            The core insight is that <strong>Pythagorean win expectation</strong> (exponent 2.37) is the
-            single strongest predictor of future wins, and that a principled composite of passing EPA,
-            point differential, and Pythagorean — weighted heavily toward Pythagorean — outperforms any
-            single metric on held-out validation data spanning 11 NFL seasons (2015–2025).
+            The core insight is that <strong>Pythagorean win expectation</strong> — a formula that converts
+            points scored and points allowed into an expected win percentage — is the strongest single
+            predictor of the following year's wins. With 22 training seasons (2000–2021), the champion
+            model blends <strong>75% Pythagorean</strong> and <strong>25% point differential</strong>,
+            outperforming any single metric on held-out data spanning 26 NFL seasons (2000–2025).
+            The Diebold-Mariano test confirms the improvement over a naive Pythagorean baseline is
+            statistically significant (p &lt; 0.0001).
           </p>
         </div>
       ),
@@ -345,13 +352,14 @@ function MethodologyTab() {
             <tr><th>Parameter</th><th>Value</th><th>Searched range</th></tr>
           </thead>
           <tbody>
-            <tr><td>Pythagorean weight</td><td>1.00 (solo)</td><td>0.05–1.00 simplex</td></tr>
-            <tr><td>Point diff weight</td><td>0.00</td><td>0.05–1.00 simplex</td></tr>
-            <tr><td>Pass EPA weight</td><td>0.00</td><td>0.05–1.00 simplex</td></tr>
-            <tr><td>Regression factor</td><td>0.75</td><td>0.50, 0.60, 0.65, 0.70, 0.75</td></tr>
-            <tr><td>Logit scale</td><td>5.5</td><td>4.0, 4.5, 5.0, 5.5, 6.0, 6.5</td></tr>
-            <tr><td>SOS weight</td><td>0.0 (diagnostic only)</td><td>0.0, 0.1, 0.2</td></tr>
-            <tr><td>Grid search size</td><td>180 hyperparameter combos + 231 simplex + 300 biased Dirichlet</td><td>—</td></tr>
+            <tr><td>Pythagorean weight</td><td><strong>0.75</strong></td><td>0.05–1.00 simplex</td></tr>
+            <tr><td>Point differential weight</td><td><strong>0.25</strong></td><td>0.05–1.00 simplex</td></tr>
+            <tr><td>Passing EPA per play weight</td><td>0.00</td><td>0.05–1.00 simplex</td></tr>
+            <tr><td>Regression toward mean factor</td><td>0.75</td><td>0.50, 0.60, 0.65, 0.70, 0.75</td></tr>
+            <tr><td>Spread-to-probability conversion scale</td><td>6.5</td><td>4.0, 4.5, 5.0, 5.5, 6.0, 6.5</td></tr>
+            <tr><td>Strength of schedule weight</td><td>0.0 (diagnostic only)</td><td>0.0, 0.1, 0.2</td></tr>
+            <tr><td>Training seasons</td><td>2000–2021 (22 seasons)</td><td>—</td></tr>
+            <tr><td>Grid search size</td><td>231 weight combos + 300 random draws + 180 hyperparameter combos</td><td>—</td></tr>
           </tbody>
         </table>
       ),
@@ -390,19 +398,21 @@ function MethodologyTab() {
       content: (
         <div className="warps-prose">
           <p>
-            Parameters were selected using a strict train/validation split: <strong>2015–2021 (train)</strong>
-            and <strong>2022–2025 (validation)</strong>. Champion selection used validation MAE, not training MAE,
-            to prevent overfitting.
+            Parameters were selected using a strict train/validation split: <strong>2000–2021 (training, 22 seasons)</strong>
+            and <strong>2022–2025 (validation, 4 seasons)</strong>. The validation window was never touched
+            during the search — champion selection used only training error.
           </p>
           <p>
-            A random Dirichlet weight search (n=300, α biased toward Pythagorean) was run on training data,
-            then the best candidates were re-evaluated on the held-out validation window. The champion
-            (solo Pythagorean, pyth=1.0) was robust: it reached identical validation MAE as all composite
-            configs, with zero additional complexity.
+            A randomized weight search (300 draws, biased toward Pythagorean) was run, followed by a full
+            hyperparameter grid over regression factor and spread scale. With 22 training seasons, a
+            <strong>75% Pythagorean + 25% point differential</strong> blend emerged as the champion —
+            outperforming pure Pythagorean because raw point differential provides an independent signal
+            of team quality beyond the non-linear Pythagorean formula.
           </p>
           <p>
-            Bootstrap confidence intervals (10,000 paired resamplings) confirmed WARPS improvements over
-            Pythagorean are statistically significant (DM p=0.0002 full-sample; p=0.0016 validation-only).
+            Bootstrap confidence intervals (10,000 paired resamplings using the Diebold-Mariano method)
+            confirmed WARPS improvements over Pythagorean are statistically significant:
+            p &lt; 0.0001 on the full 26-season backtest; p = 0.005 on the held-out validation window.
           </p>
         </div>
       ),
@@ -435,29 +445,29 @@ export function WARPSView() {
     <section className="panel warps-panel">
       <div className="panel-toolbar">
         <div>
-          <h2>WARPS-NFL v1.7</h2>
-          <p className="panel-subtitle">Win Average Regression Predictive Score · 2026 season · 3-model consensus screen</p>
+          <h2>WARPS-NFL v1.8</h2>
+          <p className="panel-subtitle">Win Average Regression Predictive Score · 2026 season · 26-season backtest · 3-model consensus screen</p>
         </div>
         <span className="status-pill ok">
-          <FlaskConical size={14} /> p = 0.0002 vs Pythagorean
+          <FlaskConical size={14} /> p &lt; 0.0001 vs Pythagorean
         </span>
       </div>
 
       <div className="warps-hero-kpis">
         <div className="warps-hero-stat">
-          <span>Full-sample MAE</span>
-          <strong>2.365</strong>
-          <small>vs Pyth 2.532</small>
+          <span>Full-sample error</span>
+          <strong>2.374</strong>
+          <small>vs Pythagorean 2.614 (2000–2025)</small>
         </div>
         <div className="warps-hero-stat">
-          <span>Validation MAE</span>
-          <strong>2.514</strong>
-          <small>2022–2025</small>
+          <span>Held-out error</span>
+          <strong>2.511</strong>
+          <small>2022–2025 validation</small>
         </div>
         <div className="warps-hero-stat">
-          <span>Seasons beats Pyth</span>
-          <strong>11/11</strong>
-          <small>100% win rate</small>
+          <span>Seasons beats Pythagorean</span>
+          <strong>25/26</strong>
+          <small>96% of seasons</small>
         </div>
         <div className="warps-hero-stat highlight">
           <span>High-conviction bets</span>

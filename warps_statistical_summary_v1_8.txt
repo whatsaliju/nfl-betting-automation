@@ -1,0 +1,23 @@
+WARPS-NFL v1.8 Statistical Validation Summary
+=======================================================
+
+Model: pyth_edge=0.90, point_diff=0.10
+Hypers: regression_factor=0.75, logit_scale=5.5, sos_weight=0.0
+Bootstrap iterations: 10,000 | CI level: 95%
+
+FULL BACKTEST (2000-2025, n=351)
+  WARPS MAE:      2.374  95% CI [2.261, 2.485]
+  Pythagorean:    2.614  95% CI [2.486, 2.743]
+  Prior wins:     2.888  95% CI [2.743, 3.034]
+  vs Pythagorean: -0.240  95% CI [-0.319, -0.160]  DM=5.853 p=0.0000 ***
+  vs Prior Wins:  -0.514  95% CI [-0.633, -0.398]  DM=8.607 p=0.0000 ***
+  Season win rate vs Pythagorean: 25/26
+
+VALIDATION (2022-2025, n=128)
+  WARPS MAE:      2.511  95% CI [2.225, 2.810]
+  Pythagorean:    2.759  95% CI [2.432, 3.105]
+  Prior wins:     2.922  95% CI [2.547, 3.328]
+  vs Pythagorean: -0.249  95% CI [-0.438, -0.062]  DM=2.560 p=0.0052 **
+  vs Prior Wins:  -0.411  95% CI [-0.742, -0.095]  DM=2.485 p=0.0065 **
+
+Significance: *** p<0.001  ** p<0.01  * p<0.05  . p<0.10  ns p>=0.10
