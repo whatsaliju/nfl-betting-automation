@@ -1,4 +1,4 @@
-import { BarChart3, Brain, CalendarDays, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
+import { BarChart3, Brain, CalendarDays, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CompareView } from "./components/CompareView";
 import { EdgeBoardView } from "./components/EdgeBoardView";
@@ -7,19 +7,20 @@ import { MatrixTable } from "./components/MatrixTable";
 import { PostseasonStrip } from "./components/PostseasonStrip";
 import { ResearchView } from "./components/ResearchView";
 import { ResultsView } from "./components/ResultsView";
+import { WARPSView } from "./components/WARPSView";
 import { TeamModal } from "./components/TeamModal";
 import { WeekView } from "./components/WeekView";
 import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDisplayTeamStats, getSeasonResults, getSeasonSchedule, indexEdgeBoard, indexEngineCells, loadEngineFeed, postseasonCells } from "./lib/schedule";
 import type { EngineFeed, Filter, TeamProfile } from "./types";
 
-type ViewMode = "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results";
+type ViewMode = "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps";
 type AppViewMode = ViewMode | "home";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["home", "matrix", "edges", "expectations", "research", "week", "compare", "results"]);
+const VALID_VIEWS = new Set<AppViewMode>(["home", "matrix", "edges", "expectations", "research", "week", "compare", "results", "warps"]);
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
@@ -180,6 +181,7 @@ function App() {
           <button className={viewMode === "week" ? "active" : ""} onClick={() => setViewMode("week")}><CalendarDays size={15} />Week</button>
           <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")}><GitBranch size={15} />Compare</button>
           <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")}><Trophy size={15} />Results</button>
+          <button className={viewMode === "warps" ? "active" : ""} onClick={() => setViewMode("warps")}><FlaskConical size={15} />WARPS</button>
         </div>
         <label className="toggle">
           <input type="checkbox" checked={showHeatmap} onChange={(event) => setShowHeatmap(event.target.checked)} />
@@ -244,6 +246,12 @@ function App() {
               <p>Factor leaderboard, promotion rules, candidate overlays, and source reliability in one research surface.</p>
               <button className="text-button" onClick={() => setViewMode("research")}>Open research</button>
             </article>
+            <article className="hub-card">
+              <FlaskConical size={20} />
+              <h3>WARPS-NFL Lab</h3>
+              <p>Preseason win-total forecasting model. 2026 consensus bet slate, season-by-season backtest, Diebold-Mariano stats.</p>
+              <button className="text-button" onClick={() => setViewMode("warps")}>Open WARPS</button>
+            </article>
           </div>
         </section>
       )}
@@ -294,6 +302,8 @@ function App() {
       )}
 
       {viewMode === "results" && <ResultsView results={seasonResults} loading={false} error={seasonSchedule.hasResults ? null : `${selectedSeason} results are not available yet.`} />}
+
+      {viewMode === "warps" && <WARPSView />}
 
       <footer className="footer-note">
         <BarChart3 size={15} />
