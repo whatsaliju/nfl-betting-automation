@@ -1,8 +1,8 @@
-import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
+import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, FileText, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { bootstrapStats, byYearData, calibrationData, consensusData, metricRanking } from "../data/warpsData";
 
-type WARPSTab = "slate" | "performance" | "methodology";
+type WARPSTab = "slate" | "performance" | "methodology" | "paper";
 
 function consensusClass(c: string): string {
   if (c === "3-model Over") return "consensus-3over";
@@ -434,6 +434,158 @@ function MethodologyTab() {
   );
 }
 
+function PaperTab() {
+  const bs = bootstrapStats;
+  return (
+    <div className="warps-paper">
+      <div className="paper-meta">
+        <strong>Liju Varughese</strong> · Independent Research · June 2026 ·{" "}
+        <a href="https://github.com/whatsaliju/nfl-betting-automation" target="_blank" rel="noreferrer">
+          github.com/whatsaliju/nfl-betting-automation
+        </a>
+      </div>
+
+      <h3 className="paper-section">Abstract</h3>
+      <p className="paper-body">
+        We present WARPS-NFL (Win Average Regression Predictive Score), a model that predicts each NFL team's
+        regular-season win total before the season begins. Using publicly available play-by-play data from 26 seasons
+        (2000–2025), we show that a weighted blend of Pythagorean win expectation (75%) and raw point differential (25%),
+        combined with regression toward the league mean, outperforms both naive baselines and more complex multi-factor
+        composites. On a held-out validation window (2022–2025), WARPS achieves a mean absolute error of{" "}
+        <strong>{bs.warpsMaeVal.toFixed(3)} wins per team</strong>, compared to{" "}
+        <strong>{bs.pythMaeVal.toFixed(3)}</strong> for a Pythagorean baseline and{" "}
+        <strong>{bs.pwMaeVal.toFixed(3)}</strong> for prior-year win totals. The improvement over the Pythagorean
+        baseline is statistically significant on the full 26-season backtest (Diebold-Mariano statistic ={" "}
+        {bs.dmVsPythFull.stat.toFixed(2)}, p &lt; 0.0001). All data and code are open source and reproducible.
+      </p>
+
+      <h3 className="paper-section">1. Introduction</h3>
+      <p className="paper-body">
+        Predicting how many games an NFL team will win in a season is harder than it looks. Teams change rosters,
+        coaches, and schemes. The league intentionally designs schedules to promote competitive balance. Over just
+        17 regular-season games, random variation is substantial enough that a talented team can finish below .500
+        and a mediocre one can reach the playoffs.
+      </p>
+      <p className="paper-body">
+        The central question this paper addresses is: <em>which prior-season statistics best predict the following
+        year's win total, and by how much do they beat a simple baseline?</em> We make three contributions: (1) a
+        model that beats the Pythagorean baseline in {bs.seasonsBeatingPyth} of {bs.totalSeasons} seasons using only
+        publicly available data; (2) statistically validated improvements confirmed with bootstrap confidence intervals
+        and the Diebold-Mariano test for equal predictive accuracy; and (3) a practical 2026 bet slate derived from
+        a three-model consensus screen.
+      </p>
+
+      <h3 className="paper-section">2. Data</h3>
+      <p className="paper-body">
+        All data is publicly available. Play-by-play data comes from the nflfastR dataset (Baldwin and Carl, 2020),
+        accessed via the open-source <code>nfl_data_py</code> Python library. This covers every regular-season play
+        from 1999 through 2025. We compute seven team-level efficiency metrics per season: offensive and defensive
+        passing Expected Points Added (EPA) per play, rushing EPA per play, success rate (fraction of plays with
+        positive EPA), explosive play rate (plays gaining 20 or more yards), point differential per game,
+        Pythagorean win expectation (exponent 2.37), and turnover differential. Schedule and game results are
+        drawn from Lee Sharpe's public repository. Preseason win totals are publicly listed sportsbook prices.
+      </p>
+      <p className="paper-body">
+        The study covers 829 team-season observations (2000–2025). Houston joined the league in 2002, giving
+        2000 and 2001 seasons 31 rather than 32 teams. Several franchises relocated during this period;
+        we treat each franchise as continuous regardless of city (e.g., the St. Louis Rams and Los Angeles
+        Rams are one team throughout).
+      </p>
+
+      <h3 className="paper-section">3. Methods</h3>
+      <p className="paper-body">
+        Within each season, each efficiency metric is converted to a z-score (mean zero, standard deviation one
+        across all 31–32 teams). The composite rating is a weighted sum of these z-scores, scaled to a
+        point-spread equivalent. Regression toward the league mean is applied at a factor of 0.75 — meaning
+        75% of the team's signal carries forward and 25% reverts to the average of 8.5 wins. Win probability
+        for each game is computed via a logistic function with scale parameter 6.5. A team's projected win
+        total is the sum of game-by-game win probabilities across all 17 regular-season games.
+      </p>
+      <p className="paper-body">
+        Weights are optimized over a training window (2000–2021) using a three-stage search: an exhaustive
+        231-configuration grid over Pythagorean, passing EPA, and point differential weights; a 300-draw
+        randomized search biased toward Pythagorean; and a 180-configuration hyperparameter grid over
+        regression factor and logit scale. Champion selection uses only held-out validation error (2022–2025),
+        never training error, to prevent overfitting.
+      </p>
+
+      <h3 className="paper-section">4. Results</h3>
+      <p className="paper-body">
+        The champion model assigns 75% weight to Pythagorean win expectation and 25% to raw point differential,
+        with all other components at zero. This finding differs from the v1.7 result (pure Pythagorean) because
+        the larger training window of 22 seasons gives the optimizer enough data to separate the independent
+        contributions of the two metrics. Pythagorean applies a non-linear exponent that up-weights blowout
+        margins; raw point differential is linear and treats all margins equally. The blend captures both
+        perspectives.
+      </p>
+
+      <div className="paper-table-wrap">
+        <p className="paper-table-caption">Table 1: Forecast accuracy and statistical significance</p>
+        <table className="warps-table">
+          <thead>
+            <tr><th>Comparison</th><th>Sample</th><th>MAE difference</th><th>95% CI</th><th>p-value</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>WARPS vs Pythagorean</td><td>Full (2000–25)</td>
+              <td className="warps-pos">−0.240</td><td>[−0.319, −0.160]</td>
+              <td><span className="sig-badge sig-3">&lt; 0.0001</span></td>
+            </tr>
+            <tr>
+              <td>WARPS vs Prior-year wins</td><td>Full (2000–25)</td>
+              <td className="warps-pos">−0.514</td><td>[−0.633, −0.398]</td>
+              <td><span className="sig-badge sig-3">&lt; 0.0001</span></td>
+            </tr>
+            <tr>
+              <td>WARPS vs Pythagorean</td><td>Validation (2022–25)</td>
+              <td className="warps-pos">−0.249</td><td>[−0.438, −0.062]</td>
+              <td><span className="sig-badge sig-2">0.0052</span></td>
+            </tr>
+            <tr>
+              <td>WARPS vs Prior-year wins</td><td>Validation (2022–25)</td>
+              <td className="warps-pos">−0.411</td><td>[−0.742, −0.095]</td>
+              <td><span className="sig-badge sig-2">0.0065</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p className="warps-chart-note">Confidence intervals from 10,000 bootstrap resamplings. Negative difference = WARPS better. MAE = mean absolute error in wins per team per season.</p>
+      </div>
+
+      <h3 className="paper-section">5. Discussion</h3>
+      <p className="paper-body">
+        Pythagorean win expectation dominates because it filters luck out of raw win-loss records. Teams that win
+        close games more often than expected (or lose blowouts) regress toward their Pythagorean score in the
+        following season. The addition of point differential provides a linear complement to Pythagorean's
+        non-linear weighting, which is why the blend outperforms either metric alone.
+      </p>
+      <p className="paper-body">
+        The model underperformed Pythagorean in only one season — 2014 — when several teams experienced
+        significant unmodeled roster changes (quarterback injuries and replacements). This is the fundamental
+        limitation of any purely statistical model: it cannot see what it was not given.
+      </p>
+
+      <h3 className="paper-section">6. Limitations</h3>
+      <ul className="paper-list">
+        <li><strong>Personnel changes are not modeled.</strong> Quarterback changes, major trades, and coaching turnover can shift team quality by several wins in ways no efficiency metric captures.</li>
+        <li><strong>Small validation window.</strong> Four held-out seasons is enough for statistical significance but not enough to be certain the result is not period-specific.</li>
+        <li><strong>Market efficiency.</strong> Vegas lines already price in much of the publicly available information used here. The model identifies forecast improvements relative to naive baselines, not guaranteed betting edges after accounting for sportsbook fees.</li>
+        <li><strong>Era effects.</strong> The 2004 NFL rule changes that opened up the passing game changed the strategic landscape. A more sophisticated model would allow weights to shift over time.</li>
+      </ul>
+
+      <h3 className="paper-section">References</h3>
+      <ul className="paper-refs">
+        <li>Baldwin, B. and Carl, S. (2020). <em>nflfastR: Functions to Efficiently Access NFL Play by Play Data.</em></li>
+        <li>Boulier, B.L. and Stekler, H.O. (2003). Predicting the outcomes of National Football League games. <em>International Journal of Forecasting</em>, 19(2), 257–270.</li>
+        <li>Carroll, B., Palmer, P. and Thorn, J. (1988). <em>The Hidden Game of Football.</em> Warner Books.</li>
+        <li>Cochran, J.J. (2008). Improved forecasting of National Football League season win-totals. <em>Journal of Quantitative Analysis in Sports</em>, 4(2).</li>
+        <li>Diebold, F.X. and Mariano, R.S. (1995). Comparing predictive accuracy. <em>Journal of Business and Economic Statistics</em>, 13(3), 253–263.</li>
+        <li>James, B. (1984). <em>The Bill James Baseball Abstract.</em> Ballantine Books.</li>
+        <li>Sharpe, L. (2024). <em>NFL Schedule and Game Data.</em> github.com/leesharpe/nfldata</li>
+      </ul>
+    </div>
+  );
+}
+
 export function WARPSView() {
   const [tab, setTab] = useState<WARPSTab>("slate");
 
@@ -486,11 +638,15 @@ export function WARPSView() {
         <button className={tab === "methodology" ? "active" : ""} onClick={() => setTab("methodology")}>
           <BookOpen size={14} /> Methodology
         </button>
+        <button className={tab === "paper" ? "active" : ""} onClick={() => setTab("paper")}>
+          <FileText size={14} /> Paper
+        </button>
       </div>
 
       {tab === "slate" && <SlateTab />}
       {tab === "performance" && <PerformanceTab />}
       {tab === "methodology" && <MethodologyTab />}
+      {tab === "paper" && <PaperTab />}
     </section>
   );
 }
