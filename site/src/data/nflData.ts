@@ -91,9 +91,9 @@ export const teamLogos: Record<string, string> = Object.fromEntries(
 
 // Historical preseason Vegas win totals by season.
 // 2015-2020: nflverse/nfldata (Westgate SuperBook opening lines). LA = LAR (Rams first year in LA).
-// 2021: DraftKings opening lines (confirmed via web sources, all 32 teams).
+// 2021: Pro Football Reference preseason odds (verified, all 32 teams).
 // 2022: Pro Football Reference preseason odds (verified, all 32 teams).
-// 2023: Caesars Sportsbook opening lines (confirmed via web sources, all 32 teams).
+// 2023: Pro Football Reference preseason odds (verified, all 32 teams).
 // 2024: Pro Football Reference preseason odds (verified, all 32 teams).
 // 2025: Covered by engine feed (team_expectations.vegas_win_total).
 // 2026: DraftKings opening lines (confirmed via @DKSportsbook tweet, all 32 teams).
@@ -104,9 +104,9 @@ export const historicalVegasLines: Record<string, Record<string, number>> = {
   "2018": { ARI:6.0,ATL:9.5,BAL:8.5,BUF:5.5,CAR:8.5,CHI:7.5,CIN:7.0,CLE:6.0,DAL:8.5,DEN:7.0,DET:7.5,GB:10.0,HOU:8.5,IND:7.5,JAX:9.0,KC:8.5,LAC:9.5,LAR:10.0,LV:7.5,MIA:6.5,MIN:10.0,NE:11.0,NO:9.5,NYG:7.0,NYJ:6.0,PHI:10.5,PIT:10.5,SEA:7.5,SF:8.5,TB:6.5,TEN:8.0,WAS:7.0 },
   "2019": { ARI:5.0,ATL:8.5,BAL:8.5,BUF:7.0,CAR:8.0,CHI:9.0,CIN:6.0,CLE:9.0,DAL:9.0,DEN:7.0,DET:6.5,GB:9.0,HOU:8.5,IND:7.5,JAX:8.0,KC:10.5,LAC:10.0,LAR:10.5,LV:6.0,MIA:4.5,MIN:9.0,NE:11.5,NO:10.5,NYG:6.0,NYJ:7.5,PHI:10.0,PIT:9.5,SEA:9.0,SF:8.0,TB:6.5,TEN:8.0,WAS:6.0 },
   "2020": { ARI:7.5,ATL:7.5,BAL:11.5,BUF:9.0,CAR:5.5,CHI:8.5,CIN:5.5,CLE:8.5,DAL:9.5,DEN:7.5,DET:6.5,GB:9.0,HOU:7.5,IND:9.0,JAX:4.5,KC:11.5,LAC:7.5,LAR:8.5,LV:7.5,MIA:6.5,MIN:9.0,NE:9.0,NO:10.5,NYG:6.5,NYJ:7.0,PHI:9.5,PIT:9.5,SEA:9.0,SF:10.5,TB:9.5,TEN:8.5,WAS:5.5 },
-  "2021": { ARI:8.0,ATL:7.0,BAL:11.0,BUF:10.5,CAR:7.5,CHI:7.5,CIN:6.5,CLE:10.0,DAL:9.5,DEN:7.5,DET:5.0,GB:11.0,HOU:5.0,IND:10.0,JAX:6.0,KC:12.0,LAC:9.0,LAR:10.5,LV:8.0,MIA:9.0,MIN:8.5,NE:9.0,NO:9.5,NYG:7.0,NYJ:6.0,PHI:7.0,PIT:9.0,SEA:10.0,SF:10.0,TB:11.5,TEN:9.5,WAS:8.0 },
+  "2021": { ARI:8.5,ATL:7.5,BAL:10.5,BUF:11.5,CAR:7.5,CHI:7.5,CIN:6.5,CLE:10.5,DAL:9.0,DEN:9.0,DET:4.5,GB:10.5,HOU:4.0,IND:9.0,JAX:6.5,KC:12.5,LAC:9.5,LAR:10.5,LV:7.5,MIA:9.0,MIN:9.0,NE:9.5,NO:9.0,NYG:7.0,NYJ:6.0,PHI:6.5,PIT:8.5,SEA:9.5,SF:10.5,TB:12.0,TEN:9.5,WAS:8.5 },
   "2022": { ARI:8.5,ATL:4.5,BAL:10.5,BUF:11.5,CAR:6.5,CHI:6.5,CIN:9.5,CLE:8.5,DAL:10.5,DEN:10.5,DET:6.5,GB:10.5,HOU:4.5,IND:9.5,JAX:6.5,KC:10.5,LAC:10.5,LAR:10.5,LV:8.5,MIA:8.5,MIN:9.5,NE:8.5,NO:8.5,NYG:7.5,NYJ:5.5,PHI:9.5,PIT:7.5,SEA:5.5,SF:9.5,TB:11.5,TEN:9.5,WAS:7.5 },
-  "2023": { ARI:5.5,ATL:7.5,BAL:8.5,BUF:10.5,CAR:7.5,CHI:7.5,CIN:11.5,CLE:8.5,DAL:9.5,DEN:8.5,DET:9.0,GB:7.5,HOU:5.5,IND:6.5,JAX:9.5,KC:11.5,LAC:9.5,LAR:7.5,LV:7.5,MIA:9.5,MIN:8.5,NE:7.5,NO:9.5,NYG:8.5,NYJ:9.5,PHI:10.5,PIT:8.5,SEA:8.5,SF:11.5,TB:6.5,TEN:7.5,WAS:7.5 },
+  "2023": { ARI:4.5,ATL:8.5,BAL:10.5,BUF:10.5,CAR:7.5,CHI:7.5,CIN:11.5,CLE:9.5,DAL:9.5,DEN:8.5,DET:9.5,GB:7.5,HOU:6.5,IND:6.5,JAX:9.5,KC:11.5,LAC:9.5,LAR:6.5,LV:6.5,MIA:9.5,MIN:8.5,NE:7.5,NO:9.5,NYG:7.5,NYJ:9.5,PHI:11.5,PIT:8.5,SEA:8.5,SF:10.5,TB:6.5,TEN:7.5,WAS:6.5 },
   "2024": { ARI:7.0,ATL:9.5,BAL:10.5,BUF:10.0,CAR:5.5,CHI:8.5,CIN:10.5,CLE:8.5,DAL:10.0,DEN:5.5,DET:10.5,GB:10.0,HOU:9.5,IND:8.5,JAX:8.5,KC:11.5,LAC:9.0,LAR:8.5,LV:6.5,MIA:10.0,MIN:6.5,NE:4.5,NO:7.5,NYG:6.5,NYJ:9.5,PHI:10.5,PIT:8.0,SEA:7.5,SF:11.5,TB:7.5,TEN:6.5,WAS:6.5 },
   "2026": { ARI:4.5,ATL:6.5,BAL:10.5,BUF:10.5,CAR:6.5,CHI:9.5,CIN:9.5,CLE:6.5,DAL:8.5,DEN:9.5,DET:10.5,GB:10.5,HOU:9.5,IND:8.5,JAX:9.5,KC:10.5,LAC:10.5,LAR:10.5,LV:5.5,MIA:4.5,MIN:8.5,NE:10.5,NO:7.5,NYG:7.5,NYJ:5.5,PHI:10.5,PIT:8.5,SEA:10.5,SF:10.5,TB:8.5,TEN:6.5,WAS:7.5 },
 };
