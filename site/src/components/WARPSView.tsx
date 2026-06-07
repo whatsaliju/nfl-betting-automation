@@ -736,6 +736,22 @@ function PaperTab() {
           github.com/whatsaliju/nfl-betting-automation
         </a>
       </div>
+      <div className="paper-rights">
+        <span>© 2026 Liju Varughese.</span>
+        {" "}
+        <span>
+          Licensed under{" "}
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC-BY 4.0</a>
+          {" "}— free to share and cite with attribution.
+          Code:{" "}
+          <a href="https://github.com/whatsaliju/nfl-betting-automation/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT License</a>.
+        </span>
+        {" "}
+        <span>
+          <strong>"WARPS"</strong> and <strong>"Win Average Regression Predictive Score"</strong> are
+          original terminology by Liju Varughese. Commercial use of the WARPS name requires written permission.
+        </span>
+      </div>
 
       <h3 className="paper-section">Abstract</h3>
       <p className="paper-body">

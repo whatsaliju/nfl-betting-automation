@@ -2,12 +2,27 @@
 
 **Liju Varughese**
 Independent Research · June 2026
+[lijuvarughese.com](https://lijuvarughese.com) · [github.com/whatsaliju/nfl-betting-automation](https://github.com/whatsaliju/nfl-betting-automation)
+
+---
+
+> © 2026 Liju Varughese. This paper is licensed under the
+> [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/) (CC-BY 4.0).
+> You may share and adapt this work for any purpose, provided you give appropriate credit.
+>
+> **"WARPS"** and **"Win Average Regression Predictive Score"** are original terminology
+> introduced in this paper. The accompanying code is licensed under the MIT License.
+> Commercial use of the WARPS name requires written permission.
+>
+> To cite this work:
+> Varughese, L. (2026). *WARPS-NFL: A Preseason Win-Total Forecasting Model for the
+> National Football League.* Independent Research. https://github.com/whatsaliju/nfl-betting-automation
 
 ---
 
 ## Abstract
 
-We present WARPS-NFL (Win Average Regression Predictive Score), a model that predicts each NFL team's regular-season win total before the season begins. Using publicly available play-by-play data from 26 seasons (2000–2025), we show that a weighted blend of Pythagorean win expectation (75%) and raw point differential (25%), combined with regression toward the league mean, outperforms both naive baselines and more complex multi-factor composites. On a held-out validation window (2022–2025), WARPS achieves a mean absolute error of 2.511 wins per team, compared to 2.759 for a Pythagorean baseline and 2.922 for prior-year win totals. The improvement over the Pythagorean baseline is statistically significant on the full 26-season backtest (Diebold-Mariano statistic = 5.85, p < 0.0001). A three-model consensus screen — combining WARPS-NFL v1.5d, v1.6, and v1.8 — identifies high-conviction bets for the 2026 season where multiple independent model versions agree on direction. All data and code are open source and reproducible.
+We present WARPS-NFL™ (Win Average Regression Predictive Score), a model that predicts each NFL team's regular-season win total before the season begins. Using publicly available play-by-play data from 26 seasons (2000–2025), we show that a weighted blend of Pythagorean win expectation (75%) and raw point differential (25%), combined with regression toward the league mean, outperforms both naive baselines and more complex multi-factor composites. On a held-out validation window (2022–2025), WARPS achieves a mean absolute error of 2.511 wins per team, compared to 2.759 for a Pythagorean baseline and 2.922 for prior-year win totals. The improvement over the Pythagorean baseline is statistically significant on the full 26-season backtest (Diebold-Mariano statistic = 5.85, p < 0.0001). A three-model consensus screen — combining WARPS-NFL v1.5d, v1.6, and v1.8 — identifies high-conviction bets for the 2026 season where multiple independent model versions agree on direction. All data and code are open source and reproducible.
 
 ---
 
