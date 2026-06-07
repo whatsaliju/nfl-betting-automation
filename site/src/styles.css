@@ -71,6 +71,11 @@ button { cursor: pointer; }
   flex-wrap: wrap;
   padding: 10px;
   margin-bottom: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.controls .view-tabs {
+  flex-shrink: 0;
 }
 
 .segmented {
@@ -904,6 +909,7 @@ select {
   .app-shell { padding: 8px; }
   .topbar { align-items: flex-start; flex-direction: column; }
   .brand-block h1 { font-size: 18px; }
+  .controls { flex-wrap: nowrap; }
   .matrix-table { font-size: 11px; }
   .team-col { min-width: 76px; }
   .game-cell { min-width: 58px; }
@@ -912,6 +918,11 @@ select {
   .market-row { grid-template-columns: 1fr; }
   .expectation-mini { grid-template-columns: 1fr; }
   .postseason-strip { flex-direction: column; }
+  .warps-hero-kpis { grid-template-columns: repeat(2, 1fr); }
+  .warps-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .warps-table { font-size: 11px; }
+  .warps-table th, .warps-table td { padding: 5px 6px; }
+  .edge-bar-wrap, .mae-bar-wrap { width: 48px; }
 }
 
 /* ── WARPS Lab ─────────────────────────────────────────── */
@@ -1120,12 +1131,3 @@ select {
 .warps-prose ol { padding-left: 18px; margin: 0; }
 .warps-prose li { font-size: 13px; line-height: 1.7; color: #334155; }
 .warps-prose code { background: #f1f5f9; border-radius: 4px; padding: 1px 5px; font-size: 12px; color: #1d4ed8; }
-
-/* ── Responsive ─── */
-@media (max-width: 760px) {
-  .warps-hero-kpis { grid-template-columns: repeat(2, 1fr); }
-  .warps-kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .warps-table { font-size: 11px; }
-  .warps-table th, .warps-table td { padding: 5px 6px; }
-  .edge-bar-wrap, .mae-bar-wrap { width: 48px; }
-}
