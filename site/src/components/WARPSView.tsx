@@ -30,9 +30,9 @@ function sigBadge(sig: string) {
 function ByYearChart() {
   const maxMae = Math.ceil(Math.max(...byYearData.map((d) => Math.max(d.pythMae, d.pwMae))) * 10) / 10;
   const chartH = 160;
-  const barW = 18;
-  const gap = 8;
-  const groupW = barW * 3 + gap * 2;
+  const barW = 14;
+  const gap = 6;
+  const groupW = barW * 4 + gap * 3;
   const leftPad = 36;
   const topPad = 8;
   const bottomPad = 24;
@@ -49,6 +49,7 @@ function ByYearChart() {
         <span><span className="legend-dot" style={{ background: "#1d4ed8" }} /> WARPS v1.8</span>
         <span><span className="legend-dot" style={{ background: "#64748b" }} /> Pythagorean</span>
         <span><span className="legend-dot" style={{ background: "#cbd7e2" }} /> Prior Wins</span>
+        <span><span className="legend-dot" style={{ background: "#f59e0b" }} /> Vegas (2015–2025)</span>
       </div>
       <svg viewBox={`0 0 ${totalW} ${totalH}`} className="warps-svg">
         {[0, 1, 2, 3].map((i) => {
@@ -68,11 +69,15 @@ function ByYearChart() {
           const ph = barH(d.pythMae);
           const pwh = barH(d.pwMae);
           const base = topPad + chartH;
+          const vh = d.vegasMae != null ? barH(d.vegasMae) : 0;
           return (
             <g key={d.season}>
               <rect x={x} y={base - wh} width={barW} height={wh} fill="#1d4ed8" rx={2} />
               <rect x={x + barW + gap} y={base - ph} width={barW} height={ph} fill="#64748b" rx={2} />
               <rect x={x + (barW + gap) * 2} y={base - pwh} width={barW} height={pwh} fill="#cbd7e2" rx={2} />
+              {d.vegasMae != null && (
+                <rect x={x + (barW + gap) * 3} y={base - vh} width={barW} height={vh} fill="#f59e0b" rx={2} />
+              )}
               <text x={x + groupW / 2} y={base + 14} textAnchor="middle" fontSize={9} fill="#475569">
                 {String(d.season).slice(2)}
               </text>
@@ -83,7 +88,7 @@ function ByYearChart() {
           );
         })}
       </svg>
-      <p className="warps-chart-note">Green ✓ = WARPS beats Pythagorean that season. Train: 2000–2021 · Validation: 2022–2025</p>
+      <p className="warps-chart-note">✓ = WARPS beats Pythagorean. Vegas bars shown 2015–2025 (PFR-verified lines). Train: 2000–2021 · Validation: 2022–2025</p>
     </div>
   );
 }
@@ -488,32 +493,74 @@ function PerformanceTab() {
   return (
     <div className="warps-performance">
       <ExplainerBanner icon={<BarChart3 size={15} />}>
-        Here's the evidence the model actually works. WARPS has beaten the Pythagorean baseline in{" "}
-        <strong>{bs.seasonsBeatingPyth} of {bs.totalSeasons} NFL seasons</strong> (2000–2025).
-        The Diebold-Mariano test — the standard method for comparing forecasting models — confirms
-        this improvement is statistically significant (p&nbsp;&lt;&nbsp;0.0001), not just lucky.
-        The scatter plot shows where every team lands relative to the Vegas market.
+        WARPS has beaten the Pythagorean baseline in{" "}
+        <strong>{bs.seasonsBeatingPyth} of {bs.totalSeasons} seasons</strong> (2000–2025) with
+        statistically significant improvement (p&nbsp;&lt;&nbsp;0.0001).
+        However, against Vegas preseason lines — the true market benchmark — WARPS has a higher MAE in{" "}
+        <strong>{bs.vegasOverlapSeasons - bs.seasonsBeatingVegas} of {bs.vegasOverlapSeasons} seasons</strong> (2015–2025).
+        Vegas incorporates more information than any public statistical model. The profitability question is not
+        "does WARPS predict wins better than Vegas?" but "can WARPS identify <em>which specific</em> bets Vegas has mispriced?"
       </ExplainerBanner>
 
       <MarketScatter />
 
+      <h4 className="warps-subsection">WARPS vs Statistical Baselines (full 26-season sample)</h4>
       <div className="warps-kpi-grid">
         <StatCard
-          label="Full-sample mean absolute error"
+          label="WARPS MAE — full sample"
           value={bs.warpsMaeFull.toFixed(3)}
-          sub={`95% CI [${bs.warpsMaeFullCi[0].toFixed(2)}, ${bs.warpsMaeFullCi[1].toFixed(2)}]`}
+          sub={`95% CI [${bs.warpsMaeFullCi[0].toFixed(2)}, ${bs.warpsMaeFullCi[1].toFixed(2)}] · 2000–2025`}
           highlight
         />
-        <StatCard label="Held-out mean absolute error" value={bs.warpsMaeVal.toFixed(3)} sub={`2022–2025 · 95% CI [${bs.warpsMaeValCi[0].toFixed(2)}, ${bs.warpsMaeValCi[1].toFixed(2)}]`} />
-        <StatCard label="Pythagorean baseline error" value={bs.pythMaeFull.toFixed(3)} sub="full sample (2000–2025)" />
-        <StatCard label="Prior-year wins baseline error" value={bs.pwMaeFull.toFixed(3)} sub="full sample (2000–2025)" />
+        <StatCard label="WARPS MAE — held-out" value={bs.warpsMaeVal.toFixed(3)} sub={`2022–2025 · 95% CI [${bs.warpsMaeValCi[0].toFixed(2)}, ${bs.warpsMaeValCi[1].toFixed(2)}]`} />
+        <StatCard label="Pythagorean baseline" value={bs.pythMaeFull.toFixed(3)} sub="full sample (2000–2025)" />
+        <StatCard label="Prior-year wins baseline" value={bs.pwMaeFull.toFixed(3)} sub="full sample (2000–2025)" />
         <StatCard label="Seasons beating Pythagorean" value={`${bs.seasonsBeatingPyth}/${bs.totalSeasons}`} sub="96% of seasons (2000–2025)" highlight />
         <StatCard label="Avg improvement vs Pythagorean" value="−0.240" sub="wins/team (full 26-season sample)" />
         <StatCard label="Avg improvement vs prior-year wins" value="−0.514" sub="wins/team (full 26-season sample)" />
-        <StatCard label="Statistical significance vs Pythagorean" value="p < 0.0001" sub="Diebold-Mariano test, full sample" highlight />
+        <StatCard label="DM vs Pythagorean" value="p < 0.0001" sub="Diebold-Mariano test, full sample ***" highlight />
       </div>
 
-      <h4 className="warps-subsection">Diebold-Mariano Test — Is WARPS Significantly Better?</h4>
+      <h4 className="warps-subsection">WARPS vs Vegas Market Benchmark (2015–2025, n=352)</h4>
+      <div className="warps-kpi-grid">
+        <StatCard
+          label="Vegas preseason MAE"
+          value={bs.vegasMaeOverlap.toFixed(3)}
+          sub={`95% CI [${bs.vegasMaeOverlapCi[0].toFixed(2)}, ${bs.vegasMaeOverlapCi[1].toFixed(2)}] · 2015–2025`}
+        />
+        <StatCard
+          label="WARPS MAE same period"
+          value="2.364"
+          sub="2015–2025 overlap window"
+        />
+        <StatCard
+          label="Vegas advantage"
+          value="+0.148"
+          sub="wins/team — Vegas is the stronger raw predictor"
+        />
+        <StatCard
+          label="Seasons Vegas beats WARPS"
+          value={`${bs.vegasOverlapSeasons - bs.seasonsBeatingVegas}/${bs.vegasOverlapSeasons}`}
+          sub={`WARPS beats Vegas in ${bs.seasonsBeatingVegas} seasons`}
+        />
+        <StatCard label="DM stat (Vegas vs WARPS)" value={bs.dmVsVegasOverlap.stat.toFixed(3)} sub="positive = Vegas better" />
+        <StatCard label="DM significance" value={`p = ${bs.dmVsVegasOverlap.pval.toFixed(4)}`} sub={`Vegas significantly better ${bs.dmVsVegasOverlap.sig}`} />
+        <StatCard
+          label="Edge-identification value"
+          value="3-model ≥1.5"
+          sub="+9.5% ROI (2003-2020 backtest)"
+          highlight
+        />
+        <StatCard
+          label="What this means"
+          value="Complementary"
+          sub="WARPS finds mispriced lines, not better raw accuracy"
+          highlight
+        />
+      </div>
+      <p className="warps-chart-note">Vegas lines: PFR-verified preseason win totals 2015–2025. Vegas data not available for 2000–2014 in this analysis.</p>
+
+      <h4 className="warps-subsection">Diebold-Mariano Tests</h4>
       <table className="warps-table">
         <thead>
           <tr>
@@ -534,7 +581,7 @@ function PerformanceTab() {
             <td>{bs.dmVsPythFull.stat.toFixed(3)}</td>
             <td>{bs.dmVsPythFull.pval.toFixed(4)}</td>
             <td>{sigBadge(bs.dmVsPythFull.sig)}</td>
-            <td>CI entirely negative</td>
+            <td>WARPS better ✓</td>
           </tr>
           <tr>
             <td>WARPS vs Prior-year wins</td>
@@ -543,7 +590,7 @@ function PerformanceTab() {
             <td>{bs.dmVsPwFull.stat.toFixed(3)}</td>
             <td>{bs.dmVsPwFull.pval.toFixed(4)}</td>
             <td>{sigBadge(bs.dmVsPwFull.sig)}</td>
-            <td>CI entirely negative</td>
+            <td>WARPS better ✓</td>
           </tr>
           <tr>
             <td>WARPS vs Pythagorean</td>
@@ -552,7 +599,7 @@ function PerformanceTab() {
             <td>{bs.dmVsPythVal.stat.toFixed(3)}</td>
             <td>{bs.dmVsPythVal.pval.toFixed(4)}</td>
             <td>{sigBadge(bs.dmVsPythVal.sig)}</td>
-            <td>CI entirely negative</td>
+            <td>WARPS better ✓</td>
           </tr>
           <tr>
             <td>WARPS vs Prior-year wins</td>
@@ -561,11 +608,20 @@ function PerformanceTab() {
             <td>{bs.dmVsPwVal.stat.toFixed(3)}</td>
             <td>{bs.dmVsPwVal.pval.toFixed(4)}</td>
             <td>{sigBadge(bs.dmVsPwVal.sig)}</td>
-            <td>CI entirely negative</td>
+            <td>WARPS better ✓</td>
+          </tr>
+          <tr className="warps-market-row">
+            <td><strong>WARPS vs Vegas market</strong></td>
+            <td>Overlap (2015–25)</td>
+            <td className="warps-neg">+0.148</td>
+            <td>{bs.dmVsVegasOverlap.stat.toFixed(3)}</td>
+            <td>{bs.dmVsVegasOverlap.pval.toFixed(4)}</td>
+            <td>{sigBadge(bs.dmVsVegasOverlap.sig)}</td>
+            <td>Vegas better</td>
           </tr>
         </tbody>
       </table>
-      <p className="warps-chart-note">Bootstrap confidence intervals: 10,000 paired resamplings. Negative error difference = WARPS better. MAE = mean absolute error in wins per team per season.</p>
+      <p className="warps-chart-note">Bootstrap confidence intervals: 10,000 paired resamplings. MAE = mean absolute error in wins per team. Positive MAE diff = Vegas has lower error (better raw accuracy).</p>
 
       <h4 className="warps-subsection">Season-by-Season Error — WARPS vs Baselines (2000–2025)</h4>
       <ByYearChart />
@@ -762,9 +818,12 @@ function PaperTab() {
         composites. On a held-out validation window (2022–2025), WARPS achieves a mean absolute error of{" "}
         <strong>{bs.warpsMaeVal.toFixed(3)} wins per team</strong>, compared to{" "}
         <strong>{bs.pythMaeVal.toFixed(3)}</strong> for a Pythagorean baseline and{" "}
-        <strong>{bs.pwMaeVal.toFixed(3)}</strong> for prior-year win totals. The improvement over the Pythagorean
-        baseline is statistically significant on the full 26-season backtest (Diebold-Mariano statistic ={" "}
-        {bs.dmVsPythFull.stat.toFixed(2)}, p &lt; 0.0001). All data and code are open source and reproducible.
+        <strong>{bs.pwMaeVal.toFixed(3)}</strong> for prior-year win totals. The improvement over statistical baselines
+        is significant (Diebold-Mariano statistic = {bs.dmVsPythFull.stat.toFixed(2)}, p&nbsp;&lt;&nbsp;0.0001 vs Pythagorean).
+        Against Vegas preseason lines — the true market benchmark — WARPS has a higher MAE
+        ({bs.vegasMaeOverlap.toFixed(3)} Vegas vs 2.364 WARPS over 2015–2025, DM = {bs.dmVsVegasOverlap.stat.toFixed(2)},
+        p&nbsp;=&nbsp;{bs.dmVsVegasOverlap.pval.toFixed(4)}), confirming the market incorporates additional information not
+        available to purely statistical models. All data and code are open source and reproducible.
       </p>
 
       <h3 className="paper-section">1. Introduction</h3>

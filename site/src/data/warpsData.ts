@@ -8,6 +8,7 @@ export interface ByYearRow {
   pythMae: number;
   pwMae: number;
   warpsRmse: number;
+  vegasMae?: number; // available 2015-2025 only (PFR-verified lines)
 }
 
 export interface CalibrationRow {
@@ -52,6 +53,12 @@ export interface BootstrapStats {
   dmVsPwVal: { stat: number; pval: number; sig: string };
   seasonsBeatingPyth: number;
   totalSeasons: number;
+  // Vegas market benchmark (PFR-verified lines, 2015-2025, n=352 team-seasons)
+  vegasMaeOverlap: number;
+  vegasMaeOverlapCi: [number, number];
+  vegasOverlapSeasons: number;
+  seasonsBeatingVegas: number;
+  dmVsVegasOverlap: { stat: number; pval: number; sig: string };
 }
 
 // Profitability backtest: 2003-2020 vs nflverse historical Vegas win totals
@@ -87,17 +94,17 @@ export const byYearData: ByYearRow[] = [
   { season: 2012, teams: 32, warpsMae: 2.535, pythMae: 2.698, pwMae: 3.094, warpsRmse: 2.937 },
   { season: 2013, teams: 32, warpsMae: 2.364, pythMae: 2.607, pwMae: 2.719, warpsRmse: 3.000 },
   { season: 2014, teams: 32, warpsMae: 2.094, pythMae: 2.018, pwMae: 2.188, warpsRmse: 2.500 },
-  { season: 2015, teams: 32, warpsMae: 2.301, pythMae: 2.485, pwMae: 2.688, warpsRmse: 2.885 },
-  { season: 2016, teams: 32, warpsMae: 2.425, pythMae: 2.597, pwMae: 2.844, warpsRmse: 2.922 },
-  { season: 2017, teams: 32, warpsMae: 2.217, pythMae: 2.303, pwMae: 3.125, warpsRmse: 2.767 },
-  { season: 2018, teams: 32, warpsMae: 2.091, pythMae: 2.198, pwMae: 2.719, warpsRmse: 2.505 },
-  { season: 2019, teams: 32, warpsMae: 2.212, pythMae: 2.259, pwMae: 2.469, warpsRmse: 2.780 },
-  { season: 2020, teams: 32, warpsMae: 2.780, pythMae: 2.896, pwMae: 2.906, warpsRmse: 3.118 },
-  { season: 2021, teams: 32, warpsMae: 1.938, pythMae: 1.996, pwMae: 2.313, warpsRmse: 2.204 },
-  { season: 2022, teams: 32, warpsMae: 2.460, pythMae: 2.853, pwMae: 3.000, warpsRmse: 2.864 },
-  { season: 2023, teams: 32, warpsMae: 1.898, pythMae: 2.131, pwMae: 2.594, warpsRmse: 2.391 },
-  { season: 2024, teams: 32, warpsMae: 3.013, pythMae: 3.076, pwMae: 2.938, warpsRmse: 3.521 },
-  { season: 2025, teams: 32, warpsMae: 2.673, pythMae: 2.978, pwMae: 3.156, warpsRmse: 3.240 },
+  { season: 2015, teams: 32, warpsMae: 2.301, pythMae: 2.485, pwMae: 2.688, warpsRmse: 2.885, vegasMae: 2.234 },
+  { season: 2016, teams: 32, warpsMae: 2.425, pythMae: 2.597, pwMae: 2.844, warpsRmse: 2.922, vegasMae: 2.234 },
+  { season: 2017, teams: 32, warpsMae: 2.217, pythMae: 2.303, pwMae: 3.125, warpsRmse: 2.767, vegasMae: 2.312 },
+  { season: 2018, teams: 32, warpsMae: 2.091, pythMae: 2.198, pwMae: 2.719, warpsRmse: 2.505, vegasMae: 2.078 },
+  { season: 2019, teams: 32, warpsMae: 2.212, pythMae: 2.259, pwMae: 2.469, warpsRmse: 2.780, vegasMae: 1.984 },
+  { season: 2020, teams: 32, warpsMae: 2.780, pythMae: 2.896, pwMae: 2.906, warpsRmse: 3.118, vegasMae: 2.297 },
+  { season: 2021, teams: 32, warpsMae: 1.938, pythMae: 1.996, pwMae: 2.313, warpsRmse: 2.204, vegasMae: 1.594 },
+  { season: 2022, teams: 32, warpsMae: 2.460, pythMae: 2.853, pwMae: 3.000, warpsRmse: 2.864, vegasMae: 2.469 },
+  { season: 2023, teams: 32, warpsMae: 1.898, pythMae: 2.131, pwMae: 2.594, warpsRmse: 2.391, vegasMae: 1.875 },
+  { season: 2024, teams: 32, warpsMae: 3.013, pythMae: 3.076, pwMae: 2.938, warpsRmse: 3.521, vegasMae: 2.859 },
+  { season: 2025, teams: 32, warpsMae: 2.673, pythMae: 2.978, pwMae: 3.156, warpsRmse: 3.240, vegasMae: 2.438 },
 ];
 
 export const calibrationData: CalibrationRow[] = [
@@ -135,6 +142,12 @@ export const bootstrapStats: BootstrapStats = {
   dmVsPwVal: { stat: 2.485, pval: 0.0065, sig: "**" },
   seasonsBeatingPyth: 25,
   totalSeasons: 26,
+  // Vegas market benchmark: PFR-verified preseason lines, 2015-2025, n=352 team-seasons
+  vegasMaeOverlap: 2.216,
+  vegasMaeOverlapCi: [2.058, 2.375],
+  vegasOverlapSeasons: 11,
+  seasonsBeatingVegas: 2,
+  dmVsVegasOverlap: { stat: 3.427, pval: 0.0006, sig: "***" },
 };
 
 export const consensusData: ConsensusRow[] = [

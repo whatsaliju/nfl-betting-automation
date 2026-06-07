@@ -216,7 +216,38 @@ print(f"  {'Season':>8} {'N':>5} {'Season units':>14} {'Cumulative':>12}")
 for _, row in cumulative_by_season.iterrows():
     print(f"  {int(row['season']):>8} {int(row['n']):>5} {row['units']:>+14.3f} {row['cum_units']:>+12.3f}")
 
-# ── 10. Key metrics summary ───────────────────────────────────────────────────────
+# ── 10. Vegas MAE as market benchmark ────────────────────────────────────────────
+print("\n\n" + "=" * 78)
+print("VEGAS MARKET BENCHMARK — MAE vs Actual Wins (2003-2020)")
+print("=" * 78)
+df["vegas_error"] = df["line"] - df["actual_wins"]
+warps_mae_overlap = np.mean(np.abs(df["warps_wins"] - df["actual_wins"]))
+vegas_mae_overlap = np.mean(np.abs(df["vegas_error"]))
+pyth_mae_overlap  = np.mean(np.abs(df["pyth_fc"] - df["actual_wins"]))
+print(f"Vegas preseason lines MAE: {vegas_mae_overlap:.3f} wins/team")
+print(f"WARPS v1.8 MAE:            {warps_mae_overlap:.3f} wins/team")
+print(f"Pythagorean baseline MAE:  {pyth_mae_overlap:.3f} wins/team")
+print(f"\nVegas advantage vs WARPS:  {warps_mae_overlap - vegas_mae_overlap:+.3f} wins/team")
+print(f"WARPS advantage vs Pyth:   {pyth_mae_overlap - warps_mae_overlap:+.3f} wins/team")
+print("\nBy-season Vegas MAE vs WARPS:")
+print(f"  {'Season':>8}  {'Vegas MAE':>10}  {'WARPS MAE':>10}  {'Winner':>8}")
+for season in sorted(df["season"].unique()):
+    s = df[df["season"] == season]
+    vmae = np.mean(np.abs(s["line"] - s["actual_wins"]))
+    wmae = np.mean(np.abs(s["warps_wins"] - s["actual_wins"]))
+    winner = "Vegas" if vmae < wmae else "WARPS"
+    print(f"  {int(season):>8}  {vmae:>10.3f}  {wmae:>10.3f}  {winner:>8}")
+seasons_vegas_wins = sum(
+    np.mean(np.abs(df[df["season"]==s]["line"] - df[df["season"]==s]["actual_wins"])) <
+    np.mean(np.abs(df[df["season"]==s]["warps_wins"] - df[df["season"]==s]["actual_wins"]))
+    for s in df["season"].unique()
+)
+total_seasons = df["season"].nunique()
+print(f"\nVegas beats WARPS: {seasons_vegas_wins}/{total_seasons} seasons (2003-2020)")
+print("Interpretation: Vegas incorporates more information. WARPS value is in edge identification,")
+print("  not superior raw win prediction accuracy.")
+
+# ── 11. Key metrics summary ───────────────────────────────────────────────────────
 r_total = simulate(df, "edge_v18", 1.0)
 r_high  = simulate(df, "edge_v18", 2.0)
 r_cons  = simulate(df[df["consensus_dir"] != 0], "avg_edge_3m", 1.0, "consensus_dir")
