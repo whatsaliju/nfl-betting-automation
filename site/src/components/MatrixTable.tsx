@@ -16,6 +16,7 @@ interface Props {
   expectations: Record<string, TeamExpectation>;
   results: GameResult[];
   showCellResults: boolean;
+  vegasLines: Record<string, number | null>;
   onSelectTeam: (team: string | null) => void;
   onOpenTeam: (team: TeamProfile) => void;
 }
@@ -77,7 +78,7 @@ function formatMetric(value: number | null) {
   return typeof value === "number" ? value : "-";
 }
 
-export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle, metricLegend, engineCells, selectedTeam, showHeatmap, expectations, results, showCellResults, onSelectTeam, onOpenTeam }: Props) {
+export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle, metricLegend, engineCells, selectedTeam, showHeatmap, expectations, results, showCellResults, vegasLines, onSelectTeam, onOpenTeam }: Props) {
   const resultIndex = showCellResults ? buildResultIndex(results) : new Map<string, GameResult>();
   const recordIndex = buildRecordIndex(results);
 
@@ -149,7 +150,26 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
                 </td>
                 <td className="subtle-cell">{divAbbr(team.division)}</td>
                 <td>{team.sos}</td>
-                <td>{formatMetric(team.projectedWins)}</td>
+                <td className={(() => {
+                  const vl = vegasLines[team.name] ?? null;
+                  const aw: number | null = exp?.actual_wins ?? team.projectedWins ?? null;
+                  if (vl === null || aw === null) return "";
+                  return aw > vl ? "ou-hit" : aw < vl ? "ou-miss" : "";
+                })()}>
+                  {(() => {
+                    const vl = vegasLines[team.name] ?? null;
+                    const aw: number | null = exp?.actual_wins ?? team.projectedWins ?? null;
+                    if (vl === null) return formatMetric(team.projectedWins);
+                    const ouResult = aw !== null ? (aw > vl ? "over" : aw < vl ? "under" : "push") : null;
+                    return (
+                      <span className="ou-cell">
+                        <span className="ou-line">{vl}</span>
+                        {ouResult === "over" && <span className="ou-check">✓</span>}
+                        {ouResult === "under" && <span className="ou-x">✗</span>}
+                      </span>
+                    );
+                  })()}
+                </td>
                 <td>{team.restAdvantages}</td>
                 <td>{team.significantTravel}</td>
                 {weeks.map((week) => {

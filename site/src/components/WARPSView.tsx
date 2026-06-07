@@ -1,7 +1,7 @@
 import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, FileText, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { teamLogos } from "../data/nflData";
-import { bootstrapStats, byYearData, calibrationData, consensusData, metricRanking } from "../data/warpsData";
+import { bootstrapStats, byYearData, calibrationData, consensusData, metricRanking, pnlByYear, profitabilityData } from "../data/warpsData";
 
 type WARPSTab = "slate" | "performance" | "methodology" | "paper";
 
@@ -125,6 +125,98 @@ function CalibrationChart() {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function ProfitabilitySection() {
+  const minCum = Math.min(...pnlByYear.map((d) => d.cumUnits));
+  const maxCum = Math.max(...pnlByYear.map((d) => Math.abs(d.cumUnits))) + 2;
+  const W = 500; const H = 140; const padL = 40; const padR = 12;
+  const padT = 12; const padB = 28;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const zeroY = padT + chartH * (1 - (0 - minCum) / (maxCum - minCum));
+
+  function x(i: number) { return padL + (i / (pnlByYear.length - 1)) * chartW; }
+  function y(v: number) { return padT + chartH - ((v - minCum) / (maxCum - minCum)) * chartH; }
+
+  const pathD = pnlByYear.map((d, i) => `${i === 0 ? "M" : "L"}${x(i)},${y(d.cumUnits)}`).join(" ");
+
+  return (
+    <div className="warps-profitability">
+      <h4 className="warps-subsection">Profitability vs. Vegas Win Totals — 2003–2020</h4>
+      <div className="warps-explainer" style={{ marginBottom: "12px" }}>
+        <span>
+          We simulated betting WARPS edges against actual Vegas opening lines for 18 seasons using actual published odds.
+          Break-even at standard -110 juice requires a <strong>47.6% win rate</strong>. Neither WARPS nor Pythagorean clears
+          that bar overall — Vegas lines are remarkably efficient for this class of public information.
+          But calibration at the extremes tells a different story: at ≥2.0 win edges, WARPS breaks even (+0.9% ROI)
+          while Pythagorean collapses to -20.4% ROI, confirming WARPS's regression-to-mean adjustment prevents
+          systematic overconfidence at extreme predictions.
+        </span>
+      </div>
+
+      <table className="warps-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Min edge</th>
+            <th>Bets</th>
+            <th>Win%</th>
+            <th>Units</th>
+            <th>ROI</th>
+            <th>vs break-even</th>
+          </tr>
+        </thead>
+        <tbody>
+          {profitabilityData.map((row, i) => (
+            <tr key={i} className={row.roiPct >= 0 ? "warps-winner-row" : ""}>
+              <td>{row.model}</td>
+              <td>≥ {row.threshold.toFixed(1)} win</td>
+              <td>{row.n}</td>
+              <td className={row.winPct >= 47.6 ? "warps-pos" : "warps-neg"}>{row.winPct.toFixed(1)}%</td>
+              <td className={row.units >= 0 ? "warps-pos" : "warps-neg"}>{row.units > 0 ? "+" : ""}{row.units.toFixed(2)}</td>
+              <td className={row.roiPct >= 0 ? "warps-pos" : "warps-neg"}>{row.roiPct > 0 ? "+" : ""}{row.roiPct.toFixed(1)}%</td>
+              <td className={row.winPct - 47.6 >= 0 ? "warps-pos" : "warps-neg"}>{(row.winPct - 47.6) > 0 ? "+" : ""}{(row.winPct - 47.6).toFixed(1)} pp</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="warps-chart-note">Actual opening odds from nflverse/nfldata. 571 team-seasons with Vegas lines, 2003–2020. Units wagered = 1.0 per qualifying bet. pp = percentage points vs 47.6% break-even.</p>
+
+      <h4 className="warps-subsection" style={{ marginTop: "20px" }}>Cumulative P&L — WARPS v1.8 at Edge ≥ 1.0 Win (2003–2020)</h4>
+      <div className="warps-chart-wrap">
+        <svg viewBox={`0 0 ${W} ${H}`} className="warps-svg">
+          {/* Zero line */}
+          <line x1={padL} y1={zeroY} x2={W - padR} y2={zeroY} stroke="#94a3b8" strokeWidth={1} strokeDasharray="4 2" />
+          {/* Grid */}
+          {[-15, -10, -5, 0].map((v) => (
+            <g key={v}>
+              <line x1={padL} y1={y(v)} x2={W - padR} y2={y(v)} stroke="#f1f5f9" strokeWidth={1} />
+              <text x={padL - 4} y={y(v) + 3} textAnchor="end" fontSize={9} fill="#94a3b8">{v}</text>
+            </g>
+          ))}
+          {/* P&L line */}
+          <path d={pathD} fill="none" stroke="#ef4444" strokeWidth={2} />
+          {/* Dots */}
+          {pnlByYear.map((d, i) => (
+            <circle key={d.season} cx={x(i)} cy={y(d.cumUnits)} r={3}
+              fill={d.cumUnits >= 0 ? "#16a34a" : "#ef4444"} />
+          ))}
+          {/* Year labels — every other */}
+          {pnlByYear.filter((_, i) => i % 3 === 0).map((d, _, arr) => {
+            const origIdx = pnlByYear.findIndex((r) => r.season === d.season);
+            return (
+              <text key={d.season} x={x(origIdx)} y={H - padB + 14} textAnchor="middle" fontSize={9} fill="#64748b">
+                {String(d.season).slice(2)}
+              </text>
+            );
+          })}
+          <text x={padL - 4} y={padT - 2} textAnchor="end" fontSize={9} fill="#94a3b8">units</text>
+        </svg>
+      </div>
+      <p className="warps-chart-note">Each dot = cumulative P&L through that season betting all WARPS v1.8 picks with edge ≥ 1.0 win, 1 unit flat per bet. Dataset ends 2020 (last season in nflverse historical win totals).</p>
     </div>
   );
 }
@@ -478,6 +570,8 @@ function PerformanceTab() {
       <h4 className="warps-subsection">Season-by-Season Error — WARPS vs Baselines (2000–2025)</h4>
       <ByYearChart />
 
+      <ProfitabilitySection />
+
       <CalibrationChart />
     </div>
   );
@@ -641,6 +735,22 @@ function PaperTab() {
         <a href="https://github.com/whatsaliju/nfl-betting-automation" target="_blank" rel="noreferrer">
           github.com/whatsaliju/nfl-betting-automation
         </a>
+      </div>
+      <div className="paper-rights">
+        <span>© 2026 Liju Varughese.</span>
+        {" "}
+        <span>
+          Licensed under{" "}
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC-BY 4.0</a>
+          {" "}— free to share and cite with attribution.
+          Code:{" "}
+          <a href="https://github.com/whatsaliju/nfl-betting-automation/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT License</a>.
+        </span>
+        {" "}
+        <span>
+          <strong>"WARPS"</strong> and <strong>"Win Average Regression Predictive Score"</strong> are
+          original terminology by Liju Varughese. Commercial use of the WARPS name requires written permission.
+        </span>
       </div>
 
       <h3 className="paper-section">Abstract</h3>

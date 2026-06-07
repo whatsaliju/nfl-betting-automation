@@ -11,6 +11,7 @@ import { WARPSView } from "./components/WARPSView";
 import { TeamModal } from "./components/TeamModal";
 import { WeekView } from "./components/WeekView";
 import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDisplayTeamStats, getSeasonResults, getSeasonSchedule, indexEdgeBoard, indexEngineCells, loadEngineFeed, postseasonCells } from "./lib/schedule";
+import { historicalVegasLines } from "./data/nflData";
 import type { EngineFeed, Filter, TeamProfile } from "./types";
 
 type ViewMode = "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps";
@@ -90,19 +91,33 @@ function App() {
     ? {
         label: "Vegas O/U",
         title: "Preseason Vegas regular-season win total",
-        legend: "Vegas O/U = preseason win total",
+        legend: "Vegas O/U = preseason win total · ✓ over hit · ✗ under hit",
       }
     : seasonSchedule.hasResults
       ? {
-          label: "Final W",
-          title: "Completed regular-season wins",
-          legend: "Final W = regular-season wins",
+          label: "O/U Result",
+          title: "Did the team beat their Vegas preseason win total?",
+          legend: "O/U = Vegas preseason line · ✓ over hit · ✗ under hit",
         }
       : {
           label: "Wins TBD",
           title: "Future season wins are not available yet",
           legend: "Wins TBD = future season",
         };
+
+  // Resolve Vegas lines for the selected season (historical lookup or engine feed)
+  const seasonVegasLines = useMemo((): Record<string, number | null> => {
+    const hist = historicalVegasLines[String(selectedSeason)];
+    if (hist) return hist;
+    if (hasEngineForSeason) {
+      const out: Record<string, number | null> = {};
+      for (const [team, exp] of Object.entries(teamExpectations)) {
+        out[team] = exp.vegas_win_total ?? null;
+      }
+      return out;
+    }
+    return {};
+  }, [selectedSeason, hasEngineForSeason, teamExpectations]);
 
   useEffect(() => {
     loadEngineFeed()
@@ -271,6 +286,7 @@ function App() {
             expectations={teamExpectations}
             results={seasonResults}
             showCellResults={showResults}
+            vegasLines={seasonVegasLines}
             onSelectTeam={setSelectedTeam}
             onOpenTeam={setModalTeam}
           />
