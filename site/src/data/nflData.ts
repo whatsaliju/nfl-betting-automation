@@ -89,6 +89,17 @@ export const teamLogos: Record<string, string> = Object.fromEntries(
     .concat([["WAS", "https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png"]])
 );
 
+// Historical preseason Vegas win totals (nflverse/nfldata, 2015-2020)
+// LA = LAR (Rams first year in LA), LAC includes SD era
+export const historicalVegasLines: Record<string, Record<string, number>> = {
+  "2015": { ARI:8.5,ATL:8.5,BAL:9.0,BUF:8.5,CAR:8.5,CHI:6.5,CIN:8.5,CLE:6.5,DAL:9.5,DEN:10.0,DET:8.5,GB:11.0,HOU:8.5,IND:10.5,JAX:5.5,KC:8.5,LAC:8.0,LAR:7.5,LV:5.5,MIA:9.0,MIN:8.0,NE:10.5,NO:8.5,NYG:8.0,NYJ:7.5,PHI:10.0,PIT:8.5,SEA:11.0,SF:6.5,TB:6.0,TEN:5.5,WAS:6.0 },
+  "2016": { ARI:10.0,ATL:7.0,BAL:8.5,BUF:8.0,CAR:10.5,CHI:7.5,CIN:9.5,CLE:4.5,DAL:8.5,DEN:9.5,DET:7.0,GB:10.5,HOU:8.5,IND:9.0,JAX:7.5,KC:9.5,LAC:7.0,LAR:7.5,LV:8.5,MIA:7.0,MIN:8.5,NE:10.5,NO:7.0,NYG:8.5,NYJ:8.0,PHI:6.5,PIT:10.5,SEA:10.5,SF:5.5,TB:7.0,TEN:6.0,WAS:7.5 },
+  "2017": { ARI:8.5,ATL:9.5,BAL:8.5,BUF:6.5,CAR:9.0,CHI:5.5,CIN:8.5,CLE:4.5,DAL:9.5,DEN:8.0,DET:7.5,GB:10.5,HOU:8.5,IND:8.0,JAX:6.5,KC:9.0,LAC:7.5,LAR:6.0,LV:9.5,MIA:7.0,MIN:8.5,NE:12.5,NO:8.0,NYG:9.0,NYJ:3.5,PHI:8.5,PIT:10.5,SEA:10.5,SF:5.0,TB:8.5,TEN:9.0,WAS:7.5 },
+  "2018": { ARI:6.0,ATL:9.5,BAL:8.5,BUF:5.5,CAR:8.5,CHI:7.5,CIN:7.0,CLE:6.0,DAL:8.5,DEN:7.0,DET:7.5,GB:10.0,HOU:8.5,IND:7.5,JAX:9.0,KC:8.5,LAC:9.5,LAR:10.0,LV:7.5,MIA:6.5,MIN:10.0,NE:11.0,NO:9.5,NYG:7.0,NYJ:6.0,PHI:10.5,PIT:10.5,SEA:7.5,SF:8.5,TB:6.5,TEN:8.0,WAS:7.0 },
+  "2019": { ARI:5.0,ATL:8.5,BAL:8.5,BUF:7.0,CAR:8.0,CHI:9.0,CIN:6.0,CLE:9.0,DAL:9.0,DEN:7.0,DET:6.5,GB:9.0,HOU:8.5,IND:7.5,JAX:8.0,KC:10.5,LAC:10.0,LAR:10.5,LV:6.0,MIA:4.5,MIN:9.0,NE:11.5,NO:10.5,NYG:6.0,NYJ:7.5,PHI:10.0,PIT:9.5,SEA:9.0,SF:8.0,TB:6.5,TEN:8.0,WAS:6.0 },
+  "2020": { ARI:7.5,ATL:7.5,BAL:11.5,BUF:9.0,CAR:5.5,CHI:8.5,CIN:5.5,CLE:8.5,DAL:9.5,DEN:7.5,DET:6.5,GB:9.0,HOU:7.5,IND:9.0,JAX:4.5,KC:11.5,LAC:7.5,LAR:8.5,LV:7.5,MIA:6.5,MIN:9.0,NE:9.0,NO:10.5,NYG:6.5,NYJ:7.0,PHI:9.5,PIT:9.5,SEA:9.0,SF:10.5,TB:9.5,TEN:8.5,WAS:5.5 },
+};
+
 export const intlGames: Record<number, Array<[string, string, string]>> = {
   1: [["KC", "@LAC", "BR"], ["LAC", "KC", "BR"]],
   4: [["MIN", "@PIT", "IE"], ["PIT", "MIN", "IE"]],
