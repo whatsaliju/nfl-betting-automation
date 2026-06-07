@@ -54,6 +54,23 @@ export interface BootstrapStats {
   totalSeasons: number;
 }
 
+// Profitability backtest: 2003-2020 vs nflverse historical Vegas win totals
+export interface ProfitRow {
+  model: string;
+  threshold: number;
+  n: number;
+  winPct: number;
+  units: number;
+  roiPct: number;
+}
+
+export interface PnlByYearRow {
+  season: number;
+  n: number;
+  units: number;
+  cumUnits: number;
+}
+
 export const byYearData: ByYearRow[] = [
   { season: 2000, teams: 31, warpsMae: 2.456, pythMae: 2.587, pwMae: 2.774, warpsRmse: 2.800 },
   { season: 2001, teams: 31, warpsMae: 2.590, pythMae: 3.452, pwMae: 3.355, warpsRmse: 3.210 },
@@ -153,4 +170,40 @@ export const consensusData: ConsensusRow[] = [
   { team: "KC",  marketTotal: 11.5, v18Wins: 9.59,  v18Edge: -1.91, v15dEdge: -2.18, v16Edge: -1.72, avgEdge: -1.94, consensus: "3-model Under" },
   { team: "PHI", marketTotal: 11.5, v18Wins: 9.27,  v18Edge: -2.23, v15dEdge: -2.36, v16Edge: -2.07, avgEdge: -2.22, consensus: "3-model Under" },
   { team: "BUF", marketTotal: 12.5, v18Wins: 10.10, v18Edge: -2.40, v15dEdge: -2.63, v16Edge: -2.19, avgEdge: -2.40, consensus: "3-model Under" },
+];
+
+// Profitability simulation against Vegas win totals (nflverse, 2003-2020)
+// Actual opening odds used; break-even at -110 juice = 47.6% win rate
+export const profitabilityData: ProfitRow[] = [
+  { model: "WARPS v1.8",           threshold: 0.5, n: 325, winPct: 47.4, units: -29.934, roiPct: -9.6 },
+  { model: "WARPS v1.8",           threshold: 1.0, n: 155, winPct: 46.7, units: -17.250, roiPct: -11.3 },
+  { model: "WARPS v1.8",           threshold: 1.5, n:  55, winPct: 50.0, units:  -2.904, roiPct:  -5.4 },
+  { model: "WARPS v1.8",           threshold: 2.0, n:   8, winPct: 50.0, units:  +0.069, roiPct:  +0.9 },
+  { model: "Pythagorean",          threshold: 1.0, n: 302, winPct: 46.7, units: -27.394, roiPct:  -9.5 },
+  { model: "Pythagorean",          threshold: 1.5, n: 179, winPct: 46.6, units: -16.847, roiPct:  -9.7 },
+  { model: "Pythagorean",          threshold: 2.0, n:  95, winPct: 40.4, units: -19.197, roiPct: -20.4 },
+  { model: "3-model consensus",    threshold: 1.0, n:  51, winPct: 47.1, units:  -3.070, roiPct:  -6.0 },
+  { model: "3-model consensus",    threshold: 1.5, n:  19, winPct: 52.6, units:  +1.812, roiPct:  +9.5 },
+];
+
+// Cumulative P&L for WARPS v1.8 (edge ≥ 1.0 win) year by year, 2003-2020
+export const pnlByYear: PnlByYearRow[] = [
+  { season: 2003, n:  6, units: -4.333, cumUnits:  -4.333 },
+  { season: 2004, n:  7, units: -1.131, cumUnits:  -5.464 },
+  { season: 2005, n: 13, units:  3.775, cumUnits:  -1.689 },
+  { season: 2006, n:  6, units: -2.466, cumUnits:  -4.155 },
+  { season: 2007, n:  6, units: -0.507, cumUnits:  -4.662 },
+  { season: 2008, n:  7, units: -1.083, cumUnits:  -5.746 },
+  { season: 2009, n:  7, units:  0.153, cumUnits:  -5.593 },
+  { season: 2010, n:  8, units: -4.200, cumUnits:  -9.793 },
+  { season: 2011, n: 13, units:  2.216, cumUnits:  -7.577 },
+  { season: 2012, n: 11, units: -3.161, cumUnits: -10.737 },
+  { season: 2013, n: 11, units: -3.175, cumUnits: -13.912 },
+  { season: 2014, n: 11, units:  0.032, cumUnits: -13.880 },
+  { season: 2015, n:  3, units:  0.625, cumUnits: -13.255 },
+  { season: 2016, n:  6, units:  0.123, cumUnits: -13.132 },
+  { season: 2017, n: 10, units:  4.031, cumUnits:  -9.101 },
+  { season: 2018, n:  9, units:  0.756, cumUnits:  -8.344 },
+  { season: 2019, n: 12, units: -1.858, cumUnits: -10.202 },
+  { season: 2020, n:  9, units: -7.048, cumUnits: -17.250 },
 ];
