@@ -1,5 +1,6 @@
 import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, FileText, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { teamLogos } from "../data/nflData";
 import { bootstrapStats, byYearData, calibrationData, consensusData, metricRanking } from "../data/warpsData";
 
 type WARPSTab = "slate" | "performance" | "methodology" | "paper";
@@ -45,7 +46,7 @@ function ByYearChart() {
   return (
     <div className="warps-chart-wrap">
       <div className="warps-chart-legend">
-        <span><span className="legend-dot" style={{ background: "#1d4ed8" }} /> WARPS v1.7</span>
+        <span><span className="legend-dot" style={{ background: "#1d4ed8" }} /> WARPS v1.8</span>
         <span><span className="legend-dot" style={{ background: "#64748b" }} /> Pythagorean</span>
         <span><span className="legend-dot" style={{ background: "#cbd7e2" }} /> Prior Wins</span>
       </div>
@@ -82,7 +83,7 @@ function ByYearChart() {
           );
         })}
       </svg>
-      <p className="warps-chart-note">Green ✓ = WARPS beats Pythagorean that season. Train: 2015–2021 · Validation: 2022–2025</p>
+      <p className="warps-chart-note">Green ✓ = WARPS beats Pythagorean that season. Train: 2000–2021 · Validation: 2022–2025</p>
     </div>
   );
 }
@@ -138,6 +139,172 @@ function StatCard({ label, value, sub, highlight }: { label: string; value: stri
   );
 }
 
+function ExplainerBanner({ icon, children }: { icon?: ReactNode; children: ReactNode }) {
+  return (
+    <div className="warps-explainer">
+      {icon && <span className="warps-explainer-icon">{icon}</span>}
+      <span>{children}</span>
+    </div>
+  );
+}
+
+function tierLabel(c: string): string {
+  if (c === "3-model Over" || c === "3-model Under") return "3-model";
+  if (c === "2-Strong Over" || c === "2-Strong Under") return "2-model";
+  if (c === "2-model Over" || c === "2-model Under") return "2-model";
+  return "—";
+}
+
+function EdgeWaterfall() {
+  const sorted = [...consensusData].sort((a, b) => b.avgEdge - a.avgEdge);
+  const maxEdge = 4.5;
+  const firstUnderIdx = sorted.findIndex((r) => r.avgEdge < 0);
+
+  return (
+    <div className="edge-waterfall">
+      <div className="waterfall-axis-labels">
+        <span>← UNDER</span>
+        <span className="waterfall-axis-mid">MARKET TOTAL</span>
+        <span>OVER →</span>
+      </div>
+      {sorted.map((row, i) => {
+        const barPct = Math.min((Math.abs(row.avgEdge) / maxEdge) * 50, 50);
+        const isOver = row.avgEdge >= 0;
+        const hasSignal = Math.abs(row.avgEdge) >= 0.5;
+        return (
+          <div key={row.team}>
+            {i === firstUnderIdx && <div className="waterfall-divider">↓ UNDER PICKS</div>}
+            <div className={`waterfall-row${hasSignal ? " wf-signal" : " wf-no-signal"}`}>
+              <img
+                src={teamLogos[row.team]}
+                className="waterfall-logo"
+                alt={row.team}
+                onError={(e) => { (e.target as HTMLImageElement).style.visibility = "hidden"; }}
+              />
+              <span className="waterfall-team">{row.team}</span>
+              <span className="waterfall-mkt">{row.marketTotal.toFixed(1)}</span>
+              <div className="waterfall-bar-container">
+                <div className="waterfall-center" />
+                <div
+                  className={`waterfall-bar ${isOver ? "wf-over" : "wf-under"}`}
+                  style={isOver
+                    ? { left: "50%", width: `${barPct}%` }
+                    : { right: "50%", width: `${barPct}%` }
+                  }
+                />
+              </div>
+              <span className={`waterfall-edge ${isOver ? "warps-pos" : "warps-neg"}`}>
+                {row.avgEdge > 0 ? "+" : ""}{row.avgEdge.toFixed(1)}
+              </span>
+              <span className="waterfall-tier-tag">{tierLabel(row.consensus)}</span>
+            </div>
+          </div>
+        );
+      })}
+      <p className="warps-chart-note">Bar width = size of edge vs. Vegas. Only teams with ≥2 model agreement are actionable. Green = over, red = under.</p>
+    </div>
+  );
+}
+
+function MarketScatter() {
+  const W = 440;
+  const H = 380;
+  const padL = 46;
+  const padR = 18;
+  const padT = 18;
+  const padB = 40;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const minV = 3.5;
+  const maxV = 13.5;
+  const logoSize = 22;
+
+  function xScale(v: number) {
+    return padL + ((v - minV) / (maxV - minV)) * chartW;
+  }
+  function yScale(v: number) {
+    return padT + chartH - ((v - minV) / (maxV - minV)) * chartH;
+  }
+
+  return (
+    <div className="warps-scatter-wrap">
+      <h4 className="warps-subsection">All 32 Teams: WARPS Projection vs. Vegas Line — 2026</h4>
+      <p className="warps-scatter-note">
+        Teams <strong className="warps-pos">above the dashed line</strong> are projected to win more than their Vegas total (over signal).
+        Teams <strong className="warps-neg">below the line</strong> are projected to win fewer (under signal).
+        Green ring = strong over pick. Red ring = strong under pick.
+      </p>
+      <div className="warps-scatter-outer">
+        <svg viewBox={`0 0 ${W} ${H}`} className="warps-scatter-svg">
+          {/* Grid lines */}
+          {[4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((v) => (
+            <g key={v}>
+              <line x1={padL} y1={yScale(v)} x2={W - padR} y2={yScale(v)} stroke="#f1f5f9" strokeWidth={1} />
+              <line x1={xScale(v)} y1={padT} x2={xScale(v)} y2={H - padB} stroke="#f1f5f9" strokeWidth={1} />
+            </g>
+          ))}
+          {/* Fair-value diagonal */}
+          <line
+            x1={xScale(minV)} y1={yScale(minV)} x2={xScale(maxV)} y2={yScale(maxV)}
+            stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="6 3"
+          />
+          {/* Axes */}
+          <line x1={padL} y1={padT} x2={padL} y2={H - padB} stroke="#cbd5e1" strokeWidth={1} />
+          <line x1={padL} y1={H - padB} x2={W - padR} y2={H - padB} stroke="#cbd5e1" strokeWidth={1} />
+          {/* Tick labels */}
+          {[4, 6, 8, 10, 12].map((v) => (
+            <g key={v}>
+              <text x={xScale(v)} y={H - padB + 14} textAnchor="middle" fontSize={9} fill="#64748b">{v}</text>
+              <text x={padL - 6} y={yScale(v) + 3} textAnchor="end" fontSize={9} fill="#64748b">{v}</text>
+            </g>
+          ))}
+          <text x={padL + chartW / 2} y={H - 4} textAnchor="middle" fontSize={10} fill="#475569">Vegas preseason win total</text>
+          <text
+            x={11}
+            y={padT + chartH / 2}
+            textAnchor="middle"
+            fontSize={10}
+            fill="#475569"
+            transform={`rotate(-90 11 ${padT + chartH / 2})`}
+          >
+            WARPS projection
+          </text>
+          {/* "Over territory" / "Under territory" labels */}
+          <text x={W - padR - 4} y={padT + 14} textAnchor="end" fontSize={9} fill="#15803d" opacity={0.7}>OVER TERRITORY</text>
+          <text x={padL + 4} y={H - padB - 6} textAnchor="start" fontSize={9} fill="#b91c1c" opacity={0.7}>UNDER TERRITORY</text>
+          {/* Team logos with ring for strong picks */}
+          {consensusData.map((row) => {
+            const cx = xScale(row.marketTotal);
+            const cy = yScale(row.v18Wins);
+            const isStrong = Math.abs(row.avgEdge) >= 1.0;
+            const isOver = row.avgEdge > 0;
+            return (
+              <g key={row.team}>
+                {isStrong && (
+                  <circle
+                    cx={cx} cy={cy}
+                    r={logoSize / 2 + 3}
+                    fill={isOver ? "#dcfce7" : "#fee2e2"}
+                    stroke={isOver ? "#16a34a" : "#ef4444"}
+                    strokeWidth={1.5}
+                  />
+                )}
+                <image
+                  href={teamLogos[row.team]}
+                  x={cx - logoSize / 2}
+                  y={cy - logoSize / 2}
+                  width={logoSize}
+                  height={logoSize}
+                />
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 function SlateTab() {
   const tiers = [
     { label: "3-Model Consensus Overs", key: "3-model Over", icon: <TrendingUp size={15} /> },
@@ -150,11 +317,20 @@ function SlateTab() {
 
   return (
     <div className="warps-slate">
+      <ExplainerBanner icon={<Activity size={15} />}>
+        Every NFL team ranked by how much our model disagrees with the Vegas preseason win total.
+        Positive edge = we project <em>more</em> wins than the line — bet the over.
+        Negative edge = we project <em>fewer</em> wins — bet the under.
+        Only teams where at least 2 of our 3 models agree are highlighted as picks.
+      </ExplainerBanner>
+
+      <EdgeWaterfall />
+
+      <h4 className="warps-subsection" style={{ marginTop: "24px" }}>Picks by conviction tier</h4>
       <div className="warps-slate-note">
         <Activity size={14} />
         Consensus requires ≥2 of 3 models (v1.5d · v1.6 · v1.8) to agree in direction.
-        Edge = projected wins minus the Vegas preseason win total. Strong signal = edge ≥ 1 win.
-        High conviction = 3-model agreement. Playable = 2-of-3 agreement.
+        Edge = projected wins minus the Vegas preseason win total.
       </div>
       {tiers.map(({ label, key, icon }) => {
         const rows = consensusData.filter((r) => r.consensus === key);
@@ -219,6 +395,16 @@ function PerformanceTab() {
   const bs = bootstrapStats;
   return (
     <div className="warps-performance">
+      <ExplainerBanner icon={<BarChart3 size={15} />}>
+        Here's the evidence the model actually works. WARPS has beaten the Pythagorean baseline in{" "}
+        <strong>{bs.seasonsBeatingPyth} of {bs.totalSeasons} NFL seasons</strong> (2000–2025).
+        The Diebold-Mariano test — the standard method for comparing forecasting models — confirms
+        this improvement is statistically significant (p&nbsp;&lt;&nbsp;0.0001), not just lucky.
+        The scatter plot shows where every team lands relative to the Vegas market.
+      </ExplainerBanner>
+
+      <MarketScatter />
+
       <div className="warps-kpi-grid">
         <StatCard
           label="Full-sample mean absolute error"
@@ -421,6 +607,13 @@ function MethodologyTab() {
 
   return (
     <div className="warps-methodology">
+      <ExplainerBanner icon={<BookOpen size={15} />}>
+        How does WARPS actually build its forecasts? The short version: take last season's team
+        efficiency stats (primarily <strong>Pythagorean win expectation</strong> — a formula that
+        strips out fluky close-game results), apply a "regression toward the mean" adjustment
+        (good teams rarely repeat perfectly), then compare the result to Vegas. Click any section
+        below to expand the details.
+      </ExplainerBanner>
       {sections.map(({ key, title, content }) => (
         <div key={key} className="warps-accordion">
           <button className="warps-accordion-head" onClick={() => toggle(key)}>
@@ -438,6 +631,11 @@ function PaperTab() {
   const bs = bootstrapStats;
   return (
     <div className="warps-paper">
+      <ExplainerBanner icon={<FileText size={15} />}>
+        The full research write-up — methods, statistical tests, data sources, and academic
+        references. Written to be readable without a statistics background; technical details
+        are clearly labeled. All data and code are open source.
+      </ExplainerBanner>
       <div className="paper-meta">
         <strong>Liju Varughese</strong> · Independent Research · June 2026 ·{" "}
         <a href="https://github.com/whatsaliju/nfl-betting-automation" target="_blank" rel="noreferrer">
