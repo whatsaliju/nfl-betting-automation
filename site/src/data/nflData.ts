@@ -138,6 +138,17 @@ export const weekStartDates = [
   "2025-12-21", "2025-12-28", "2026-01-04"
 ];
 
+export const teamColors: Record<string, string> = {
+  ARI: "#97233f", ATL: "#a71930", BAL: "#241773", BUF: "#00338d",
+  CAR: "#0085ca", CHI: "#0b162a", CIN: "#fb4f14", CLE: "#ff3c00",
+  DAL: "#003594", DEN: "#fb4f14", DET: "#0076b6", GB: "#203731",
+  HOU: "#03202f", IND: "#002c5f", JAX: "#006778", KC: "#e31837",
+  LAC: "#0080c6", LAR: "#003594", LV: "#a5acaf", MIA: "#008e97",
+  MIN: "#4f2683", NE: "#002244", NO: "#d3bc8d", NYG: "#0b2265",
+  NYJ: "#125740", PHI: "#004c54", PIT: "#ffb612", SF: "#aa0000",
+  SEA: "#002244", TB: "#d50a0a", TEN: "#4b92db", WAS: "#5a1414",
+};
+
 export function getDivision(team: string) {
   return Object.entries(divisions).find(([, teams]) => teams.includes(team))?.[0] || "Unknown";
 }

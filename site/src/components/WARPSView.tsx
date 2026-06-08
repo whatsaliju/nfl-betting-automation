@@ -1,6 +1,6 @@
 import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, FileText, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
 import { type ReactNode, useMemo, useState } from "react";
-import { teamLogos } from "../data/nflData";
+import { teamColors, teamLogos } from "../data/nflData";
 import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
 import { bootstrapStats, byYearData, calibrationData, consensusData, metricRanking, pnlByYear, profitabilityData, type ConsensusRow } from "../data/warpsData";
 
@@ -392,7 +392,8 @@ function EdgeWaterfall({ rows }: { rows: ConsensusRow[] }) {
         return (
           <div key={row.team}>
             {i === firstUnderIdx && <div className="waterfall-divider">↓ UNDER PICKS</div>}
-            <div className={`waterfall-row${hasSignal ? " wf-signal" : " wf-no-signal"}`}>
+            <div className={`waterfall-row${hasSignal ? " wf-signal" : " wf-no-signal"}`}
+              style={{ borderLeft: `3px solid ${teamColors[row.team] ?? "#dce3ea"}` }}>
               <img
                 src={teamLogos[row.team]}
                 className="waterfall-logo"
@@ -617,7 +618,8 @@ function SlateTab({
                 const isOver = row.avgEdge >= 0;
                 const qbInfo = qbAdjMap.get(row.team);
                 return (
-                  <div key={row.team} className={`warps-pick-card ${isOver ? "pick-over" : "pick-under"}`}>
+                  <div key={row.team} className={`warps-pick-card ${isOver ? "pick-over" : "pick-under"}`}
+                    style={{ borderLeftColor: teamColors[row.team], borderLeftWidth: "4px" }}>
                     <div className="pick-card-header">
                       <img
                         src={teamLogos[row.team]}
