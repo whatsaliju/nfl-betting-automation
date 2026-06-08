@@ -282,9 +282,9 @@ function ProfitabilitySection() {
                 <td>{row.model}</td>
                 <td>≥ {row.threshold.toFixed(1)}w</td>
                 <td>{row.n}</td>
-                <td className={row.winPct >= 52.4 ? "warps-pos" : "warps-neg"}>{row.winPct.toFixed(1)}%</td>
+                <td className={row.winPct >= BEP_110 * 100 ? "warps-pos" : "warps-neg"}>{row.winPct.toFixed(1)}%</td>
                 <td className={row.roiPct >= 0 ? "warps-pos" : "warps-neg"}>{row.roiPct > 0 ? "+" : ""}{row.roiPct.toFixed(1)}%</td>
-                <td className={row.winPct - 52.4 >= 0 ? "warps-pos" : "warps-neg"}>{(row.winPct - 52.4) > 0 ? "+" : ""}{(row.winPct - 52.4).toFixed(1)}pp</td>
+                <td className={row.winPct - BEP_110 * 100 >= 0 ? "warps-pos" : "warps-neg"}>{(row.winPct - BEP_110 * 100) > 0 ? "+" : ""}{(row.winPct - BEP_110 * 100).toFixed(1)}pp</td>
                 <td>
                   <div className="roi-bar-wrap">
                     <div className={`roi-bar ${row.roiPct >= 0 ? "roi-pos" : "roi-neg"}`}
@@ -536,7 +536,8 @@ function MarketScatter({ rows, qbAdjMap }: { rows: ConsensusRow[]; qbAdjMap: Map
           {/* "Over territory" / "Under territory" labels */}
           <text x={W - padR - 4} y={padT + 14} textAnchor="end" fontSize={9} fill="#15803d" opacity={0.7}>OVER TERRITORY</text>
           <text x={padL + 4} y={H - padB - 6} textAnchor="start" fontSize={9} fill="#b91c1c" opacity={0.7}>UNDER TERRITORY</text>
-          {/* QB adj ghost positions (original WARPS) */}
+          {/* QB adj ghost positions: intentionally reads base consensusData (not props rows)
+              so ghosts always show the original unadjusted positions regardless of QB toggle state */}
           {hasQbAdj && consensusData.map((orig) => {
             const info = qbAdjMap.get(orig.team);
             if (!info) return null;
@@ -613,10 +614,10 @@ function SlateTab({
 }) {
   const tiers = [
     { label: "3-Model Consensus Overs", key: "3-model Over", icon: <TrendingUp size={15} /> },
-    { label: "2-of-3 Model Overs", key: "2-Strong Over", icon: <TrendingUp size={15} /> },
+    { label: "3-Model Overs (Moderate)", key: "2-Strong Over", icon: <TrendingUp size={15} /> },
     { label: "2-of-3 Overs (one model split)", key: "2-model Over", icon: <TrendingUp size={15} /> },
     { label: "3-Model Consensus Unders", key: "3-model Under", icon: <TrendingDown size={15} /> },
-    { label: "2-of-3 Model Unders", key: "2-Strong Under", icon: <TrendingDown size={15} /> },
+    { label: "3-Model Unders (Moderate)", key: "2-Strong Under", icon: <TrendingDown size={15} /> },
     { label: "2-of-3 Unders (one model split)", key: "2-model Under", icon: <TrendingDown size={15} /> },
   ];
 
