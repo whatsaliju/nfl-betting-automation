@@ -1,7 +1,8 @@
 import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, FileText, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { teamLogos } from "../data/nflData";
-import { bootstrapStats, byYearData, calibrationData, consensusData, metricRanking, pnlByYear, profitabilityData } from "../data/warpsData";
+import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
+import { bootstrapStats, byYearData, calibrationData, consensusData, metricRanking, pnlByYear, profitabilityData, type ConsensusRow } from "../data/warpsData";
 
 type WARPSTab = "slate" | "performance" | "methodology" | "paper";
 
@@ -20,6 +21,40 @@ function edgeColor(edge: number): string {
   if (edge >= -1.0) return "#fca5a5";
   if (edge >= -2.5) return "#ef4444";
   return "#b91c1c";
+}
+
+function computeConsensus(v18: number, v15d: number, v16: number): string {
+  const edges = [v18, v15d, v16];
+  const avg = (v18 + v15d + v16) / 3;
+  const strongOvers = edges.filter((e) => e >= 1.0).length;
+  const strongUnders = edges.filter((e) => e <= -1.0).length;
+  if (strongOvers === 3 && avg >= 1.5) return "3-model Over";
+  if (strongOvers === 3) return "2-Strong Over";
+  if (strongOvers >= 2) return "2-model Over";
+  if (strongUnders === 3 && avg <= -1.5) return "3-model Under";
+  if (strongUnders === 3) return "2-Strong Under";
+  if (strongUnders >= 2) return "2-model Under";
+  return "Split / No bet";
+}
+
+function applyQbAdj(rows: ConsensusRow[], qbAdjMap: Map<string, QBAdjResult>): ConsensusRow[] {
+  return rows.map((row) => {
+    const info = qbAdjMap.get(row.team);
+    if (!info) return row;
+    const { adj } = info;
+    const v18Edge = row.v18Edge + adj;
+    const v15dEdge = row.v15dEdge + adj;
+    const v16Edge = row.v16Edge + adj;
+    return {
+      ...row,
+      v18Edge,
+      v15dEdge,
+      v16Edge,
+      v18Wins: row.v18Wins + adj,
+      avgEdge: (v18Edge + v15dEdge + v16Edge) / 3,
+      consensus: computeConsensus(v18Edge, v15dEdge, v16Edge),
+    };
+  });
 }
 
 function sigBadge(sig: string) {
@@ -338,8 +373,8 @@ function tierLabel(c: string): string {
   return "—";
 }
 
-function EdgeWaterfall() {
-  const sorted = [...consensusData].sort((a, b) => b.avgEdge - a.avgEdge);
+function EdgeWaterfall({ rows }: { rows: ConsensusRow[] }) {
+  const sorted = [...rows].sort((a, b) => b.avgEdge - a.avgEdge);
   const maxEdge = 4.5;
   const firstUnderIdx = sorted.findIndex((r) => r.avgEdge < 0);
 
@@ -389,7 +424,7 @@ function EdgeWaterfall() {
   );
 }
 
-function MarketScatter() {
+function MarketScatter({ rows, qbAdjMap }: { rows: ConsensusRow[]; qbAdjMap: Map<string, QBAdjResult> }) {
   const W = 440;
   const H = 380;
   const padL = 46;
@@ -401,6 +436,7 @@ function MarketScatter() {
   const minV = 3.5;
   const maxV = 13.5;
   const logoSize = 22;
+  const hasQbAdj = qbAdjMap.size > 0;
 
   function xScale(v: number) {
     return padL + ((v - minV) / (maxV - minV)) * chartW;
@@ -416,6 +452,7 @@ function MarketScatter() {
         Teams <strong className="warps-pos">above the dashed line</strong> are projected to win more than their Vegas total (over signal).
         Teams <strong className="warps-neg">below the line</strong> are projected to win fewer (under signal).
         Green ring = strong over pick. Red ring = strong under pick.
+        {hasQbAdj && " Dashed ring = QB-adjusted position."}
       </p>
       <div className="warps-scatter-outer">
         <svg viewBox={`0 0 ${W} ${H}`} className="warps-scatter-svg">
@@ -455,8 +492,26 @@ function MarketScatter() {
           {/* "Over territory" / "Under territory" labels */}
           <text x={W - padR - 4} y={padT + 14} textAnchor="end" fontSize={9} fill="#15803d" opacity={0.7}>OVER TERRITORY</text>
           <text x={padL + 4} y={H - padB - 6} textAnchor="start" fontSize={9} fill="#b91c1c" opacity={0.7}>UNDER TERRITORY</text>
+          {/* QB adj ghost positions (original WARPS) */}
+          {hasQbAdj && consensusData.map((orig) => {
+            const info = qbAdjMap.get(orig.team);
+            if (!info) return null;
+            return (
+              <circle
+                key={`ghost-${orig.team}`}
+                cx={xScale(orig.marketTotal)}
+                cy={yScale(orig.v18Wins)}
+                r={logoSize / 2 + 4}
+                fill="none"
+                stroke="#94a3b8"
+                strokeWidth={1}
+                strokeDasharray="3 2"
+                opacity={0.5}
+              />
+            );
+          })}
           {/* Team logos with ring for strong picks */}
-          {consensusData.map((row) => {
+          {rows.map((row) => {
             const cx = xScale(row.marketTotal);
             const cy = yScale(row.v18Wins);
             const isStrong = Math.abs(row.avgEdge) >= 1.0;
@@ -488,7 +543,17 @@ function MarketScatter() {
   );
 }
 
-function SlateTab() {
+function SlateTab({
+  rows,
+  qbAdjMap,
+  showQbAdj,
+  onToggleQbAdj,
+}: {
+  rows: ConsensusRow[];
+  qbAdjMap: Map<string, QBAdjResult>;
+  showQbAdj: boolean;
+  onToggleQbAdj: () => void;
+}) {
   const tiers = [
     { label: "3-Model Consensus Overs", key: "3-model Over", icon: <TrendingUp size={15} /> },
     { label: "2-of-3 Model Overs", key: "2-Strong Over", icon: <TrendingUp size={15} /> },
@@ -500,14 +565,38 @@ function SlateTab() {
 
   return (
     <div className="warps-slate">
-      <ExplainerBanner icon={<Activity size={15} />}>
-        Every NFL team ranked by how much our model disagrees with the Vegas preseason win total.
-        Positive edge = we project <em>more</em> wins than the line — bet the over.
-        Negative edge = we project <em>fewer</em> wins — bet the under.
-        Only teams where at least 2 of our 3 models agree are highlighted as picks.
-      </ExplainerBanner>
+      <div className="slate-header-row">
+        <ExplainerBanner icon={<Activity size={15} />}>
+          Every NFL team ranked by how much our model disagrees with the Vegas preseason win total.
+          Positive edge = we project <em>more</em> wins than the line — bet the over.
+          Negative edge = we project <em>fewer</em> wins — bet the under.
+          Only teams where at least 2 of our 3 models agree are highlighted as picks.
+        </ExplainerBanner>
+        <div className="qb-adj-control">
+          <label className="toggle qb-toggle" title={`${qbChanges2026.length} QB changes tracked for 2026 offseason`}>
+            <input type="checkbox" checked={showQbAdj} onChange={onToggleQbAdj} />
+            <span className="qb-toggle-label">
+              {showQbAdj ? "WARPS + QB adj" : "WARPS v1.8 pure"}
+            </span>
+          </label>
+          {showQbAdj && (
+            <div className="qb-adj-summary">
+              {qbChanges2026.map((c) => {
+                const adj = qbAdjMap.get(c.team);
+                if (!adj) return null;
+                return (
+                  <span key={c.team} className={`qb-change-chip ${adj.adj > 0 ? "qb-pos" : "qb-neg"}`}
+                    title={`${c.outQb} (${QB_TIER_LABEL[c.outTier]}) → ${c.inQb} (${QB_TIER_LABEL[c.inTier]})`}>
+                    {c.team} {adj.adj > 0 ? "+" : ""}{adj.adj.toFixed(1)}
+                  </span>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
 
-      <EdgeWaterfall />
+      <EdgeWaterfall rows={rows} />
 
       <h4 className="warps-subsection" style={{ marginTop: "24px" }}>Picks by conviction tier</h4>
       <div className="warps-slate-note">
@@ -516,16 +605,17 @@ function SlateTab() {
         Edge = projected wins minus the Vegas preseason win total.
       </div>
       {tiers.map(({ label, key, icon }) => {
-        const rows = consensusData.filter((r) => r.consensus === key);
-        if (!rows.length) return null;
+        const tierRows = rows.filter((r) => r.consensus === key);
+        if (!tierRows.length) return null;
         return (
           <div key={key} className="warps-tier">
             <h4 className={`warps-tier-head ${consensusClass(key)}`}>
-              {icon} {label} ({rows.length})
+              {icon} {label} ({tierRows.length})
             </h4>
             <div className="warps-pick-grid">
-              {rows.map((row) => {
+              {tierRows.map((row) => {
                 const isOver = row.avgEdge >= 0;
+                const qbInfo = qbAdjMap.get(row.team);
                 return (
                   <div key={row.team} className={`warps-pick-card ${isOver ? "pick-over" : "pick-under"}`}>
                     <div className="pick-card-header">
@@ -560,6 +650,12 @@ function SlateTab() {
                         title={`v1.8: ${row.v18Edge > 0 ? "+" : ""}${row.v18Edge.toFixed(1)}`}
                       >1.8</span>
                     </div>
+                    {qbInfo && (
+                      <div className={`qb-badge ${qbInfo.adj > 0 ? "qb-pos" : "qb-neg"}`}
+                        title={`${qbInfo.change.outQb} → ${qbInfo.change.inQb}`}>
+                        QB {qbInfo.adj > 0 ? "+" : ""}{qbInfo.adj.toFixed(1)}w
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -569,14 +665,14 @@ function SlateTab() {
       })}
       <div className="warps-slate-footer">
         <span className="warps-no-bet-note">
-          {consensusData.filter((r) => r.consensus === "Split / No bet").length} teams with split signals — no bet recommended.
+          {rows.filter((r) => r.consensus === "Split / No bet").length} teams with split signals — no bet recommended.
         </span>
       </div>
     </div>
   );
 }
 
-function PerformanceTab() {
+function PerformanceTab({ rows, qbAdjMap }: { rows: ConsensusRow[]; qbAdjMap: Map<string, QBAdjResult> }) {
   const bs = bootstrapStats;
   return (
     <div className="warps-performance">
@@ -590,7 +686,7 @@ function PerformanceTab() {
         "does WARPS predict wins better than Vegas?" but "can WARPS identify <em>which specific</em> bets Vegas has mispriced?"
       </ExplainerBanner>
 
-      <MarketScatter />
+      <MarketScatter rows={rows} qbAdjMap={qbAdjMap} />
 
       <BenchmarkStrip />
 
@@ -1045,8 +1141,24 @@ function PaperTab() {
 
 export function WARPSView() {
   const [tab, setTab] = useState<WARPSTab>("slate");
+  const [showQbAdj, setShowQbAdj] = useState(false);
 
-  const highConviction = consensusData.filter(
+  const qbAdjMap = useMemo((): Map<string, QBAdjResult> => {
+    if (!showQbAdj) return new Map();
+    const map = new Map<string, QBAdjResult>();
+    for (const change of qbChanges2026) {
+      const info = getQbAdjustment(change.team);
+      if (info) map.set(change.team, info);
+    }
+    return map;
+  }, [showQbAdj]);
+
+  const displayData = useMemo(
+    () => (showQbAdj ? applyQbAdj(consensusData, qbAdjMap) : consensusData),
+    [showQbAdj, qbAdjMap]
+  );
+
+  const highConviction = displayData.filter(
     (r) => r.consensus === "3-model Over" || r.consensus === "3-model Under"
   ).length;
 
@@ -1054,7 +1166,7 @@ export function WARPSView() {
     <section className="panel warps-panel">
       <div className="panel-toolbar">
         <div>
-          <h2>WARPS-NFL v1.8</h2>
+          <h2>WARPS-NFL v1.8{showQbAdj ? " + QB adj" : ""}</h2>
           <p className="panel-subtitle">Win Average Regression Predictive Score · 2026 season · 26-season backtest · 3-model consensus screen</p>
         </div>
         <span className="status-pill ok">
@@ -1100,8 +1212,15 @@ export function WARPSView() {
         </button>
       </div>
 
-      {tab === "slate" && <SlateTab />}
-      {tab === "performance" && <PerformanceTab />}
+      {tab === "slate" && (
+        <SlateTab
+          rows={displayData}
+          qbAdjMap={qbAdjMap}
+          showQbAdj={showQbAdj}
+          onToggleQbAdj={() => setShowQbAdj((v) => !v)}
+        />
+      )}
+      {tab === "performance" && <PerformanceTab rows={displayData} qbAdjMap={qbAdjMap} />}
       {tab === "methodology" && <MethodologyTab />}
       {tab === "paper" && <PaperTab />}
     </section>
