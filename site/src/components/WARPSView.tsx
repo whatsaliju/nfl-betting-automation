@@ -95,41 +95,49 @@ function ByYearChart() {
 
 function CalibrationChart() {
   const maxMae = 3.0;
+  const maxBias = 0.6;
   return (
     <div className="warps-calibration">
       <h4 className="warps-subsection">Calibration by Projected Win Bucket</h4>
-      <table className="warps-table">
-        <thead>
-          <tr>
-            <th>Win bucket</th>
-            <th>N</th>
-            <th>Avg proj</th>
-            <th>Avg actual</th>
-            <th>Bias</th>
-            <th>MAE</th>
-            <th>MAE bar</th>
-          </tr>
-        </thead>
-        <tbody>
-          {calibrationData.map((row) => (
-            <tr key={row.bucket}>
-              <td>{row.bucket}</td>
-              <td>{row.teams}</td>
-              <td>{row.avgProj.toFixed(2)}</td>
-              <td>{row.avgActual.toFixed(2)}</td>
-              <td className={row.avgError < 0 ? "warps-neg" : "warps-pos"}>
-                {row.avgError > 0 ? "+" : ""}{row.avgError.toFixed(2)}
-              </td>
-              <td>{row.mae.toFixed(2)}</td>
-              <td>
-                <div className="mae-bar-wrap">
-                  <div className="mae-bar" style={{ width: `${(row.mae / maxMae) * 100}%` }} />
+      <div className="cal-chart">
+        {calibrationData.map((row) => {
+          const biasPct = Math.min(Math.abs(row.avgError / maxBias) * 50, 50);
+          const maePct = Math.min((row.mae / maxMae) * 100, 100);
+          return (
+            <div key={row.bucket} className="cal-row">
+              <div className="cal-bucket-label">
+                <span className="cal-bucket-range">{row.bucket}</span>
+                <span className="cal-n">n={row.teams}</span>
+              </div>
+              <div className="cal-viz">
+                <div className="cal-bias-track">
+                  <div className="cal-zero-line" />
+                  <div
+                    className={`cal-bias-fill ${row.avgError >= 0 ? "cal-pos" : "cal-neg"}`}
+                    style={{
+                      width: `${biasPct}%`,
+                      ...(row.avgError >= 0 ? { left: "50%" } : { right: "50%" }),
+                    }}
+                  />
                 </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                <div className="cal-mae-track">
+                  <div className="cal-mae-fill" style={{ width: `${maePct}%` }} />
+                </div>
+              </div>
+              <div className="cal-stats">
+                <span className={row.avgError < 0 ? "warps-neg" : row.avgError > 0 ? "warps-pos" : ""}>
+                  {row.avgError > 0 ? "+" : ""}{row.avgError.toFixed(2)} bias
+                </span>
+                <span className="cal-mae-val">{row.mae.toFixed(2)} MAE</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="cal-legend">
+        <span><span className="cal-leg-dot cal-pos-dot" /> Overestimates wins · <span className="cal-leg-dot cal-neg-dot" /> Underestimates wins · <span className="cal-leg-bar" /> MAE bar</span>
+      </div>
+      <p className="warps-chart-note">Bias = avg(projected − actual). Negative = model overestimates wins. Bars show calibration is tight across win buckets with no systematic directional bias.</p>
     </div>
   );
 }
@@ -137,8 +145,8 @@ function CalibrationChart() {
 function ProfitabilitySection() {
   const minCum = Math.min(...pnlByYear.map((d) => d.cumUnits));
   const maxCum = Math.max(...pnlByYear.map((d) => Math.abs(d.cumUnits))) + 2;
-  const W = 500; const H = 140; const padL = 40; const padR = 12;
-  const padT = 12; const padB = 28;
+  const W = 520; const H = 180; const padL = 42; const padR = 16;
+  const padT = 16; const padB = 36;
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
   const zeroY = padT + chartH * (1 - (0 - minCum) / (maxCum - minCum));
@@ -146,82 +154,160 @@ function ProfitabilitySection() {
   function x(i: number) { return padL + (i / (pnlByYear.length - 1)) * chartW; }
   function y(v: number) { return padT + chartH - ((v - minCum) / (maxCum - minCum)) * chartH; }
 
-  const pathD = pnlByYear.map((d, i) => `${i === 0 ? "M" : "L"}${x(i)},${y(d.cumUnits)}`).join(" ");
+  const pathD = pnlByYear.map((d, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(d.cumUnits).toFixed(1)}`).join(" ");
+  // Area fill: go to zero line at both ends
+  const areaD = `${pathD} L${x(pnlByYear.length - 1).toFixed(1)},${zeroY.toFixed(1)} L${x(0).toFixed(1)},${zeroY.toFixed(1)} Z`;
+
+  const gridVals = [-15, -10, -5, 0];
 
   return (
     <div className="warps-profitability">
       <h4 className="warps-subsection">Profitability vs. Vegas Win Totals — 2003–2020</h4>
       <div className="warps-explainer" style={{ marginBottom: "12px" }}>
         <span>
-          We simulated betting WARPS edges against actual Vegas opening lines for 18 seasons using actual published odds.
-          Break-even at standard -110 juice requires a <strong>47.6% win rate</strong>. Neither WARPS nor Pythagorean clears
-          that bar overall — Vegas lines are remarkably efficient for this class of public information.
-          But calibration at the extremes tells a different story: at ≥2.0 win edges, WARPS breaks even (+0.9% ROI)
-          while Pythagorean collapses to -20.4% ROI, confirming WARPS's regression-to-mean adjustment prevents
-          systematic overconfidence at extreme predictions.
+          Simulated betting WARPS edges against actual Vegas opening lines for 18 seasons.
+          Break-even at -110 juice requires <strong>47.6% win rate</strong>. Overall WARPS
+          doesn't clear that bar — Vegas lines are efficient for public statistical signals.
+          But at ≥2.0 win edge, WARPS hits <strong>+0.9% ROI</strong> while Pythagorean
+          collapses to -20.4% ROI, confirming regression-to-mean prevents overconfidence at extremes.
         </span>
       </div>
 
-      <table className="warps-table">
-        <thead>
-          <tr>
-            <th>Model</th>
-            <th>Min edge</th>
-            <th>Bets</th>
-            <th>Win%</th>
-            <th>Units</th>
-            <th>ROI</th>
-            <th>vs break-even</th>
-          </tr>
-        </thead>
-        <tbody>
-          {profitabilityData.map((row, i) => (
-            <tr key={i} className={row.roiPct >= 0 ? "warps-winner-row" : ""}>
-              <td>{row.model}</td>
-              <td>≥ {row.threshold.toFixed(1)} win</td>
-              <td>{row.n}</td>
-              <td className={row.winPct >= 47.6 ? "warps-pos" : "warps-neg"}>{row.winPct.toFixed(1)}%</td>
-              <td className={row.units >= 0 ? "warps-pos" : "warps-neg"}>{row.units > 0 ? "+" : ""}{row.units.toFixed(2)}</td>
-              <td className={row.roiPct >= 0 ? "warps-pos" : "warps-neg"}>{row.roiPct > 0 ? "+" : ""}{row.roiPct.toFixed(1)}%</td>
-              <td className={row.winPct - 47.6 >= 0 ? "warps-pos" : "warps-neg"}>{(row.winPct - 47.6) > 0 ? "+" : ""}{(row.winPct - 47.6).toFixed(1)} pp</td>
+      {/* Profitability summary cards */}
+      <div className="profit-cards">
+        {profitabilityData.filter(r => r.model === "WARPS v1.8").map((row) => (
+          <div key={row.threshold} className={`profit-card ${row.roiPct >= 0 ? "profit-pos" : "profit-neg"}`}>
+            <div className="profit-threshold">Edge ≥ {row.threshold.toFixed(1)}w</div>
+            <div className="profit-roi">{row.roiPct > 0 ? "+" : ""}{row.roiPct.toFixed(1)}%</div>
+            <div className="profit-detail">{row.n} bets · {row.winPct.toFixed(1)}% win</div>
+            <div className="profit-units">{row.units > 0 ? "+" : ""}{row.units.toFixed(2)} u</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="profit-table-wrap">
+        <table className="warps-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Min edge</th>
+              <th>Bets</th>
+              <th>Win%</th>
+              <th>ROI</th>
+              <th>vs BEP</th>
+              <th></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <p className="warps-chart-note">Actual opening odds from nflverse/nfldata. 571 team-seasons with Vegas lines, 2003–2020. Units wagered = 1.0 per qualifying bet. pp = percentage points vs 47.6% break-even.</p>
+          </thead>
+          <tbody>
+            {profitabilityData.map((row, i) => (
+              <tr key={i} className={row.roiPct >= 0 ? "warps-winner-row" : ""}>
+                <td>{row.model}</td>
+                <td>≥ {row.threshold.toFixed(1)}w</td>
+                <td>{row.n}</td>
+                <td className={row.winPct >= 47.6 ? "warps-pos" : "warps-neg"}>{row.winPct.toFixed(1)}%</td>
+                <td className={row.roiPct >= 0 ? "warps-pos" : "warps-neg"}>{row.roiPct > 0 ? "+" : ""}{row.roiPct.toFixed(1)}%</td>
+                <td className={row.winPct - 47.6 >= 0 ? "warps-pos" : "warps-neg"}>{(row.winPct - 47.6) > 0 ? "+" : ""}{(row.winPct - 47.6).toFixed(1)}pp</td>
+                <td>
+                  <div className="roi-bar-wrap">
+                    <div className={`roi-bar ${row.roiPct >= 0 ? "roi-pos" : "roi-neg"}`}
+                      style={{ width: `${Math.min(Math.abs(row.roiPct) / 25 * 100, 100)}%` }} />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="warps-chart-note">Actual opening odds from nflverse/nfldata. 571 team-seasons, 2003–2020. BEP = 47.6% break-even. pp = percentage-point gap vs break-even.</p>
 
       <h4 className="warps-subsection" style={{ marginTop: "20px" }}>Cumulative P&L — WARPS v1.8 at Edge ≥ 1.0 Win (2003–2020)</h4>
       <div className="warps-chart-wrap">
         <svg viewBox={`0 0 ${W} ${H}`} className="warps-svg">
-          {/* Zero line */}
-          <line x1={padL} y1={zeroY} x2={W - padR} y2={zeroY} stroke="#94a3b8" strokeWidth={1} strokeDasharray="4 2" />
-          {/* Grid */}
-          {[-15, -10, -5, 0].map((v) => (
+          <defs>
+            <linearGradient id="pnlFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#ef4444" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#ef4444" stopOpacity="0.03" />
+            </linearGradient>
+          </defs>
+          {/* Background fill */}
+          <path d={areaD} fill="url(#pnlFill)" />
+          {/* Grid lines */}
+          {gridVals.map((v) => (
             <g key={v}>
-              <line x1={padL} y1={y(v)} x2={W - padR} y2={y(v)} stroke="#f1f5f9" strokeWidth={1} />
-              <text x={padL - 4} y={y(v) + 3} textAnchor="end" fontSize={9} fill="#94a3b8">{v}</text>
+              <line x1={padL} y1={y(v)} x2={W - padR} y2={y(v)}
+                stroke={v === 0 ? "#94a3b8" : "#e2e8f0"} strokeWidth={v === 0 ? 1.5 : 1}
+                strokeDasharray={v === 0 ? "4 3" : undefined} />
+              <text x={padL - 5} y={y(v) + 3.5} textAnchor="end" fontSize={9} fill="#94a3b8">{v}</text>
             </g>
           ))}
+          {/* Season column ticks */}
+          {pnlByYear.map((d, i) => (
+            <line key={d.season} x1={x(i)} y1={H - padB} x2={x(i)} y2={H - padB + 4}
+              stroke="#cbd5e1" strokeWidth={1} />
+          ))}
           {/* P&L line */}
-          <path d={pathD} fill="none" stroke="#ef4444" strokeWidth={2} />
+          <path d={pathD} fill="none" stroke="#ef4444" strokeWidth={2.5} strokeLinejoin="round" />
+          {/* Season bars (mini, below zero line) */}
+          {pnlByYear.map((d, i) => {
+            const barH = Math.min(Math.abs(d.units) / 5 * 12, 12);
+            return (
+              <rect key={`bar-${d.season}`}
+                x={x(i) - 4} y={H - padB - barH}
+                width={8} height={barH}
+                fill={d.units >= 0 ? "#bbf7d0" : "#fecaca"} rx={1}
+                opacity={0.7}
+              />
+            );
+          })}
           {/* Dots */}
           {pnlByYear.map((d, i) => (
-            <circle key={d.season} cx={x(i)} cy={y(d.cumUnits)} r={3}
-              fill={d.cumUnits >= 0 ? "#16a34a" : "#ef4444"} />
+            <circle key={d.season} cx={x(i)} cy={y(d.cumUnits)} r={3.5}
+              fill={d.cumUnits >= 0 ? "#16a34a" : "#ef4444"}
+              stroke="#fff" strokeWidth={1} />
           ))}
-          {/* Year labels — every other */}
-          {pnlByYear.filter((_, i) => i % 3 === 0).map((d, _, arr) => {
+          {/* Year labels every 3 */}
+          {pnlByYear.filter((_, i) => i % 3 === 0).map((d) => {
             const origIdx = pnlByYear.findIndex((r) => r.season === d.season);
             return (
-              <text key={d.season} x={x(origIdx)} y={H - padB + 14} textAnchor="middle" fontSize={9} fill="#64748b">
+              <text key={d.season} x={x(origIdx)} y={H - 4} textAnchor="middle" fontSize={9} fill="#64748b">
                 {String(d.season).slice(2)}
               </text>
             );
           })}
-          <text x={padL - 4} y={padT - 2} textAnchor="end" fontSize={9} fill="#94a3b8">units</text>
+          <text x={padL - 5} y={padT - 4} textAnchor="end" fontSize={9} fill="#94a3b8">u</text>
+          <text x={W - padR} y={y(0) - 4} textAnchor="end" fontSize={8} fill="#94a3b8">break-even</text>
         </svg>
       </div>
-      <p className="warps-chart-note">Each dot = cumulative P&L through that season betting all WARPS v1.8 picks with edge ≥ 1.0 win, 1 unit flat per bet. Dataset ends 2020 (last season in nflverse historical win totals).</p>
+      <p className="warps-chart-note">Dot color = cumulative P&L (green above zero, red below). Mini bars = season-level units won/lost. Edge ≥ 1.0 win, 1 unit flat per bet, 2003–2020.</p>
+    </div>
+  );
+}
+
+function BenchmarkStrip() {
+  const bs = bootstrapStats;
+  const benchmarks = [
+    { label: "Vegas (2015–25)", mae: bs.vegasMaeOverlap, desc: "True market benchmark", color: "#f59e0b", tag: "market" },
+    { label: "WARPS v1.8", mae: bs.warpsMaeFull, desc: "This model (2000–25)", color: "#1d4ed8", tag: "model" },
+    { label: "Pythagorean", mae: bs.pythMaeFull, desc: "Statistical baseline", color: "#64748b", tag: "baseline" },
+    { label: "Prior-year wins", mae: bs.pwMaeFull, desc: "Naive baseline", color: "#cbd7e2", tag: "naive" },
+  ];
+  const maxMae = 3.0;
+  return (
+    <div className="benchmark-strip">
+      <h4 className="warps-subsection">Model Accuracy Benchmark — MAE (wins per team)</h4>
+      <div className="benchmark-cards">
+        {benchmarks.map((b) => (
+          <div key={b.label} className={`benchmark-card benchmark-${b.tag}`}>
+            <div className="benchmark-label">{b.label}</div>
+            <div className="benchmark-mae">{b.mae.toFixed(3)}</div>
+            <div className="benchmark-bar-track">
+              <div className="benchmark-bar" style={{ width: `${(b.mae / maxMae) * 100}%`, background: b.color }} />
+            </div>
+            <div className="benchmark-desc">{b.desc}</div>
+          </div>
+        ))}
+      </div>
+      <p className="warps-chart-note">Lower MAE = better accuracy. Bar scaled to max 3.0 wins. Vegas shown over 2015–25 overlap window only; WARPS and baselines over full 2000–25 sample.</p>
     </div>
   );
 }
@@ -437,45 +523,47 @@ function SlateTab() {
             <h4 className={`warps-tier-head ${consensusClass(key)}`}>
               {icon} {label} ({rows.length})
             </h4>
-            <table className="warps-table slate-table">
-              <thead>
-                <tr>
-                  <th>Team</th>
-                  <th>Mkt O/U</th>
-                  <th>WARPS proj</th>
-                  <th>v1.8 edge</th>
-                  <th>v1.5d edge</th>
-                  <th>v1.6 edge</th>
-                  <th>Avg edge</th>
-                  <th>Edge bar</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.team}>
-                    <td><strong>{row.team}</strong></td>
-                    <td>{row.marketTotal.toFixed(1)}</td>
-                    <td>{row.v18Wins.toFixed(1)}</td>
-                    <td className={row.v18Edge >= 0 ? "warps-pos" : "warps-neg"}>{row.v18Edge > 0 ? "+" : ""}{row.v18Edge.toFixed(2)}</td>
-                    <td className={row.v15dEdge >= 0 ? "warps-pos" : "warps-neg"}>{row.v15dEdge > 0 ? "+" : ""}{row.v15dEdge.toFixed(2)}</td>
-                    <td className={row.v16Edge >= 0 ? "warps-pos" : "warps-neg"}>{row.v16Edge > 0 ? "+" : ""}{row.v16Edge.toFixed(2)}</td>
-                    <td><strong className={row.avgEdge >= 0 ? "warps-pos" : "warps-neg"}>{row.avgEdge > 0 ? "+" : ""}{row.avgEdge.toFixed(2)}</strong></td>
-                    <td>
-                      <div className="edge-bar-wrap">
-                        <div
-                          className="edge-bar"
-                          style={{
-                            width: `${Math.min(Math.abs(row.avgEdge) / 4 * 100, 100)}%`,
-                            background: edgeColor(row.avgEdge),
-                            marginLeft: row.avgEdge >= 0 ? 0 : "auto",
-                          }}
-                        />
+            <div className="warps-pick-grid">
+              {rows.map((row) => {
+                const isOver = row.avgEdge >= 0;
+                return (
+                  <div key={row.team} className={`warps-pick-card ${isOver ? "pick-over" : "pick-under"}`}>
+                    <div className="pick-card-header">
+                      <img
+                        src={teamLogos[row.team]}
+                        className="pick-card-logo"
+                        alt={row.team}
+                        onError={(e) => { (e.target as HTMLImageElement).style.visibility = "hidden"; }}
+                      />
+                      <div className="pick-card-dir">
+                        {isOver ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                    <div className="pick-card-team">{row.team}</div>
+                    <div className="pick-card-edge" style={{ color: edgeColor(row.avgEdge) }}>
+                      {row.avgEdge > 0 ? "+" : ""}{row.avgEdge.toFixed(1)}
+                    </div>
+                    <div className="pick-card-direction">{isOver ? "OVER" : "UNDER"}</div>
+                    <div className="pick-card-line">{row.marketTotal.toFixed(1)} line</div>
+                    <div className="pick-card-proj">{row.v18Wins.toFixed(1)} proj</div>
+                    <div className="pick-card-models">
+                      <span
+                        className={`pm-dot ${row.v15dEdge > 0 ? "pm-over" : "pm-under"}`}
+                        title={`v1.5d: ${row.v15dEdge > 0 ? "+" : ""}${row.v15dEdge.toFixed(1)}`}
+                      >1.5</span>
+                      <span
+                        className={`pm-dot ${row.v16Edge > 0 ? "pm-over" : "pm-under"}`}
+                        title={`v1.6: ${row.v16Edge > 0 ? "+" : ""}${row.v16Edge.toFixed(1)}`}
+                      >1.6</span>
+                      <span
+                        className={`pm-dot ${row.v18Edge > 0 ? "pm-over" : "pm-under"}`}
+                        title={`v1.8: ${row.v18Edge > 0 ? "+" : ""}${row.v18Edge.toFixed(1)}`}
+                      >1.8</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         );
       })}
@@ -503,6 +591,8 @@ function PerformanceTab() {
       </ExplainerBanner>
 
       <MarketScatter />
+
+      <BenchmarkStrip />
 
       <h4 className="warps-subsection">WARPS vs Statistical Baselines (full 26-season sample)</h4>
       <div className="warps-kpi-grid">
