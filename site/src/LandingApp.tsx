@@ -4,133 +4,89 @@ export default function LandingApp() {
   return (
     <div className="landing-shell">
       <header className="landing-header">
-        <div className="landing-brand-row">
-          <div className="landing-brand-mark">
-            <Grid3X3 size={36} strokeWidth={1.5} />
-          </div>
-          <div>
-            <h1 className="landing-name">Liju Varughese</h1>
-            <p className="landing-tagline">NFL Analytics · Win Forecasting · Trading</p>
-          </div>
-        </div>
-        <p className="landing-hero-text">
-          Data-driven tools for NFL edge identification, preseason win-total forecasting,
-          and portfolio management.
-        </p>
+        <h1 className="landing-name">Liju Varughese</h1>
+        <p className="landing-tagline">NFL Analytics · Sports Betting · Trading</p>
       </header>
 
       <main className="landing-main">
-        <div className="landing-grid">
+        <section className="landing-about">
+          <p>
+            I build data-driven systems at the intersection of sports analytics and financial markets.
+            On the NFL side, I run statistical models to find mispriced preseason win totals,
+            track weekly betting edges, and backtest signals across 26 seasons of play-by-play data.
+            On the trading side, I manage a systematic portfolio with research screens,
+            long-hold position tracking, and an active trading desk.
+          </p>
+          <p>
+            Everything here is built from scratch — custom models, live data pipelines,
+            and dashboards I actually use every day.
+          </p>
+        </section>
 
-          {/* NFL Matrix */}
-          <a href="matrix.html" className="landing-card">
-            <div className="landing-card-top">
-              <div className="landing-card-icon landing-icon-matrix">
-                <Grid3X3 size={22} />
-              </div>
-              <ExternalLink size={13} className="landing-card-ext" />
-            </div>
-            <h2 className="landing-card-title">NFL Matrix</h2>
-            <p className="landing-card-desc">
-              Full-season schedule matrix, weekly edge board, team expectations,
-              matchup analysis, and factor research surface.
-            </p>
-            <div className="landing-card-tags">
-              <span>Schedule</span>
-              <span>Edges</span>
-              <span>Expectations</span>
-              <span>Research</span>
-            </div>
-            <span className="landing-card-cta">Open Matrix →</span>
-          </a>
+        <div className="landing-divider" />
 
-          {/* WARPS */}
-          <a href="warps.html" className="landing-card landing-card-warps">
-            <div className="landing-card-top">
-              <div className="landing-card-icon landing-icon-warps">
-                <FlaskConical size={22} />
-              </div>
-              <ExternalLink size={13} className="landing-card-ext" />
-            </div>
-            <h2 className="landing-card-title">WARPS-NFL™</h2>
-            <p className="landing-card-desc">
-              Preseason win-total forecasting model. 26-season backtest,
-              3-model consensus screen, and 2026 bet slate vs Vegas.
-            </p>
-            <div className="landing-warps-kpis">
-              <div className="landing-kpi">
-                <strong>2.374</strong>
-                <span>MAE wins</span>
-              </div>
-              <div className="landing-kpi">
-                <strong>25/26</strong>
-                <span>beats baseline</span>
-              </div>
-              <div className="landing-kpi">
-                <strong>p&lt;0.0001</strong>
-                <span>DM stat</span>
-              </div>
-            </div>
-            <span className="landing-card-cta">Open WARPS →</span>
-          </a>
+        <section className="landing-projects">
 
-          {/* YTTS Financials */}
-          <div className="landing-card landing-card-financials">
-            <div className="landing-card-top">
-              <div className="landing-card-icon landing-icon-financials">
-                <TrendingUp size={22} />
-              </div>
+          <div className="landing-project">
+            <div className="landing-project-head">
+              <div className="landing-project-icon lp-matrix"><Grid3X3 size={18} /></div>
+              <h2 className="landing-project-title">NFL Edge Hub</h2>
             </div>
-            <h2 className="landing-card-title">YTTS Financials</h2>
-            <p className="landing-card-desc">
-              Trading account dashboard — research signals, long-hold positions,
-              and active trading desk.
+            <p className="landing-project-desc">
+              Full-season schedule matrix with engine overlays, weekly edge board with play/watch/pass
+              decisions, team expectation signals, matchup comparisons, and model factor research.
             </p>
-            <div className="ytts-link-grid">
-              <a
-                href="https://lijuvarughese.com/ytts/internal_research_dashboard_app.html"
-                target="_blank"
-                rel="noreferrer"
-                className="ytts-dest"
-              >
-                <BarChart3 size={15} />
-                <span>Research</span>
-                <ExternalLink size={11} className="ytts-ext" />
+            <a href="matrix.html" className="landing-link">
+              Open Matrix <ExternalLink size={12} />
+            </a>
+          </div>
+
+          <div className="landing-project">
+            <div className="landing-project-head">
+              <div className="landing-project-icon lp-warps"><FlaskConical size={18} /></div>
+              <h2 className="landing-project-title">WARPS-NFL™</h2>
+            </div>
+            <p className="landing-project-desc">
+              Preseason win-total forecasting model built on 26 seasons of NFL data.
+              A 75% Pythagorean + 25% point differential blend beats the statistical baseline
+              in 25 of 26 seasons (MAE 2.374, p&nbsp;&lt;&nbsp;0.0001 vs baseline).
+              The 2026 bet slate identifies where Vegas lines are mispriced vs. the model consensus.
+            </p>
+            <a href="warps.html" className="landing-link">
+              Open WARPS-NFL™ <ExternalLink size={12} />
+            </a>
+          </div>
+
+          <div className="landing-project">
+            <div className="landing-project-head">
+              <div className="landing-project-icon lp-ytts"><TrendingUp size={18} /></div>
+              <h2 className="landing-project-title">YTTS Financials</h2>
+            </div>
+            <p className="landing-project-desc">
+              My personal trading account dashboard — systematic research screens,
+              long-hold position tracking, and a live trading desk. Built to replace
+              spreadsheets with a purpose-built interface I can actually navigate quickly.
+            </p>
+            <div className="landing-ytts-links">
+              <a href="https://lijuvarughese.com/ytts/internal_research_dashboard_app.html" target="_blank" rel="noreferrer" className="landing-link">
+                <BarChart3 size={12} /> Research <ExternalLink size={11} />
               </a>
-              <a
-                href="https://lijuvarughese.com/ytts/longhold_dashboard.html"
-                target="_blank"
-                rel="noreferrer"
-                className="ytts-dest"
-              >
-                <TrendingUp size={15} />
-                <span>Long Hold</span>
-                <ExternalLink size={11} className="ytts-ext" />
+              <a href="https://lijuvarughese.com/ytts/longhold_dashboard.html" target="_blank" rel="noreferrer" className="landing-link">
+                <TrendingUp size={12} /> Long Hold <ExternalLink size={11} />
               </a>
-              <a
-                href="https://lijuvarughese.com/ytts/trading_dashboard.html"
-                target="_blank"
-                rel="noreferrer"
-                className="ytts-dest"
-              >
-                <Activity size={15} />
-                <span>Trading Desk</span>
-                <ExternalLink size={11} className="ytts-ext" />
+              <a href="https://lijuvarughese.com/ytts/trading_dashboard.html" target="_blank" rel="noreferrer" className="landing-link">
+                <Activity size={12} /> Trading Desk <ExternalLink size={11} />
               </a>
             </div>
           </div>
 
-        </div>
+        </section>
       </main>
 
       <footer className="landing-footer">
         <span>© 2026 Liju Varughese</span>
         <span className="landing-footer-sep">·</span>
-        <a
-          href="https://github.com/whatsaliju/nfl-betting-automation"
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a href="https://github.com/whatsaliju/nfl-betting-automation" target="_blank" rel="noreferrer">
           github.com/whatsaliju
         </a>
       </footer>
