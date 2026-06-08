@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BLUEHOST_PORT_VALUE: ${{ secrets.BLUEHOST_PORT || '22' }}
-      BLUEHOST_TARGET_VALUE: ${{ github.event.inputs.target_dir || secrets.BLUEHOST_TARGET_DIR || '/home/lijuvaru/public_html/labs/nfl-edge' }}
+      BLUEHOST_TARGET_VALUE: ${{ github.event.inputs.target_dir || secrets.BLUEHOST_TARGET_DIR || '/home/lijuvaru/public_html' }}
     defaults:
       run:
         working-directory: site
@@ -105,6 +105,8 @@ jobs:
             /public_html/*) REMOTE_TARGET="/home/${{ secrets.BLUEHOST_USER }}${REMOTE_TARGET}" ;;
           esac
           rsync -az --delete \
+            --exclude '/ytts' \
+            --exclude '/ytts/' \
             -e "ssh -i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
             dist/ \
             "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}:$REMOTE_TARGET/"
