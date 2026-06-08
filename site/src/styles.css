@@ -1750,6 +1750,35 @@ select {
 .qb-badge.qb-pos { background: #dcfce7; color: #15803d; }
 .qb-badge.qb-neg { background: #fee2e2; color: #b91c1c; }
 
+.pick-prob-badge {
+  margin-top: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.01em;
+  cursor: default;
+}
+.pick-prob-badge.ppb-pos { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.pick-prob-badge.ppb-neg { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+
+.vig-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: #f8f9ff;
+  border: 1px solid #e0e7ff;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #475569;
+  margin-bottom: 14px;
+}
+.vig-bep { font-weight: 600; color: #1e40af; }
+.vig-sep { color: #cbd5e1; }
+.vig-note { color: #94a3b8; font-style: italic; }
+
 /* ── Landing page ─────────────────────────────────────────── */
 .landing-shell {
   min-height: 100vh;
@@ -1760,11 +1789,16 @@ select {
   margin: 0 auto;
   padding: 0 24px;
   box-sizing: border-box;
+  border-top: 4px solid #1d4ed8;
 }
 
 .landing-header {
-  padding: 64px 0 32px;
+  padding: 60px 0 32px;
   border-bottom: 2px solid #18212f;
+  background: linear-gradient(160deg, #f0f6ff 0%, #ffffff 55%);
+  margin: 0 -24px;
+  padding-left: 24px;
+  padding-right: 24px;
 }
 
 .landing-name {
