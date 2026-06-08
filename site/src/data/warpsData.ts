@@ -199,6 +199,24 @@ export const profitabilityData: ProfitRow[] = [
   { model: "3-model consensus",    threshold: 1.5, n:  19, winPct: 52.6, units:  +1.812, roiPct:  +9.5 },
 ];
 
+// Residual histogram — prediction error distribution (2000-2025, 830 team-seasons)
+// recentCount = 2024-2025 season team-seasons in that bucket
+export interface ResidualBucket { lo: number; hi: number; count: number; recentCount: number; }
+export const residualHistogram: ResidualBucket[] = [
+  { lo: -6, hi: -5, count: 11, recentCount: 7 },
+  { lo: -5, hi: -4, count: 47, recentCount: 0 },
+  { lo: -4, hi: -3, count: 56, recentCount: 6 },
+  { lo: -3, hi: -2, count: 80, recentCount: 3 },
+  { lo: -2, hi: -1, count: 91, recentCount: 9 },
+  { lo: -1, hi:  0, count: 101, recentCount: 5 },
+  { lo:  0, hi:  1, count: 82, recentCount: 7 },
+  { lo:  1, hi:  2, count: 96, recentCount: 5 },
+  { lo:  2, hi:  3, count: 69, recentCount: 6 },
+  { lo:  3, hi:  4, count: 56, recentCount: 3 },
+  { lo:  4, hi:  5, count: 41, recentCount: 8 },
+  { lo:  5, hi:  6, count: 16, recentCount: 3 },
+];
+
 // Cumulative P&L for WARPS v1.8 (edge ≥ 1.0 win) year by year, 2003-2020
 export const pnlByYear: PnlByYearRow[] = [
   { season: 2003, n:  6, units: -4.333, cumUnits:  -4.333 },
