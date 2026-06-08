@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BLUEHOST_PORT_VALUE: ${{ secrets.BLUEHOST_PORT || '22' }}
-      BLUEHOST_TARGET_VALUE: ${{ github.event.inputs.target_dir || secrets.BLUEHOST_TARGET_DIR || '/home/lijuvaru/public_html' }}
+      BLUEHOST_TARGET_VALUE: ${{ github.event.inputs.target_dir || '/home/lijuvaru/public_html' }}
     defaults:
       run:
         working-directory: site
