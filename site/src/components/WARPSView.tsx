@@ -1,10 +1,28 @@
 import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, FileText, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { teamColors, teamLogos } from "../data/nflData";
 import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
 import { bootstrapStats, byYearData, calibrationData, consensusData, metricRanking, pnlByYear, profitabilityData, type ConsensusRow } from "../data/warpsData";
 
 type WARPSTab = "slate" | "performance" | "methodology" | "paper";
+
+function useCountUp(target: number, decimals = 0, duration = 1100): string {
+  const [val, setVal] = useState(0);
+  const rafRef = useRef<number>(0);
+  useEffect(() => {
+    setVal(0);
+    const start = performance.now();
+    function tick(now: number) {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setVal(target * eased);
+      if (t < 1) rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [target, duration]);
+  return val.toFixed(decimals);
+}
 
 function consensusClass(c: string): string {
   if (c === "3-model Over") return "consensus-3over";
@@ -1141,6 +1159,21 @@ function PaperTab() {
   );
 }
 
+function HeroStat({
+  label, target, decimals, suffix, sub, highlight,
+}: {
+  label: string; target: number; decimals: number; suffix?: string; sub: string; highlight?: boolean;
+}) {
+  const display = useCountUp(target, decimals);
+  return (
+    <div className={`warps-hero-stat${highlight ? " highlight" : ""}`}>
+      <span>{label}</span>
+      <strong>{display}{suffix ?? ""}</strong>
+      <small>{sub}</small>
+    </div>
+  );
+}
+
 export function WARPSView() {
   const [tab, setTab] = useState<WARPSTab>("slate");
   const [showQbAdj, setShowQbAdj] = useState(false);
@@ -1177,26 +1210,10 @@ export function WARPSView() {
       </div>
 
       <div className="warps-hero-kpis">
-        <div className="warps-hero-stat">
-          <span>Full-sample error</span>
-          <strong>2.374</strong>
-          <small>vs Pythagorean 2.614 (2000–2025)</small>
-        </div>
-        <div className="warps-hero-stat">
-          <span>Held-out error</span>
-          <strong>2.511</strong>
-          <small>2022–2025 validation</small>
-        </div>
-        <div className="warps-hero-stat">
-          <span>Seasons beats Pythagorean</span>
-          <strong>25/26</strong>
-          <small>96% of seasons</small>
-        </div>
-        <div className="warps-hero-stat highlight">
-          <span>High-conviction bets</span>
-          <strong>{highConviction}</strong>
-          <small>3-model consensus</small>
-        </div>
+        <HeroStat label="Full-sample error" decimals={3} target={2.374} sub="vs Pythagorean 2.614 (2000–2025)" />
+        <HeroStat label="Held-out error" decimals={3} target={2.511} sub="2022–2025 validation" />
+        <HeroStat label="Seasons beats Pythagorean" decimals={0} target={25} suffix="/26" sub="96% of seasons" />
+        <HeroStat label="High-conviction bets" decimals={0} target={highConviction} sub="3-model consensus" highlight />
       </div>
 
       <div className="segmented warps-tabs">
