@@ -1,4 +1,4 @@
-import { BarChart3, Brain, CalendarDays, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
+import { BarChart3, Brain, CalendarDays, FlaskConical, Gauge, GitBranch, Grid3X3, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CompareView } from "./components/CompareView";
 import { EdgeBoardView } from "./components/EdgeBoardView";
@@ -14,18 +14,17 @@ import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDispla
 import { historicalVegasLines } from "./data/nflData";
 import type { EngineFeed, Filter, TeamProfile } from "./types";
 
-type ViewMode = "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps";
-type AppViewMode = ViewMode | "home";
+type AppViewMode = "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["home", "matrix", "edges", "expectations", "research", "week", "compare", "results", "warps"]);
+const VALID_VIEWS = new Set<AppViewMode>(["matrix", "edges", "expectations", "research", "week", "compare", "results", "warps"]);
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
-  return VALID_VIEWS.has(h) ? h : "home";
+  return VALID_VIEWS.has(h) ? h : "matrix";
 }
 
 function urlToSeason() {
@@ -56,7 +55,7 @@ function App() {
       params.set("season", String(selectedSeason));
     }
     const query = params.toString();
-    const hash = viewMode === "home" ? "" : `#${viewMode}`;
+    const hash = `#${viewMode}`;
     window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}${hash}`);
   }, [selectedSeason, viewMode]);
 
@@ -188,7 +187,6 @@ function App() {
           ))}
         </div>
         <div className="segmented view-tabs">
-          <button className={viewMode === "home" ? "active" : ""} onClick={() => setViewMode("home")}><Home size={15} />Home</button>
           <button className={viewMode === "matrix" ? "active" : ""} onClick={() => setViewMode("matrix")}><Grid3X3 size={15} />Matrix</button>
           <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges</button>
           <button className={viewMode === "expectations" ? "active" : ""} onClick={() => setViewMode("expectations")}><Gauge size={15} />Expect</button>
@@ -217,58 +215,6 @@ function App() {
         <div className="feed-warning">
           Engine overlay feed could not be loaded. The schedule, filters, modals, and ESPN result views still work.
         </div>
-      )}
-
-      {viewMode === "home" && (
-        <section className="panel hub-home">
-          <div className="panel-toolbar">
-            <div>
-              <h2>Labs Hub</h2>
-              <p className="panel-subtitle">Experimental dashboards for football edges, model research, and investing screens</p>
-            </div>
-            <span className="status-pill warning">experimental</span>
-          </div>
-          <div className="season-jump-row">
-            {availableSeasons.map((season) => (
-              <button
-                key={season}
-                className={selectedSeason === season ? "active" : ""}
-                onClick={() => {
-                  setSelectedSeason(season);
-                  setViewMode("matrix");
-                }}
-              >
-                {season}
-              </button>
-            ))}
-          </div>
-          <div className="hub-grid">
-            <article className="hub-card primary">
-              <Grid3X3 size={20} />
-              <h3>NFL Matrix</h3>
-              <p>Schedule context, team filters, postseason support, matchup overlays, and expectation signals.</p>
-              <button className="text-button" onClick={() => setViewMode("matrix")}>Open matrix</button>
-            </article>
-            <article className="hub-card">
-              <Target size={20} />
-              <h3>NFL Edge Board</h3>
-              <p>Weekly play/watch/pass decisions with source gates, promoted factor matches, and concise pick explanations.</p>
-              <button className="text-button" onClick={() => setViewMode("edges")}>Open edges</button>
-            </article>
-            <article className="hub-card">
-              <Brain size={20} />
-              <h3>Model Lab</h3>
-              <p>Factor leaderboard, promotion rules, candidate overlays, and source reliability in one research surface.</p>
-              <button className="text-button" onClick={() => setViewMode("research")}>Open research</button>
-            </article>
-            <article className="hub-card">
-              <FlaskConical size={20} />
-              <h3>WARPS-NFL Lab</h3>
-              <p>Preseason win-total forecasting model. 2026 consensus bet slate, season-by-season backtest, Diebold-Mariano stats.</p>
-              <button className="text-button" onClick={() => setViewMode("warps")}>Open WARPS</button>
-            </article>
-          </div>
-        </section>
       )}
 
       {viewMode === "matrix" && (

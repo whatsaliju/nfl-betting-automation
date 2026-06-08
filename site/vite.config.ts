@@ -15,6 +15,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: "index.html",
+        matrix: "matrix.html",
         warps: "warps.html",
       },
     },
