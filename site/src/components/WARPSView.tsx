@@ -2,7 +2,7 @@ import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, FileText, FlaskC
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { teamColors, teamLogos } from "../data/nflData";
 import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
-import { bootstrapStats, byYearData, calibrationData, consensusData, metricRanking, pnlByYear, profitabilityData, residualHistogram, type ConsensusRow } from "../data/warpsData";
+import { bootstrapStats, byYearData, calibrationData, consensusData, historicalTeamData, metricRanking, pnlByYear, profitabilityData, residualHistogram, type ConsensusRow } from "../data/warpsData";
 
 type WARPSTab = "slate" | "performance" | "methodology" | "paper";
 
@@ -602,6 +602,74 @@ function PickProbBadge({ edge }: { edge: number }) {
   );
 }
 
+function PickCardDetail({ row, qbInfo }: { row: ConsensusRow; qbInfo: QBAdjResult | undefined }) {
+  const edges = [
+    { label: "v1.5d", val: row.v15dEdge },
+    { label: "v1.6", val: row.v16Edge },
+    { label: "v1.8", val: row.v18Edge },
+  ];
+  const maxAbs = Math.max(...edges.map((e) => Math.abs(e.val)), 1);
+  // Derive raw (pre-regression) quality from projection: proj = 0.75*raw + 2.125
+  const rawQuality = (row.v18Wins - 2.125) / 0.75;
+  const regDelta = row.v18Wins - rawQuality;
+  const prob = modelWinProb(Math.abs(row.avgEdge));
+  const overBEP = prob >= BEP_110;
+
+  return (
+    <div className="pick-card-detail">
+      <div className="pcd-section">
+        <div className="pcd-label">Model edge breakdown</div>
+        {edges.map((e) => (
+          <div key={e.label} className="pcd-edge-row">
+            <span className="pcd-model">{e.label}</span>
+            <div className="pcd-bar-track">
+              <div className="pcd-zero" />
+              <div
+                className={`pcd-bar ${e.val >= 0 ? "pcd-over" : "pcd-under"}`}
+                style={{
+                  width: `${(Math.abs(e.val) / maxAbs) * 44}%`,
+                  ...(e.val >= 0 ? { left: "50%" } : { right: "50%" }),
+                }}
+              />
+            </div>
+            <span className={`pcd-edge-val ${e.val >= 0 ? "warps-pos" : "warps-neg"}`}>
+              {e.val > 0 ? "+" : ""}{e.val.toFixed(1)}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="pcd-section pcd-stats-row">
+        <div className="pcd-stat">
+          <span className="pcd-stat-label">Raw quality</span>
+          <strong>{rawQuality.toFixed(1)}w</strong>
+        </div>
+        <div className="pcd-arrow">→</div>
+        <div className="pcd-stat">
+          <span className="pcd-stat-label">After regression</span>
+          <strong>{row.v18Wins.toFixed(1)}w</strong>
+        </div>
+        <div className={`pcd-reg-delta ${regDelta < 0 ? "warps-neg" : "warps-pos"}`}>
+          ({regDelta > 0 ? "+" : ""}{regDelta.toFixed(1)} reg)
+        </div>
+      </div>
+      <div className="pcd-section pcd-bottom-row">
+        <div className={`pcd-prob ${overBEP ? "pcd-prob-pos" : "pcd-prob-neg"}`}>
+          <span className="pcd-stat-label">Win prob @−110</span>
+          <strong>{Math.round(prob * 100)}%</strong>
+          <span>{overBEP ? "+EV" : "−EV"}</span>
+        </div>
+        {qbInfo && (
+          <div className={`pcd-qb ${qbInfo.adj > 0 ? "qb-pos" : "qb-neg"}`}>
+            <span className="pcd-stat-label">QB adj</span>
+            <strong>{qbInfo.adj > 0 ? "+" : ""}{qbInfo.adj.toFixed(1)}w</strong>
+            <span>{qbInfo.change.outQb} → {qbInfo.change.inQb}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function SlateTab({
   rows,
   qbAdjMap,
@@ -613,6 +681,7 @@ function SlateTab({
   showQbAdj: boolean;
   onToggleQbAdj: () => void;
 }) {
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const tiers = [
     { label: "3-Model Consensus Overs", key: "3-model Over", icon: <TrendingUp size={15} /> },
     { label: "3-Model Overs (Moderate)", key: "2-Strong Over", icon: <TrendingUp size={15} /> },
@@ -682,9 +751,17 @@ function SlateTab({
               {tierRows.map((row) => {
                 const isOver = row.avgEdge >= 0;
                 const qbInfo = qbAdjMap.get(row.team);
+                const isExpanded = expandedCard === row.team;
                 return (
-                  <div key={row.team} className={`warps-pick-card ${isOver ? "pick-over" : "pick-under"}`}
-                    style={{ borderLeftColor: teamColors[row.team], borderLeftWidth: "4px" }}>
+                  <div key={row.team}
+                    className={`warps-pick-card ${isOver ? "pick-over" : "pick-under"}${isExpanded ? " pick-expanded" : ""}`}
+                    style={{ borderLeftColor: teamColors[row.team], borderLeftWidth: "4px" }}
+                    onClick={() => setExpandedCard(isExpanded ? null : row.team)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setExpandedCard(isExpanded ? null : row.team); }}
+                    aria-expanded={isExpanded}
+                  >
                     <div className="pick-card-header">
                       <img
                         src={teamLogos[row.team]}
@@ -724,6 +801,8 @@ function SlateTab({
                       </div>
                     )}
                     <PickProbBadge edge={Math.abs(row.avgEdge)} />
+                    <div className="pick-expand-hint">{isExpanded ? "▲ less" : "▼ details"}</div>
+                    {isExpanded && <PickCardDetail row={row} qbInfo={qbInfo} />}
                   </div>
                 );
               })}
@@ -783,6 +862,174 @@ function ResidualHistogram() {
         Error = WARPS projection − actual wins (830 team-seasons). 2024–2025 amber overlay shows heavier tails:
         45% of teams had |error|&nbsp;&gt;&nbsp;3 wins vs. 32% historically — driven by dynasty teams (KC, DET)
         and collapse teams (NO, SF) exceeding any prior-season statistical model's range.
+      </p>
+    </div>
+  );
+}
+
+function HistoricalAudit() {
+  const seasons = Array.from(new Set(historicalTeamData.map((r) => r.s))).sort((a, b) => b - a);
+  const [year, setYear] = useState<number>(seasons[0]);
+
+  const seasonRows = historicalTeamData.filter((r) => r.s === year);
+  const sorted = [...seasonRows].sort((a, b) => (b.ww - b.w) - (a.ww - a.w));
+  const seasMae = seasonRows.reduce((acc, r) => acc + Math.abs(r.ww - r.w), 0) / (seasonRows.length || 1);
+  const pythMae = seasonRows.reduce((acc, r) => acc + Math.abs(r.pw - r.w), 0) / (seasonRows.length || 1);
+  const beatPyth = seasonRows.filter((r) => Math.abs(r.ww - r.w) < Math.abs(r.pw - r.w)).length;
+
+  return (
+    <div className="warps-historical-audit">
+      <h4 className="warps-subsection">Historical Audit — All Teams by Season</h4>
+      <div className="audit-controls">
+        <select
+          className="audit-year-select"
+          value={year}
+          onChange={(e) => setYear(Number(e.target.value))}
+        >
+          {seasons.map((s) => (
+            <option key={s} value={s}>{s} Season</option>
+          ))}
+        </select>
+        <div className="audit-season-kpis">
+          <span className="audit-kpi">WARPS MAE <strong>{seasMae.toFixed(2)}</strong></span>
+          <span className="audit-kpi">Pyth MAE <strong>{pythMae.toFixed(2)}</strong></span>
+          <span className={`audit-kpi ${seasMae < pythMae ? "audit-win" : "audit-loss"}`}>
+            WARPS {seasMae < pythMae ? `beat Pyth by ${(pythMae - seasMae).toFixed(2)}` : `trailed Pyth by ${(seasMae - pythMae).toFixed(2)}`}
+          </span>
+          <span className="audit-kpi">Better for <strong>{beatPyth}/{seasonRows.length}</strong> teams</span>
+        </div>
+      </div>
+      <div className="audit-table-wrap">
+        <table className="warps-table audit-table">
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th>WARPS proj</th>
+              <th>Pyth proj</th>
+              <th>Actual wins</th>
+              <th>WARPS err</th>
+              <th>Pyth err</th>
+              <th>WARPS vs Pyth</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((r) => {
+              const we = r.ww - r.w;
+              const pe = r.pw - r.w;
+              const warpsWon = Math.abs(we) < Math.abs(pe);
+              const errBarMax = 6;
+              return (
+                <tr key={r.t} className={Math.abs(we) <= 1 ? "audit-accurate" : Math.abs(we) >= 4 ? "audit-miss" : ""}>
+                  <td>
+                    <div className="audit-team-cell">
+                      <img
+                        src={teamLogos[r.t]}
+                        className="audit-logo"
+                        alt={r.t}
+                        onError={(e) => { (e.target as HTMLImageElement).style.visibility = "hidden"; }}
+                        style={{ borderLeft: `3px solid ${teamColors[r.t] ?? "#dce3ea"}` }}
+                      />
+                      <span>{r.t}</span>
+                    </div>
+                  </td>
+                  <td className="num">{r.ww.toFixed(1)}</td>
+                  <td className="num">{r.pw.toFixed(1)}</td>
+                  <td className="num"><strong>{r.w}</strong></td>
+                  <td className={`num ${we > 0 ? "warps-neg" : we < 0 ? "warps-pos" : ""}`}>
+                    {we > 0 ? "+" : ""}{we.toFixed(1)}
+                  </td>
+                  <td className={`num ${pe > 0 ? "warps-neg" : pe < 0 ? "warps-pos" : ""}`}>
+                    {pe > 0 ? "+" : ""}{pe.toFixed(1)}
+                  </td>
+                  <td>
+                    <div className="audit-err-bars">
+                      <div className="audit-err-bar-w" style={{ width: `${Math.min(Math.abs(we) / errBarMax * 100, 100)}%`, background: warpsWon ? "#1d4ed8" : "#94a3b8" }} />
+                      <div className="audit-err-bar-p" style={{ width: `${Math.min(Math.abs(pe) / errBarMax * 100, 100)}%` }} />
+                    </div>
+                  </td>
+                  <td>{warpsWon ? <span className="audit-badge-w">WARPS ✓</span> : <span className="audit-badge-p">Pyth ✓</span>}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="warps-chart-note">
+        Sorted by WARPS error (positive = over-projected, negative = under-projected). Blue bar = WARPS error, grey = Pythagorean error. Rows highlighted green = WARPS within 1 win; red = WARPS off by 4+.
+      </p>
+    </div>
+  );
+}
+
+function ArchitectureFlowchart() {
+  const W = 680;
+  const H = 420;
+  type BoxDef = { x: number; y: number; w: number; h: number; label: string; sub?: string; color: string; text: string };
+  const boxes: BoxDef[] = [
+    { x: 20,  y: 20,  w: 120, h: 44, label: "nfl_data_py", sub: "PBP 1999–2025",           color: "#e0e7ff", text: "#1e3a8a" },
+    { x: 185, y: 20,  w: 130, h: 44, label: "7 Efficiency", sub: "Pyth · EPA · PD · TO",   color: "#e0e7ff", text: "#1e3a8a" },
+    { x: 360, y: 20,  w: 130, h: 44, label: "Z-Score Norm", sub: "Per season, 32 teams",    color: "#e0e7ff", text: "#1e3a8a" },
+    { x: 535, y: 20,  w: 125, h: 44, label: "Composite", sub: "75% Pyth + 25% PD",         color: "#dbeafe", text: "#1e40af" },
+    { x: 535, y: 110, w: 125, h: 44, label: "Regression", sub: "R=0.75 toward 8.5 wins",   color: "#dbeafe", text: "#1e40af" },
+    { x: 535, y: 200, w: 125, h: 44, label: "Win Projection", sub: "Logit scale=6.5",       color: "#dcfce7", text: "#14532d" },
+    { x: 535, y: 290, w: 125, h: 44, label: "vs Vegas Line", sub: "Edge = proj − O/U",      color: "#fef9c3", text: "#713f12" },
+    { x: 360, y: 290, w: 130, h: 44, label: "QB Overlay", sub: "Optional adj ±0–2w",        color: "#fce7f3", text: "#831843" },
+    { x: 185, y: 290, w: 130, h: 44, label: "3-Model Screen", sub: "v1.5d · v1.6 · v1.8",  color: "#fce7f3", text: "#831843" },
+    { x: 20,  y: 290, w: 130, h: 44, label: "Consensus Signal", sub: "Over / Under / Split", color: "#dcfce7", text: "#14532d" },
+    { x: 340, y: 155, w: 150, h: 44, label: "Dynasty Modifier", sub: "v2.0: R=0.95 if 4+ yrs", color: "#fff7ed", text: "#7c2d12" },
+  ];
+
+  type Arrow = { x1: number; y1: number; x2: number; y2: number };
+  const arrows: Arrow[] = [
+    // top row: left to right
+    { x1: 140, y1: 42, x2: 185, y2: 42 },
+    { x1: 315, y1: 42, x2: 360, y2: 42 },
+    { x1: 490, y1: 42, x2: 535, y2: 42 },
+    // right column: top to bottom
+    { x1: 597, y1: 64,  x2: 597, y2: 110 },
+    { x1: 597, y1: 154, x2: 597, y2: 200 },
+    { x1: 597, y1: 244, x2: 597, y2: 290 },
+    // bottom row: right to left
+    { x1: 535, y1: 312, x2: 490, y2: 312 },
+    { x1: 360, y1: 312, x2: 315, y2: 312 },
+    { x1: 185, y1: 312, x2: 150, y2: 312 },
+    // dynasty modifier enters regression
+    { x1: 490, y1: 177, x2: 535, y2: 132 },
+  ];
+
+  return (
+    <div className="warps-flowchart-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} className="warps-flowchart-svg">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8" />
+          </marker>
+        </defs>
+        {arrows.map((a, i) => (
+          <line key={i} x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2}
+            stroke="#94a3b8" strokeWidth={1.5} markerEnd="url(#arrow)" />
+        ))}
+        {boxes.map((b) => (
+          <g key={b.label}>
+            <rect x={b.x} y={b.y} width={b.w} height={b.h}
+              rx={6} fill={b.color} stroke="#cbd5e1" strokeWidth={1} />
+            <text x={b.x + b.w / 2} y={b.y + 17} textAnchor="middle"
+              fontSize={10.5} fontWeight="600" fill={b.text}>{b.label}</text>
+            {b.sub && (
+              <text x={b.x + b.w / 2} y={b.y + 32} textAnchor="middle"
+                fontSize={9} fill="#64748b">{b.sub}</text>
+            )}
+          </g>
+        ))}
+        {/* Section labels */}
+        <text x={250} y={88} textAnchor="middle" fontSize={9} fill="#94a3b8" fontStyle="italic">Data ingestion</text>
+        <text x={597} y={185} textAnchor="middle" fontSize={9} fill="#94a3b8" fontStyle="italic" transform="rotate(-90 597 185)">Projection</text>
+        <text x={250} y={278} textAnchor="middle" fontSize={9} fill="#94a3b8" fontStyle="italic">Signal synthesis</text>
+      </svg>
+      <p className="warps-chart-note">
+        Blue = data / normalization · Green = projection stages · Yellow = market interface · Pink = model ensemble · Orange = v2.0 dynasty modifier.
+        Dynasty modifier applies R=0.95 (vs base 0.75) for teams with 4+ consecutive above/below-average seasons.
       </p>
     </div>
   );
@@ -934,6 +1181,8 @@ function PerformanceTab({ rows, qbAdjMap }: { rows: ConsensusRow[]; qbAdjMap: Ma
       <ProfitabilitySection />
 
       <CalibrationChart />
+
+      <HistoricalAudit />
     </div>
   );
 }
@@ -945,6 +1194,11 @@ function MethodologyTab() {
     setOpenSection((prev) => (prev === key ? null : key));
 
   const sections: { key: string; title: string; content: ReactNode }[] = [
+    {
+      key: "architecture",
+      title: "Model architecture — data pipeline",
+      content: <ArchitectureFlowchart />,
+    },
     {
       key: "overview",
       title: "Model overview",
