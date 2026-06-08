@@ -34,7 +34,7 @@ export default function WARPSApp() {
       </header>
 
       <main className="warps-standalone-main">
-        <WARPSView />
+        <WARPSView hashNav />
       </main>
 
       <footer className="warps-standalone-footer">

@@ -6,6 +6,31 @@ import { bootstrapStats, byYearData, calibrationData, consensusData, metricRanki
 
 type WARPSTab = "slate" | "performance" | "methodology" | "paper";
 
+const VALID_TABS = new Set<WARPSTab>(["slate", "performance", "methodology", "paper"]);
+function hashToTab(): WARPSTab {
+  const h = window.location.hash.replace("#", "") as WARPSTab;
+  return VALID_TABS.has(h) ? h : "slate";
+}
+
+// Normal CDF via rational approximation (max error ~1.5e-7)
+function normCDF(x: number): number {
+  const p = 0.2316419;
+  const [b1, b2, b3, b4, b5] = [0.319381530, -0.356563782, 1.781477937, -1.821255978, 1.330274429];
+  const t = 1 / (1 + p * Math.abs(x));
+  const poly = t * (b1 + t * (b2 + t * (b3 + t * (b4 + t * b5))));
+  const c = 1 - Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI) * poly;
+  return x < 0 ? 1 - c : c;
+}
+
+// WARPS prediction σ ≈ avg RMSE across 26 seasons (~3.0 wins)
+const WARPS_SIGMA = 3.0;
+// At -110 standard vig: bettor risks $110 to win $100 → BEP = 110/210
+const BEP_110 = 110 / 210; // 52.38%
+
+function modelWinProb(edge: number): number {
+  return normCDF(edge / WARPS_SIGMA);
+}
+
 function useCountUp(target: number, decimals = 0, duration = 1100): string {
   const [val, setVal] = useState(0);
   const rafRef = useRef<number>(0);
@@ -219,7 +244,7 @@ function ProfitabilitySection() {
       <div className="warps-explainer" style={{ marginBottom: "12px" }}>
         <span>
           Simulated betting WARPS edges against actual Vegas opening lines for 18 seasons.
-          Break-even at -110 juice requires <strong>47.6% win rate</strong>. Overall WARPS
+          Break-even at -110 juice requires <strong>52.4% win rate</strong>. Overall WARPS
           doesn't clear that bar — Vegas lines are efficient for public statistical signals.
           But at ≥2.0 win edge, WARPS hits <strong>+0.9% ROI</strong> while Pythagorean
           collapses to -20.4% ROI, confirming regression-to-mean prevents overconfidence at extremes.
@@ -257,9 +282,9 @@ function ProfitabilitySection() {
                 <td>{row.model}</td>
                 <td>≥ {row.threshold.toFixed(1)}w</td>
                 <td>{row.n}</td>
-                <td className={row.winPct >= 47.6 ? "warps-pos" : "warps-neg"}>{row.winPct.toFixed(1)}%</td>
+                <td className={row.winPct >= 52.4 ? "warps-pos" : "warps-neg"}>{row.winPct.toFixed(1)}%</td>
                 <td className={row.roiPct >= 0 ? "warps-pos" : "warps-neg"}>{row.roiPct > 0 ? "+" : ""}{row.roiPct.toFixed(1)}%</td>
-                <td className={row.winPct - 47.6 >= 0 ? "warps-pos" : "warps-neg"}>{(row.winPct - 47.6) > 0 ? "+" : ""}{(row.winPct - 47.6).toFixed(1)}pp</td>
+                <td className={row.winPct - 52.4 >= 0 ? "warps-pos" : "warps-neg"}>{(row.winPct - 52.4) > 0 ? "+" : ""}{(row.winPct - 52.4).toFixed(1)}pp</td>
                 <td>
                   <div className="roi-bar-wrap">
                     <div className={`roi-bar ${row.roiPct >= 0 ? "roi-pos" : "roi-neg"}`}
@@ -271,7 +296,7 @@ function ProfitabilitySection() {
           </tbody>
         </table>
       </div>
-      <p className="warps-chart-note">Actual opening odds from nflverse/nfldata. 571 team-seasons, 2003–2020. BEP = 47.6% break-even. pp = percentage-point gap vs break-even.</p>
+      <p className="warps-chart-note">Actual opening odds from nflverse/nfldata. 571 team-seasons, 2003–2020. BEP = 52.4% break-even. pp = percentage-point gap vs break-even.</p>
 
       <h4 className="warps-subsection" style={{ marginTop: "20px" }}>Cumulative P&L — WARPS v1.8 at Edge ≥ 1.0 Win (2003–2020)</h4>
       <div className="warps-chart-wrap">
@@ -562,6 +587,19 @@ function MarketScatter({ rows, qbAdjMap }: { rows: ConsensusRow[]; qbAdjMap: Map
   );
 }
 
+function PickProbBadge({ edge }: { edge: number }) {
+  const prob = modelWinProb(edge);
+  const isPos = prob >= BEP_110;
+  return (
+    <div
+      className={`pick-prob-badge ${isPos ? "ppb-pos" : "ppb-neg"}`}
+      title={`Model-implied win probability based on WARPS prediction error (σ≈3w). BEP at -110: ${(BEP_110 * 100).toFixed(1)}%`}
+    >
+      {Math.round(prob * 100)}% · {isPos ? "+EV" : "−EV"} @−110
+    </div>
+  );
+}
+
 function SlateTab({
   rows,
   qbAdjMap,
@@ -623,6 +661,13 @@ function SlateTab({
         Consensus requires ≥2 of 3 models (v1.5d · v1.6 · v1.8) to agree in direction.
         Edge = projected wins minus the Vegas preseason win total.
       </div>
+      <div className="vig-strip">
+        <span className="vig-bep">−110 break-even: <strong>52.4%</strong></span>
+        <span className="vig-sep">·</span>
+        <span>Best historical tier: 3-model consensus avg edge ≥1.5w → <strong>52.6% win / +9.5% ROI</strong> (19 bets, 2003–2020)</span>
+        <span className="vig-sep">·</span>
+        <span className="vig-note">% on cards = model-implied win prob (σ≈3w), not historical hit rate</span>
+      </div>
       {tiers.map(({ label, key, icon }) => {
         const tierRows = rows.filter((r) => r.consensus === key);
         if (!tierRows.length) return null;
@@ -676,6 +721,7 @@ function SlateTab({
                         QB {qbInfo.adj > 0 ? "+" : ""}{qbInfo.adj.toFixed(1)}w
                       </div>
                     )}
+                    <PickProbBadge edge={Math.abs(row.avgEdge)} />
                   </div>
                 );
               })}
@@ -1174,9 +1220,14 @@ function HeroStat({
   );
 }
 
-export function WARPSView() {
-  const [tab, setTab] = useState<WARPSTab>("slate");
+export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
+  const [tab, setTab] = useState<WARPSTab>(() => (hashNav ? hashToTab() : "slate"));
   const [showQbAdj, setShowQbAdj] = useState(false);
+
+  const switchTab = (next: WARPSTab) => {
+    setTab(next);
+    if (hashNav) window.history.replaceState(null, "", `#${next}`);
+  };
 
   const qbAdjMap = useMemo((): Map<string, QBAdjResult> => {
     if (!showQbAdj) return new Map();
@@ -1217,16 +1268,16 @@ export function WARPSView() {
       </div>
 
       <div className="segmented warps-tabs">
-        <button className={tab === "slate" ? "active" : ""} onClick={() => setTab("slate")}>
+        <button className={tab === "slate" ? "active" : ""} onClick={() => switchTab("slate")}>
           <Activity size={14} /> 2026 Bet Slate
         </button>
-        <button className={tab === "performance" ? "active" : ""} onClick={() => setTab("performance")}>
+        <button className={tab === "performance" ? "active" : ""} onClick={() => switchTab("performance")}>
           <BarChart3 size={14} /> Performance
         </button>
-        <button className={tab === "methodology" ? "active" : ""} onClick={() => setTab("methodology")}>
+        <button className={tab === "methodology" ? "active" : ""} onClick={() => switchTab("methodology")}>
           <BookOpen size={14} /> Methodology
         </button>
-        <button className={tab === "paper" ? "active" : ""} onClick={() => setTab("paper")}>
+        <button className={tab === "paper" ? "active" : ""} onClick={() => switchTab("paper")}>
           <FileText size={14} /> Paper
         </button>
       </div>
