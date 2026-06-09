@@ -2421,3 +2421,17 @@ select {
   padding: 6px 8px;
   margin-top: 4px;
 }
+
+/* Mobile swipe hint — only shown on narrow screens */
+.matrix-swipe-hint {
+  display: none;
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+  padding: 4px 0 8px;
+  user-select: none;
+}
+@media (max-width: 768px) {
+  .matrix-swipe-hint { display: block; }
+}

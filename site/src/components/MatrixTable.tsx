@@ -186,6 +186,7 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
 
   return (
     <div className="table-shell">
+      <div className="matrix-swipe-hint" aria-hidden="true">← swipe to explore all 18 weeks →</div>
       <div className="matrix-legend">
         <div className="legend-group">
           <div className="legend-group-title">Game Type</div>
