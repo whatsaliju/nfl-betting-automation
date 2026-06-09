@@ -1676,10 +1676,10 @@ function PaperTab() {
             <tr>
               <td><strong>Garbage-Time Filter</strong> (WP ∈ [0.05, 0.95])</td>
               <td>Remove non-competitive plays before computing Pythagorean</td>
-              <td className="num">≈0.000*</td>
-              <td className="num">≈0.000*</td>
-              <td><span className="sig-badge sig-0">Null*</span></td>
-              <td>Pythagorean exponent (2.37) already compresses garbage-time variance</td>
+              <td className="num warps-neg">+0.025</td>
+              <td className="num warps-neg">+0.025†</td>
+              <td><span className="sig-badge sig-0">Null</span></td>
+              <td>Pythagorean exponent (2.37) already compresses garbage-time variance; filter degrades full-sample accuracy</td>
             </tr>
             <tr className="warps-winner-row">
               <td><strong>Dynasty Persistence Modifier</strong> (R = 0.95 for 4+ yr streaks)</td>
@@ -1693,7 +1693,7 @@ function PaperTab() {
         </table>
         <p className="warps-chart-note">
           All tests use the same train/validation split (train 2000–2021, validate 2022–2025) and dynasty modifier is held constant except in the dynasty row.
-          * Garbage-time filter analytical pre-test: cascading bias correlation = −0.005 across 797 matched team-seasons; full PBP confirmation pending.
+          † Garbage-time filter full PBP run (26 seasons, WP ∈ [0.05, 0.95]): best full-sample config delta = +0.025 (worse); marginal val improvement of −0.011 only appears at a config that is +0.044 worse on full sample — an overfitting artifact. Cascading bias pre-test: corr = −0.005 across 797 team-seasons. Both confirm the analytical prediction.
           Null result is a valid finding: three independent tests confirm the model architecture already handles the proposed mechanisms natively.
         </p>
       </div>
