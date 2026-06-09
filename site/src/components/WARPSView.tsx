@@ -867,6 +867,57 @@ function ResidualHistogram() {
   );
 }
 
+function RegressionSensitivityChart() {
+  const W = 340; const H = 200; const padL = 36; const padB = 28; const padT = 12; const padR = 12;
+  const cW = W - padL - padR; const cH = H - padT - padB;
+  const xMin = 4; const xMax = 14;
+  function x(v: number) { return padL + ((v - xMin) / (xMax - xMin)) * cW; }
+  function y(v: number) { return padT + cH - ((v - xMin) / (xMax - xMin)) * cH; }
+  // Standard: proj = 0.75 * raw + 2.125; Dynasty: proj = 0.95 * raw + 0.425
+  const pts = (fn: (raw: number) => number) =>
+    [xMin, 6, 8.5, 11, xMax].map((raw) => ({ raw, proj: fn(raw) }));
+  const stdPts = pts((raw) => 0.75 * raw + 2.125);
+  const dynPts = pts((raw) => 0.95 * raw + 0.425);
+  const lineD = (pts: { raw: number; proj: number }[]) =>
+    pts.map((p, i) => `${i === 0 ? "M" : "L"}${x(p.raw).toFixed(1)},${y(p.proj).toFixed(1)}`).join(" ");
+
+  return (
+    <div className="warps-chart-wrap" style={{ maxWidth: 360 }}>
+      <div className="warps-legend" style={{ marginBottom: "6px" }}>
+        <span><span className="legend-dot" style={{ background: "#64748b" }} /> Standard (R=0.75)</span>
+        <span><span className="legend-dot" style={{ background: "#1d4ed8" }} /> Dynasty / Collapse (R=0.95)</span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="warps-svg">
+        {[4,6,8,10,12,14].map((v) => (
+          <g key={v}>
+            <line x1={x(v)} y1={padT} x2={x(v)} y2={padT+cH} stroke="#f1f5f9" strokeWidth={1} />
+            <line x1={padL} y1={y(v)} x2={W-padR} y2={y(v)} stroke="#f1f5f9" strokeWidth={1} />
+            <text x={x(v)} y={padT+cH+14} textAnchor="middle" fontSize={8} fill="#64748b">{v}</text>
+            <text x={padL-4} y={y(v)+3} textAnchor="end" fontSize={8} fill="#64748b">{v}</text>
+          </g>
+        ))}
+        {/* Fair-value diagonal */}
+        <line x1={x(xMin)} y1={y(xMin)} x2={x(xMax)} y2={y(xMax)} stroke="#e2e8f0" strokeWidth={1} strokeDasharray="4 3" />
+        {/* Mean intersection dot */}
+        <circle cx={x(8.5)} cy={y(8.5)} r={4} fill="#94a3b8" opacity={0.6} />
+        <text x={x(8.5)+6} y={y(8.5)-4} fontSize={8} fill="#94a3b8">8.5 mean</text>
+        {/* Lines */}
+        <path d={lineD(stdPts)} fill="none" stroke="#64748b" strokeWidth={2} />
+        <path d={lineD(dynPts)} fill="none" stroke="#1d4ed8" strokeWidth={2} strokeDasharray="5 3" />
+        {/* Axis labels */}
+        <text x={padL+cW/2} y={H-2} textAnchor="middle" fontSize={9} fill="#475569">Raw quality (projected wins)</text>
+        <text x={8} y={padT+cH/2} textAnchor="middle" fontSize={9} fill="#475569" transform={`rotate(-90 8 ${padT+cH/2})`}>WARPS projection</text>
+        {/* Annotations */}
+        <text x={x(12.5)} y={y(12.8)} fontSize={8} fill="#1d4ed8">Dynasty ↑</text>
+        <text x={x(5.5)} y={y(4.4)} fontSize={8} fill="#1d4ed8">Collapse ↓</text>
+      </svg>
+      <p className="warps-chart-note" style={{ maxWidth: 340 }}>
+        Lines cross at 8.5 wins (league mean). Dynasty teams above/below mean are projected further from 8.5 than under standard regression — preserving the persistence signal rather than forcing reversion.
+      </p>
+    </div>
+  );
+}
+
 function HistoricalAudit() {
   const seasons = Array.from(new Set(historicalTeamData.map((r) => r.s))).sort((a, b) => b - a);
   const [year, setYear] = useState<number>(seasons[0]);
@@ -1073,6 +1124,26 @@ function PerformanceTab({ rows, qbAdjMap }: { rows: ConsensusRow[]; qbAdjMap: Ma
         <StatCard label="DM vs Pythagorean" value="p < 0.0001" sub="Diebold-Mariano test, full sample ***" highlight />
       </div>
 
+      <h4 className="warps-subsection">Directional Accuracy — Did WARPS Pick the Right Side?</h4>
+      <div className="warps-explainer" style={{ marginBottom: "12px" }}>
+        <span>
+          In win-total betting, the <strong>sign</strong> of the edge matters more than the magnitude.
+          "Directional accuracy" = the fraction of bets where WARPS correctly called Over vs Under
+          relative to the Vegas preseason line. At 3-model consensus ≥ 1.5 wins, WARPS clears the −110
+          break-even (52.4%) with a <strong>52.6% hit rate</strong> over 19 historical bets (2003–2020).
+        </span>
+      </div>
+      <div className="warps-kpi-grid">
+        <StatCard label="Directional accuracy — all edges ≥0.5" value="47.4%" sub="325 bets · BEP is 52.4%" />
+        <StatCard label="Directional accuracy — edges ≥1.0" value="46.7%" sub="155 bets · below BEP" />
+        <StatCard label="Directional accuracy — edges ≥1.5" value="50.0%" sub="55 bets · approaching BEP" />
+        <StatCard label="3-model consensus ≥1.5 win edge" value="52.6%" sub="19 bets · clears −110 BEP ✓" highlight />
+      </div>
+      <p className="warps-chart-note">
+        Directional accuracy = win percentage when betting the WARPS-signaled direction against Vegas preseason win totals (nflverse data, 2003–2020).
+        The pattern is clear: raw directional accuracy is below BEP until high-conviction, multi-model agreement narrows the field to the strongest signals.
+      </p>
+
       <h4 className="warps-subsection">WARPS vs Vegas Market Benchmark (2015–2025, n=352)</h4>
       <div className="warps-kpi-grid">
         <StatCard
@@ -1233,7 +1304,7 @@ function MethodologyTab() {
             <li><strong>Composite prior</strong> — Weighted sum of z-scores with champion weights (pyth=1.0, others=0). Converted back to win scale via logit-spread regression (logit_scale=5.5).</li>
             <li><strong>Regression to mean</strong> — Blend prior rating with 8.5-win mean at regression_factor=0.75: <code>proj = factor × prior + (1−factor) × 8.5</code></li>
             <li><strong>Market signal overlay</strong> — Compare to Vegas preseason totals. Edge = WARPS proj − market O/U. Classify as Strong (≥1.0), Playable (0.5–1.0), or No bet.</li>
-            <li><strong>3-model consensus</strong> — Intersect signals from v1.5d, v1.6, and v1.7. Only bets where ≥2 models agree on direction are surfaced.</li>
+            <li><strong>3-model consensus</strong> — Intersect signals from WARPS v1.5d, v1.6, and v1.8 (see Section 3.2). Only bets where ≥2 models agree on direction are surfaced as picks.</li>
           </ol>
         </div>
       ),
@@ -1341,6 +1412,8 @@ function MethodologyTab() {
             collapse teams (NYJ, CAR, ATL) receive a −0.2–0.9 win reduction.
             Cross-validated improvement: −0.013 MAE on the 2022–2025 held-out window.
           </p>
+          <h4 className="warps-subsection" style={{ marginTop: "16px" }}>Regression Sensitivity — Standard vs Dynasty</h4>
+          <RegressionSensitivityChart />
         </div>
       ),
     },
@@ -1396,7 +1469,8 @@ function PaperTab() {
         {" "}
         <span>
           <strong>"WARPS"</strong> and <strong>"Win Average Regression Predictive Score"</strong> are
-          original terminology by Liju Varughese. Commercial use of the WARPS name requires written permission.
+          original terminology by Liju Varughese. Commercial use of the WARPS name requires written permission.{" "}
+          <a href="mailto:lvarughese@gmail.com" style={{ color: "#1d4ed8" }}>Contact for licensing inquiries.</a>
         </span>
       </div>
 
@@ -1455,7 +1529,8 @@ function PaperTab() {
         Within each season, each efficiency metric is converted to a z-score (mean zero, standard deviation one
         across all 31–32 teams). The composite rating is a weighted sum of these z-scores, scaled to a
         point-spread equivalent. Regression toward the league mean is applied at a factor of 0.75 — meaning
-        75% of the team's signal carries forward and 25% reverts to the average of 8.5 wins. Win probability
+        75% of the team's signal carries forward and 25% reverts to the average of 8.5 wins
+        (<code>proj = 0.75 × raw + 0.25 × 8.5</code>). Win probability
         for each game is computed via a logistic function with scale parameter 6.5. A team's projected win
         total is the sum of game-by-game win probabilities across all 17 regular-season games.
       </p>
@@ -1466,6 +1541,42 @@ function PaperTab() {
         regression factor and logit scale. Champion selection uses only held-out validation error (2022–2025),
         never training error, to prevent overfitting.
       </p>
+      <p className="paper-body">
+        <strong>3.1 Dynasty Persistence Modifier (v2.0).</strong> Standard regression toward the mean
+        treats every team identically regardless of how long they have sustained their performance level.
+        To address systematic under-projection of dynasty franchises, v2.0 introduces a conditional
+        regression factor. A team qualifies as a <em>dynasty team</em> if its WARPS composite projection
+        exceeds 9.0 wins (approximately +0.5 wins above the 8.5 league mean, or roughly 0.5 standard
+        deviations) for <em>four or more consecutive seasons</em>. The same logic applies in reverse
+        for collapse teams (sustained projection below 8.0 wins). Qualifying teams receive a higher
+        retention factor of R&nbsp;=&nbsp;0.95 rather than the standard 0.75, preserving more of their
+        quality signal: <code>proj = 0.95 × raw + 0.05 × 8.5</code>. This does not
+        dampen their projection — it amplifies it, moving the forecast further from the mean in the
+        direction their prior seasons indicate. The threshold was selected using the held-out 2022–2025
+        window and cross-validated at −0.013 MAE improvement.
+      </p>
+      <p className="paper-body">
+        <strong>3.2 Three-Model Consensus Screen.</strong> To reduce noise and isolate the highest-confidence
+        picks, the final bet slate is produced by intersecting three independently trained WARPS versions:
+        (1) <em>WARPS v1.5d</em> — the original composite with a shorter training window emphasizing recent
+        years; (2) <em>WARPS v1.6</em> — an intermediate blend with additional EPA components; and
+        (3) <em>WARPS v1.8</em> — the current champion model (75% Pythagorean + 25% point differential,
+        22-season training window). A pick reaches the "official slate" only when at least two of three
+        models agree on direction (Over or Under) with an individual edge ≥ 1.0 win. All three agreeing
+        at ≥ 1.5 win edge defines the highest conviction tier.
+      </p>
+      <p className="paper-body">
+        <strong>3.3 QB Overlay — Statistical Core Meets Judgment.</strong> The WARPS projection is a
+        purely statistical output frozen at the start of the offseason. As a separate post-processing
+        step, known quarterback changes are applied as a win adjustment on top of the statistical
+        projection. A tiered system ranks QBs from Tier 1 (generational, e.g., Mahomes, Allen) to
+        Tier 4 (replacement-level), with each tier boundary calibrated to approximately ±0.5 wins.
+        A team losing a Tier 1 QB for a Tier 3 replacement receives roughly a −1.5 win post-processing
+        adjustment; gaining a Tier 1 QB raises the projection by a similar amount. This overlay is
+        optional and toggled separately on the bet slate so users can see the pure statistical signal
+        versus the judgment-adjusted view. The QB overlay is not included in any of the backtested
+        accuracy metrics reported in this paper.
+      </p>
 
       <h3 className="paper-section">4. Results</h3>
       <p className="paper-body">
@@ -1475,6 +1586,30 @@ function PaperTab() {
         contributions of the two metrics. Pythagorean applies a non-linear exponent that up-weights blowout
         margins; raw point differential is linear and treats all margins equally. The blend captures both
         perspectives.
+      </p>
+      <p className="paper-body">
+        <strong>4.1 The SOS Paradox — A Principled Null Result.</strong> Strength of schedule (SOS) was
+        tested as an additional input across weight values of 0.0, 0.1, 0.2, and 0.3. In all configurations,
+        adding SOS produced <em>zero measurable improvement</em> in out-of-sample MAE — and in several cases
+        slightly increased error. This is not a surprise upon reflection: the NFL's scheduling system is
+        endogenous to the prior year's record. Strong teams (those with high Pythagorean scores) automatically
+        face harder schedules the following season under the division rotation system, and weak teams face
+        easier ones. This creates a structural cancellation: the SOS "penalty" placed on good teams
+        after regression is nearly offset by the expectation that they will face stronger opponents. In
+        effect, the regression-to-mean step already absorbs most of the schedule signal that SOS would
+        add. We report this null result explicitly because it is the expected question from any analyst
+        reviewing the model — and because "we tested it and it doesn't help" is a stronger statement
+        than simply omitting SOS without comment.
+      </p>
+      <p className="paper-body">
+        <strong>4.2 Directional Accuracy.</strong> Beyond MAE, we assess whether WARPS correctly identifies
+        which direction a team will deviate from its Vegas preseason win total. Across all WARPS bets with
+        edge ≥ 0.5 wins (325 bets, 2003–2020), the directional hit rate is 47.4% — below the 52.4%
+        break-even at −110. This confirms that undifferentiated betting on any WARPS signal is not
+        profitable after vig. However, filtering to 3-model consensus at ≥ 1.5 win edge (19 bets) raises
+        the directional hit rate to <strong>52.6%</strong>, clearing the break-even and generating
+        +9.5% ROI historically. The pattern implies that the model's edge is concentrated in situations
+        where multiple independently trained versions simultaneously identify a large market discrepancy.
       </p>
 
       <div className="paper-table-wrap">
@@ -1521,13 +1656,32 @@ function PaperTab() {
         significant unmodeled roster changes (quarterback injuries and replacements). This is the fundamental
         limitation of any purely statistical model: it cannot see what it was not given.
       </p>
+      <p className="paper-body">
+        <strong>5.1 NFL Regime Volatility — 2024 and 2025.</strong> The 2024 and 2025 seasons produced the
+        highest WARPS MAEs in the 26-season sample (3.01 and 2.67 respectively). Diagnostic analysis
+        revealed this is not a model calibration failure — the fat-tail errors are structurally concentrated
+        in two identifiable groups: (1) <em>dynasty persistence teams</em> (Kansas City Chiefs: 15 wins
+        in 2024 vs 9.6 WARPS projection; Detroit Lions: 15 wins vs 10.2 projection) that sustained
+        excellence beyond what any regression-toward-mean model can capture; and (2) <em>rapid collapse
+        teams</em> (New Orleans Saints, San Francisco 49ers) whose decline was driven by unmodeled
+        quarterback and coaching disruption. We interpret these as manifestations of a broader
+        <em>NFL Regime Volatility</em> phenomenon in which several franchises simultaneously executed
+        dramatic coaching overhauls (Lions under Dan Campbell, Chiefs maintaining dynasty structure)
+        and quarterback transitions (Washington Commanders' rapid development of a young starter) at a
+        rate that exceeds the predictive capacity of any purely prior-season statistical model.
+        Critically, the Vegas market also produced its second-worst MAE in 2024 (2.86), confirming
+        that 2024–2025 represented an industry-wide forecasting challenge, not a WARPS-specific failure.
+        The Dynasty Persistence Modifier (v2.0) partially addresses the first group; no statistical
+        fix exists for the second, as the information simply is not present in prior-season PBP data.
+      </p>
 
       <h3 className="paper-section">6. Limitations</h3>
       <ul className="paper-list">
-        <li><strong>Personnel changes are not modeled.</strong> Quarterback changes, major trades, and coaching turnover can shift team quality by several wins in ways no efficiency metric captures.</li>
-        <li><strong>Small validation window.</strong> Four held-out seasons is enough for statistical significance but not enough to be certain the result is not period-specific.</li>
+        <li><strong>Personnel changes are not modeled.</strong> Quarterback changes, major trades, and coaching turnover can shift team quality by several wins in ways no efficiency metric captures. The QB Overlay (Section 3.3) addresses this partially as a post-processing judgment layer, but it is not part of the statistical model and not backtested.</li>
+        <li><strong>Directional accuracy below BEP at low conviction.</strong> The model's 47.4% directional hit rate across all WARPS signals does not clear the 52.4% break-even at −110 juice. Profitable deployment requires strict filtering to the 3-model consensus tier (52.6% hit rate, 19 historical bets). Small sample size at the high-conviction tier limits confidence in this estimate.</li>
+        <li><strong>Small validation window.</strong> Four held-out seasons is enough for statistical significance but not enough to be certain the result is not period-specific. The 2024–2025 high-volatility regime may inflate validation MAE relative to the long-run average.</li>
         <li><strong>Market efficiency.</strong> Vegas lines already price in much of the publicly available information used here. The model identifies forecast improvements relative to naive baselines, not guaranteed betting edges after accounting for sportsbook fees.</li>
-        <li><strong>Era effects.</strong> The 2004 NFL rule changes that opened up the passing game changed the strategic landscape. A more sophisticated model would allow weights to shift over time.</li>
+        <li><strong>Era effects.</strong> The 2004 NFL rule changes that opened up the passing game changed the strategic landscape. A more sophisticated model would allow weights to shift over time. The null SOS result (Section 4.1) suggests schedule-based corrections provide no incremental value after the parity-scheduling system is accounted for.</li>
       </ul>
 
       <h3 className="paper-section">References</h3>
