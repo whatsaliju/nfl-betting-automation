@@ -85,7 +85,7 @@ const SEASONS = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 201
 
 // ─── Helper components ────────────────────────────────────────────────────────
 function OUBadge({ result }: { result: TeamAuditRow["ouResult"] }) {
-  if (!result) return <span className="ou-tbd">TBD</span>;
+  if (!result) return null;
   if (result === "push") return <span className="ou-push">PUSH</span>;
   return result === "over"
     ? <span className="ou-over">✓ OVER</span>
