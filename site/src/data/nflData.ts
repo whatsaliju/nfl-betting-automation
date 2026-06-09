@@ -37,18 +37,20 @@ export const scheduleRows: ScheduleRow[] = [
   { Team: "WAS", W1: "NYG", W2: "@GB", W3: "LV", W4: "@ATL", W5: "@LAC", W6: "CHI", W7: "@DAL", W8: "@KC", W9: "SEA", W10: "DET", W11: "@MIA", W12: "BYE", W13: "DEN", W14: "@MIN", W15: "@NYG", W16: "PHI", W17: "DAL", W18: "@PHI" }
 ];
 
+// wins = 2026 DraftKings opening Vegas O/U (used for current-season O/U column baseline).
+// sos  = 2026 schedule strength rank (1 = easiest, 32 = hardest).
 export const teamStats: Record<string, { sos: number; wins: number }> = {
-  NYG: { sos: 1, wins: 5.5 }, CHI: { sos: 2, wins: 8.5 }, DET: { sos: 3, wins: 10.5 },
-  PHI: { sos: 4, wins: 11.5 }, DAL: { sos: 5, wins: 7.5 }, GB: { sos: 6, wins: 9.5 },
-  MIN: { sos: 7, wins: 8.5 }, WAS: { sos: 8, wins: 9.5 }, BAL: { sos: 9, wins: 11.5 },
-  PIT: { sos: 10, wins: 8.5 }, KC: { sos: 11, wins: 11.5 }, LAC: { sos: 12, wins: 9.5 },
-  CLE: { sos: 13, wins: 5.5 }, CIN: { sos: 14, wins: 9.5 }, DEN: { sos: 15, wins: 9.5 },
-  LV: { sos: 16, wins: 6.5 }, LAR: { sos: 17, wins: 9.5 }, HOU: { sos: 18, wins: 9.5 },
-  TB: { sos: 19, wins: 9.5 }, ATL: { sos: 20, wins: 7.5 }, MIA: { sos: 21, wins: 8.5 },
-  SEA: { sos: 22, wins: 7.5 }, BUF: { sos: 23, wins: 11.5 }, JAX: { sos: 24, wins: 7.5 },
-  IND: { sos: 25, wins: 7.5 }, NYJ: { sos: 26, wins: 5.5 }, ARI: { sos: 27, wins: 8.5 },
-  CAR: { sos: 28, wins: 6.5 }, TEN: { sos: 29, wins: 5.5 }, NE: { sos: 30, wins: 7.5 },
-  NO: { sos: 31, wins: 6.5 }, SF: { sos: 32, wins: 10.5 }
+  NYG: { sos: 1, wins: 7.5 }, CHI: { sos: 2, wins: 9.5 }, DET: { sos: 3, wins: 10.5 },
+  PHI: { sos: 4, wins: 10.5 }, DAL: { sos: 5, wins: 8.5 }, GB: { sos: 6, wins: 10.5 },
+  MIN: { sos: 7, wins: 8.5 }, WAS: { sos: 8, wins: 7.5 }, BAL: { sos: 9, wins: 10.5 },
+  PIT: { sos: 10, wins: 8.5 }, KC: { sos: 11, wins: 10.5 }, LAC: { sos: 12, wins: 10.5 },
+  CLE: { sos: 13, wins: 6.5 }, CIN: { sos: 14, wins: 9.5 }, DEN: { sos: 15, wins: 9.5 },
+  LV: { sos: 16, wins: 5.5 }, LAR: { sos: 17, wins: 10.5 }, HOU: { sos: 18, wins: 9.5 },
+  TB: { sos: 19, wins: 8.5 }, ATL: { sos: 20, wins: 6.5 }, MIA: { sos: 21, wins: 4.5 },
+  SEA: { sos: 22, wins: 10.5 }, BUF: { sos: 23, wins: 10.5 }, JAX: { sos: 24, wins: 9.5 },
+  IND: { sos: 25, wins: 8.5 }, NYJ: { sos: 26, wins: 5.5 }, ARI: { sos: 27, wins: 4.5 },
+  CAR: { sos: 28, wins: 6.5 }, TEN: { sos: 29, wins: 6.5 }, NE: { sos: 30, wins: 10.5 },
+  NO: { sos: 31, wins: 7.5 }, SF: { sos: 32, wins: 10.5 }
 };
 
 export const divisions: Record<string, string[]> = {
