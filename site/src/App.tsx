@@ -141,29 +141,26 @@ function App() {
             <Grid3X3 size={26} />
           <div>
             <h1>NFL Edge Hub</h1>
-            <p>{selectedSeason} Season · Matrix, betting edges, source health, and model research</p>
+            <p>Preseason win projections, schedule intelligence & 11 seasons of public accountability</p>
           </div>
         </div>
         <div className="status-row">
           <span className={engineError ? "status-pill warning" : "status-pill ok"}>
             <ShieldCheck size={14} />
-            {engineError ? "Engine feed unavailable" : `Engine feed ${engineFeed?.feed_version || "loading"}`}
+            {engineError ? "Feed offline" : `Live feed v${engineFeed?.feed_version || "…"}`}
           </span>
           {readiness?.available && (
             <span
-              className={`status-pill readiness ${
-                readiness.status === "READY_FOR_MONITORING" ? "ok" : "warning"
-              }`}
+              className={`status-pill ${readiness.status === "READY_FOR_MONITORING" ? "ok" : "warning"}`}
               title={readiness.reason}
             >
-              {readiness.status.replace(/_/g, " ")}
+              {readiness.status === "READY_FOR_MONITORING" ? "Model active" : "Model warming up"}
               {readiness.active_walk_forward?.win_rate !== undefined && (
-                <strong>{percent(readiness.active_walk_forward.win_rate)} WF</strong>
+                <strong> · {percent(readiness.active_walk_forward.win_rate)} WF</strong>
               )}
             </span>
           )}
-          {engineFeed && <span className="status-pill">{overlayCount} overlays</span>}
-          {!hasEngineForSeason && <span className="status-pill">matrix only</span>}
+          {engineFeed && overlayCount > 0 && <span className="status-pill">{overlayCount} overlays</span>}
         </div>
       </header>
 
