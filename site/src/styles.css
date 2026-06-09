@@ -2264,3 +2264,160 @@ select {
 .wp-neutral-wp { background-color: transparent; }
 .wp-med-low    { background-color: rgba(220, 38,  38, 0.07) !important; }
 .wp-low        { background-color: rgba(220, 38,  38, 0.18) !important; }
+
+/* ============================================================
+   Trajectory "Path to the Over" chart
+   ============================================================ */
+.traj-wrapper { margin-top: 4px; }
+.traj-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.traj-kpis {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: #64748b;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.traj-over  { color: #16a34a; font-weight: 700; }
+.traj-under { color: #dc2626; font-weight: 700; }
+.traj-svg { display: block; max-width: 100%; height: auto; }
+
+/* ============================================================
+   QB Injury Scenario panel
+   ============================================================ */
+.scenario-panel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.scenario-label { font-size: 13px; color: #475569; font-weight: 500; }
+.scenario-slider { accent-color: #dc2626; width: 100px; cursor: pointer; }
+.scenario-adj-label { font-size: 13px; color: #dc2626; font-weight: 700; min-width: 36px; }
+
+/* ============================================================
+   Matchup Modal (Matrix page click-a-cell)
+   ============================================================ */
+.mm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.1s ease;
+}
+.mm-modal {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  padding: 20px 24px;
+  min-width: 280px;
+  max-width: 380px;
+  width: 90%;
+  position: relative;
+}
+.mm-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.mm-close:hover { background: #f1f5f9; color: #475569; }
+.mm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.mm-team-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.mm-logo { width: 44px; height: 44px; object-fit: contain; }
+.mm-vs {
+  font-size: 14px;
+  color: #94a3b8;
+  text-align: center;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.mm-wk { font-size: 11px; color: #94a3b8; }
+.mm-qb-change {
+  font-size: 9px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-weight: 700;
+}
+.mm-wp-bar {
+  position: relative;
+  height: 28px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.mm-wp-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+  opacity: 0.25;
+}
+.mm-wp-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+.mm-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.mm-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  color: #64748b;
+  gap: 2px;
+}
+.mm-stat strong { font-size: 14px; color: #1e293b; }
+.mm-qb-note {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-top: 4px;
+}

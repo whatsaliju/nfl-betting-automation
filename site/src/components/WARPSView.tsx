@@ -2,7 +2,7 @@ import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, Crosshair, FileT
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { teamColors, teamLogos } from "../data/nflData";
 import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
-import { bootstrapStats, byYearData, calibrationData, consensusData, historicalTeamData, metricRanking, pnlByYear, profitabilityData, residualHistogram, type ConsensusRow } from "../data/warpsData";
+import { bootstrapStats, byYearData, calibrationData, consensusData, historicalTeamData, metricRanking, pnlByYear, profitabilityData, residualHistogram, trajectoryData, type ConsensusRow } from "../data/warpsData";
 
 type WARPSTab = "slate" | "performance" | "methodology" | "paper" | "quadrant";
 
@@ -2021,7 +2021,17 @@ function DensityCurve({ mu, marketTotal }: { mu: number; marketTotal: number }) 
 function StrategicQuadrant({ rows }: { rows: ConsensusRow[] }) {
   const [consensusFilter, setConsensusFilter] = useState(false);
   const [hovered, setHovered] = useState<{ row: ConsensusRow; px: number; py: number } | null>(null);
+  const [scenarioTeam, setScenarioTeam] = useState("");
+  const [scenarioAdj, setScenarioAdj] = useState(-3.0);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const displayRows = useMemo(() => {
+    if (!scenarioTeam) return rows;
+    return rows.map(r => r.team === scenarioTeam
+      ? { ...r, v18Wins: r.v18Wins + scenarioAdj, v18Edge: r.v18Edge + scenarioAdj, avgEdge: r.avgEdge + scenarioAdj }
+      : r
+    );
+  }, [rows, scenarioTeam, scenarioAdj]);
 
   const SVG_W = 560, SVG_H = 480;
   const ML = 60, MT = 40, MR = 40, MB = 62;
@@ -2061,6 +2071,29 @@ function StrategicQuadrant({ rows }: { rows: ConsensusRow[] }) {
           <span><span className="ql-dot" style={{ background: "#94a3b8" }} />No bet</span>
           <span><span className="ql-ring" style={{ borderColor: "#f59e0b" }} />Dynasty +</span>
           <span><span className="ql-ring" style={{ borderColor: "#8b5cf6" }} />Dynasty −</span>
+        </div>
+        <div className="scenario-panel">
+          <span className="scenario-label">Simulate QB injury:</span>
+          <select
+            value={scenarioTeam}
+            onChange={e => setScenarioTeam(e.target.value)}
+            className="audit-year-select"
+          >
+            <option value="">— None —</option>
+            {rows.map(r => <option key={r.team} value={r.team}>{r.team}</option>)}
+          </select>
+          {scenarioTeam && (
+            <>
+              <input
+                type="range" min={-5} max={-0.5} step={0.5}
+                value={scenarioAdj}
+                onChange={e => setScenarioAdj(+e.target.value)}
+                className="scenario-slider"
+              />
+              <span className="scenario-adj-label">{scenarioAdj.toFixed(1)}w</span>
+              <button className="warps-filter-btn" onClick={() => setScenarioTeam("")} style={{ padding: "4px 10px" }}>✕</button>
+            </>
+          )}
         </div>
       </div>
 
@@ -2122,8 +2155,8 @@ function StrategicQuadrant({ rows }: { rows: ConsensusRow[] }) {
               WARPS Projected Wins (Model)
             </text>
 
-            {/* All dots */}
-            {rows.map(r => {
+            {/* All dots — uses displayRows so scenario adjustments apply */}
+            {displayRows.map(r => {
               const isDynPos = DYNASTY_POSITIVE.has(r.team);
               const isDynNeg = DYNASTY_NEGATIVE.has(r.team);
               const isDyn = isDynPos || isDynNeg;
@@ -2220,6 +2253,122 @@ function StrategicQuadrant({ rows }: { rows: ConsensusRow[] }) {
         Each dot is a team. Distance above the diagonal = model sees more wins than market (Over value).
         Distance below = model sees fewer wins (Under value). Dynasty rings mark teams with the
         v2.0 Persistence Modifier active. Larger dots = 3-model consensus picks.
+      </p>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// TrajectoryChart — "Path to the Over" season win trajectory
+// ──────────────────────────────────────────────────────────────
+function TrajectoryChart({ rows }: { rows: ConsensusRow[] }) {
+  const sorted = [...rows].sort((a, b) => a.team.localeCompare(b.team));
+  const [team, setTeam] = useState(sorted[0]?.team ?? "KC");
+
+  const row = rows.find(r => r.team === team);
+  const traj = trajectoryData.find(d => d.t === team);
+  if (!row || !traj) return null;
+
+  const ou = row.marketTotal;
+  const warpsProj = row.v18Wins;
+  const finalTr = traj.tr[17];
+
+  const W = 520, H = 190;
+  const ML = 42, MT = 14, MR = 52, MB = 38;
+  const PW = W - ML - MR;
+  const PH = H - MT - MB;
+  const YMAX = Math.ceil(Math.max(ou + 1.5, warpsProj + 1, finalTr + 1, 13));
+
+  const scX = (wk: number) => ((wk - 1) / 17) * PW;
+  const scY = (v: number) => PH - (v / YMAX) * PH;
+
+  const pts = traj.tr.map((v, i): [number, number] => [scX(i + 1), scY(v)]);
+  const pathD = pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+  const fillD = `${pathD} V${PH} H${scX(1).toFixed(1)} Z`;
+
+  const ouY = scY(ou);
+  const warpsY = scY(warpsProj);
+  const byeX = scX(traj.b);
+  const clipAbove = `clip-traj-above-${team}`;
+  const clipBelow = `clip-traj-below-${team}`;
+
+  const ticks = [1, 4, 8, 10, 13, 17, 18];
+
+  return (
+    <div className="traj-wrapper">
+      <div className="traj-controls">
+        <select value={team} onChange={e => setTeam(e.target.value)} className="audit-year-select">
+          {sorted.map(r => <option key={r.team} value={r.team}>{r.team}</option>)}
+        </select>
+        <div className="traj-kpis">
+          <span>WARPS proj: <strong style={{ color: "#16a34a" }}>{warpsProj.toFixed(1)}w</strong></span>
+          <span>Schedule-adj path: <strong>{finalTr.toFixed(1)}w</strong></span>
+          <span>Vegas O/U: <strong style={{ color: "#6366f1" }}>{ou}</strong></span>
+          <span className={warpsProj > ou ? "traj-over" : "traj-under"}>
+            {warpsProj > ou
+              ? `OVER by ${(warpsProj - ou).toFixed(1)}w ▲`
+              : `UNDER by ${(ou - warpsProj).toFixed(1)}w ▼`}
+          </span>
+          <span style={{ color: "#94a3b8", fontSize: 11 }}>Bye: Wk {traj.b}</span>
+        </div>
+      </div>
+
+      <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="traj-svg">
+        <defs>
+          <clipPath id={clipAbove}><rect x={0} y={0} width={PW} height={Math.max(0, ouY)} /></clipPath>
+          <clipPath id={clipBelow}><rect x={0} y={Math.max(0, ouY)} width={PW} height={Math.max(0, PH - ouY)} /></clipPath>
+        </defs>
+        <g transform={`translate(${ML},${MT})`}>
+          {/* Bye week band */}
+          <rect x={byeX - 7} y={0} width={14} height={PH} fill="rgba(148,163,184,0.14)" />
+          <text x={byeX} y={PH + 14} textAnchor="middle" fontSize={8} fill="#94a3b8">BYE</text>
+
+          {/* Grid */}
+          {ticks.map(w => <line key={w} x1={scX(w)} y1={0} x2={scX(w)} y2={PH} stroke="#f1f5f9" strokeWidth={1} />)}
+          {[0, 4, 8, 12].filter(v => v <= YMAX).map(v => (
+            <g key={v}>
+              <line x1={0} y1={scY(v)} x2={PW} y2={scY(v)} stroke="#f1f5f9" strokeWidth={1} />
+              <text x={-5} y={scY(v) + 4} textAnchor="end" fontSize={9} fill="#64748b">{v}</text>
+            </g>
+          ))}
+
+          {/* O/U line */}
+          <line x1={0} y1={ouY} x2={PW} y2={ouY} stroke="#6366f1" strokeWidth={1.5} strokeDasharray="5,3" />
+          <text x={PW + 4} y={ouY + 4} fontSize={9} fill="#6366f1" fontWeight={600}>O/U {ou}</text>
+
+          {/* WARPS projection line */}
+          <line x1={0} y1={warpsY} x2={PW} y2={warpsY} stroke="#16a34a" strokeWidth={1.5} strokeDasharray="3,3" />
+          <text x={PW + 4} y={warpsY + 4} fontSize={9} fill="#16a34a" fontWeight={600}>W {warpsProj.toFixed(1)}</text>
+
+          {/* Color fill */}
+          <path d={fillD} fill="rgba(22,163,74,0.07)" clipPath={`url(#${clipAbove})`} />
+          <path d={fillD} fill="rgba(220,38,38,0.07)" clipPath={`url(#${clipBelow})`} />
+
+          {/* Trajectory line */}
+          <path d={pathD} fill="none" stroke="#3b82f6" strokeWidth={2.5} strokeLinejoin="round" />
+
+          {/* Dots at each week */}
+          {pts.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r={3.5} fill="#3b82f6"
+              opacity={i + 1 === traj.b ? 0.2 : 0.75} />
+          ))}
+
+          {/* X-axis ticks */}
+          {ticks.map(w => (
+            <text key={w} x={scX(w)} y={PH + 18} textAnchor="middle" fontSize={9} fill="#64748b">{w}</text>
+          ))}
+          <text x={PW / 2} y={PH + 32} textAnchor="middle" fontSize={11} fill="#475569" fontWeight={500}>Week</text>
+          <text transform={`translate(-32,${PH / 2}) rotate(-90)`} textAnchor="middle" fontSize={11} fill="#475569" fontWeight={500}>Wins</text>
+
+          {/* Border */}
+          <rect x={0} y={0} width={PW} height={PH} fill="none" stroke="#e2e8f0" strokeWidth={1} rx={1} />
+        </g>
+      </svg>
+
+      <p className="warps-chart-note" style={{ marginTop: 6 }}>
+        Blue curve: schedule-adjusted trajectory (cumulative WP, λ=0.15 per win-unit quality diff, h=+1.0 home).
+        Purple dashed: Vegas O/U line. Green dashed: WARPS final projection.
+        Green fill = above O/U (over territory); red fill = below O/U (under territory). Grey band = bye week.
       </p>
     </div>
   );
@@ -2324,6 +2473,14 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
             Hover any dot for the win probability density curve — how wide the model's uncertainty range is relative to where Vegas has set the line.
           </p>
           <StrategicQuadrant rows={displayData} />
+          <hr style={{ margin: "28px 0 20px", border: "none", borderTop: "1px solid #e2e8f0" }} />
+          <h3 className="warps-section-title" style={{ fontSize: 16 }}>Path to the Over — Schedule Win Trajectory</h3>
+          <p className="warps-section-sub">
+            Per-week cumulative win probability derived from matchup quality (Vegas O/U + home-field adjustment).
+            Shows <em>when</em> a team is expected to collect wins, not just the season total.
+            Schedule clusters — stretches of consecutive difficult games — appear as flat sections on the blue curve.
+          </p>
+          <TrajectoryChart rows={displayData} />
         </div>
       )}
     </section>
