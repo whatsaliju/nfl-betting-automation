@@ -90,23 +90,11 @@ function App() {
   const teamExpectations = hasEngineForSeason ? engineFeed?.team_expectations || {} : {};
   const researchSummary = hasEngineForSeason ? engineFeed?.research_summary : undefined;
   const readiness = hasEngineForSeason ? engineFeed?.model_readiness : undefined;
-  const metricMeta = hasEngineForSeason
-    ? {
-        label: "Vegas O/U",
-        title: "Preseason Vegas regular-season win total",
-        legend: "Vegas O/U = preseason win total · ✓ over hit · ✗ under hit",
-      }
-    : seasonSchedule.hasResults
-      ? {
-          label: "O/U Result",
-          title: "Did the team beat their Vegas preseason win total?",
-          legend: "O/U = Vegas preseason line · ✓ over hit · ✗ under hit",
-        }
-      : {
-          label: "Wins TBD",
-          title: "Future season wins are not available yet",
-          legend: "Wins TBD = future season",
-        };
+  const metricMeta = {
+    label: "Vegas O/U",
+    title: "Preseason Vegas regular-season win total",
+    legend: "Vegas O/U = preseason win total · ✓ over hit · ✗ under hit",
+  };
 
   // Resolve Vegas lines for the selected season (historical lookup or engine feed)
   const seasonVegasLines = useMemo((): Record<string, number | null> => {
