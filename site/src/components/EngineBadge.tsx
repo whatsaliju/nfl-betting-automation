@@ -4,6 +4,9 @@ import type { EngineTeamCell } from "../types";
 
 export function EngineBadge({ cell }: { cell?: EngineTeamCell }) {
   if (!cell?.analysis_available) return null;
+  // Game already has a score but engine only ran pre-game "initial" analysis — suppress the badge
+  // so completed historical games don't show a stale "initial" stage label.
+  if (cell.latest_stage === "initial" && cell.score_for !== null && cell.score_against !== null) return null;
 
   const sourceRisk = !!(cell.source_health_status && cell.source_health_status !== "OK");
   const pickText = cell.pick_market && cell.pick_market !== "none"

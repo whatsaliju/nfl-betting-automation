@@ -82,7 +82,10 @@ function App() {
   const overlayCount = engineCells.size + playoffCells.length;
   const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSchedule]);
   const engineSeason = engineFeed?.games?.find((game) => game.season)?.season || DEFAULT_SEASON;
-  const hasEngineForSeason = selectedSeason === engineSeason;
+  // Don't use engine expectations for seasons that are already complete — those have stale
+  // partial-season actual_wins from whenever the feed was last generated.  For finished
+  // seasons we read actual wins straight from seasonSchedules.json (schedule.teamStats).
+  const hasEngineForSeason = selectedSeason === engineSeason && !seasonSchedule.hasResults;
   const teamExpectations = hasEngineForSeason ? engineFeed?.team_expectations || {} : {};
   const researchSummary = hasEngineForSeason ? engineFeed?.research_summary : undefined;
   const readiness = hasEngineForSeason ? engineFeed?.model_readiness : undefined;
