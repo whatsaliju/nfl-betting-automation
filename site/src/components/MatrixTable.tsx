@@ -1,7 +1,21 @@
 import { divisions, teamLogos } from "../data/nflData";
-import { classifyCell, cleanOpponent, flagEmoji, getOpponentStrengthClass, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
+import { classifyCell, cleanOpponent, flagEmoji, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
 import type { EngineTeamCell, GameResult, TeamExpectation, TeamProfile } from "../types";
 import { EngineBadge } from "./EngineBadge";
+
+// Win probability from Vegas seasonal O/U lines.
+// λ=0.15 calibrated so a 4-win quality gap → ~65% WP (consistent with NFL moneyline data).
+// Home field advantage ≈ 1 win-equivalent per season.
+function winProbClass(teamOV: number | null, oppOV: number | null, isHome: boolean): string {
+  if (teamOV == null || oppOV == null) return "";
+  const diff = (teamOV - oppOV) + (isHome ? 1.0 : 0);
+  const wp = 1 / (1 + Math.exp(-diff * 0.15));
+  if (wp > 0.68) return "wp-high";
+  if (wp > 0.56) return "wp-med-high";
+  if (wp > 0.44) return "wp-neutral-wp";
+  if (wp > 0.32) return "wp-med-low";
+  return "wp-low";
+}
 
 interface Props {
   teams: TeamProfile[];
@@ -113,7 +127,8 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
           <div className="legend-item">{metricLegend}</div>
           <div className="legend-item">Rest+ = 10+ day rest</div>
           <div className="legend-item">✈️ significant travel</div>
-          <div className="legend-item" style={{color:"#64748b"}}>Heatmap = opp strength</div>
+          <div className="legend-item" style={{color:"#16a34a"}}>🟩 &gt;68% WP (Gimme)</div>
+          <div className="legend-item" style={{color:"#dc2626"}}>🟥 &lt;32% WP (Schedule loss)</div>
         </div>
       </div>
       <table className="matrix-table">
@@ -178,7 +193,10 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
                   const opponentCode = cleanOpponent(opponent);
                   const engine = engineCells.get(`${team.name}:W${week}`);
                   const highlighted = selectedTeam && opponentCode === selectedTeam;
-                  const heatmap = showHeatmap ? getOpponentStrengthClass(teamStats[opponentCode]?.sos) : "";
+                  const isHome = opponent !== "BYE" && !opponent.startsWith("@");
+                  const heatmap = showHeatmap && opponentCode && opponent !== "BYE"
+                    ? winProbClass(vegasLines[team.name] ?? null, vegasLines[opponentCode] ?? null, isHome)
+                    : "";
                   const b2b = team.backToBackInfo.find((item) => item.week === week);
                   const flag = flagEmoji(internationalCode(team.name, week, opponent));
                   const isDiv = isDivisionGame(team.name, opponent);

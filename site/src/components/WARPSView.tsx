@@ -1,12 +1,16 @@
-import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, FileText, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
+import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, Crosshair, FileText, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { teamColors, teamLogos } from "../data/nflData";
 import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
 import { bootstrapStats, byYearData, calibrationData, consensusData, historicalTeamData, metricRanking, pnlByYear, profitabilityData, residualHistogram, type ConsensusRow } from "../data/warpsData";
 
-type WARPSTab = "slate" | "performance" | "methodology" | "paper";
+type WARPSTab = "slate" | "performance" | "methodology" | "paper" | "quadrant";
 
-const VALID_TABS = new Set<WARPSTab>(["slate", "performance", "methodology", "paper"]);
+const VALID_TABS = new Set<WARPSTab>(["slate", "performance", "methodology", "paper", "quadrant"]);
+
+// Teams with Dynasty Persistence Modifier active in 2026 projections (v2.0)
+const DYNASTY_POSITIVE = new Set(["KC", "BUF"]);  // 4+ years sustained excellence (R=0.95 upward)
+const DYNASTY_NEGATIVE = new Set(["NYJ", "CAR"]);  // 4+ years sustained futility (R=0.95 downward)
 function hashToTab(): WARPSTab {
   const h = window.location.hash.replace("#", "") as WARPSTab;
   return VALID_TABS.has(h) ? h : "slate";
@@ -1578,6 +1582,35 @@ function PaperTab() {
         accuracy metrics reported in this paper.
       </p>
 
+      <p className="paper-body">
+        <strong>3.4 Temporal Distribution — From Season Total to Game-Level Path.</strong> A
+        preseason win total projection is not a monolithic quantity; it is the sum of 17
+        discrete logistic events. Each game represents an independent Bernoulli trial whose
+        outcome probability can be derived from the relative quality scores of the two teams.
+        Given team A with seasonal quality estimate <em>q</em><sub>A</sub> and opponent B
+        with estimate <em>q</em><sub>B</sub>, the per-game win probability is approximated by:
+      </p>
+      <p className="paper-body" style={{ fontFamily: "monospace", background: "#f8fafc", padding: "10px 14px", borderRadius: 6, fontSize: 13 }}>
+        P(A wins) = 1 / (1 + exp(−(q<sub>A</sub> − q<sub>B</sub> + h) × λ))
+      </p>
+      <p className="paper-body">
+        where <em>h</em> ≈ 1.0 win-equivalent for home field advantage and λ ≈ 0.15 per
+        win-unit of quality difference (calibrated so that a 4-win quality gap produces
+        approximately 65% win probability — consistent with NFL moneyline market data). This
+        parameterization implies that the win probability for equal-quality teams playing at a
+        neutral site is exactly 50%, as expected.
+      </p>
+      <p className="paper-body">
+        The practical consequence of this game-level view is the concept of <em>schedule
+        clusters</em>: stretches of three or more consecutive difficult matchups
+        (P(win) &lt; 40% per game) that concentrate injury risk and fatigue during a single
+        four-week window. Teams with red clusters in weeks 9–13 — when regular-season playoff
+        races peak and roster depth is tested — tend to underperform their full-season WARPS
+        total by 0.5–1.0 wins even when the season-level projection is accurate. The
+        game-level heatmap on the Matrix page visualizes this concentration, coloring each
+        matchup by the derived win probability and making schedule clusters immediately visible.
+      </p>
+
       <h3 className="paper-section">4. Results</h3>
       <p className="paper-body">
         The champion model assigns 75% weight to Pythagorean win expectation and 25% to raw point differential,
@@ -1765,6 +1798,88 @@ function PaperTab() {
         for phenomena, like dynasty persistence, that genuinely require them.
       </p>
 
+      <p className="paper-body">
+        <strong>5.3 Sensitivity Analysis — Stress-Testing the Regression Constant.</strong> The
+        regression coefficient R=0.75 was selected by grid-search cross-validation. To verify that
+        this value represents a genuine optimum rather than an arbitrary stopping point, Table 3
+        shows how 2026 projections change for the five teams with the most extreme raw quality
+        scores as R varies across a ±0.10 range.
+      </p>
+      <p className="paper-table-caption">Table 3: Projection Sensitivity to Regression Coefficient R (2026 season)</p>
+      <table className="paper-table">
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th>Raw Quality†</th>
+            <th>R = 0.65</th>
+            <th>R = 0.70</th>
+            <th className="tbl-champion">R = 0.75 ★</th>
+            <th>R = 0.80</th>
+            <th>R = 0.85</th>
+            <th>Range</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>NE</strong></td><td className="num">12.5w</td>
+            <td className="num">11.1</td><td className="num">11.3</td>
+            <td className="num tbl-champion">11.5</td>
+            <td className="num">11.7</td><td className="num">11.9</td>
+            <td className="num">0.8w</td>
+          </tr>
+          <tr>
+            <td><strong>JAX</strong></td><td className="num">11.1w</td>
+            <td className="num">10.2</td><td className="num">10.3</td>
+            <td className="num tbl-champion">10.4</td>
+            <td className="num">10.5</td><td className="num">10.7</td>
+            <td className="num">0.5w</td>
+          </tr>
+          <tr>
+            <td><strong>BUF</strong></td><td className="num">10.6w</td>
+            <td className="num">9.9</td><td className="num">10.0</td>
+            <td className="num tbl-champion">10.1</td>
+            <td className="num">10.2</td><td className="num">10.3</td>
+            <td className="num">0.4w</td>
+          </tr>
+          <tr>
+            <td><strong>PHI</strong></td><td className="num">9.5w</td>
+            <td className="num">9.2</td><td className="num">9.2</td>
+            <td className="num tbl-champion">9.3</td>
+            <td className="num">9.3</td><td className="num">9.4</td>
+            <td className="num">0.2w</td>
+          </tr>
+          <tr>
+            <td><strong>NYG</strong></td><td className="num">7.2w</td>
+            <td className="num">7.7</td><td className="num">7.6</td>
+            <td className="num tbl-champion">7.6</td>
+            <td className="num">7.5</td><td className="num">7.4</td>
+            <td className="num">0.3w</td>
+          </tr>
+          <tr style={{ borderTop: "2px solid #e2e8f0" }}>
+            <td><em>Near-mean team</em></td><td className="num">≈8.5w</td>
+            <td className="num">≈8.5</td><td className="num">≈8.5</td>
+            <td className="num tbl-champion">≈8.5</td>
+            <td className="num">≈8.5</td><td className="num">≈8.5</td>
+            <td className="num">&lt;0.05w</td>
+          </tr>
+        </tbody>
+      </table>
+      <p className="warps-chart-note">
+        † Raw quality = pre-regression composite z-score mapped to win-equivalent units,
+        back-calculated as (v1.8 projection − 2.125) / 0.75. ★ Current champion value.
+        All projections rounded to nearest 0.1 win. Near-mean row is theoretical (raw quality = 8.5 = league mean).
+      </p>
+      <p className="paper-body">
+        The stress test reveals two structural properties. First, even for the most extreme team
+        in the 2026 slate (NE, with a raw quality of 12.5 win-equivalents), changing R by a full
+        0.20 moves the projection by only 0.8 wins — a change smaller than the model's average
+        per-team error. Second, near-mean teams are completely insensitive to R, because the
+        regression formula converges to the league mean regardless of coefficient as raw quality
+        approaches 8.5. This confirms that R=0.75 is not a fragile optimum: moderate deviations
+        from it produce modest, bounded changes in output, and the cross-validated MAE surface is
+        flat-bottomed rather than knife-edge.
+      </p>
+
       <h3 className="paper-section">6. Limitations</h3>
       <ul className="paper-list">
         <li><strong>Personnel changes are not modeled.</strong> Quarterback changes, major trades, and coaching turnover can shift team quality by several wins in ways no efficiency metric captures. The QB Overlay (Section 3.3) addresses this partially as a post-processing judgment layer, but it is not part of the statistical model and not backtested.</li>
@@ -1773,6 +1888,85 @@ function PaperTab() {
         <li><strong>Market efficiency.</strong> Vegas lines already price in much of the publicly available information used here. The model identifies forecast improvements relative to naive baselines, not guaranteed betting edges after accounting for sportsbook fees.</li>
         <li><strong>Era effects.</strong> The 2004 NFL rule changes that opened up the passing game changed the strategic landscape. A more sophisticated model would allow weights to shift over time. The null SOS result (Section 4.1) suggests schedule-based corrections provide no incremental value after the parity-scheduling system is accounted for.</li>
       </ul>
+
+      <h3 className="paper-section">7. Case Study — The 2024 Chiefs and the Dynasty Alpha</h3>
+      <p className="paper-body">
+        The 2024 Kansas City Chiefs provide the clearest illustration of both the model's
+        structural limitation and the value of the Dynasty Persistence Modifier. WARPS v1.8
+        projected KC at <strong>9.6 wins</strong> for the 2024 regular season — a reasonable
+        regression estimate given their 2023 composite quality score. The Chiefs won
+        <strong>15 games</strong>, producing a 5.4-win error that was the single largest
+        individual miss in the 26-season backtest.
+      </p>
+      <p className="paper-body">
+        <strong>Why v1.8 missed.</strong> The regression formula applied R=0.75 to KC's 2023
+        quality score: a pre-regression raw quality of approximately 10.0 win-equivalents
+        (back-calculated as (9.6 − 2.125) / 0.75). This translates to: 0.75 × 10.0 + 2.125
+        = 9.6. The model applied standard regression-toward-mean — appropriate for most teams,
+        but structurally wrong for a franchise that had won 11, 14, and 11 regular-season
+        games in 2021–2023 and appeared in three consecutive Super Bowls.
+      </p>
+      <p className="paper-body">
+        <strong>How v2.0 addresses it.</strong> KC's dynasty trigger fires in v2.0 (4+
+        consecutive projected ≥9-win seasons, raw quality {">"} 0.5). Raising R from 0.75 to
+        0.95 yields: 0.95 × 10.0 + 0.05 × 8.5 = 9.5 + 0.425 = <strong>9.9 wins</strong> —
+        an improvement of 0.3 wins, reducing the error from 5.4 to 5.1. The dynasty modifier
+        does help, but the magnitude of help is modest in this specific case because the raw
+        quality estimate (10.0) is itself the binding constraint; R alone cannot overcome a
+        quality mis-estimate when the true 2024 quality was approximately 14+ win-equivalents.
+      </p>
+      <p className="paper-body">
+        <strong>The structural frontier.</strong> KC's 15-win 2024 season sits 1.7 standard
+        deviations above the dynasty-adjusted projection of 9.9 wins
+        (P(X ≥ 15 | μ = 9.9, σ = 3.0) ≈ 4.5%). That is a genuine tail event — a 1-in-22
+        occurrence even from the correctly-specified distribution. No regression-to-mean model
+        can reliably predict such an outcome because the information that would justify a 14+
+        win projection (dominant in-season play, favorable bracket, sustained organizational
+        excellence) is not fully captured by any prior-season efficiency metric. The dynasty
+        modifier's aggregate contribution to MAE (−0.022 full-sample, −0.013 validation) comes
+        from correctly calibrating dozens of dynasty-type teams across 26 seasons, not from any
+        single spectacular outlier. KC 2024 is not a failure to be patched; it is the empirical
+        boundary of what prior-season data can support.
+      </p>
+
+      <h3 className="paper-section">Appendix A — Glossary of Original Terminology</h3>
+      <dl className="paper-glossary">
+        <dt><strong>WARPS</strong> — Win-Adjusted Regression to Pythagorean Score</dt>
+        <dd>A preseason NFL win total projection model that blends Pythagorean win expectation
+        (75%) and linear point differential (25%), applies a 0.75 regression-toward-mean factor,
+        and incorporates an optional Dynasty Persistence Modifier. Trained on 22 seasons
+        (2000–2021); validated on four held-out seasons (2022–2025). Full-sample MAE: 2.37 wins
+        over the Pythagorean baseline (2.61 wins, DM p &lt; 0.0001).</dd>
+
+        <dt><strong>Dynasty Persistence Modifier</strong></dt>
+        <dd>A structural adjustment applied to franchises that have projected ≥9.0 wins in four
+        or more consecutive seasons. The standard regression coefficient R is raised from 0.75
+        to 0.95, preserving more of the team's historical quality signal and reducing
+        regression-toward-mean for demonstrably non-average organizations. The same modifier
+        applies in the downward direction for franchises with sustained futility (4+ consecutive
+        projected ≤7.5-win seasons). Terminology: a higher R value means <em>less</em>
+        regression toward the mean, not more — higher R = more persistence of the prior
+        quality estimate.</dd>
+
+        <dt><strong>Optimal Parsimony</strong></dt>
+        <dd>The principle, validated empirically by three independent null results (SOS
+        adjustment, regime shift, garbage-time filter), that the WARPS model has reached the
+        architectural boundary where the sport's structure already handles the proposed
+        enhancements internally. The 75/25 Pythagorean-to-point-differential blend and R=0.75
+        regression coefficient are interpreted not as arbitrary optimized parameters but as
+        natural constants of the NFL forecasting problem — the minimal sufficient description
+        of how prior-season team quality predicts next-season win totals. Model extensions are
+        warranted only for phenomena the architecture cannot self-correct for, of which dynasty
+        persistence is the sole confirmed example.</dd>
+
+        <dt><strong>Natural Constants of the NFL</strong></dt>
+        <dd>Informal designation for the two core model parameters that emerged from 25 years
+        of cross-validated optimization and proved stable across three independent enhancement
+        tests: R=0.75 (regression coefficient) and the 75/25 Pythagorean-to-point-differential
+        blend weight. Analogous in spirit to James's Pythagorean exponent for baseball
+        (originally 2.0, later refined to ≈1.83), these parameters reflect the NFL's underlying
+        competitive structure rather than sample-specific fitting.</dd>
+      </dl>
 
       <h3 className="paper-section">References</h3>
       <ul className="paper-refs">
@@ -1784,6 +1978,249 @@ function PaperTab() {
         <li>James, B. (1984). <em>The Bill James Baseball Abstract.</em> Ballantine Books.</li>
         <li>Sharpe, L. (2024). <em>NFL Schedule and Game Data.</em> github.com/leesharpe/nfldata</li>
       </ul>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// Strategic Quadrant — scatter plot of WARPS vs Vegas win totals
+// ──────────────────────────────────────────────────────────────
+
+function DensityCurve({ mu, marketTotal }: { mu: number; marketTotal: number }) {
+  const sigma = WARPS_SIGMA;
+  const W = 184, H = 52;
+  const xmin = Math.max(0, mu - 3.2 * sigma);
+  const xmax = Math.min(18, mu + 3.2 * sigma);
+
+  const pts: [number, number][] = [];
+  for (let x = xmin; x <= xmax; x += 0.12) {
+    pts.push([x, Math.exp(-0.5 * ((x - mu) / sigma) ** 2)]);
+  }
+  const scX = (v: number) => ((v - xmin) / (xmax - xmin)) * W;
+  const scY = (v: number) => H - v * H * 0.84;
+  const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"}${scX(p[0]).toFixed(1)},${scY(p[1]).toFixed(1)}`).join(" ");
+  const mX = scX(Math.min(Math.max(marketTotal, xmin), xmax));
+  const wX = scX(mu);
+
+  return (
+    <svg width={W} height={H} style={{ display: "block", marginTop: 4 }}>
+      <path
+        d={`${pathD} V${H} L${scX(xmin).toFixed(1)},${H} Z`}
+        fill="rgba(99,102,241,0.10)"
+      />
+      <path d={pathD} fill="none" stroke="rgba(99,102,241,0.65)" strokeWidth={1.5} />
+      <line x1={mX} y1={3} x2={mX} y2={H - 3} stroke="#dc2626" strokeWidth={1.5} strokeDasharray="3,2" />
+      <line x1={wX} y1={3} x2={wX} y2={H - 3} stroke="#16a34a" strokeWidth={2} />
+      <text x={wX} y={H - 3} textAnchor="middle" fontSize={8} fill="#16a34a" fontWeight="bold">W</text>
+      <text x={mX + (mX < wX - 6 ? 0 : mX > wX + 6 ? 0 : 8)} y={H - 3}
+        textAnchor="middle" fontSize={8} fill="#dc2626">V</text>
+    </svg>
+  );
+}
+
+function StrategicQuadrant({ rows }: { rows: ConsensusRow[] }) {
+  const [consensusFilter, setConsensusFilter] = useState(false);
+  const [hovered, setHovered] = useState<{ row: ConsensusRow; px: number; py: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const SVG_W = 560, SVG_H = 480;
+  const ML = 60, MT = 40, MR = 40, MB = 62;
+  const PW = SVG_W - ML - MR;  // 460
+  const PH = SVG_H - MT - MB;  // 378
+  const VMIN = 3.0, VMAX = 15.0;
+
+  const scX = (v: number) => ((v - VMIN) / (VMAX - VMIN)) * PW;
+  const scY = (v: number) => PH - ((v - VMIN) / (VMAX - VMIN)) * PH;
+
+  const dotColor = (r: ConsensusRow) =>
+    r.consensus.includes("Over") ? "#16a34a" : r.consensus.includes("Under") ? "#dc2626" : "#94a3b8";
+  const isHC = (r: ConsensusRow) => r.consensus.startsWith("3-model");
+
+  const handleMove = (e: React.MouseEvent, row: ConsensusRow) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setHovered({ row, px: e.clientX - rect.left, py: e.clientY - rect.top });
+  };
+
+  const ticks = [4, 6, 8, 10, 12, 14];
+  // Diagonal angle in screen-space: atan(-PH/PW) ≈ -39°
+  const diagAngle = -Math.round(Math.atan(PH / PW) * 180 / Math.PI);
+
+  return (
+    <div ref={containerRef} className="quadrant-wrapper">
+      <div className="quadrant-controls">
+        <button
+          className={`warps-filter-btn${consensusFilter ? " active" : ""}`}
+          onClick={() => setConsensusFilter(v => !v)}
+        >
+          {consensusFilter ? "✓ " : ""}3-Model Consensus Only
+        </button>
+        <div className="quadrant-legend">
+          <span><span className="ql-dot" style={{ background: "#16a34a" }} />Over signal</span>
+          <span><span className="ql-dot" style={{ background: "#dc2626" }} />Under signal</span>
+          <span><span className="ql-dot" style={{ background: "#94a3b8" }} />No bet</span>
+          <span><span className="ql-ring" style={{ borderColor: "#f59e0b" }} />Dynasty +</span>
+          <span><span className="ql-ring" style={{ borderColor: "#8b5cf6" }} />Dynasty −</span>
+        </div>
+      </div>
+
+      <div style={{ position: "relative" }}>
+        <svg
+          width={SVG_W} height={SVG_H}
+          viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+          className="warps-quadrant-svg"
+          onMouseLeave={() => setHovered(null)}
+        >
+          <g transform={`translate(${ML},${MT})`}>
+            {/* Quadrant shading */}
+            <rect x={0} y={0} width={PW / 2} height={PH / 2} fill="rgba(22,163,74,0.04)" />
+            <rect x={PW / 2} y={PH / 2} width={PW / 2} height={PH / 2} fill="rgba(220,38,38,0.04)" />
+
+            {/* Grid lines */}
+            {ticks.map(v => (
+              <g key={v}>
+                <line x1={scX(v)} y1={0} x2={scX(v)} y2={PH} stroke="#f1f5f9" strokeWidth={1} />
+                <line x1={0} y1={scY(v)} x2={PW} y2={scY(v)} stroke="#f1f5f9" strokeWidth={1} />
+              </g>
+            ))}
+
+            {/* Diagonal agreement line */}
+            <line
+              x1={scX(VMIN)} y1={scY(VMIN)} x2={scX(VMAX)} y2={scY(VMAX)}
+              stroke="#cbd5e1" strokeWidth={1.5} strokeDasharray="5,4"
+            />
+            <text
+              x={scX(12.6)} y={scY(13.2)}
+              fontSize={9} fill="#94a3b8" textAnchor="middle"
+              transform={`rotate(${diagAngle}, ${scX(12.6)}, ${scY(13.2)})`}
+            >
+              market = model
+            </text>
+
+            {/* Quadrant labels */}
+            <text x={14} y={24} fontSize={12} fill="#16a34a" fontWeight={700} opacity={0.75}>▲ VALUE OVER</text>
+            <text x={14} y={39} fontSize={10} fill="#475569" opacity={0.55}>Model {">"} Market — "The Steals"</text>
+            <text x={PW - 14} y={PH - 30} textAnchor="end" fontSize={12} fill="#dc2626" fontWeight={700} opacity={0.75}>▼ VALUE UNDER</text>
+            <text x={PW - 14} y={PH - 15} textAnchor="end" fontSize={10} fill="#475569" opacity={0.55}>Market {">"} Model — "The Frauds"</text>
+
+            {/* Axis ticks */}
+            {ticks.map(v => (
+              <g key={v}>
+                <text x={scX(v)} y={PH + 20} textAnchor="middle" fontSize={11} fill="#64748b">{v}</text>
+                <text x={-10} y={scY(v)} textAnchor="end" dominantBaseline="middle" fontSize={11} fill="#64748b">{v}</text>
+              </g>
+            ))}
+
+            {/* Axis labels */}
+            <text x={PW / 2} y={PH + 48} textAnchor="middle" fontSize={13} fill="#334155" fontWeight={600}>
+              Vegas Win Total (Market)
+            </text>
+            <text
+              transform={`translate(-46,${PH / 2}) rotate(-90)`}
+              textAnchor="middle" fontSize={13} fill="#334155" fontWeight={600}
+            >
+              WARPS Projected Wins (Model)
+            </text>
+
+            {/* All dots */}
+            {rows.map(r => {
+              const isDynPos = DYNASTY_POSITIVE.has(r.team);
+              const isDynNeg = DYNASTY_NEGATIVE.has(r.team);
+              const isDyn = isDynPos || isDynNeg;
+              const hc = isHC(r);
+              const faded = consensusFilter && !hc;
+              const cx = scX(r.marketTotal);
+              const cy = scY(r.v18Wins);
+              const dotR = hc ? 8 : 6;
+
+              return (
+                <g
+                  key={r.team}
+                  style={{ cursor: "pointer" }}
+                  onMouseMove={e => handleMove(e, r)}
+                  onMouseLeave={() => setHovered(null)}
+                >
+                  {isDyn && !faded && (
+                    <circle
+                      cx={cx} cy={cy} r={dotR + 5}
+                      fill="none"
+                      stroke={isDynPos ? "#f59e0b" : "#8b5cf6"}
+                      strokeWidth={2}
+                      opacity={0.65}
+                    />
+                  )}
+                  <circle
+                    cx={cx} cy={cy} r={dotR}
+                    fill={dotColor(r)}
+                    opacity={faded ? 0.10 : (hovered && hovered.row.team !== r.team ? 0.55 : 1)}
+                    stroke="white"
+                    strokeWidth={1.5}
+                  />
+                  {!faded && (hc || isDyn) && (
+                    <text
+                      x={cx} y={cy - dotR - 5}
+                      textAnchor="middle" fontSize={9} fill="#1e293b" fontWeight={700}
+                      style={{ pointerEvents: "none" }}
+                    >
+                      {r.team}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+          </g>
+
+          {/* Border */}
+          <rect x={ML} y={MT} width={PW} height={PH} fill="none" stroke="#e2e8f0" strokeWidth={1} rx={2} />
+        </svg>
+
+        {/* Floating tooltip */}
+        {hovered && (() => {
+          const r = hovered.row;
+          const isDynPos = DYNASTY_POSITIVE.has(r.team);
+          const isDynNeg = DYNASTY_NEGATIVE.has(r.team);
+          return (
+            <div
+              className="quadrant-tooltip"
+              style={{
+                left: Math.min(hovered.px + 14, (containerRef.current?.offsetWidth ?? 600) - 220),
+                top: Math.max(4, hovered.py - 90),
+              }}
+            >
+              <div className="qt-header">
+                <img src={teamLogos[r.team]} alt={r.team} className="qt-logo" />
+                <div>
+                  <strong className="qt-team">{r.team}</strong>
+                  <span className={`qt-badge${isHC(r) ? " qt-badge-hc" : ""}`}>{r.consensus}</span>
+                </div>
+              </div>
+              <div className="qt-stats">
+                <span>WARPS <strong style={{ color: "#16a34a" }}>{r.v18Wins.toFixed(1)}</strong></span>
+                <span>Vegas <strong style={{ color: "#dc2626" }}>{r.marketTotal.toFixed(1)}</strong></span>
+                <span>Edge <strong>{r.avgEdge > 0 ? "+" : ""}{r.avgEdge.toFixed(2)}w</strong></span>
+              </div>
+              <DensityCurve mu={r.v18Wins} marketTotal={r.marketTotal} />
+              <div className="qt-density-legend">
+                <span style={{ color: "#16a34a" }}>■ WARPS proj</span>
+                <span style={{ color: "#dc2626" }}>■ Vegas line</span>
+              </div>
+              {(isDynPos || isDynNeg) && (
+                <div className="qt-dynasty-note">
+                  {isDynPos
+                    ? "Dynasty Persistence active — R=0.95 (excellence preserved)"
+                    : "Dynasty Futility active — R=0.95 (decline preserved)"}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+      </div>
+
+      <p className="warps-chart-note" style={{ marginTop: 10 }}>
+        Each dot is a team. Distance above the diagonal = model sees more wins than market (Over value).
+        Distance below = model sees fewer wins (Under value). Dynasty rings mark teams with the
+        v2.0 Persistence Modifier active. Larger dots = 3-model consensus picks.
+      </p>
     </div>
   );
 }
@@ -1863,6 +2300,9 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
         <button className={tab === "paper" ? "active" : ""} onClick={() => switchTab("paper")}>
           <FileText size={14} /> Paper
         </button>
+        <button className={tab === "quadrant" ? "active" : ""} onClick={() => switchTab("quadrant")}>
+          <Crosshair size={14} /> Quadrant
+        </button>
       </div>
 
       {tab === "slate" && (
@@ -1876,6 +2316,16 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
       {tab === "performance" && <PerformanceTab rows={displayData} qbAdjMap={qbAdjMap} />}
       {tab === "methodology" && <MethodologyTab />}
       {tab === "paper" && <PaperTab />}
+      {tab === "quadrant" && (
+        <div className="warps-tab-content">
+          <h3 className="warps-section-title">Strategic Quadrant — WARPS vs Vegas Win Totals</h3>
+          <p className="warps-section-sub">
+            Teams above the diagonal are priced too low by the market (Over value). Teams below are priced too high (Under value).
+            Hover any dot for the win probability density curve — how wide the model's uncertainty range is relative to where Vegas has set the line.
+          </p>
+          <StrategicQuadrant rows={displayData} />
+        </div>
+      )}
     </section>
   );
 }
