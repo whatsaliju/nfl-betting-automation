@@ -17,13 +17,13 @@ import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDispla
 import { historicalVegasLines } from "./data/nflData";
 import type { EngineFeed, Filter, TeamProfile } from "./types";
 
-type AppViewMode = "track" | "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout";
+type AppViewMode = "track" | "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout"]);
+const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections"]);
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
@@ -180,15 +180,12 @@ function App() {
         <div className="segmented view-tabs">
           <button className={viewMode === "matrix" ? "active" : ""} onClick={() => setViewMode("matrix")}><Grid3X3 size={15} />Matrix</button>
           <button className={viewMode === "week" ? "active" : ""} onClick={() => setViewMode("week")}><CalendarDays size={15} />Week</button>
-          <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
-          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges</button>
           <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")}><GitBranch size={15} />Compare</button>
           <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")}><Trophy size={15} />Results</button>
-          <button className={viewMode === "audit" ? "active" : ""} onClick={() => setViewMode("audit")}><Activity size={15} />Audit</button>
-          <button className={viewMode === "expectations" ? "active" : ""} onClick={() => setViewMode("expectations")}><Gauge size={15} />Expect</button>
+          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges</button>
+          <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
+          <button className={["projections", "audit", "expectations"].includes(viewMode) ? "active" : ""} onClick={() => setViewMode("projections")}><Gauge size={15} />Projections</button>
           <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")}><ClipboardList size={15} />Track</button>
-          <button className={viewMode === "research" ? "active" : ""} onClick={() => setViewMode("research")}><Brain size={15} />Research</button>
-          <button className={viewMode === "warps" ? "active" : ""} onClick={() => setViewMode("warps")}><FlaskConical size={15} />WARPS</button>
         </div>
         <label className="toggle">
           <input type="checkbox" checked={showHeatmap} onChange={(event) => setShowHeatmap(event.target.checked)} />
@@ -238,8 +235,6 @@ function App() {
 
       {viewMode === "edges" && <EdgeBoardView games={edgeGames} />}
 
-      {viewMode === "expectations" && <ExpectationsView expectations={teamExpectations} />}
-
       {viewMode === "research" && <ResearchView summary={researchSummary} />}
 
       {viewMode === "week" && (
@@ -263,13 +258,22 @@ function App() {
 
       {viewMode === "warps" && <WARPSView />}
 
-      {viewMode === "audit" && <LiveAuditView expectations={teamExpectations} vegasLines={seasonVegasLines} season={selectedSeason} />}
+      {(viewMode === "projections" || viewMode === "audit" || viewMode === "expectations") && (
+        <>
+          <LiveAuditView expectations={teamExpectations} vegasLines={seasonVegasLines} season={selectedSeason} />
+          {Object.keys(teamExpectations).length > 0 && <ExpectationsView expectations={teamExpectations} />}
+        </>
+      )}
 
       {viewMode === "scout" && <ScoutView teams={allTeams} weeks={seasonSchedule.weeks} vegasLines={seasonVegasLines} />}
 
       <footer className="footer-note">
         <BarChart3 size={15} />
-        Public feed source: raw GitHub engine artifacts. The site remains static and embeddable.
+        Public feed · raw GitHub engine artifacts · static &amp; embeddable
+        <span className="footer-links">
+          <button className="footer-link-btn" onClick={() => setViewMode("warps")}>WARPS model</button>
+          {researchSummary && <button className="footer-link-btn" onClick={() => setViewMode("research")}>Research notes</button>}
+        </span>
       </footer>
 
       {modalTeam && <TeamModal team={modalTeam} engineCells={engineCells} expectation={teamExpectations[modalTeam.name]} metricLabel={metricMeta.label} onClose={() => setModalTeam(null)} />}
