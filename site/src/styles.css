@@ -2435,3 +2435,198 @@ select {
 @media (max-width: 768px) {
   .matrix-swipe-hint { display: block; }
 }
+
+/* ── Track Record View ──────────────────────────────────────────────────────── */
+.track-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+.track-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.track-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px;
+}
+.track-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  max-width: 680px;
+  line-height: 1.5;
+}
+
+/* Aggregate KPI row */
+.track-aggregate-kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.track-kpi {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+  gap: 2px;
+}
+.track-kpi strong {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.track-kpi span {
+  font-size: 11px;
+  color: #64748b;
+  text-align: center;
+}
+.track-kpi.highlight {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+.track-kpi.highlight strong { color: #1d4ed8; }
+
+/* Table shell */
+.track-table-wrap {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+.track-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.track-table thead tr {
+  background: #f1f5f9;
+}
+.track-table th {
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  border-bottom: 1px solid #e2e8f0;
+}
+.track-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  white-space: nowrap;
+}
+.track-table tbody tr:last-child td { border-bottom: none; }
+.track-table tbody tr:hover { background: #f8fafc; }
+
+/* Row tints */
+.track-table .tr-over  { background: rgba(22,163,74,0.06); }
+.track-table .tr-under { background: rgba(220,38,38,0.06); }
+.track-table .tr-push  { background: rgba(148,163,184,0.08); }
+.track-table .tr-future { color: #64748b; font-style: italic; }
+
+/* Numeric cells */
+.track-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Team cell with logo */
+.track-team-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.track-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* O/U result badges */
+.ou-over  { color: #16a34a; font-weight: 700; font-size: 11px; }
+.ou-under { color: #dc2626; font-weight: 700; font-size: 11px; }
+.ou-push  { color: #64748b; font-weight: 600; font-size: 11px; }
+.ou-tbd   { color: #94a3b8; font-size: 11px; }
+
+/* WARPS pick result */
+.warps-pick-hit     { color: #16a34a; font-weight: 700; font-size: 12px; }
+.warps-pick-miss    { color: #dc2626; font-weight: 700; font-size: 12px; }
+.warps-pick-neutral { color: #94a3b8; font-size: 12px; }
+
+/* 2026 LIVE badge */
+.track-live-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: #f59e0b;
+  color: #fff;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+/* Season detail header */
+.track-detail { }
+.track-detail-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.track-detail-kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: #475569;
+}
+.track-detail-kpis strong { color: #1e293b; }
+
+/* Buttons */
+.track-back-btn {
+  padding: 6px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+  color: #334155;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.track-back-btn:hover { background: #f1f5f9; }
+
+.track-drill-btn {
+  padding: 4px 10px;
+  border: 1px solid #3b82f6;
+  border-radius: 5px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.track-drill-btn:hover { background: #dbeafe; }
+
+@media (max-width: 600px) {
+  .track-aggregate-kpis { gap: 8px; }
+  .track-kpi { min-width: 80px; padding: 8px 10px; }
+  .track-kpi strong { font-size: 16px; }
+}
