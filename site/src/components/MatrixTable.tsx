@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { divisions, teamLogos } from "../data/nflData";
+import { qbChanges2026 } from "../data/qbData";
 import { classifyCell, cleanOpponent, flagEmoji, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
 import type { EngineTeamCell, GameResult, TeamExpectation, TeamProfile } from "../types";
 import { EngineBadge } from "./EngineBadge";
@@ -92,7 +94,93 @@ function formatMetric(value: number | null) {
   return typeof value === "number" ? value : "-";
 }
 
+interface ModalGame {
+  teamName: string; oppCode: string; week: number;
+  isHome: boolean; daysRest: number | null; hasTravel: boolean;
+  teamOV: number | null; oppOV: number | null;
+}
+
+function MatchupModal({ game, onClose }: { game: ModalGame; onClose: () => void }) {
+  const diff = (game.teamOV ?? 8.5) - (game.oppOV ?? 8.5) + (game.isHome ? 1.0 : 0);
+  const wp = 1 / (1 + Math.exp(-diff * 0.15));
+  const wpPct = (wp * 100).toFixed(0);
+  const edge = (game.teamOV ?? 8.5) - (game.oppOV ?? 8.5);
+  const teamQB = qbChanges2026.find(q => q.team === game.teamName);
+  const oppQB = qbChanges2026.find(q => q.team === game.oppCode);
+
+  return (
+    <div className="mm-overlay" onClick={onClose}>
+      <div className="mm-modal" onClick={e => e.stopPropagation()}>
+        <button className="mm-close" onClick={onClose}>✕</button>
+        <div className="mm-header">
+          <div className="mm-team-side">
+            <img src={teamLogos[game.teamName]} alt={game.teamName} className="mm-logo" />
+            <strong>{game.teamName}</strong>
+            {teamQB && <span className="mm-qb-change" title={`QB change: ${teamQB.outQb} → ${teamQB.inQb}`}>QB↕</span>}
+          </div>
+          <div className="mm-vs">{game.isHome ? "vs" : "@"}<br /><span className="mm-wk">Wk {game.week}</span></div>
+          <div className="mm-team-side">
+            <img src={teamLogos[game.oppCode]} alt={game.oppCode} className="mm-logo" />
+            <strong>{game.oppCode}</strong>
+            {oppQB && <span className="mm-qb-change" title={`QB change: ${oppQB.outQb} → ${oppQB.inQb}`}>QB↕</span>}
+          </div>
+        </div>
+
+        <div className="mm-wp-bar">
+          <div className="mm-wp-fill" style={{ width: `${wpPct}%`, background: wp > 0.55 ? "#16a34a" : wp < 0.45 ? "#dc2626" : "#94a3b8" }} />
+          <span className="mm-wp-label" style={{ color: wp > 0.55 ? "#16a34a" : wp < 0.45 ? "#dc2626" : "#475569" }}>
+            {wpPct}% WP
+          </span>
+        </div>
+
+        <div className="mm-stats">
+          <div className="mm-stat">
+            <span>Vegas O/U</span>
+            <strong>{game.teamOV ?? "—"}</strong>
+          </div>
+          <div className="mm-stat">
+            <span>Opp O/U</span>
+            <strong>{game.oppOV ?? "—"}</strong>
+          </div>
+          <div className="mm-stat">
+            <span>Quality edge</span>
+            <strong style={{ color: edge > 0 ? "#16a34a" : edge < 0 ? "#dc2626" : "#94a3b8" }}>
+              {edge > 0 ? "+" : ""}{edge.toFixed(1)}w
+            </strong>
+          </div>
+          <div className="mm-stat">
+            <span>Location</span>
+            <strong>{game.isHome ? "Home" : "Away"}</strong>
+          </div>
+          {game.daysRest !== null && game.daysRest !== 7 && (
+            <div className="mm-stat">
+              <span>Days rest</span>
+              <strong style={{ color: game.daysRest <= 5 ? "#dc2626" : game.daysRest >= 10 ? "#16a34a" : "#475569" }}>
+                {game.daysRest}d
+              </strong>
+            </div>
+          )}
+          {game.hasTravel && (
+            <div className="mm-stat">
+              <span>Travel</span>
+              <strong>✈️ 2+ TZ</strong>
+            </div>
+          )}
+        </div>
+
+        {(teamQB || oppQB) && (
+          <div className="mm-qb-note">
+            {teamQB && <span>{game.teamName}: {teamQB.outQb} → {teamQB.inQb}</span>}
+            {oppQB && <span>{game.oppCode}: {oppQB.outQb} → {oppQB.inQb}</span>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle, metricLegend, engineCells, selectedTeam, showHeatmap, expectations, results, showCellResults, vegasLines, onSelectTeam, onOpenTeam }: Props) {
+  const [modalGame, setModalGame] = useState<ModalGame | null>(null);
   const resultIndex = showCellResults ? buildResultIndex(results) : new Map<string, GameResult>();
   const recordIndex = buildRecordIndex(results);
 
@@ -222,7 +310,18 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
 
                   return (
                     <td key={week} className={`game-cell ${heatmap}`}>
-                      <div className={`game-chip ${classifyCell(team.name, opponent)}${isDiv ? " division-chip" : ""}${highlighted ? " highlight-opponent" : ""}`}>
+                      <div
+                        className={`game-chip ${classifyCell(team.name, opponent)}${isDiv ? " division-chip" : ""}${highlighted ? " highlight-opponent" : ""}`}
+                        onClick={opponentCode && opponent !== "BYE" ? (e) => {
+                          e.stopPropagation();
+                          setModalGame({
+                            teamName: team.name, oppCode: opponentCode, week,
+                            isHome, daysRest: game?.daysRest ?? null, hasTravel,
+                            teamOV: vegasLines[team.name] ?? null, oppOV: vegasLines[opponentCode] ?? null,
+                          });
+                        } : undefined}
+                        style={opponentCode && opponent !== "BYE" ? { cursor: "pointer" } : undefined}
+                      >
                         <div className={`chip-name${oppConf ? ` opp-${oppConf.toLowerCase()}` : ""}`}>
                           {opponent}
                         </div>
@@ -250,6 +349,7 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
           })}
         </tbody>
       </table>
+      {modalGame && <MatchupModal game={modalGame} onClose={() => setModalGame(null)} />}
     </div>
   );
 }
