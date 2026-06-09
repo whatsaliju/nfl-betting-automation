@@ -1,12 +1,14 @@
-import { BarChart3, Brain, CalendarDays, ClipboardList, FlaskConical, Gauge, GitBranch, Grid3X3, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
+import { Activity, BarChart3, Brain, CalendarDays, ClipboardList, Crosshair, FlaskConical, Gauge, GitBranch, Grid3X3, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CompareView } from "./components/CompareView";
 import { EdgeBoardView } from "./components/EdgeBoardView";
 import { ExpectationsView } from "./components/ExpectationsView";
+import { LiveAuditView } from "./components/LiveAuditView";
 import { MatrixTable } from "./components/MatrixTable";
 import { PostseasonStrip } from "./components/PostseasonStrip";
 import { ResearchView } from "./components/ResearchView";
 import { ResultsView } from "./components/ResultsView";
+import { ScoutView } from "./components/ScoutView";
 import { TrackRecordView } from "./components/TrackRecordView";
 import { WARPSView } from "./components/WARPSView";
 import { TeamModal } from "./components/TeamModal";
@@ -15,13 +17,13 @@ import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDispla
 import { historicalVegasLines } from "./data/nflData";
 import type { EngineFeed, Filter, TeamProfile } from "./types";
 
-type AppViewMode = "track" | "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps";
+type AppViewMode = "track" | "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "expectations", "research", "week", "compare", "results", "warps"]);
+const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout"]);
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
@@ -90,23 +92,11 @@ function App() {
   const teamExpectations = hasEngineForSeason ? engineFeed?.team_expectations || {} : {};
   const researchSummary = hasEngineForSeason ? engineFeed?.research_summary : undefined;
   const readiness = hasEngineForSeason ? engineFeed?.model_readiness : undefined;
-  const metricMeta = hasEngineForSeason
-    ? {
-        label: "Vegas O/U",
-        title: "Preseason Vegas regular-season win total",
-        legend: "Vegas O/U = preseason win total · ✓ over hit · ✗ under hit",
-      }
-    : seasonSchedule.hasResults
-      ? {
-          label: "O/U Result",
-          title: "Did the team beat their Vegas preseason win total?",
-          legend: "O/U = Vegas preseason line · ✓ over hit · ✗ under hit",
-        }
-      : {
-          label: "Wins TBD",
-          title: "Future season wins are not available yet",
-          legend: "Wins TBD = future season",
-        };
+  const metricMeta = {
+    label: "Vegas O/U",
+    title: "Preseason Vegas regular-season win total",
+    legend: "Vegas O/U = preseason win total · ✓ over hit · ✗ under hit",
+  };
 
   // Resolve Vegas lines for the selected season (historical lookup or engine feed)
   const seasonVegasLines = useMemo((): Record<string, number | null> => {
@@ -200,6 +190,8 @@ function App() {
           <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")}><GitBranch size={15} />Compare</button>
           <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")}><Trophy size={15} />Results</button>
           <button className={viewMode === "warps" ? "active" : ""} onClick={() => setViewMode("warps")}><FlaskConical size={15} />WARPS</button>
+          <button className={viewMode === "audit" ? "active" : ""} onClick={() => setViewMode("audit")}><Activity size={15} />Audit</button>
+          <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
         </div>
         <label className="toggle">
           <input type="checkbox" checked={showHeatmap} onChange={(event) => setShowHeatmap(event.target.checked)} />
@@ -273,6 +265,10 @@ function App() {
       {viewMode === "results" && <ResultsView results={seasonResults} loading={false} error={seasonSchedule.hasResults ? null : `${selectedSeason} results are not available yet.`} />}
 
       {viewMode === "warps" && <WARPSView />}
+
+      {viewMode === "audit" && <LiveAuditView expectations={teamExpectations} vegasLines={seasonVegasLines} season={selectedSeason} />}
+
+      {viewMode === "scout" && <ScoutView teams={allTeams} weeks={seasonSchedule.weeks} vegasLines={seasonVegasLines} />}
 
       <footer className="footer-note">
         <BarChart3 size={15} />
