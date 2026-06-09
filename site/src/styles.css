@@ -1919,3 +1919,166 @@ select {
   .landing-name { font-size: 24px; }
   .landing-ytts-links { flex-direction: column; gap: 10px; }
 }
+
+/* ============================================================
+   Interactive pick card detail panel
+   ============================================================ */
+.warps-pick-card {
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+  user-select: none;
+}
+.warps-pick-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+.warps-pick-card.pick-expanded { box-shadow: 0 4px 20px rgba(0,0,0,0.13); }
+.pick-expand-hint {
+  font-size: 10px;
+  color: #94a3b8;
+  text-align: center;
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+.pick-card-detail {
+  margin-top: 10px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.pcd-section { display: flex; flex-direction: column; gap: 4px; }
+.pcd-label { font-size: 10px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+.pcd-edge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+.pcd-model { width: 26px; font-weight: 600; color: #475569; font-size: 10px; }
+.pcd-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  position: relative;
+}
+.pcd-zero {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #cbd5e1;
+}
+.pcd-bar {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  border-radius: 3px;
+}
+.pcd-over { background: #16a34a; }
+.pcd-under { background: #ef4444; }
+.pcd-edge-val { width: 30px; text-align: right; font-size: 10px; font-weight: 600; }
+
+.pcd-stats-row {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.pcd-stat { display: flex; flex-direction: column; align-items: center; }
+.pcd-stat-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; }
+.pcd-stat strong { font-size: 13px; }
+.pcd-arrow { color: #94a3b8; font-size: 13px; }
+.pcd-reg-delta { font-size: 10px; color: #64748b; }
+
+.pcd-bottom-row {
+  flex-direction: row !important;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.pcd-prob, .pcd-qb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.pcd-prob-pos { background: #dcfce7; }
+.pcd-prob-neg { background: #fee2e2; }
+.pcd-qb { background: #f0fdf4; border: 1px solid #86efac; }
+
+/* ============================================================
+   Historical audit by year
+   ============================================================ */
+.warps-historical-audit { margin-top: 32px; }
+.audit-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.audit-year-select {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #0f172a;
+  cursor: pointer;
+}
+.audit-season-kpis {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #475569;
+}
+.audit-kpi strong { color: #0f172a; }
+.audit-win { color: #15803d !important; font-weight: 600; }
+.audit-loss { color: #b91c1c !important; font-weight: 600; }
+
+.audit-table-wrap { overflow-x: auto; }
+.audit-table { font-size: 12px; }
+.audit-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.audit-team-cell { display: flex; align-items: center; gap: 6px; }
+.audit-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 3px;
+  padding: 1px;
+}
+.audit-accurate td { background: #f0fdf4 !important; }
+.audit-miss td { background: #fff1f2 !important; }
+.audit-err-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 80px;
+}
+.audit-err-bar-w, .audit-err-bar-p {
+  height: 5px;
+  border-radius: 2px;
+  min-width: 2px;
+}
+.audit-err-bar-w { background: #1d4ed8; }
+.audit-err-bar-p { background: #94a3b8; }
+.audit-badge-w { font-size: 10px; color: #1d4ed8; font-weight: 600; white-space: nowrap; }
+.audit-badge-p { font-size: 10px; color: #64748b; font-weight: 600; white-space: nowrap; }
+
+/* ============================================================
+   Model architecture flowchart
+   ============================================================ */
+.warps-flowchart-wrap { margin: 12px 0; }
+.warps-flowchart-svg {
+  width: 100%;
+  max-width: 680px;
+  display: block;
+  margin: 0 auto;
+  overflow: visible;
+}
