@@ -36,6 +36,7 @@ export interface ConsensusRow {
   v16Edge: number;
   avgEdge: number;
   consensus: string;
+  dynasty?: "positive" | "negative";
 }
 
 export interface BootstrapStats {
@@ -163,7 +164,7 @@ export const consensusData: ConsensusRow[] = [
   { team: "WAS", marketTotal: 7.5,  v18Wins: 7.98,  v18Edge: 0.48,  v15dEdge: 0.94,  v16Edge: 0.38,  avgEdge: 0.60,  consensus: "Split / No bet" },
   { team: "HOU", marketTotal: 9.5,  v18Wins: 9.96,  v18Edge: 0.46,  v15dEdge: -0.11, v16Edge: 0.75,  avgEdge: 0.37,  consensus: "Split / No bet" },
   { team: "PIT", marketTotal: 8.5,  v18Wins: 8.59,  v18Edge: 0.09,  v15dEdge: 0.02,  v16Edge: 0.12,  avgEdge: 0.08,  consensus: "Split / No bet" },
-  { team: "CAR", marketTotal: 7.5,  v18Wins: 7.51,  v18Edge: 0.01,  v15dEdge: 0.34,  v16Edge: -0.20, avgEdge: 0.05,  consensus: "Split / No bet" },
+  { team: "CAR", marketTotal: 7.5,  v18Wins: 7.51,  v18Edge: 0.01,  v15dEdge: 0.34,  v16Edge: -0.20, avgEdge: 0.05,  consensus: "Split / No bet", dynasty: "negative" },
   { team: "SEA", marketTotal: 10.5, v18Wins: 10.52, v18Edge: 0.02,  v15dEdge: -0.56, v16Edge: 0.32,  avgEdge: -0.08, consensus: "Split / No bet" },
   { team: "DEN", marketTotal: 9.5,  v18Wins: 9.36,  v18Edge: -0.14, v15dEdge: -0.31, v16Edge: 0.05,  avgEdge: -0.13, consensus: "Split / No bet" },
   { team: "TB",  marketTotal: 8.5,  v18Wins: 8.30,  v18Edge: -0.20, v15dEdge: -0.27, v16Edge: -0.23, avgEdge: -0.23, consensus: "Split / No bet" },
@@ -177,12 +178,12 @@ export const consensusData: ConsensusRow[] = [
   { team: "CIN", marketTotal: 9.5,  v18Wins: 8.41,  v18Edge: -1.09, v15dEdge: -1.21, v16Edge: -1.06, avgEdge: -1.12, consensus: "2-Strong Under" },
   { team: "CHI", marketTotal: 9.5,  v18Wins: 8.30,  v18Edge: -1.20, v15dEdge: -1.27, v16Edge: -1.23, avgEdge: -1.23, consensus: "2-Strong Under" },
   { team: "SF",  marketTotal: 10.5, v18Wins: 9.37,  v18Edge: -1.13, v15dEdge: -1.79, v16Edge: -0.99, avgEdge: -1.30, consensus: "2-model Under" },
-  { team: "NYJ", marketTotal: 6.5,  v18Wins: 5.18,  v18Edge: -1.32, v15dEdge: -1.06, v16Edge: -1.72, avgEdge: -1.36, consensus: "2-Strong Under" },
+  { team: "NYJ", marketTotal: 6.5,  v18Wins: 5.18,  v18Edge: -1.32, v15dEdge: -1.06, v16Edge: -1.72, avgEdge: -1.36, consensus: "2-Strong Under", dynasty: "negative" },
   { team: "DAL", marketTotal: 9.5,  v18Wins: 8.05,  v18Edge: -1.45, v15dEdge: -1.49, v16Edge: -1.50, avgEdge: -1.48, consensus: "2-Strong Under" },
   { team: "BAL", marketTotal: 11.5, v18Wins: 9.67,  v18Edge: -1.83, v15dEdge: -2.02, v16Edge: -1.63, avgEdge: -1.82, consensus: "3-model Under" },
-  { team: "KC",  marketTotal: 11.5, v18Wins: 9.59,  v18Edge: -1.91, v15dEdge: -2.18, v16Edge: -1.72, avgEdge: -1.94, consensus: "3-model Under" },
+  { team: "KC",  marketTotal: 11.5, v18Wins: 9.59,  v18Edge: -1.91, v15dEdge: -2.18, v16Edge: -1.72, avgEdge: -1.94, consensus: "3-model Under", dynasty: "positive" },
   { team: "PHI", marketTotal: 11.5, v18Wins: 9.27,  v18Edge: -2.23, v15dEdge: -2.36, v16Edge: -2.07, avgEdge: -2.22, consensus: "3-model Under" },
-  { team: "BUF", marketTotal: 12.5, v18Wins: 10.10, v18Edge: -2.40, v15dEdge: -2.63, v16Edge: -2.19, avgEdge: -2.40, consensus: "3-model Under" },
+  { team: "BUF", marketTotal: 12.5, v18Wins: 10.10, v18Edge: -2.40, v15dEdge: -2.63, v16Edge: -2.19, avgEdge: -2.40, consensus: "3-model Under", dynasty: "positive" },
 ];
 
 // Profitability simulation against Vegas win totals (nflverse, 2003-2020)

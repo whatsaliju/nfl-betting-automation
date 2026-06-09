@@ -2082,3 +2082,149 @@ select {
   margin: 0 auto;
   overflow: visible;
 }
+
+/* ============================================================
+   Strategic Quadrant scatter plot
+   ============================================================ */
+.quadrant-wrapper { margin-top: 8px; }
+
+.quadrant-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.warps-filter-btn {
+  padding: 6px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #334155;
+}
+.warps-filter-btn.active {
+  background: #1e40af;
+  color: white;
+  border-color: #1e40af;
+}
+.warps-filter-btn:hover:not(.active) {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.quadrant-legend {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #475569;
+}
+.ql-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.ql-ring {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.warps-quadrant-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Floating tooltip */
+.quadrant-tooltip {
+  position: absolute;
+  z-index: 200;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
+  padding: 12px 14px;
+  min-width: 210px;
+  pointer-events: none;
+  animation: fadeIn 0.1s ease;
+}
+.qt-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.qt-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.qt-team {
+  font-size: 15px;
+  display: block;
+  line-height: 1.2;
+}
+.qt-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #475569;
+  white-space: nowrap;
+}
+.qt-badge-hc {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.qt-stats {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: #64748b;
+}
+.qt-density-legend {
+  display: flex;
+  gap: 10px;
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 3px;
+}
+.qt-dynasty-note {
+  margin-top: 7px;
+  font-size: 10px;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 5px;
+  padding: 4px 7px;
+}
+
+/* Quadrant tab title/sub */
+.warps-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+.warps-section-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 18px;
+  max-width: 640px;
+  line-height: 1.55;
+}

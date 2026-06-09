@@ -1,12 +1,16 @@
-import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, FileText, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
+import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, Crosshair, FileText, FlaskConical, TrendingDown, TrendingUp } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { teamColors, teamLogos } from "../data/nflData";
 import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
 import { bootstrapStats, byYearData, calibrationData, consensusData, historicalTeamData, metricRanking, pnlByYear, profitabilityData, residualHistogram, type ConsensusRow } from "../data/warpsData";
 
-type WARPSTab = "slate" | "performance" | "methodology" | "paper";
+type WARPSTab = "slate" | "performance" | "methodology" | "paper" | "quadrant";
 
-const VALID_TABS = new Set<WARPSTab>(["slate", "performance", "methodology", "paper"]);
+const VALID_TABS = new Set<WARPSTab>(["slate", "performance", "methodology", "paper", "quadrant"]);
+
+// Teams with Dynasty Persistence Modifier active in 2026 projections (v2.0)
+const DYNASTY_POSITIVE = new Set(["KC", "BUF"]);  // 4+ years sustained excellence (R=0.95 upward)
+const DYNASTY_NEGATIVE = new Set(["NYJ", "CAR"]);  // 4+ years sustained futility (R=0.95 downward)
 function hashToTab(): WARPSTab {
   const h = window.location.hash.replace("#", "") as WARPSTab;
   return VALID_TABS.has(h) ? h : "slate";
@@ -1788,6 +1792,249 @@ function PaperTab() {
   );
 }
 
+// ──────────────────────────────────────────────────────────────
+// Strategic Quadrant — scatter plot of WARPS vs Vegas win totals
+// ──────────────────────────────────────────────────────────────
+
+function DensityCurve({ mu, marketTotal }: { mu: number; marketTotal: number }) {
+  const sigma = WARPS_SIGMA;
+  const W = 184, H = 52;
+  const xmin = Math.max(0, mu - 3.2 * sigma);
+  const xmax = Math.min(18, mu + 3.2 * sigma);
+
+  const pts: [number, number][] = [];
+  for (let x = xmin; x <= xmax; x += 0.12) {
+    pts.push([x, Math.exp(-0.5 * ((x - mu) / sigma) ** 2)]);
+  }
+  const scX = (v: number) => ((v - xmin) / (xmax - xmin)) * W;
+  const scY = (v: number) => H - v * H * 0.84;
+  const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"}${scX(p[0]).toFixed(1)},${scY(p[1]).toFixed(1)}`).join(" ");
+  const mX = scX(Math.min(Math.max(marketTotal, xmin), xmax));
+  const wX = scX(mu);
+
+  return (
+    <svg width={W} height={H} style={{ display: "block", marginTop: 4 }}>
+      <path
+        d={`${pathD} V${H} L${scX(xmin).toFixed(1)},${H} Z`}
+        fill="rgba(99,102,241,0.10)"
+      />
+      <path d={pathD} fill="none" stroke="rgba(99,102,241,0.65)" strokeWidth={1.5} />
+      <line x1={mX} y1={3} x2={mX} y2={H - 3} stroke="#dc2626" strokeWidth={1.5} strokeDasharray="3,2" />
+      <line x1={wX} y1={3} x2={wX} y2={H - 3} stroke="#16a34a" strokeWidth={2} />
+      <text x={wX} y={H - 3} textAnchor="middle" fontSize={8} fill="#16a34a" fontWeight="bold">W</text>
+      <text x={mX + (mX < wX - 6 ? 0 : mX > wX + 6 ? 0 : 8)} y={H - 3}
+        textAnchor="middle" fontSize={8} fill="#dc2626">V</text>
+    </svg>
+  );
+}
+
+function StrategicQuadrant({ rows }: { rows: ConsensusRow[] }) {
+  const [consensusFilter, setConsensusFilter] = useState(false);
+  const [hovered, setHovered] = useState<{ row: ConsensusRow; px: number; py: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const SVG_W = 560, SVG_H = 480;
+  const ML = 60, MT = 40, MR = 40, MB = 62;
+  const PW = SVG_W - ML - MR;  // 460
+  const PH = SVG_H - MT - MB;  // 378
+  const VMIN = 3.0, VMAX = 15.0;
+
+  const scX = (v: number) => ((v - VMIN) / (VMAX - VMIN)) * PW;
+  const scY = (v: number) => PH - ((v - VMIN) / (VMAX - VMIN)) * PH;
+
+  const dotColor = (r: ConsensusRow) =>
+    r.consensus.includes("Over") ? "#16a34a" : r.consensus.includes("Under") ? "#dc2626" : "#94a3b8";
+  const isHC = (r: ConsensusRow) => r.consensus.startsWith("3-model");
+
+  const handleMove = (e: React.MouseEvent, row: ConsensusRow) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setHovered({ row, px: e.clientX - rect.left, py: e.clientY - rect.top });
+  };
+
+  const ticks = [4, 6, 8, 10, 12, 14];
+  // Diagonal angle in screen-space: atan(-PH/PW) ≈ -39°
+  const diagAngle = -Math.round(Math.atan(PH / PW) * 180 / Math.PI);
+
+  return (
+    <div ref={containerRef} className="quadrant-wrapper">
+      <div className="quadrant-controls">
+        <button
+          className={`warps-filter-btn${consensusFilter ? " active" : ""}`}
+          onClick={() => setConsensusFilter(v => !v)}
+        >
+          {consensusFilter ? "✓ " : ""}3-Model Consensus Only
+        </button>
+        <div className="quadrant-legend">
+          <span><span className="ql-dot" style={{ background: "#16a34a" }} />Over signal</span>
+          <span><span className="ql-dot" style={{ background: "#dc2626" }} />Under signal</span>
+          <span><span className="ql-dot" style={{ background: "#94a3b8" }} />No bet</span>
+          <span><span className="ql-ring" style={{ borderColor: "#f59e0b" }} />Dynasty +</span>
+          <span><span className="ql-ring" style={{ borderColor: "#8b5cf6" }} />Dynasty −</span>
+        </div>
+      </div>
+
+      <div style={{ position: "relative" }}>
+        <svg
+          width={SVG_W} height={SVG_H}
+          viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+          className="warps-quadrant-svg"
+          onMouseLeave={() => setHovered(null)}
+        >
+          <g transform={`translate(${ML},${MT})`}>
+            {/* Quadrant shading */}
+            <rect x={0} y={0} width={PW / 2} height={PH / 2} fill="rgba(22,163,74,0.04)" />
+            <rect x={PW / 2} y={PH / 2} width={PW / 2} height={PH / 2} fill="rgba(220,38,38,0.04)" />
+
+            {/* Grid lines */}
+            {ticks.map(v => (
+              <g key={v}>
+                <line x1={scX(v)} y1={0} x2={scX(v)} y2={PH} stroke="#f1f5f9" strokeWidth={1} />
+                <line x1={0} y1={scY(v)} x2={PW} y2={scY(v)} stroke="#f1f5f9" strokeWidth={1} />
+              </g>
+            ))}
+
+            {/* Diagonal agreement line */}
+            <line
+              x1={scX(VMIN)} y1={scY(VMIN)} x2={scX(VMAX)} y2={scY(VMAX)}
+              stroke="#cbd5e1" strokeWidth={1.5} strokeDasharray="5,4"
+            />
+            <text
+              x={scX(12.6)} y={scY(13.2)}
+              fontSize={9} fill="#94a3b8" textAnchor="middle"
+              transform={`rotate(${diagAngle}, ${scX(12.6)}, ${scY(13.2)})`}
+            >
+              market = model
+            </text>
+
+            {/* Quadrant labels */}
+            <text x={14} y={24} fontSize={12} fill="#16a34a" fontWeight={700} opacity={0.75}>▲ VALUE OVER</text>
+            <text x={14} y={39} fontSize={10} fill="#475569" opacity={0.55}>Model {">"} Market — "The Steals"</text>
+            <text x={PW - 14} y={PH - 30} textAnchor="end" fontSize={12} fill="#dc2626" fontWeight={700} opacity={0.75}>▼ VALUE UNDER</text>
+            <text x={PW - 14} y={PH - 15} textAnchor="end" fontSize={10} fill="#475569" opacity={0.55}>Market {">"} Model — "The Frauds"</text>
+
+            {/* Axis ticks */}
+            {ticks.map(v => (
+              <g key={v}>
+                <text x={scX(v)} y={PH + 20} textAnchor="middle" fontSize={11} fill="#64748b">{v}</text>
+                <text x={-10} y={scY(v)} textAnchor="end" dominantBaseline="middle" fontSize={11} fill="#64748b">{v}</text>
+              </g>
+            ))}
+
+            {/* Axis labels */}
+            <text x={PW / 2} y={PH + 48} textAnchor="middle" fontSize={13} fill="#334155" fontWeight={600}>
+              Vegas Win Total (Market)
+            </text>
+            <text
+              transform={`translate(-46,${PH / 2}) rotate(-90)`}
+              textAnchor="middle" fontSize={13} fill="#334155" fontWeight={600}
+            >
+              WARPS Projected Wins (Model)
+            </text>
+
+            {/* All dots */}
+            {rows.map(r => {
+              const isDynPos = DYNASTY_POSITIVE.has(r.team);
+              const isDynNeg = DYNASTY_NEGATIVE.has(r.team);
+              const isDyn = isDynPos || isDynNeg;
+              const hc = isHC(r);
+              const faded = consensusFilter && !hc;
+              const cx = scX(r.marketTotal);
+              const cy = scY(r.v18Wins);
+              const dotR = hc ? 8 : 6;
+
+              return (
+                <g
+                  key={r.team}
+                  style={{ cursor: "pointer" }}
+                  onMouseMove={e => handleMove(e, r)}
+                  onMouseLeave={() => setHovered(null)}
+                >
+                  {isDyn && !faded && (
+                    <circle
+                      cx={cx} cy={cy} r={dotR + 5}
+                      fill="none"
+                      stroke={isDynPos ? "#f59e0b" : "#8b5cf6"}
+                      strokeWidth={2}
+                      opacity={0.65}
+                    />
+                  )}
+                  <circle
+                    cx={cx} cy={cy} r={dotR}
+                    fill={dotColor(r)}
+                    opacity={faded ? 0.10 : (hovered && hovered.row.team !== r.team ? 0.55 : 1)}
+                    stroke="white"
+                    strokeWidth={1.5}
+                  />
+                  {!faded && (hc || isDyn) && (
+                    <text
+                      x={cx} y={cy - dotR - 5}
+                      textAnchor="middle" fontSize={9} fill="#1e293b" fontWeight={700}
+                      style={{ pointerEvents: "none" }}
+                    >
+                      {r.team}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+          </g>
+
+          {/* Border */}
+          <rect x={ML} y={MT} width={PW} height={PH} fill="none" stroke="#e2e8f0" strokeWidth={1} rx={2} />
+        </svg>
+
+        {/* Floating tooltip */}
+        {hovered && (() => {
+          const r = hovered.row;
+          const isDynPos = DYNASTY_POSITIVE.has(r.team);
+          const isDynNeg = DYNASTY_NEGATIVE.has(r.team);
+          return (
+            <div
+              className="quadrant-tooltip"
+              style={{
+                left: Math.min(hovered.px + 14, (containerRef.current?.offsetWidth ?? 600) - 220),
+                top: Math.max(4, hovered.py - 90),
+              }}
+            >
+              <div className="qt-header">
+                <img src={teamLogos[r.team]} alt={r.team} className="qt-logo" />
+                <div>
+                  <strong className="qt-team">{r.team}</strong>
+                  <span className={`qt-badge${isHC(r) ? " qt-badge-hc" : ""}`}>{r.consensus}</span>
+                </div>
+              </div>
+              <div className="qt-stats">
+                <span>WARPS <strong style={{ color: "#16a34a" }}>{r.v18Wins.toFixed(1)}</strong></span>
+                <span>Vegas <strong style={{ color: "#dc2626" }}>{r.marketTotal.toFixed(1)}</strong></span>
+                <span>Edge <strong>{r.avgEdge > 0 ? "+" : ""}{r.avgEdge.toFixed(2)}w</strong></span>
+              </div>
+              <DensityCurve mu={r.v18Wins} marketTotal={r.marketTotal} />
+              <div className="qt-density-legend">
+                <span style={{ color: "#16a34a" }}>■ WARPS proj</span>
+                <span style={{ color: "#dc2626" }}>■ Vegas line</span>
+              </div>
+              {(isDynPos || isDynNeg) && (
+                <div className="qt-dynasty-note">
+                  {isDynPos
+                    ? "Dynasty Persistence active — R=0.95 (excellence preserved)"
+                    : "Dynasty Futility active — R=0.95 (decline preserved)"}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+      </div>
+
+      <p className="warps-chart-note" style={{ marginTop: 10 }}>
+        Each dot is a team. Distance above the diagonal = model sees more wins than market (Over value).
+        Distance below = model sees fewer wins (Under value). Dynasty rings mark teams with the
+        v2.0 Persistence Modifier active. Larger dots = 3-model consensus picks.
+      </p>
+    </div>
+  );
+}
+
 function HeroStat({
   label, target, decimals, suffix, sub, highlight,
 }: {
@@ -1863,6 +2110,9 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
         <button className={tab === "paper" ? "active" : ""} onClick={() => switchTab("paper")}>
           <FileText size={14} /> Paper
         </button>
+        <button className={tab === "quadrant" ? "active" : ""} onClick={() => switchTab("quadrant")}>
+          <Crosshair size={14} /> Quadrant
+        </button>
       </div>
 
       {tab === "slate" && (
@@ -1876,6 +2126,16 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
       {tab === "performance" && <PerformanceTab rows={displayData} qbAdjMap={qbAdjMap} />}
       {tab === "methodology" && <MethodologyTab />}
       {tab === "paper" && <PaperTab />}
+      {tab === "quadrant" && (
+        <div className="warps-tab-content">
+          <h3 className="warps-section-title">Strategic Quadrant — WARPS vs Vegas Win Totals</h3>
+          <p className="warps-section-sub">
+            Teams above the diagonal are priced too low by the market (Over value). Teams below are priced too high (Under value).
+            Hover any dot for the win probability density curve — how wide the model's uncertainty range is relative to where Vegas has set the line.
+          </p>
+          <StrategicQuadrant rows={displayData} />
+        </div>
+      )}
     </section>
   );
 }
