@@ -214,27 +214,28 @@ function AllSeasonsSummary({ summaries, onSelect }: { summaries: SeasonSummary[]
       <div className="track-aggregate-kpis">
         <div className="track-kpi">
           <strong>{totals.seasons}</strong>
-          <span>Seasons audited</span>
+          <span>Seasons on record</span>
         </div>
         <div className="track-kpi">
-          <strong>{totals.overs}</strong>
-          <span>Total overs hit</span>
-        </div>
-        <div className="track-kpi">
-          <strong>{totals.unders}</strong>
-          <span>Total unders hit</span>
+          {(() => {
+            const total = totals.overs + totals.unders + totals.pushes;
+            return <>
+              <strong>{total > 0 ? `${(totals.overs / total * 100).toFixed(0)}%` : "—"}</strong>
+              <span>Hit over · {totals.overs}/{total}</span>
+            </>;
+          })()}
         </div>
         <div className="track-kpi">
           <strong>{totals.vegasMAE.toFixed(2)}w</strong>
-          <span>Vegas avg error</span>
+          <span>Vegas avg miss</span>
         </div>
         <div className="track-kpi">
           <strong>{totals.warpsMAE.toFixed(2)}w</strong>
-          <span>WARPS avg error</span>
+          <span>WARPS avg miss</span>
         </div>
         <div className="track-kpi highlight">
           <strong>{(totals.warpsAcc * 100).toFixed(0)}%</strong>
-          <span>WARPS pick acc ({totals.warpsPicks} picks)</span>
+          <span>WARPS O/U accuracy · {totals.warpsPicks} picks</span>
         </div>
       </div>
 
@@ -295,10 +296,10 @@ export function TrackRecordView() {
     <div className="track-wrapper">
       <div className="track-header">
         <div>
-          <h2 className="track-title">Track Record — WARPS vs Vegas O/U (2015–2026)</h2>
+          <h2 className="track-title">The Public Record — 11 Seasons of WARPS vs Vegas</h2>
           <p className="track-subtitle">
-            Preseason Vegas win totals vs final regular-season standings.
-            WARPS projections (v1.8, {"λ"}=0.15) shown alongside for model accountability.
+            Every year Vegas sets win total lines for all 32 teams. WARPS makes independent calls.
+            This is the 11-year public record of both — no cherry-picks, no retroactive edits.
             Click any season for the full team-by-team breakdown.
           </p>
         </div>
