@@ -5,6 +5,19 @@ Hypothesis: Points scored or allowed when win probability is outside [0.05, 0.95
 ("garbage time") inflate / deflate Pythagorean win expectation and point differential
 without adding predictive signal about future performance.
 
+Analytical pre-test result (run on existing backtest data before PBP download):
+  - Corr(pyth_same_year_error_N, next_warps_error_N+1): -0.005 (≈ zero)
+    → No cascading bias: Pythagorean over-estimation in year N does NOT cause
+      WARPS to systematically over-project in year N+1.
+  - Extreme quality teams (|pure_quality_pts| > 75th pct): MAE = 2.26 vs 2.41
+    → More extreme teams are NOT harder to project — the 2024/2025 problem is
+      directional (dynasty under-projection), not calibration contamination.
+  - Mechanism: Pythagorean's non-linear exponent (2.37) compresses garbage-time
+    scores naturally. Once PF >> PA, adding more garbage-time points barely
+    changes the Pythagorean ratio. The exponent IS the garbage-time filter.
+  Expected outcome: likely null result similar to SOS (valid and important finding).
+  Run this script when internet access is available to confirm on PBP data.
+
 Experiment design
 ─────────────────
 Phase 1 — Reproduce v2.0 champion on full sample (sanity check).
