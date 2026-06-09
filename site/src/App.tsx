@@ -27,7 +27,7 @@ const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "expectati
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
-  return VALID_VIEWS.has(h) ? h : "track";
+  return VALID_VIEWS.has(h) ? h : "matrix";
 }
 
 function urlToSeason() {
@@ -137,11 +137,11 @@ function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="brand-block">
-            <Grid3X3 size={26} />
+        <div className="brand-block brand-home-btn" onClick={() => setViewMode("matrix")} title="Back to matrix">
+          <Grid3X3 size={26} />
           <div>
             <h1>NFL Edge Hub</h1>
-            <p>Preseason win projections, schedule intelligence & 11 seasons of public accountability</p>
+            <p>Schedule matrix, win projections &amp; model record · 2015–2026</p>
           </div>
         </div>
         <div className="status-row">
@@ -178,17 +178,17 @@ function App() {
           ))}
         </div>
         <div className="segmented view-tabs">
-          <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")}><ClipboardList size={15} />Track</button>
           <button className={viewMode === "matrix" ? "active" : ""} onClick={() => setViewMode("matrix")}><Grid3X3 size={15} />Matrix</button>
-          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges</button>
-          <button className={viewMode === "expectations" ? "active" : ""} onClick={() => setViewMode("expectations")}><Gauge size={15} />Expect</button>
-          <button className={viewMode === "research" ? "active" : ""} onClick={() => setViewMode("research")}><Brain size={15} />Research</button>
           <button className={viewMode === "week" ? "active" : ""} onClick={() => setViewMode("week")}><CalendarDays size={15} />Week</button>
+          <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
+          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges</button>
           <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")}><GitBranch size={15} />Compare</button>
           <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")}><Trophy size={15} />Results</button>
-          <button className={viewMode === "warps" ? "active" : ""} onClick={() => setViewMode("warps")}><FlaskConical size={15} />WARPS</button>
           <button className={viewMode === "audit" ? "active" : ""} onClick={() => setViewMode("audit")}><Activity size={15} />Audit</button>
-          <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
+          <button className={viewMode === "expectations" ? "active" : ""} onClick={() => setViewMode("expectations")}><Gauge size={15} />Expect</button>
+          <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")}><ClipboardList size={15} />Track</button>
+          <button className={viewMode === "research" ? "active" : ""} onClick={() => setViewMode("research")}><Brain size={15} />Research</button>
+          <button className={viewMode === "warps" ? "active" : ""} onClick={() => setViewMode("warps")}><FlaskConical size={15} />WARPS</button>
         </div>
         <label className="toggle">
           <input type="checkbox" checked={showHeatmap} onChange={(event) => setShowHeatmap(event.target.checked)} />
