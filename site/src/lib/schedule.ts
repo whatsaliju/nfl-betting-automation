@@ -12,7 +12,7 @@ export const availableSeasons = Object.keys(schedulesBySeason)
   .map(Number)
   .sort((a, b) => a - b);
 
-export const DEFAULT_SEASON = 2025;
+export const DEFAULT_SEASON = 2026;
 
 export function getSeasonSchedule(season: number): SeasonSchedule {
   return schedulesBySeason[String(season)] || schedulesBySeason[String(DEFAULT_SEASON)];

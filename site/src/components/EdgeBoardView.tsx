@@ -63,7 +63,13 @@ export function EdgeBoardView({ games }: { games: EdgeBoardGame[] }) {
         </div>
       </div>
 
-      {!regularGames.length && <p className="empty-state">No edge-board feed rows are available yet.</p>}
+      {!regularGames.length && (
+        <div className="coming-soon-empty">
+          <div className="coming-soon-icon">📡</div>
+          <h3>Edge board goes live with the season</h3>
+          <p>Once Week 1 kicks off (September 2026), this view will show spread, total, and moneyline recommendations for every game — updated weekly as the engine runs.</p>
+        </div>
+      )}
 
       <div className="edge-board-grid">
         {regularGames.map((game) => {

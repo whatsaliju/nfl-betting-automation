@@ -1,12 +1,15 @@
-import { BarChart3, Brain, CalendarDays, FlaskConical, Gauge, GitBranch, Grid3X3, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
+import { Activity, BarChart3, Brain, CalendarDays, ClipboardList, Crosshair, FlaskConical, Gauge, GitBranch, Grid3X3, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CompareView } from "./components/CompareView";
 import { EdgeBoardView } from "./components/EdgeBoardView";
 import { ExpectationsView } from "./components/ExpectationsView";
+import { LiveAuditView } from "./components/LiveAuditView";
 import { MatrixTable } from "./components/MatrixTable";
 import { PostseasonStrip } from "./components/PostseasonStrip";
 import { ResearchView } from "./components/ResearchView";
 import { ResultsView } from "./components/ResultsView";
+import { ScoutView } from "./components/ScoutView";
+import { TrackRecordView } from "./components/TrackRecordView";
 import { WARPSView } from "./components/WARPSView";
 import { TeamModal } from "./components/TeamModal";
 import { WeekView } from "./components/WeekView";
@@ -14,13 +17,13 @@ import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDispla
 import { historicalVegasLines } from "./data/nflData";
 import type { EngineFeed, Filter, TeamProfile } from "./types";
 
-type AppViewMode = "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps";
+type AppViewMode = "track" | "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["matrix", "edges", "expectations", "research", "week", "compare", "results", "warps"]);
+const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections"]);
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
@@ -82,27 +85,20 @@ function App() {
   const overlayCount = engineCells.size + playoffCells.length;
   const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSchedule]);
   const engineSeason = engineFeed?.games?.find((game) => game.season)?.season || DEFAULT_SEASON;
-  const hasEngineForSeason = selectedSeason === engineSeason;
+  // Don't use engine expectations for seasons that are already complete — those have stale
+  // partial-season actual_wins from whenever the feed was last generated.  For finished
+  // seasons we read actual wins straight from seasonSchedules.json (schedule.teamStats).
+  const hasEngineForSeason = selectedSeason === engineSeason && !seasonSchedule.hasResults;
   const teamExpectations = hasEngineForSeason ? engineFeed?.team_expectations || {} : {};
+  const hasEdges = edgeGames.length > 0;
+  const hasProjections = Object.keys(teamExpectations).length > 0;
   const researchSummary = hasEngineForSeason ? engineFeed?.research_summary : undefined;
   const readiness = hasEngineForSeason ? engineFeed?.model_readiness : undefined;
-  const metricMeta = hasEngineForSeason
-    ? {
-        label: "Vegas O/U",
-        title: "Preseason Vegas regular-season win total",
-        legend: "Vegas O/U = preseason win total · ✓ over hit · ✗ under hit",
-      }
-    : seasonSchedule.hasResults
-      ? {
-          label: "O/U Result",
-          title: "Did the team beat their Vegas preseason win total?",
-          legend: "O/U = Vegas preseason line · ✓ over hit · ✗ under hit",
-        }
-      : {
-          label: "Wins TBD",
-          title: "Future season wins are not available yet",
-          legend: "Wins TBD = future season",
-        };
+  const metricMeta = {
+    label: "Vegas O/U",
+    title: "Preseason Vegas regular-season win total",
+    legend: "Vegas O/U = preseason win total · ✓ over hit · ✗ under hit",
+  };
 
   // Resolve Vegas lines for the selected season (historical lookup or engine feed)
   const seasonVegasLines = useMemo((): Record<string, number | null> => {
@@ -143,33 +139,30 @@ function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="brand-block">
-            <Grid3X3 size={26} />
+        <div className="brand-block brand-home-btn" onClick={() => setViewMode("matrix")} title="Back to matrix">
+          <Grid3X3 size={26} />
           <div>
             <h1>NFL Edge Hub</h1>
-            <p>{selectedSeason} Season · Matrix, betting edges, source health, and model research</p>
+            <p>Schedule matrix, win projections &amp; model record · 2015–2026</p>
           </div>
         </div>
         <div className="status-row">
           <span className={engineError ? "status-pill warning" : "status-pill ok"}>
             <ShieldCheck size={14} />
-            {engineError ? "Engine feed unavailable" : `Engine feed ${engineFeed?.feed_version || "loading"}`}
+            {engineError ? "Feed offline" : `Live feed v${engineFeed?.feed_version || "…"}`}
           </span>
           {readiness?.available && (
             <span
-              className={`status-pill readiness ${
-                readiness.status === "READY_FOR_MONITORING" ? "ok" : "warning"
-              }`}
+              className={`status-pill ${readiness.status === "READY_FOR_MONITORING" ? "ok" : "warning"}`}
               title={readiness.reason}
             >
-              {readiness.status.replace(/_/g, " ")}
+              {readiness.status === "READY_FOR_MONITORING" ? "Model active" : "Model warming up"}
               {readiness.active_walk_forward?.win_rate !== undefined && (
-                <strong>{percent(readiness.active_walk_forward.win_rate)} WF</strong>
+                <strong> · {percent(readiness.active_walk_forward.win_rate)} WF</strong>
               )}
             </span>
           )}
-          {engineFeed && <span className="status-pill">{overlayCount} overlays</span>}
-          {!hasEngineForSeason && <span className="status-pill">matrix only</span>}
+          {engineFeed && overlayCount > 0 && <span className="status-pill">{overlayCount} overlays</span>}
         </div>
       </header>
 
@@ -188,13 +181,13 @@ function App() {
         </div>
         <div className="segmented view-tabs">
           <button className={viewMode === "matrix" ? "active" : ""} onClick={() => setViewMode("matrix")}><Grid3X3 size={15} />Matrix</button>
-          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges</button>
-          <button className={viewMode === "expectations" ? "active" : ""} onClick={() => setViewMode("expectations")}><Gauge size={15} />Expect</button>
-          <button className={viewMode === "research" ? "active" : ""} onClick={() => setViewMode("research")}><Brain size={15} />Research</button>
           <button className={viewMode === "week" ? "active" : ""} onClick={() => setViewMode("week")}><CalendarDays size={15} />Week</button>
           <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")}><GitBranch size={15} />Compare</button>
           <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")}><Trophy size={15} />Results</button>
-          <button className={viewMode === "warps" ? "active" : ""} onClick={() => setViewMode("warps")}><FlaskConical size={15} />WARPS</button>
+          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges{!hasEdges && <span className="tab-soon">Soon</span>}</button>
+          <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
+          <button className={["projections", "audit", "expectations"].includes(viewMode) ? "active" : ""} onClick={() => setViewMode("projections")}><Gauge size={15} />Projections{!hasProjections && <span className="tab-soon">Soon</span>}</button>
+          <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")}><ClipboardList size={15} />Track</button>
         </div>
         <label className="toggle">
           <input type="checkbox" checked={showHeatmap} onChange={(event) => setShowHeatmap(event.target.checked)} />
@@ -216,6 +209,8 @@ function App() {
           Engine overlay feed could not be loaded. The schedule, filters, modals, and ESPN result views still work.
         </div>
       )}
+
+      {viewMode === "track" && <TrackRecordView />}
 
       {viewMode === "matrix" && (
         <>
@@ -242,8 +237,6 @@ function App() {
 
       {viewMode === "edges" && <EdgeBoardView games={edgeGames} />}
 
-      {viewMode === "expectations" && <ExpectationsView expectations={teamExpectations} />}
-
       {viewMode === "research" && <ResearchView summary={researchSummary} />}
 
       {viewMode === "week" && (
@@ -267,9 +260,22 @@ function App() {
 
       {viewMode === "warps" && <WARPSView />}
 
+      {(viewMode === "projections" || viewMode === "audit" || viewMode === "expectations") && (
+        <>
+          <LiveAuditView expectations={teamExpectations} vegasLines={seasonVegasLines} season={selectedSeason} />
+          {Object.keys(teamExpectations).length > 0 && <ExpectationsView expectations={teamExpectations} />}
+        </>
+      )}
+
+      {viewMode === "scout" && <ScoutView teams={allTeams} weeks={seasonSchedule.weeks} vegasLines={seasonVegasLines} />}
+
       <footer className="footer-note">
         <BarChart3 size={15} />
-        Public feed source: raw GitHub engine artifacts. The site remains static and embeddable.
+        Public feed · raw GitHub engine artifacts · static &amp; embeddable
+        <span className="footer-links">
+          <button className="footer-link-btn" onClick={() => setViewMode("warps")}>WARPS model</button>
+          {researchSummary && <button className="footer-link-btn" onClick={() => setViewMode("research")}>Research notes</button>}
+        </span>
       </footer>
 
       {modalTeam && <TeamModal team={modalTeam} engineCells={engineCells} expectation={teamExpectations[modalTeam.name]} metricLabel={metricMeta.label} onClose={() => setModalTeam(null)} />}
