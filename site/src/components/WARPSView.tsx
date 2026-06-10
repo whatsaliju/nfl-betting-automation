@@ -1763,7 +1763,7 @@ function PaperTab() {
       </p>
 
       <p className="paper-body">
-        <strong>5.2 Optimal Parsimony — Natural Constants of the NFL.</strong> A striking feature of
+        <strong>5.2 Optimal Parsimony — Stable Parameters Across the Observed Sample.</strong> A striking feature of
         this investigation is how many "common-sense" model enhancements turned out to be null. Three
         independent tests — schedule strength adjustment, era-aware regime shift, and garbage-time
         filtering — each failed to improve held-out accuracy (Table 2). This is not a failure of the
@@ -1790,12 +1790,14 @@ function PaperTab() {
       <p className="paper-body">
         We interpret this pattern as evidence that the core architecture has reached <em>optimal
         parsimony</em>: the 75/25 Pythagorean-to-point-differential blend and the 0.75 regression
-        coefficient are not merely optimized parameters — they appear to be natural constants of the
-        NFL forecasting problem, reflecting the sport's underlying structure. Additional complexity
-        without additional information yields diminishing returns, and the three null results confirm
-        this boundary empirically. The appropriate response is not to add more components but to
-        understand why the simpler model works as well as it does — and to reserve model extensions
-        for phenomena, like dynasty persistence, that genuinely require them.
+        coefficient proved remarkably stable across the full 25-year observed sample, surviving three
+        independent enhancement tests without being displaced. Whether they reflect deep structural
+        properties of the sport or are simply well-fitted to this historical period is a question that
+        additional out-of-sample decades will answer. Additional complexity without additional information
+        yields diminishing returns, and the three null results confirm this boundary empirically.
+        The appropriate response is not to add more components but to understand why the simpler model
+        works as well as it does — and to reserve model extensions for phenomena, like dynasty persistence,
+        that genuinely require them.
       </p>
 
       <p className="paper-body">
@@ -1953,19 +1955,19 @@ function PaperTab() {
         adjustment, regime shift, garbage-time filter), that the WARPS model has reached the
         architectural boundary where the sport's structure already handles the proposed
         enhancements internally. The 75/25 Pythagorean-to-point-differential blend and R=0.75
-        regression coefficient are interpreted not as arbitrary optimized parameters but as
-        natural constants of the NFL forecasting problem — the minimal sufficient description
-        of how prior-season team quality predicts next-season win totals. Model extensions are
-        warranted only for phenomena the architecture cannot self-correct for, of which dynasty
-        persistence is the sole confirmed example.</dd>
+        regression coefficient proved remarkably stable across the observed sample —
+        the minimal sufficient description of how prior-season team quality predicts next-season
+        win totals within this dataset. Model extensions are warranted only for phenomena the
+        architecture cannot self-correct for, of which dynasty persistence is the sole
+        confirmed example.</dd>
 
-        <dt><strong>Natural Constants of the NFL</strong></dt>
-        <dd>Informal designation for the two core model parameters that emerged from 25 years
-        of cross-validated optimization and proved stable across three independent enhancement
-        tests: R=0.75 (regression coefficient) and the 75/25 Pythagorean-to-point-differential
-        blend weight. Analogous in spirit to James's Pythagorean exponent for baseball
-        (originally 2.0, later refined to ≈1.83), these parameters reflect the NFL's underlying
-        competitive structure rather than sample-specific fitting.</dd>
+        <dt><strong>Stable Parameter Structure</strong></dt>
+        <dd>The two core model parameters — R=0.75 (regression coefficient) and the 75/25
+        Pythagorean-to-point-differential blend weight — emerged from 25 years of cross-validated
+        optimization and proved stable across three independent enhancement tests. They remained
+        optimal across multiple validation exercises on this dataset. Whether they persist as
+        optimal across future decades is an open question that additional out-of-sample seasons
+        will resolve.</dd>
       </dl>
 
       <h3 className="paper-section">References</h3>

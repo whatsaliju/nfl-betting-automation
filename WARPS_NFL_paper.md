@@ -35,7 +35,7 @@ Despite this noise, structured forecasts outperform casual intuition. The centra
 We make three contributions:
 
 1. **A model that beats the Pythagorean baseline in 25 of 26 seasons** using only play-by-play data available before the season starts.
-2. **Statistically validated improvements** over two standard baselines — Pythagorean win expectation and prior-year win totals — confirmed with bootstrap confidence intervals and the Diebold-Mariano test for equal predictive accuracy.
+2. **Statistically significant improvements** over two standard baselines — Pythagorean win expectation and prior-year win totals — confirmed with bootstrap confidence intervals and the Diebold-Mariano test for equal predictive accuracy on the held-out validation period (2022–2025, four seasons).
 3. **A practical 2026 bet slate** derived from a three-model consensus screen, identifying teams where the market's preseason win total appears mispriced by more than one win.
 
 ---
@@ -174,6 +174,8 @@ The champion model, selected by validation mean absolute error, uses:
 | All other component weights | 0.00 |
 | Regression factor | 0.75 |
 | Logit scale | 6.5 |
+
+**Key finding: all EPA-based metrics are assigned zero weight.** Passing EPA per play, rushing EPA per play, success rate, explosive play rate, and turnover differential — the standard toolkit of modern NFL analytics — each received a weight of exactly 0.00 in the champion model. This is not a rounding artifact; the grid search explored blends at increments of 0.05 and EPA-inclusive configurations were explicitly tested. The implication is that once Pythagorean expectation and raw point differential are included, EPA-based efficiency metrics contribute no additional predictive information for next-year win totals. This finding challenges the intuition that more contextually precise metrics should improve forecasts. The optimizer's answer, consistently across 22 training seasons, is that they do not.
 
 With only seven training seasons (2015–2021), the v1.7 grid search selected pure Pythagorean (weight = 1.0). With 22 training seasons (2000–2021), point differential earns a 25% weight. The difference is meaningful: Pythagorean applies a non-linear exponent that up-weights blowout margins, while raw point differential is linear. The two metrics carry overlapping but not identical information, and with more data the optimizer is able to distinguish their independent contributions.
 
@@ -330,6 +332,8 @@ The three-model consensus screen is designed to reduce the rate of false positiv
 ---
 
 ## 8. Conclusion
+
+This investigation began as a search for alternatives to Pythagorean expectation. The evidence consistently pointed in a different direction: Pythagorean expectation is not a baseline to be replaced but the dominant forecasting signal, and the primary contribution of this work is a rigorous validation and modest refinement of that fact. The champion model is 75% Pythagorean — Pythagorean remains the majority partner in every configuration that survived cross-validation.
 
 WARPS-NFL demonstrates that a simple, interpretable model using publicly available play-by-play data can produce preseason win-total forecasts that are significantly more accurate than both a Pythagorean baseline and prior-year wins — the two most common simple forecasting approaches. The champion model uses 75% Pythagorean win expectation and 25% point differential, trained on 22 seasons, and validated on a strictly held-out four-season window. The improvement is statistically significant at the p < 0.0001 level on the full 26-season backtest and at p < 0.01 on the validation window.
 
