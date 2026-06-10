@@ -90,6 +90,8 @@ function App() {
   // seasons we read actual wins straight from seasonSchedules.json (schedule.teamStats).
   const hasEngineForSeason = selectedSeason === engineSeason && !seasonSchedule.hasResults;
   const teamExpectations = hasEngineForSeason ? engineFeed?.team_expectations || {} : {};
+  const hasEdges = edgeGames.length > 0;
+  const hasProjections = Object.keys(teamExpectations).length > 0;
   const researchSummary = hasEngineForSeason ? engineFeed?.research_summary : undefined;
   const readiness = hasEngineForSeason ? engineFeed?.model_readiness : undefined;
   const metricMeta = {
@@ -182,9 +184,9 @@ function App() {
           <button className={viewMode === "week" ? "active" : ""} onClick={() => setViewMode("week")}><CalendarDays size={15} />Week</button>
           <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")}><GitBranch size={15} />Compare</button>
           <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")}><Trophy size={15} />Results</button>
-          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges</button>
+          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges{!hasEdges && <span className="tab-soon">Soon</span>}</button>
           <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
-          <button className={["projections", "audit", "expectations"].includes(viewMode) ? "active" : ""} onClick={() => setViewMode("projections")}><Gauge size={15} />Projections</button>
+          <button className={["projections", "audit", "expectations"].includes(viewMode) ? "active" : ""} onClick={() => setViewMode("projections")}><Gauge size={15} />Projections{!hasProjections && <span className="tab-soon">Soon</span>}</button>
           <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")}><ClipboardList size={15} />Track</button>
         </div>
         <label className="toggle">
