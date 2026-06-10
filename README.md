@@ -2,17 +2,20 @@
 
 NFL win-total forecasting and market analysis, including the **WARPS-NFL™** research model.
 
-## WARPS-NFL™
+## WARPS-NFL
 
 **Win Average Regression Predictive Score** — a preseason NFL win-total forecasting model.
 
-- 26-season backtest (2000–2025), mean absolute error 2.374 wins/team
-- Beats Pythagorean baseline in 25 of 26 seasons (p < 0.0001, Diebold-Mariano test)
-- Champion model: 75% Pythagorean win expectation + 25% point differential + 0.75 regression factor
-- Three-model consensus screen (v1.5d · v1.6 · v1.8) for high-conviction 2026 picks
-- Live dashboard: [lijuvarughese.com/labs/nfl-edge](https://lijuvarughese.com/labs/nfl-edge/)
+- **26-season backtest (2000–2025):** MAE 2.374 wins/team, beats Pythagorean baseline in 25 of 26 seasons
+- **Walk-forward stability:** Pythagorean-dominant weight structure re-emerges independently in all 16 expanding training windows (2010–2025) — same result every year
+- **Broad parameter basin:** 24% of tested weight/regression configurations fall within 0.05 wins of champion — not a knife-edge fit
+- **EPA null result:** EPA metrics, success rate, explosive play rate each assigned zero weight once points-based signals included
+- **Statistical significance:** p < 0.0001 vs Pythagorean (Diebold-Mariano), p < 0.01 on held-out validation (2022–2025)
+- **Champion model:** ~70–75% Pythagorean win expectation + ~25–30% point differential + 0.75 regression factor
+- **Three-model consensus screen** (v1.5d · v1.6 · v1.8) for high-conviction 2026 picks
+- **Live dashboard:** [lijuvarughese.com/labs/nfl-edge](https://lijuvarughese.com/labs/nfl-edge/)
 
-**Research paper:** [WARPS_NFL_paper.md](./WARPS_NFL_paper.md)
+**Research paper (v2.2):** [`WARPS_NFL_paper.md`](./WARPS_NFL_paper.md) — canonical source of truth, includes walk-forward table, MAE heatmap, EPA discussion, stability analysis.
 
 **To cite:**
 ```
@@ -24,9 +27,10 @@ for the National Football League. https://github.com/whatsaliju/nfl-betting-auto
 
 ```bash
 pip install nfl_data_py pandas numpy scipy
-python warps_nfl_model_v1_8.py       # full backtest + 2026 projections
-python warps_bootstrap_v1_8.py       # bootstrap confidence intervals
-python warps_profitability_backtest.py  # P&L vs historical Vegas lines
+python warps_nfl_model_v1_8.py            # full backtest + 2026 projections
+python warps_bootstrap_v1_8.py            # bootstrap confidence intervals
+python warps_profitability_backtest.py    # P&L vs historical Vegas lines
+python warps_stability_csv.py             # Q1/Q2/Q3 stability analysis (no download needed)
 ```
 
 ### Key output files
@@ -36,8 +40,10 @@ python warps_profitability_backtest.py  # P&L vs historical Vegas lines
 | `warps_backtest_team_results_v1_8.csv` | Per-team predictions vs actuals, 2000–2025 |
 | `warps_2026_screen_v1_8.csv` | 2026 projections and Vegas edges for all 32 teams |
 | `warps_profitability_summary.csv` | P&L by model and edge threshold (2003–2020) |
-| `warps_profitability_by_year.csv` | Year-by-year betting P&L |
-| `WARPS_NFL_paper.md` | Full research paper with methods, results, and references |
+| `warps_q1_walk_forward.csv` | Walk-forward parameter stability table (2010–2025) |
+| `warps_q2_year_by_year.csv` | Year-by-year WARPS vs Pythagorean MAE comparison |
+| `warps_q3_heatmap.csv` | 2D MAE landscape over w_pyth × R parameter grid |
+| `WARPS_NFL_paper.md` | Full research paper v2.2 — methods, results, stability analysis |
 
 ---
 
