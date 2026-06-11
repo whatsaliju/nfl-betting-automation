@@ -24,7 +24,7 @@ Independent Research · June 2026
 
 Across 16 reconstructed walk-forward windows (2010–2025), optimization repeatedly converged on the same Pythagorean-dominant forecasting structure — suggesting a stable relationship between prior-season NFL scoring data and the following year's win total. A stability analysis using these reconstructed windows selects the same Pythagorean-dominant weights in 16 of 16 trials. Using publicly available play-by-play data from 26 seasons (2000–2025), we find that a weighted blend of Pythagorean win expectation (~70–75%) and raw point differential (~25–30%), combined with regression toward the league mean, outperforms both naive baselines and more complex multi-factor composites — and does so consistently. WARPS beats the Pythagorean baseline in 25 of 26 seasons (96%), including 4 of 4 held-out validation seasons (2022–2025). The improvement is statistically significant (Diebold-Mariano p < 0.0001). A 2D parameter heatmap shows 24% of tested configurations fall within 0.05 wins of the optimum — a broad, flat basin rather than a knife-edge fit. Notably, the performance delta between fixed-parameter and window-specific optimization is only 0.005 wins, suggesting that robust region identification contributes substantially more predictive value than coefficient fine-tuning.
 
-Equally important is what did not improve forecasts: EPA per play, success rate, explosive play rate, and turnover differential — the standard toolkit of modern NFL analytics — each received zero weight in the champion model once Pythagorean expectation and point differential were included. Strength-of-schedule adjustment, era-aware regime shift, and garbage-time filtering each produced null results. The central finding is not that WARPS found a better set of weights. It is that a simple points-based relationship is persistent, stable, and difficult to improve upon.
+Equally important is what did not improve forecasts: EPA per play, success rate, explosive play rate, and turnover differential — the standard toolkit of modern NFL analytics — each received zero weight in the champion model once Pythagorean expectation and point differential were included. Strength-of-schedule adjustment, era-aware regime shift, and garbage-time filtering each produced null results. The central finding is not that WARPS found a better set of weights. It is that a simple points-based relationship is persistent, stable, and resistant to improvement from the enhancements tested here.
 
 Against Vegas preseason lines, WARPS has a higher MAE (2.216 Vegas vs 2.364 WARPS over the 2015–2025 overlap), confirming the market incorporates information not present in statistical models. All data and code are open source and reproducible.
 
@@ -41,7 +41,7 @@ Despite this noise, structured forecasts outperform casual intuition. But the in
 This paper tests that question directly. We make four contributions:
 
 1. **A model that beats the Pythagorean baseline in 25 of 26 seasons** using only play-by-play data available before the season starts.
-2. **Walk-forward stability evidence** showing the Pythagorean-dominant weight structure re-emerges independently in every one of 16 expanding training windows (2010–2025).
+2. **Walk-forward stability evidence** showing the Pythagorean-dominant weight structure re-emerges in all 16 reconstructed walk-forward windows (2010–2025).
 3. **A broad-basin parameter heatmap** demonstrating that 24% of tested configurations fall within 0.05 wins of the champion — the result is not a knife-edge fit.
 4. **A series of principled null results** showing that EPA metrics, schedule strength, regime-aware regression, and garbage-time filtering each fail to improve held-out accuracy once points-based metrics are included.
 
@@ -190,7 +190,7 @@ Bold in 2014 indicates the one season where WARPS underperformed Pythagorean (ma
 | WARPS vs Pythagorean | Validation (2022–25) | −0.249 | [−0.438, −0.062] | 2.56 | 0.0052 |
 | WARPS vs Prior wins | Validation (2022–25) | −0.411 | [−0.742, −0.095] | 2.49 | 0.0065 |
 
-Confidence intervals computed from 10,000 bootstrap resamplings with paired replacement. In all four comparisons, the 95% CI is entirely negative — equal predictive accuracy is rejected at the 5% level in every window tested.
+Confidence intervals computed from 10,000 bootstrap resamplings with paired replacement. In all four reported comparisons, the 95% CI is entirely negative — equal predictive accuracy is rejected at the 5% level in both full-sample and validation samples.
 
 **Table 3: Point estimates with bootstrap confidence intervals**
 
@@ -365,7 +365,7 @@ When we have 22 training seasons, the optimizer identifies a role for raw point 
 
 ### 6.5 The 2014 Exception
 
-The only season where WARPS underperformed Pythagorean was 2014 (WARPS MAE 2.094 vs Pythagorean 2.018, margin 0.076 wins). This was a season with significant roster-driven reversals: the Oakland Raiders, Tampa Bay Buccaneers, and Cleveland Browns all performed worse than their Pythagorean prior-year scores predicted, while the Denver Broncos' efficiency metrics overstated their subsequent performance after Peyton Manning's health declined. The exception illustrates a fundamental limitation of any efficiency-based model: it cannot anticipate key personnel changes.
+The only season where WARPS underperformed Pythagorean was 2014 (WARPS MAE 2.094 vs Pythagorean 2.018, margin 0.076 wins). The 2014 exception illustrates that efficiency-based models remain vulnerable to personnel and organizational changes not represented in prior-season statistics.
 
 ### 6.6 NFL Regime Volatility — 2024 and 2025
 
