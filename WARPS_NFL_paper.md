@@ -202,7 +202,7 @@ Confidence intervals computed from 10,000 bootstrap resamplings with paired repl
 
 ### 5.4 Reconstructed Walk-Forward Stability Analysis (Approximate)
 
-This is the paper's strongest evidence for robustness. For each year 2010–2025, we optimized independently on all prior data and recorded which Pythagorean weight and regression factor minimized training MAE.
+This analysis provides evidence regarding parameter stability and robustness. For each year 2010–2025, we optimized independently on all prior data and recorded which Pythagorean weight and regression factor minimized training MAE.
 
 **Table 4: Walk-forward parameter selection and out-of-sample MAE (2010–2025)**
 
@@ -264,7 +264,7 @@ Basin summary (champion MAE = 2.374, threshold = 2.424):
 - **50 of 210 tested configurations (24%) fall within the basin.**
 - Basin spans w_pyth ∈ [0.60, 0.95] and R ∈ [0.50, 0.95] — a broad, flat ridge.
 - The objective surface is extremely flat near the optimum. Moving from the champion to the full-sample minimum (w_pyth=0.70, R=0.85) costs 0.003 wins. The result is not sensitive to the exact parameter values.
-- Below w_pyth = 0.60 — where point-differential-type signals dominate over Pythagorean — performance degrades sharply, confirming the Pythagorean signal is doing structural work that cannot be replaced by its constituent parts.
+- Below w_pyth = 0.60 — where point-differential-type signals dominate over Pythagorean — performance degrades sharply, suggesting the Pythagorean signal captures information not fully recovered by its constituent components within this framework.
 
 ![Figure 2. MAE landscape — Pythagorean weight × regression factor (full sample 2000–2025). White star = champion (w_pyth=0.75, R=0.75, MAE=2.374). Yellow diamond = full-sample minimum (w_pyth=0.70, R=0.85, MAE=2.371). Green dashes = basin boundary (MAE ≤ 2.424, 24% of configurations).](warps_fig2_basin.png)
 
@@ -349,7 +349,7 @@ The central finding of this investigation is not the specific parameter values s
 
 **Finding C: The forecasting relationship is stable across time.** The same qualitative weight structure — Pythagorean dominant, modest point-differential supplement — re-emerged independently from data ending in 2009, 2015, and 2024. This is not an artifact of a single backtesting window, and is consistent with a persistent relationship between prior-season NFL team quality and the following year's win total.
 
-**Finding D: Complexity failed to improve forecasts.** Three independent model extensions — SOS adjustment, era-aware regression, garbage-time filtering — each produced null results. A null from any one test could be attributed to incorrect specification or insufficient statistical power. Null results from three independent interventions, each motivated by sound domain logic, suggest the sport's structure may already subsume the proposed mechanisms.
+**Finding D: Complexity failed to improve forecasts.** Three independent model extensions — SOS adjustment, era-aware regression, garbage-time filtering — each produced null results. A null from any one test could be attributed to incorrect specification or insufficient statistical power. Null results from three independent interventions, each motivated by sound domain logic, suggest these mechanisms did not provide incremental predictive value within the framework tested.
 
 The appropriate response to these findings is not to add more components. Repeated enhancement attempts did not materially improve forecasting accuracy.
 
