@@ -200,7 +200,7 @@ Confidence intervals computed from 10,000 bootstrap resamplings with paired repl
 | Pythagorean baseline | 2.614 | [2.486, 2.743] | 2.759 | [2.432, 3.105] |
 | Prior-year wins baseline | 2.888 | [2.743, 3.034] | 2.922 | [2.547, 3.328] |
 
-### 5.4 Parameter Stability — Reconstructed Walk-Forward Analysis
+### 5.4 Reconstructed Walk-Forward Stability Analysis (Approximate)
 
 This is the paper's strongest evidence for robustness. For each year 2010–2025, we optimized independently on all prior data and recorded which Pythagorean weight and regression factor minimized training MAE.
 
@@ -229,7 +229,7 @@ This is the paper's strongest evidence for robustness. For each year 2010–2025
 
 Key findings from the walk-forward analysis:
 
-- **w_pyth is locked at 0.70 in every one of 16 windows.** The IQR is [0.70, 0.70] — zero variance. The champion configuration uses 0.75, which is one grid step (0.05) away. At that resolution, the full-sample MAE difference between w_pyth=0.70 and w_pyth=0.75 is 0.003 wins — indistinguishable noise. The Pythagorean-dominant structure consistently re-emerges across independent optimization windows.
+- **The optimizer repeatedly converged on a Pythagorean-dominant structure, selecting w_pyth = 0.70 in all 16 windows and indicating a highly stable forecasting region across the observed sample.** The champion uses 0.75, one grid step (0.05) away. At that resolution, the full-sample MAE difference between w_pyth=0.70 and w_pyth=0.75 is 0.003 wins — indistinguishable noise. The Pythagorean-dominant structure consistently re-emerges across independent optimization windows.
 
 - **R shows moderate drift** from 0.70 early to 0.85–0.90 as more data accumulates, suggesting the optimizer gains confidence in retaining quality signal with more training seasons. However, the OOS cost of fixing R at the champion value (0.75) is **−0.005w on average** — the fixed champion configuration beats the walk-forward-optimal R on out-of-sample data. This is evidence of overfitting in the per-window R selection, not evidence that a higher R is truly better.
 
@@ -333,7 +333,7 @@ As an illustration of the three-model consensus methodology, Table 9 shows the h
 |---|---|---|---|---|
 | New Orleans Saints | 4.5 | 8.3 | +3.82 | +3.95 |
 
-The Saints example illustrates the mechanism: WARPS projects 8.3 wins against a market line of 4.5, a +3.82 edge driven primarily by strong prior-season Pythagorean surplus being over-discounted by the market. Full 2026 consensus output for all qualifying teams is provided in Appendix B.
+The Saints example illustrates the mechanism: WARPS projects 8.3 wins against a market line of 4.5, a +3.82 edge driven primarily by strong prior-season Pythagorean surplus being over-discounted by the market. Full 2026 consensus output for all qualifying teams is available at https://github.com/whatsaliju/nfl-betting-automation.
 
 ---
 
@@ -411,6 +411,8 @@ The betting market remains largely efficient: neither WARPS nor Pythagorean gene
 
 Future work should focus on extending the walk-forward window to additional out-of-sample seasons as they accumulate, and investigating whether the EPA null result holds across shorter forecast horizons (e.g., eight-week mid-season projections). One promising direction is conditional regression schemes that allow sustained elite franchises to revert more slowly toward the mean. Preliminary testing suggested modest improvements, but this extension was excluded from the primary framework to preserve model parsimony.
 
+These findings should be interpreted as evidence of persistent forecasting relationships across the observed historical sample rather than proof of a universal or invariant law of NFL outcomes.
+
 ---
 
 ## Appendix A — Raw Walk-Forward Results (2010–2025)
@@ -438,26 +440,6 @@ w_pyth = 0.70 and w_pd = 0.30 in all 16 windows (omitted for space).
 | 2024 | 766 | 0.85 | 2.3301 | 3.0125 | 3.0413 | −0.0288 |
 | 2025 | 798 | 0.85 | 2.3587 | 2.6732 | 2.6678 | +0.0054 |
 | **Summary** | | **0.82 med** | | **2.379 avg** | **2.374 avg** | **−0.005 avg** |
-
----
-
-## Appendix B — Full 2026 Season Consensus Screen
-
-All teams with 3-model consensus agreement and average edge ≥ 1.5 wins. Positive edge = model projects team to exceed market win total (bet the over).
-
-| Team | Market O/U | WARPS projection | v1.8 edge | Average edge (3 models) |
-|---|---|---|---|---|
-| New Orleans Saints | 4.5 | 8.3 | +3.82 | +3.95 |
-| New England Patriots | 8.5 | 11.5 | +2.97 | +2.97 |
-| Jacksonville Jaguars | 7.5 | 10.4 | +2.91 | +2.83 |
-| New York Giants | 5.5 | 7.6 | +2.06 | +2.03 |
-| Indianapolis Colts | 7.5 | 9.1 | +1.64 | +1.59 |
-| Buffalo Bills | 12.5 | 10.1 | −2.40 | −2.40 |
-| Philadelphia Eagles | 11.5 | 9.3 | −2.23 | −2.22 |
-| Kansas City Chiefs | 11.5 | 9.6 | −1.91 | −1.94 |
-| Baltimore Ravens | 11.5 | 9.7 | −1.83 | −1.82 |
-
-All nine teams show agreement across all three model versions. These projections are purely statistical outputs frozen at the start of the offseason; they do not incorporate quarterback changes, free agency, or coaching turnover.
 
 ---
 
