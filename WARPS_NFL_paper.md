@@ -22,7 +22,7 @@ Independent Research · June 2026
 
 ## Abstract
 
-This paper asks a narrow question: *what stable forecasting relationship exists between prior-season NFL scoring data and the following year's win total?* Using publicly available play-by-play data from 26 seasons (2000–2025), we find that a weighted blend of Pythagorean win expectation (~70–75%) and raw point differential (~25–30%), combined with regression toward the league mean, outperforms both naive baselines and more complex multi-factor composites — and does so consistently. A walk-forward analysis optimizing independently on each expanding training window from 2010 through 2025 selects the same Pythagorean-dominant weights in 16 of 16 windows. WARPS beats the Pythagorean baseline in 25 of 26 seasons (96%), including 4 of 4 held-out validation seasons (2022–2025). The improvement is statistically significant (Diebold-Mariano p < 0.0001). A 2D parameter heatmap shows 24% of tested configurations fall within 0.05 wins of the optimum — a broad, flat basin rather than a knife-edge fit — indicating the result is robust to reasonable parameter variation.
+Across 16 reconstructed walk-forward windows (2010–2025), optimization repeatedly converged on the same Pythagorean-dominant forecasting structure — suggesting a stable relationship between prior-season NFL scoring data and the following year's win total. Using publicly available play-by-play data from 26 seasons (2000–2025), we find that a weighted blend of Pythagorean win expectation (~70–75%) and raw point differential (~25–30%), combined with regression toward the league mean, outperforms both naive baselines and more complex multi-factor composites — and does so consistently. WARPS beats the Pythagorean baseline in 25 of 26 seasons (96%), including 4 of 4 held-out validation seasons (2022–2025). The improvement is statistically significant (Diebold-Mariano p < 0.0001). A 2D parameter heatmap shows 24% of tested configurations fall within 0.05 wins of the optimum — a broad, flat basin rather than a knife-edge fit. Notably, the performance delta between fixed-parameter and window-specific optimization is only 0.005 wins, suggesting that robust region identification contributes substantially more predictive value than coefficient fine-tuning.
 
 Equally important is what did not improve forecasts: EPA per play, success rate, explosive play rate, and turnover differential — the standard toolkit of modern NFL analytics — each received zero weight in the champion model once Pythagorean expectation and point differential were included. Strength-of-schedule adjustment, era-aware regime shift, and garbage-time filtering each produced null results. The central finding is not that WARPS found a better set of weights. It is that a simple points-based relationship is persistent, stable, and difficult to improve upon.
 
@@ -113,7 +113,7 @@ To test parameter stability more rigorously, we run a separate walk-forward anal
 - **Optimization:** Grid search over Pythagorean weight w_p ∈ [0.00, 1.00] in steps of 0.05, and regression factor R ∈ [0.50, 0.95] in steps of 0.05, minimizing MAE on the training window.
 - **Test:** The optimal (w_p, R) from training is applied to year Y. OOS MAE is recorded for both the walk-forward-optimal configuration and the champion configuration (w_p = 0.75, R = 0.75).
 
-This produces 16 independent parameter selections, each using only data available at that point in time. The question is not whether the champion wins — it is whether the same weight structure re-emerges independently.
+This produces 16 walk-forward parameter reconstructions, each using only data available at that point in time. The question is not whether the champion wins — it is whether the same weight structure re-emerges consistently.
 
 *Technical note on parameter recovery:* Because we have stored per-team champion forecasts (`warps_wins`) and Pythagorean forecasts (`pyth_fc`) for all 26 seasons, we can algebraically recover the underlying quality components and re-score any (w_p, R) configuration exactly. The Pythagorean quality and point-differential quality components are recovered as: `pyth_raw = (pyth_fc − (1−R_c) × 8.5) / R_c` and `pd_raw = 4 × warps_raw − 3 × pyth_raw`, where R_c = 0.75 is the champion regression factor. This decomposition is verified to floating-point precision against stored forecasts. The weight dimension of the walk-forward analysis is exact. The regression-factor dimension is reconstructed algebraically and therefore represents an approximation rather than a complete retraining from raw play-by-play data; this limitation is discussed further in §7.
 
@@ -200,7 +200,7 @@ Confidence intervals computed from 10,000 bootstrap resamplings with paired repl
 | Pythagorean baseline | 2.614 | [2.486, 2.743] | 2.759 | [2.432, 3.105] |
 | Prior-year wins baseline | 2.888 | [2.743, 3.034] | 2.922 | [2.547, 3.328] |
 
-### 5.4 Parameter Stability — Walk-Forward Results
+### 5.4 Parameter Stability — Reconstructed Walk-Forward Analysis
 
 This is the paper's strongest evidence for robustness. For each year 2010–2025, we optimized independently on all prior data and recorded which Pythagorean weight and regression factor minimized training MAE.
 
@@ -325,21 +325,15 @@ The main finding: Vegas is largely efficient against publicly available efficien
 
 ### 5.10 2026 Season Consensus Screen
 
-**Table 9: High-conviction bets — 3-model consensus (2026 season)**
+As an illustration of the three-model consensus methodology, Table 9 shows the highest-conviction output for the 2026 season. A pick is included only when all three WARPS versions agree on direction with individual edge ≥ 1.5 wins.
+
+**Table 9: Illustrative consensus output — highest-conviction pick (2026 season)**
 
 | Team | Market O/U | WARPS projection | v1.8 edge | Average edge (3 models) |
 |---|---|---|---|---|
 | New Orleans Saints | 4.5 | 8.3 | +3.82 | +3.95 |
-| New England Patriots | 8.5 | 11.5 | +2.97 | +2.97 |
-| Jacksonville Jaguars | 7.5 | 10.4 | +2.91 | +2.83 |
-| New York Giants | 5.5 | 7.6 | +2.06 | +2.03 |
-| Indianapolis Colts | 7.5 | 9.1 | +1.64 | +1.59 |
-| Buffalo Bills | 12.5 | 10.1 | −2.40 | −2.40 |
-| Philadelphia Eagles | 11.5 | 9.3 | −2.23 | −2.22 |
-| Kansas City Chiefs | 11.5 | 9.6 | −1.91 | −1.94 |
-| Baltimore Ravens | 11.5 | 9.7 | −1.83 | −1.82 |
 
-Positive edge = model projects team to outperform market number (bet the over). All nine teams show agreement across all three model versions.
+The Saints example illustrates the mechanism: WARPS projects 8.3 wins against a market line of 4.5, a +3.82 edge driven primarily by strong prior-season Pythagorean surplus being over-discounted by the market. Full 2026 consensus output for all qualifying teams is provided in Appendix B.
 
 ---
 
@@ -351,7 +345,7 @@ The central finding of this investigation is not the specific parameter values s
 
 **Finding A: Simple points-based metrics dominate.** Pythagorean win expectation and raw point differential — both computed from aggregate scores — outperform a seven-metric composite that includes EPA-based efficiency measures. The more contextually precise metrics add nothing once the blunt instrument of points scored and allowed is included.
 
-**Finding B: Coefficient tuning barely matters.** The walk-forward analysis selected w_pyth = 0.70 in every one of 16 independent training windows (champion = 0.75, one grid step, 0.003w MAE difference). Using the champion configuration rather than the window-specific optimal costs −0.005w on average over the walk-forward period — the champion wins. Optimization within the Pythagorean-dominant region produces negligible returns.
+**Finding B: Coefficient tuning barely matters.** The walk-forward analysis selected w_pyth = 0.70 in every one of 16 reconstructed training windows (champion = 0.75, one grid step, 0.003w MAE difference). Using the champion configuration rather than the window-specific optimal costs −0.005w on average over the walk-forward period — the champion wins. Optimization within the Pythagorean-dominant region produces negligible returns. The negligible performance delta (0.005 wins) between window-specific optimization and a fixed-parameter framework suggests that in NFL win-total forecasting, identifying the robust predictive region is substantially more important than precise coefficient tuning.
 
 **Finding C: The forecasting relationship is stable across time.** The same qualitative weight structure — Pythagorean dominant, modest point-differential supplement — re-emerged independently from data ending in 2009, 2015, and 2024. This is not an artifact of a single backtesting window, and is consistent with a persistent relationship between prior-season NFL team quality and the following year's win total.
 
@@ -447,16 +441,23 @@ w_pyth = 0.70 and w_pd = 0.30 in all 16 windows (omitted for space).
 
 ---
 
-## Appendix B — Glossary of Original Terminology
+## Appendix B — Full 2026 Season Consensus Screen
 
-**WARPS** (Win-Adjusted Regression to Pythagorean Score)
-A preseason NFL win total projection model that blends Pythagorean win expectation (~70–75%) and linear point differential (~25–30%), and applies a regression-toward-mean factor. Trained on 22 seasons (2000–2021); validated on four held-out seasons (2022–2025). Full-sample MAE: 2.374 wins vs the Pythagorean baseline (2.614 wins, DM p < 0.0001).
+All teams with 3-model consensus agreement and average edge ≥ 1.5 wins. Positive edge = model projects team to exceed market win total (bet the over).
 
-**Optimal Parsimony**
-The principle, supported empirically by three independent null results (SOS adjustment, regime shift, garbage-time filter), that the WARPS architecture is consistent with a model where the sport's structure already subsumes the proposed enhancements. The Pythagorean-dominant weight structure and empirically derived regression coefficient proved stable across the observed sample, surviving three independent enhancement tests without being displaced.
+| Team | Market O/U | WARPS projection | v1.8 edge | Average edge (3 models) |
+|---|---|---|---|---|
+| New Orleans Saints | 4.5 | 8.3 | +3.82 | +3.95 |
+| New England Patriots | 8.5 | 11.5 | +2.97 | +2.97 |
+| Jacksonville Jaguars | 7.5 | 10.4 | +2.91 | +2.83 |
+| New York Giants | 5.5 | 7.6 | +2.06 | +2.03 |
+| Indianapolis Colts | 7.5 | 9.1 | +1.64 | +1.59 |
+| Buffalo Bills | 12.5 | 10.1 | −2.40 | −2.40 |
+| Philadelphia Eagles | 11.5 | 9.3 | −2.23 | −2.22 |
+| Kansas City Chiefs | 11.5 | 9.6 | −1.91 | −1.94 |
+| Baltimore Ravens | 11.5 | 9.7 | −1.83 | −1.82 |
 
-**Stable Parameter Structure**
-The observation that the two core model parameters — the regression coefficient (~0.75) and the Pythagorean-dominant blend (~70–75%) — re-emerged from independent optimization on every one of 16 walk-forward training windows spanning 2010–2025. The stability is observed across this historical sample; whether it persists across future decades is an open question that additional out-of-sample seasons will resolve.
+All nine teams show agreement across all three model versions. These projections are purely statistical outputs frozen at the start of the offseason; they do not incorporate quarterback changes, free agency, or coaching turnover.
 
 ---
 
