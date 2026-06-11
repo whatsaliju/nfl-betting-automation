@@ -121,7 +121,7 @@ This produces 16 independent parameter selections, each using only data availabl
 
 Standard regression toward the mean treats every team identically regardless of how long they have sustained their performance level. To address systematic under-projection of dynasty franchises, v2.0 introduces a conditional regression factor. A team qualifies as a *dynasty team* if its WARPS composite projection exceeds 9.0 wins for four or more consecutive seasons. The same logic applies in reverse for collapse teams (sustained projection below 8.0 wins for four or more seasons). Qualifying teams receive a higher retention factor of R = 0.95 rather than the standard 0.75: `proj = 0.95 × raw + 0.05 × 8.5`. The threshold was selected using the held-out 2022–2025 window and validated at −0.013 MAE improvement.
 
-The binary trigger (4 years, ≥9 wins) is a pragmatic approximation. A continuous persistence score using a weighted average of prior seasons would be more mathematically elegant and harder to criticize on threshold grounds, but the current implementation is interpretable: four straight years of excellence means regress less.
+The binary trigger (4 years, ≥9 wins) is a pragmatic approximation. A continuous persistence score using a weighted average of prior seasons would be more mathematically elegant and harder to criticize on threshold grounds, but the current implementation is interpretable: four straight years of excellence means regress less. The 9.0-win threshold is an interpretable approximation; the computational implementation utilizes the underlying standardized composite quality score (threshold ≥ 0.5) to ensure consistency across seasons with varying scoring environments.
 
 ### 4.4 Three-Model Consensus Screen
 

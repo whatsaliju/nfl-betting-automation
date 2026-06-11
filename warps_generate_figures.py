@@ -17,7 +17,7 @@ plt.rcParams.update({
     "font.size": 11,
     "axes.spines.top": False,
     "axes.spines.right": False,
-    "figure.dpi": 150,
+    "figure.dpi": 300,
 })
 
 CHAMP_W = 0.75
