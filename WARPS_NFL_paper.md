@@ -65,7 +65,7 @@ Carroll, Palmer, and Thorn (1988) first applied efficiency-based thinking system
 
 ### 2.2 EPA-Based Metrics
 
-Expected Points Added (EPA) per play has become the standard efficiency metric in modern NFL analytics. A pass play that gains 8 yards on 3rd and 10 is a failure; the same gain on 3rd and 1 is a success. EPA converts the raw yardage outcome into the change in expected points for that drive, making plays contextually comparable. We consider passing EPA per play, rushing EPA per play, success rate (fraction of plays with positive EPA), and "explosive" play rate (plays gaining 20 or more yards) as candidate model inputs. Section 5.3 reports the result.
+Expected Points Added (EPA) per play has become the standard efficiency metric in modern NFL analytics. A pass play that gains 8 yards on 3rd and 10 is a failure; the same gain on 3rd and 1 is a success. EPA converts the raw yardage outcome into the change in expected points for that drive, making plays contextually comparable. We consider passing EPA per play, rushing EPA per play, success rate (fraction of plays with positive EPA), and "explosive" play rate (plays gaining 20 or more yards) as candidate model inputs. Section 5.6 reports the result.
 
 ### 2.3 Regression Toward the Mean
 
@@ -115,19 +115,13 @@ To test parameter stability more rigorously, we run a separate walk-forward anal
 
 This produces 16 independent parameter selections, each using only data available at that point in time. The question is not whether the champion wins — it is whether the same weight structure re-emerges independently.
 
-*Technical note on parameter recovery:* Because we have stored per-team champion forecasts (`warps_wins`) and Pythagorean forecasts (`pyth_fc`) for all 26 seasons, we can algebraically recover the underlying quality components and re-score any (w_p, R) configuration exactly. The Pythagorean quality and point-differential quality components are recovered as: `pyth_raw = (pyth_fc − (1−R_c) × 8.5) / R_c` and `pd_raw = 4 × warps_raw − 3 × pyth_raw`, where R_c = 0.75 is the champion regression factor. This decomposition is verified to floating-point precision against stored forecasts.
+*Technical note on parameter recovery:* Because we have stored per-team champion forecasts (`warps_wins`) and Pythagorean forecasts (`pyth_fc`) for all 26 seasons, we can algebraically recover the underlying quality components and re-score any (w_p, R) configuration exactly. The Pythagorean quality and point-differential quality components are recovered as: `pyth_raw = (pyth_fc − (1−R_c) × 8.5) / R_c` and `pd_raw = 4 × warps_raw − 3 × pyth_raw`, where R_c = 0.75 is the champion regression factor. This decomposition is verified to floating-point precision against stored forecasts. The weight dimension of the walk-forward analysis is exact. The regression-factor dimension is reconstructed algebraically and therefore represents an approximation rather than a complete retraining from raw play-by-play data; this limitation is discussed further in §7.
 
-### 4.3 Dynasty Persistence Modifier (v2.0)
-
-Standard regression toward the mean treats every team identically regardless of how long they have sustained their performance level. To address systematic under-projection of dynasty franchises, v2.0 introduces a conditional regression factor. A team qualifies as a *dynasty team* if its WARPS composite projection exceeds 9.0 wins for four or more consecutive seasons. The same logic applies in reverse for collapse teams (sustained projection below 8.0 wins for four or more seasons). Qualifying teams receive a higher retention factor of R = 0.95 rather than the standard 0.75: `proj = 0.95 × raw + 0.05 × 8.5`. The threshold was selected using the held-out 2022–2025 window and validated at −0.013 MAE improvement.
-
-The binary trigger (4 years, ≥9 wins) is a pragmatic approximation. A continuous persistence score using a weighted average of prior seasons would be more mathematically elegant and harder to criticize on threshold grounds, but the current implementation is interpretable: four straight years of excellence means regress less. The 9.0-win threshold is an interpretable approximation; the computational implementation utilizes the underlying standardized composite quality score (threshold ≥ 0.5) to ensure consistency across seasons with varying scoring environments.
-
-### 4.4 Three-Model Consensus Screen
+### 4.3 Three-Model Consensus Screen
 
 To reduce noise and isolate the highest-confidence picks, the final bet slate is produced by intersecting three independently trained WARPS versions: (1) *WARPS v1.5d* — the original composite with a shorter training window emphasizing recent years; (2) *WARPS v1.6* — an intermediate blend with additional EPA components; and (3) *WARPS v1.8* — the current champion model (75% Pythagorean + 25% point differential, 22-season training window). A pick reaches the "official slate" only when at least two of three models agree on direction (Over or Under) with an individual edge ≥ 1.0 win. All three agreeing at ≥ 1.5 win edge defines the highest conviction tier.
 
-### 4.5 QB Overlay — Statistical Core Meets Judgment
+### 4.4 QB Overlay — Statistical Core Meets Judgment
 
 The WARPS projection is a purely statistical output frozen at the start of the offseason. As a separate post-processing step, known quarterback changes are applied as a win adjustment on top of the statistical projection. A tiered system ranks QBs from Tier 1 (generational, e.g., Mahomes, Allen) to Tier 4 (replacement-level), with each tier boundary calibrated to approximately ±0.5 wins. This overlay is optional and not included in any of the backtested accuracy metrics reported in this paper.
 
@@ -235,7 +229,7 @@ This is the paper's strongest evidence for robustness. For each year 2010–2025
 
 Key findings from the walk-forward analysis:
 
-- **w_pyth is locked at 0.70 in every one of 16 windows.** The IQR is [0.70, 0.70] — zero variance. The champion configuration uses 0.75, which is one grid step (0.05) away. At that resolution, the full-sample MAE difference between w_pyth=0.70 and w_pyth=0.75 is 0.003 wins — indistinguishable noise. The Pythagorean-dominant structure is not a coincidence of the training window; it is what every independent optimization finds.
+- **w_pyth is locked at 0.70 in every one of 16 windows.** The IQR is [0.70, 0.70] — zero variance. The champion configuration uses 0.75, which is one grid step (0.05) away. At that resolution, the full-sample MAE difference between w_pyth=0.70 and w_pyth=0.75 is 0.003 wins — indistinguishable noise. The Pythagorean-dominant structure consistently re-emerges across independent optimization windows.
 
 - **R shows moderate drift** from 0.70 early to 0.85–0.90 as more data accumulates, suggesting the optimizer gains confidence in retaining quality signal with more training seasons. However, the OOS cost of fixing R at the champion value (0.75) is **−0.005w on average** — the fixed champion configuration beats the walk-forward-optimal R on out-of-sample data. This is evidence of overfitting in the per-window R selection, not evidence that a higher R is truly better.
 
@@ -291,8 +285,6 @@ This is a null result, not a refutation of EPA as a metric. EPA does not improve
 | Strength of Schedule (weight 0.0–0.3) | Recursive quality adjustment for opponent strength | 0.000 | +0.002 | **Null** |
 | Regime Shift (R = 0.65 vs 0.75) | Lower regression for modern "post-parity" NFL | +0.002 | +0.001 | **Null** |
 | Garbage-Time Filter (WP ∈ [0.05, 0.95]) | Remove non-competitive plays for Pythagorean | +0.025 | +0.025 | **Null** |
-| Dynasty Persistence Modifier (R = 0.95, 4+ yr streaks) | Preserve quality signal for sustained excellence | −0.022 | −0.013 | **Confirmed** |
-
 All tests use the same train/validation split. The null result for three independent enhancements is itself a finding.
 
 The SOS null result is a result, not just a limitation. We tested a recursive SOS adjustment that re-weights opponent quality into each team's efficiency estimate. It produced zero improvement (full MAE Δ = 0.000) and a small increase in validation error (+0.002). The most likely mechanism: the NFL's parity-scheduling system creates an endogenous feedback loop where strong teams face harder schedules and weak teams face softer ones, meaning an SOS correction pushes in the right direction but by approximately the same amount that schedule difficulty already depressed or inflated the observed statistics.
@@ -361,11 +353,11 @@ The central finding of this investigation is not the specific parameter values s
 
 **Finding B: Coefficient tuning barely matters.** The walk-forward analysis selected w_pyth = 0.70 in every one of 16 independent training windows (champion = 0.75, one grid step, 0.003w MAE difference). Using the champion configuration rather than the window-specific optimal costs −0.005w on average over the walk-forward period — the champion wins. Optimization within the Pythagorean-dominant region produces negligible returns.
 
-**Finding C: The forecasting relationship is stable across time.** The same qualitative weight structure — Pythagorean dominant, modest point-differential supplement — re-emerged independently from data ending in 2009, 2015, and 2024. This is not an artifact of a single backtesting window. It is a persistent feature of how prior-season NFL team quality predicts the following year's win total.
+**Finding C: The forecasting relationship is stable across time.** The same qualitative weight structure — Pythagorean dominant, modest point-differential supplement — re-emerged independently from data ending in 2009, 2015, and 2024. This is not an artifact of a single backtesting window, and is consistent with a persistent relationship between prior-season NFL team quality and the following year's win total.
 
-**Finding D: Complexity failed to improve forecasts.** Three independent model extensions — SOS adjustment, era-aware regression, garbage-time filtering — each produced null results. A null from any one test could be attributed to incorrect specification or insufficient statistical power. Null results from three independent interventions, each motivated by sound domain logic, suggest the architecture has reached a point where the sport's structure already handles the proposed mechanisms internally.
+**Finding D: Complexity failed to improve forecasts.** Three independent model extensions — SOS adjustment, era-aware regression, garbage-time filtering — each produced null results. A null from any one test could be attributed to incorrect specification or insufficient statistical power. Null results from three independent interventions, each motivated by sound domain logic, suggest the sport's structure may already subsume the proposed mechanisms.
 
-The appropriate response to these findings is not to add more components. The model that failed to be improved *is* the finding.
+The appropriate response to these findings is not to add more components. Repeated enhancement attempts did not materially improve forecasting accuracy.
 
 ### 6.2 The EPA Paradox
 
@@ -391,7 +383,7 @@ The only season where WARPS underperformed Pythagorean was 2014 (WARPS MAE 2.094
 
 ### 6.6 NFL Regime Volatility — 2024 and 2025
 
-The 2024 and 2025 seasons produced the highest WARPS MAEs in the 26-season sample (3.01 and 2.67 respectively). Diagnostic analysis suggests this is not a model calibration failure. The fat-tail errors are concentrated in two identifiable groups: (1) dynasty persistence teams (Kansas City Chiefs: 15 wins in 2024 vs 9.6 WARPS projection) that sustained excellence beyond what any regression-toward-mean model can capture; and (2) rapid collapse teams (New Orleans Saints, San Francisco 49ers) whose decline was driven by unmodeled quarterback and coaching disruption. Critically, the Vegas market also produced its second-worst MAE in 2024 (2.86 wins), confirming that 2024–2025 represented an industry-wide forecasting challenge. The Dynasty Persistence Modifier partially addresses the first group; no statistical fix exists for the second.
+The 2024 and 2025 seasons produced the highest WARPS MAEs in the 26-season sample (3.01 and 2.67 respectively). Diagnostic analysis suggests this is not a model calibration failure. The fat-tail errors are concentrated in two identifiable groups: (1) sustained-excellence teams (Kansas City Chiefs: 15 wins in 2024 vs 9.6 WARPS projection) that exceeded what any regression-toward-mean model can capture; and (2) rapid collapse teams (New Orleans Saints, San Francisco 49ers) whose decline was driven by unmodeled quarterback and coaching disruption. Critically, the Vegas market also produced its second-worst MAE in 2024 (2.86 wins), confirming that 2024–2025 represented an industry-wide forecasting challenge. Conditional regression schemes for sustained-excellence franchises represent a promising direction for future work; no statistical correction fully addresses either group within the current framework.
 
 ### 6.7 The Role of the Consensus Screen
 
@@ -399,19 +391,7 @@ The three-model consensus screen is designed to reduce false positives. Each mod
 
 ---
 
-## 7. Case Study — The 2024 Chiefs and the Dynasty Frontier
-
-The 2024 Kansas City Chiefs provide the clearest illustration of both the model's structural limitation and the value of the Dynasty Persistence Modifier. WARPS v1.8 projected KC at **9.6 wins** for the 2024 regular season. The Chiefs won **15 games**, producing a 5.4-win error — the single largest individual miss in the 26-season backtest.
-
-**Why v1.8 missed.** The regression formula applied R=0.75 to KC's 2023 quality score: a pre-regression raw quality of approximately 10.0 win-equivalents. This translates to: `0.75 × 10.0 + 2.125 = 9.6`. The model applied standard regression-toward-mean — appropriate for most teams, but structurally limited for a franchise that had won 11, 14, and 11 regular-season games in 2021–2023 and appeared in three consecutive Super Bowls.
-
-**How v2.0 addresses it.** KC's dynasty trigger fires in v2.0. Raising R from 0.75 to 0.95 yields: `0.95 × 10.0 + 0.05 × 8.5 = 9.9 wins` — an improvement of 0.3 wins. The dynasty modifier helps, but the raw quality estimate (10.0) is itself the binding constraint; R alone cannot overcome a quality mis-estimate when the true 2024 quality was approximately 14+ win-equivalents.
-
-**The structural frontier.** KC's 15-win 2024 season sits 1.7 standard deviations above the dynasty-adjusted projection of 9.9 wins (P(X ≥ 15 | μ = 9.9, σ = 3.0) ≈ 4.5%). That is a genuine tail event. No regression-to-mean model can reliably predict such an outcome because the information that would justify a 14+ win projection is not fully captured by any prior-season efficiency metric. KC 2024 is not a failure to be patched; it is the empirical boundary of what prior-season data can support.
-
----
-
-## 8. Limitations
+## 7. Limitations
 
 **Personnel changes are not modeled.** The model uses only prior-season on-field statistics. It does not incorporate quarterback changes, major free agency moves, or coaching staff turnover. A team losing its franchise quarterback can shift true talent by several wins in ways no efficiency metric can capture.
 
@@ -425,7 +405,7 @@ The 2024 Kansas City Chiefs provide the clearest illustration of both the model'
 
 ---
 
-## 9. Conclusion
+## 8. Conclusion
 
 This investigation began as a search for alternatives to Pythagorean expectation. The evidence consistently pointed elsewhere: Pythagorean expectation is not a baseline to be replaced but the dominant forecasting signal, and the primary contribution of this work is evidence for the stability and robustness of that fact.
 
@@ -435,7 +415,7 @@ Equally important is what failed to help: EPA metrics, schedule strength adjustm
 
 The betting market remains largely efficient: neither WARPS nor Pythagorean generates positive ROI at standard thresholds, confirming that publicly available statistical signals are already priced in. WARPS's better calibration at extreme edges (breaking even at ≥2.0 win disagreements where Pythagorean loses at −20.4% ROI) confirms the value of regression-to-mean correction, but does not constitute a market edge. Vegas wins.
 
-Future work should focus on extending the walk-forward window to additional out-of-sample seasons as they accumulate, testing continuous dynasty persistence scoring, and investigating whether the EPA null result holds across shorter forecast horizons (e.g., eight-week mid-season projections).
+Future work should focus on extending the walk-forward window to additional out-of-sample seasons as they accumulate, and investigating whether the EPA null result holds across shorter forecast horizons (e.g., eight-week mid-season projections). One promising direction is conditional regression schemes that allow sustained elite franchises to revert more slowly toward the mean. Preliminary testing suggested modest improvements, but this extension was excluded from the primary framework to preserve model parsimony.
 
 ---
 
@@ -470,13 +450,10 @@ w_pyth = 0.70 and w_pd = 0.30 in all 16 windows (omitted for space).
 ## Appendix B — Glossary of Original Terminology
 
 **WARPS** (Win-Adjusted Regression to Pythagorean Score)
-A preseason NFL win total projection model that blends Pythagorean win expectation (~70–75%) and linear point differential (~25–30%), applies a regression-toward-mean factor, and incorporates an optional Dynasty Persistence Modifier. Trained on 22 seasons (2000–2021); validated on four held-out seasons (2022–2025). Full-sample MAE: 2.374 wins vs the Pythagorean baseline (2.614 wins, DM p < 0.0001).
-
-**Dynasty Persistence Modifier**
-A structural adjustment applied to franchises that have projected ≥9.0 wins in four or more consecutive seasons. The standard regression coefficient R is raised from 0.75 to 0.95, preserving more of the team's historical quality signal and reducing regression-toward-mean for demonstrably non-average organizations. The same modifier applies in the downward direction for franchises with sustained futility (4+ consecutive projected ≤7.5-win seasons). A higher R value means less regression toward the mean.
+A preseason NFL win total projection model that blends Pythagorean win expectation (~70–75%) and linear point differential (~25–30%), and applies a regression-toward-mean factor. Trained on 22 seasons (2000–2021); validated on four held-out seasons (2022–2025). Full-sample MAE: 2.374 wins vs the Pythagorean baseline (2.614 wins, DM p < 0.0001).
 
 **Optimal Parsimony**
-The principle, supported empirically by three independent null results (SOS adjustment, regime shift, garbage-time filter), that the WARPS architecture has reached a point where the sport's structure already handles proposed enhancements internally. The Pythagorean-dominant weight structure and empirically derived regression coefficient proved stable across the observed sample, surviving three independent enhancement tests without being displaced. Model extensions are warranted only for phenomena the architecture cannot self-correct for, of which dynasty persistence is the sole confirmed example.
+The principle, supported empirically by three independent null results (SOS adjustment, regime shift, garbage-time filter), that the WARPS architecture is consistent with a model where the sport's structure already subsumes the proposed enhancements. The Pythagorean-dominant weight structure and empirically derived regression coefficient proved stable across the observed sample, surviving three independent enhancement tests without being displaced.
 
 **Stable Parameter Structure**
 The observation that the two core model parameters — the regression coefficient (~0.75) and the Pythagorean-dominant blend (~70–75%) — re-emerged from independent optimization on every one of 16 walk-forward training windows spanning 2010–2025. The stability is observed across this historical sample; whether it persists across future decades is an open question that additional out-of-sample seasons will resolve.
