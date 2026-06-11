@@ -202,7 +202,7 @@ Confidence intervals computed from 10,000 bootstrap resamplings with paired repl
 
 ### 5.4 Reconstructed Walk-Forward Stability Analysis (Approximate)
 
-This analysis provides evidence regarding parameter stability and robustness. For each year 2010–2025, we optimized independently on all prior data and recorded which Pythagorean weight and regression factor minimized training MAE.
+For each year 2010–2025, we optimized independently on all prior data and recorded which Pythagorean weight and regression factor minimized training MAE.
 
 **Table 4: Walk-forward parameter selection and out-of-sample MAE (2010–2025)**
 
@@ -325,15 +325,7 @@ The main finding: Vegas is largely efficient against publicly available efficien
 
 ### 5.10 2026 Season Consensus Screen
 
-As an illustration of the three-model consensus methodology, Table 9 shows the highest-conviction output for the 2026 season. A pick is included only when all three WARPS versions agree on direction with individual edge ≥ 1.5 wins.
-
-**Table 9: Illustrative consensus output — highest-conviction pick (2026 season)**
-
-| Team | Market O/U | WARPS projection | v1.8 edge | Average edge (3 models) |
-|---|---|---|---|---|
-| New Orleans Saints | 4.5 | 8.3 | +3.82 | +3.95 |
-
-The Saints example illustrates the mechanism: WARPS projects 8.3 wins against a market line of 4.5, a +3.82 edge driven primarily by strong prior-season Pythagorean surplus being over-discounted by the market. Full 2026 consensus output for all qualifying teams is available at https://github.com/whatsaliju/nfl-betting-automation.
+The three-model consensus screen identifies teams where all three WARPS versions agree on direction with individual edge ≥ 1.5 wins. Current-season applications and full projection tables are available at https://github.com/whatsaliju/nfl-betting-automation.
 
 ---
 
