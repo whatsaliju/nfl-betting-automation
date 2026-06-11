@@ -241,6 +241,8 @@ Key findings from the walk-forward analysis:
 
 - **The champion is not the full-sample minimum.** The full-sample minimum across all 26 seasons is w_pyth=0.70, R=0.85 (MAE 2.371), versus the champion at w_pyth=0.75, R=0.75 (MAE 2.374). The difference is 0.003 wins — the champion was selected on the training window (2000–2021); the held-out years (2022–2025) slightly favored a different nearby point. This is expected and acceptable behavior for any cross-validated model.
 
+![Figure 1. Walk-forward parameter stability (2010–2025). Panel A: optimal w_pyth per year (locked at 0.70 across all 16 windows). Panel B: optimal R per year (moderate upward drift; OOS cost of fixing champion R = −0.005w).](warps_fig1_walk_forward.png)
+
 ### 5.5 MAE Landscape — The Basin
 
 **Table 5: Full-sample MAE by Pythagorean weight and regression factor (2000–2025)**
@@ -269,6 +271,8 @@ Basin summary (champion MAE = 2.374, threshold = 2.424):
 - Basin spans w_pyth ∈ [0.60, 0.95] and R ∈ [0.50, 0.95] — a broad, flat ridge.
 - The objective surface is extremely flat near the optimum. Moving from the champion to the full-sample minimum (w_pyth=0.70, R=0.85) costs 0.003 wins. The result is not sensitive to the exact parameter values.
 - Below w_pyth = 0.60 — where point-differential-type signals dominate over Pythagorean — performance degrades sharply, confirming the Pythagorean signal is doing structural work that cannot be replaced by its constituent parts.
+
+![Figure 2. MAE landscape — Pythagorean weight × regression factor (full sample 2000–2025). White star = champion (w_pyth=0.75, R=0.75, MAE=2.374). Yellow diamond = full-sample minimum (w_pyth=0.70, R=0.85, MAE=2.371). Green dashes = basin boundary (MAE ≤ 2.424, 24% of configurations).](warps_fig2_basin.png)
 
 ### 5.6 The EPA Null Result
 
