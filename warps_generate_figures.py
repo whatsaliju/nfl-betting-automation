@@ -150,7 +150,7 @@ def fig_basin():
     n_basin = (df["in_basin"]).sum()
     n_total = len(df)
     ax.text(0.98, 0.02,
-            f"Basin: {n_basin}/{n_total} configs ({100*n_basin//n_total}%) within 0.05w of champion",
+            f"Basin: {n_basin}/{n_total} configs ({round(100*n_basin/n_total)}%) within 0.05w of champion",
             transform=ax.transAxes, fontsize=8.5, ha="right", va="bottom",
             color="white",
             bbox=dict(boxstyle="round,pad=0.3", fc="#1e293b", alpha=0.7))
