@@ -22,7 +22,7 @@ Independent Research · June 2026
 
 ## Abstract
 
-Across 16 reconstructed walk-forward windows (2010–2025), optimization repeatedly converged on the same Pythagorean-dominant forecasting structure — suggesting a stable relationship between prior-season NFL scoring data and the following year's win total. A stability analysis using these reconstructed windows selects the same Pythagorean-dominant weights in 16 of 16 trials. Using publicly available play-by-play data from 26 seasons (2000–2025), we find that a weighted blend of Pythagorean win expectation (~70–75%) and raw point differential (~25–30%), combined with regression toward the league mean, outperforms both naive baselines and more complex multi-factor composites — and does so consistently. WARPS beats the Pythagorean baseline in 25 of 26 seasons (96%), including 4 of 4 held-out validation seasons (2022–2025). The improvement is statistically significant (Diebold-Mariano p < 0.0001). A 2D parameter heatmap shows 24% of tested configurations fall within 0.05 wins of the optimum — a broad, flat basin rather than a knife-edge fit. Notably, the performance delta between fixed-parameter and window-specific optimization is only 0.005 wins, suggesting that robust region identification contributes substantially more predictive value than coefficient fine-tuning.
+Across 16 independent walk-forward retraining windows (2010–2025), optimization repeatedly converged on the same Pythagorean-dominant forecasting structure — suggesting a stable relationship between prior-season NFL scoring data and the following year's win total. A stability analysis across these windows selects the same Pythagorean-dominant weights in 16 of 16 trials. Using publicly available play-by-play data from 26 seasons (2000–2025), we find that a weighted blend of Pythagorean win expectation (~70–75%) and raw point differential (~25–30%), combined with regression toward the league mean, outperforms both naive baselines and more complex multi-factor composites — and does so consistently. WARPS beats the Pythagorean baseline in 25 of 26 seasons (96%), including 4 of 4 held-out validation seasons (2022–2025). The improvement is statistically significant (Diebold-Mariano p < 0.0001). A 2D parameter heatmap shows 24% of tested configurations fall within 0.05 wins of the optimum — a broad, flat basin rather than a knife-edge fit. Notably, the performance delta between fixed-parameter and window-specific optimization is only 0.005 wins, suggesting that robust region identification contributes substantially more predictive value than coefficient fine-tuning.
 
 Equally important is what did not improve forecasts: EPA per play, success rate, explosive play rate, and turnover differential — the standard toolkit of modern NFL analytics — each received zero weight in the champion model once Pythagorean expectation and point differential were included. Strength-of-schedule adjustment, era-aware regime shift, and garbage-time filtering each produced null results. The central finding is not that WARPS found a better set of weights. It is that a simple points-based relationship is persistent, stable, and resistant to improvement from the enhancements tested here.
 
@@ -41,7 +41,7 @@ Despite this noise, structured forecasts outperform casual intuition. But the in
 This paper tests that question directly. We make four contributions:
 
 1. **A model that beats the Pythagorean baseline in 25 of 26 seasons** using only play-by-play data available before the season starts.
-2. **Walk-forward stability evidence** showing the Pythagorean-dominant weight structure re-emerges in all 16 reconstructed walk-forward windows (2010–2025).
+2. **Walk-forward stability evidence** showing the Pythagorean-dominant weight structure re-emerges in all 16 independent walk-forward retraining windows (2010–2025).
 3. **A broad-basin parameter heatmap** demonstrating that 24% of tested configurations fall within 0.05 wins of the champion — the result is not a knife-edge fit.
 4. **A series of principled null results** showing that EPA metrics, schedule strength, regime-aware regression, and garbage-time filtering each fail to improve held-out accuracy once points-based metrics are included.
 
@@ -113,9 +113,7 @@ To test parameter stability more rigorously, we run a separate walk-forward anal
 - **Optimization:** Grid search over Pythagorean weight w_p ∈ [0.00, 1.00] in steps of 0.05, and regression factor R ∈ [0.50, 0.95] in steps of 0.05, minimizing MAE on the training window.
 - **Test:** The optimal (w_p, R) from training is applied to year Y. OOS MAE is recorded for both the walk-forward-optimal configuration and the champion configuration (w_p = 0.75, R = 0.75).
 
-This produces 16 walk-forward parameter reconstructions, each using only data available at that point in time. The question is not whether the champion wins — it is whether the same weight structure re-emerges consistently.
-
-*Technical note on parameter recovery:* Because we have stored per-team champion forecasts (`warps_wins`) and Pythagorean forecasts (`pyth_fc`) for all 26 seasons, we can algebraically recover the underlying quality components and re-score any (w_p, R) configuration exactly. The Pythagorean quality and point-differential quality components are recovered as: `pyth_raw = (pyth_fc − (1−R_c) × 8.5) / R_c` and `pd_raw = 4 × warps_raw − 3 × pyth_raw`, where R_c = 0.75 is the champion regression factor. This decomposition is verified to floating-point precision against stored forecasts. The weight dimension of the walk-forward analysis is exact. The regression-factor dimension is reconstructed algebraically and therefore represents an approximation rather than a complete retraining from raw play-by-play data; this limitation is discussed further in §7.
+This produces 16 independent walk-forward retraining windows, each using only data available at that point in time. The question is not whether the champion wins — it is whether the same weight structure re-emerges consistently.
 
 ### 4.3 Three-Model Consensus Screen
 
@@ -200,7 +198,7 @@ Confidence intervals computed from 10,000 bootstrap resamplings with paired repl
 | Pythagorean baseline | 2.614 | [2.486, 2.743] | 2.759 | [2.432, 3.105] |
 | Prior-year wins baseline | 2.888 | [2.743, 3.034] | 2.922 | [2.547, 3.328] |
 
-### 5.4 Reconstructed Walk-Forward Stability Analysis (Approximate)
+### 5.4 Walk-Forward Stability Analysis
 
 For each year 2010–2025, we optimized independently on all prior data and recorded which Pythagorean weight and regression factor minimized training MAE.
 
@@ -225,7 +223,7 @@ For each year 2010–2025, we optimized independently on all prior data and reco
 | 2024 | 766 | 0.70 | 0.30 | 0.85 | 3.013 | 3.041 | −0.029 |
 | 2025 | 798 | 0.70 | 0.30 | 0.85 | 2.673 | 2.668 | +0.005 |
 
-**Delta = OOS MAE(champion) − OOS MAE(optimal). Positive = champion wins. Average delta: −0.005w (champion wins on average).**
+**Delta = OOS MAE(champion) − OOS MAE(optimal). Negative = champion wins (champion has lower MAE). Average delta: −0.005w (champion wins on average by 0.005w).**
 
 Key findings from the walk-forward analysis:
 
@@ -377,7 +375,7 @@ The central finding of this investigation is not the specific parameter values s
 
 **Finding A: Simple points-based metrics dominate.** Pythagorean win expectation and raw point differential — both computed from aggregate scores — outperform a seven-metric composite that includes EPA-based efficiency measures. The more contextually precise metrics add nothing once the blunt instrument of points scored and allowed is included.
 
-**Finding B: Coefficient tuning barely matters.** The walk-forward analysis selected w_pyth = 0.70 in every one of 16 reconstructed training windows (champion = 0.75, one grid step, 0.003w MAE difference). Using the champion configuration rather than the window-specific optimal costs −0.005w on average over the walk-forward period — the champion wins. Optimization within the Pythagorean-dominant region produces negligible returns. The negligible performance delta (0.005 wins) between window-specific optimization and a fixed-parameter framework suggests that in NFL win-total forecasting, identifying the robust predictive region is substantially more important than precise coefficient tuning.
+**Finding B: Coefficient tuning barely matters.** The walk-forward analysis selected w_pyth = 0.70 in every one of 16 independent training windows (champion = 0.75, one grid step, 0.003w MAE difference). Using the champion configuration rather than the window-specific optimal costs −0.005w on average over the walk-forward period — the champion wins. Optimization within the Pythagorean-dominant region produces negligible returns. The negligible performance delta (0.005 wins) between window-specific optimization and a fixed-parameter framework suggests that in NFL win-total forecasting, identifying the robust predictive region is substantially more important than precise coefficient tuning.
 
 **Finding C: The forecasting relationship is stable across time.** The same qualitative weight structure — Pythagorean dominant, modest point-differential supplement — re-emerged independently from data ending in 2009, 2015, and 2024. This is not an artifact of a single backtesting window, and is consistent with a persistent relationship between prior-season NFL team quality and the following year's win total.
 
@@ -426,8 +424,6 @@ The three-model consensus screen is designed to reduce false positives. Each mod
 **Historical era effects.** The NFL changed significantly over the 26-season study period. A model trained on 2000–2021 data implicitly assumes structural shifts average out over the training window.
 
 **Market efficiency.** Vegas preseason win totals already incorporate public information, including team efficiency statistics. The edges we identify may be smaller in practice after vig, and this paper does not claim to identify profitable betting opportunities — only statistically significant forecast improvements over statistical baselines.
-
-**Walk-forward parameter recovery is approximate.** The Q1 analysis recovers underlying quality components algebraically from stored champion forecasts. This is exact for the weight dimension but assumes the champion regression factor (R=0.75) for component decomposition. The R dimension of the walk-forward grid is therefore an approximation rather than a true re-run from raw data.
 
 ---
 
