@@ -24,7 +24,7 @@ Independent Research · June 2026
 
 Across 16 independent walk-forward retraining windows (2010–2025), the training optimizer selects varied configurations (median w_pyth=0.57, range 0.50–1.00) — evidence that the objective surface is so flat that training noise determines which configuration minimizes each window's MAE. Despite this variation, the fixed champion configuration outperforms window-specific optimization out-of-sample in 12 of 16 trials, by an average of 0.012 wins, consistent with the interpretation that fine-tuning on a flat surface adds noise rather than signal. Using publicly available play-by-play data from 26 seasons (2000–2025), we find that a weighted blend of Pythagorean win expectation (~75%) and raw point differential (~25%), combined with regression toward the league mean, outperforms both naive baselines and more complex multi-factor composites — and does so consistently. WARPS beats the Pythagorean baseline in 25 of 26 seasons (96%), including 4 of 4 held-out validation seasons (2022–2025). The improvement is statistically significant (Diebold-Mariano p < 0.0001). A 2D parameter heatmap shows 100% of tested configurations fall within 0.05 wins of the optimum — a completely flat basin. The fixed champion outperforming window-specific optimization by 0.012 wins confirms that identifying any reasonable parameter region substantially dominates coefficient fine-tuning.
 
-Equally important is what did not improve forecasts: EPA per play, success rate, explosive play rate, and turnover differential — the standard toolkit of modern NFL analytics — each received zero weight in the champion model once Pythagorean expectation and point differential were included. Strength-of-schedule adjustment, era-aware regime shift, and garbage-time filtering each produced null results. The central finding is not that WARPS found a better set of weights. It is that a simple points-based relationship is persistent, stable, and resistant to improvement from the enhancements tested here.
+Equally important is what did not improve forecasts: EPA per play, success rate, explosive play rate, and turnover differential — the standard toolkit of modern NFL analytics — each received zero weight in the representative champion configuration once Pythagorean expectation and point differential were included. Strength-of-schedule adjustment, era-aware regime shift, and garbage-time filtering each produced null results. The central finding is not that WARPS found a better set of weights. It is that a simple points-based relationship is persistent, stable, and resistant to improvement from the enhancements tested here.
 
 Against Vegas preseason lines, WARPS has a higher MAE (2.216 Vegas vs 2.364 WARPS over the 2015–2025 overlap), confirming the market incorporates information not present in statistical models. All data and code are open source and reproducible.
 
@@ -117,7 +117,7 @@ This produces 16 independent walk-forward retraining windows, each using only da
 
 ### 4.3 Three-Model Consensus Screen
 
-To reduce noise and isolate the highest-confidence picks, the final bet slate is produced by intersecting three independently trained WARPS versions: (1) *WARPS v1.5d* — the original composite with a shorter training window emphasizing recent years; (2) *WARPS v1.6* — an intermediate blend with additional EPA components; and (3) *WARPS v1.8* — the current champion model (75% Pythagorean + 25% point differential, 22-season training window). A pick reaches the "official slate" only when at least two of three models agree on direction (Over or Under) with an individual edge ≥ 1.0 win. All three agreeing at ≥ 1.5 win edge defines the highest conviction tier.
+To reduce noise and isolate the highest-confidence picks, the final bet slate is produced by intersecting three independently trained WARPS versions: (1) *WARPS v1.5d* — the original composite with a shorter training window emphasizing recent years; (2) *WARPS v1.6* — an intermediate blend with additional EPA components; and (3) *WARPS v1.8* — the current representative champion configuration (75% Pythagorean + 25% point differential, 22-season training window). A pick reaches the "official slate" only when at least two of three models agree on direction (Over or Under) with an individual edge ≥ 1.0 win. All three agreeing at ≥ 1.5 win edge defines the highest conviction tier.
 
 ### 4.4 QB Overlay — Statistical Core Meets Judgment
 
@@ -127,9 +127,9 @@ The WARPS projection is a purely statistical output frozen at the start of the o
 
 ## 5. Results
 
-### 5.1 Champion Model
+### 5.1 Representative Champion Configuration
 
-The champion model, selected by validation mean absolute error, uses:
+The representative champion configuration, selected by validation mean absolute error, uses:
 
 | Parameter | Value |
 |---|---|
@@ -270,7 +270,7 @@ Residual analysis also shows approximately uniform error variance across the pro
 
 ### 5.7 The EPA Null Result
 
-All EPA-based metrics — passing EPA per play, rushing EPA per play, success rate, explosive play rate, and turnover differential — received zero weight in the champion model. This is not a rounding artifact. The grid search explored blends at increments of 0.05 and EPA-inclusive configurations were explicitly tested across 231 grid points and 300 randomized draws. Each received weight 0.00.
+All EPA-based metrics — passing EPA per play, rushing EPA per play, success rate, explosive play rate, and turnover differential — received zero weight in the representative champion configuration. This is not a rounding artifact. The grid search explored blends at increments of 0.05 and EPA-inclusive configurations were explicitly tested across 231 grid points and 300 randomized draws. Each received weight 0.00.
 
 To investigate the mechanism, we conducted a post-hoc decomposition across 829 lagged team-season pairs (year T features predicting year T+1 wins). Three analyses were run: (1) raw and partial predictive correlation with next-year wins, (2) year-over-year autocorrelation, and (3) incremental R² beyond a Pythagorean baseline.
 
@@ -368,7 +368,7 @@ The appropriate response to these findings is not to add more components. Repeat
 
 ### 6.2 The EPA Paradox
 
-EPA has become the reference metric in contemporary NFL analytics for good reason: it is contextually fair, play-level efficient, and harder to game than raw yardage. It is precisely because EPA is sophisticated that its zero weight in the champion model is noteworthy.
+EPA has become the reference metric in contemporary NFL analytics for good reason: it is contextually fair, play-level efficient, and harder to game than raw yardage. It is precisely because EPA is sophisticated that its zero weight in the representative champion configuration is noteworthy.
 
 The most compelling explanation is a temporal horizon mismatch. EPA's contextual precision is valuable for evaluating individual plays and game decisions. At the season level, however, team quality is already encoded in aggregate scoring outcomes — and Pythagorean expectation processes that information non-linearly in a way that empirically captures year-over-year persistence better than EPA per play does.
 
@@ -382,7 +382,7 @@ The finding that Pythagorean win expectation is the most valuable signal is cons
 
 An apparent tension in the results warrants clarification. WARPS beats the Pythagorean baseline in 25 of 26 seasons, yet the full-sample minimum occurs at w_pyth=1.00 with no point-differential supplement. These findings are not contradictory because they compare different benchmarks.
 
-The season-by-season comparison uses raw Pythagorean expectation as the baseline — that is, Pythagorean win expectation with no regression toward the league mean (R=1.00). The full-sample minimum, by contrast, applies regression toward the league mean (R=0.75) before generating win projections. The evidence suggests that regression is responsible for most of the predictive improvement over raw Pythagorean. Once regression is applied, the objective surface becomes extremely flat: pure Pythagorean, the 75/25 champion blend, and many nearby configurations produce nearly identical forecast accuracy.
+The season-by-season comparison uses raw Pythagorean expectation as the baseline — that is, Pythagorean win expectation with no regression toward the league mean (R=1.00). The full-sample minimum, by contrast, applies regression toward the league mean (R=0.75) before generating win projections. The evidence suggests that regression is responsible for most of the predictive improvement over raw Pythagorean. Once regression is applied, the objective surface becomes extremely flat: pure Pythagorean, the representative 75/25 blend, and many nearby configurations produce nearly identical forecast accuracy.
 
 This interpretation reinforces the central conclusion of the paper. The primary contribution is not identifying a precise optimal blend between Pythagorean expectation and point differential. Rather, it is demonstrating that a regressed points-based signal is stable, robust, and resistant to meaningful improvement from the enhancements tested here.
 
@@ -396,7 +396,7 @@ This explains why the objective surface is flat across a wide parameter range, a
 
 ### 6.5 Why Point Differential Adds Value (Marginally)
 
-When we have 22 training seasons, the optimizer identifies a role for raw point differential alongside Pythagorean. The two metrics carry overlapping but not identical information. Pythagorean applies a 2.37 exponent that non-linearly up-weights blowout margins. A team that wins every game by 3 points has the same total point differential as one that alternates blowout wins with close losses, but their Pythagorean scores differ substantially. Raw point differential, being linear, treats these teams more similarly. The champion model suggests a blend is optimal: Pythagorean's non-linear sensitivity is valuable, but pure Pythagorean can overweight seasons where blowout margins may not persist.
+When we have 22 training seasons, the optimizer identifies a role for raw point differential alongside Pythagorean. The two metrics carry overlapping but not identical information. Pythagorean applies a 2.37 exponent that non-linearly up-weights blowout margins. A team that wins every game by 3 points has the same total point differential as one that alternates blowout wins with close losses, but their Pythagorean scores differ substantially. Raw point differential, being linear, treats these teams more similarly. One representative configuration suggests a blend performs slightly better: Pythagorean's non-linear sensitivity is valuable, but pure Pythagorean can overweight seasons where blowout margins may not persist.
 
 ### 6.6 The 2014 Exception
 
