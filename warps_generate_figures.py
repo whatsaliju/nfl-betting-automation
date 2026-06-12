@@ -45,27 +45,28 @@ def fig_walk_forward():
     ax1.axhline(CHAMP_W, color=BLUE, lw=1.2, ls="--", alpha=0.5, label=f"Champion = {CHAMP_W}")
     ax1.fill_between(years, df["opt_w_pyth"] - 0.025, df["opt_w_pyth"] + 0.025,
                      color=BLUE, alpha=0.08)
-    ax1.set_ylim(0.55, 0.95)
-    ax1.set_yticks([0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90])
+    ax1.set_ylim(0.40, 1.05)
+    ax1.set_yticks([0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00])
     ax1.set_ylabel("Pythagorean weight (w_pyth)", fontsize=10)
     ax1.legend(fontsize=9, frameon=False)
     ax1.text(0.01, 0.92, "A", transform=ax1.transAxes, fontweight="bold", fontsize=12)
-    ax1.annotate("Locked at 0.70\nacross all 16 windows",
-                 xy=(2017, 0.70), xytext=(2013.5, 0.63),
+    ax1.annotate("Flat surface: noise picks\nthe winner each window\n(median=0.57, range 0.50–1.00)",
+                 xy=(2019, df.loc[df.year == 2019, "opt_w_pyth"].values[0]),
+                 xytext=(2011, 0.90),
                  arrowprops=dict(arrowstyle="->", color=GRAY, lw=1),
                  fontsize=8.5, color="#475569")
 
     # — Panel B: R —
     ax2.plot(years, df["opt_R"], "s-", color=ORANGE, lw=2, ms=6, label="Walk-forward optimal")
     ax2.axhline(CHAMP_R, color=ORANGE, lw=1.2, ls="--", alpha=0.5, label=f"Champion = {CHAMP_R}")
-    ax2.set_ylim(0.55, 1.00)
-    ax2.set_yticks([0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95])
+    ax2.set_ylim(0.45, 0.85)
+    ax2.set_yticks([0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80])
     ax2.set_ylabel("Regression factor (R)", fontsize=10)
     ax2.set_xlabel("Prediction year (test window)", fontsize=10)
     ax2.legend(fontsize=9, frameon=False)
     ax2.text(0.01, 0.92, "B", transform=ax2.transAxes, fontweight="bold", fontsize=12)
-    ax2.annotate("R drifts upward with\nmore training data;\nOOS cost = −0.005w",
-                 xy=(2022, 0.90), xytext=(2013.5, 0.92),
+    ax2.annotate("Champion wins OOS\n12/16 windows despite\nvarying training optima",
+                 xy=(2017, CHAMP_R), xytext=(2011, 0.79),
                  arrowprops=dict(arrowstyle="->", color=GRAY, lw=1),
                  fontsize=8.5, color="#475569")
 
@@ -74,7 +75,8 @@ def fig_walk_forward():
 
     fig.suptitle(
         "Figure 1. Walk-forward parameter stability (2010–2025)\n"
-        "Each year: train on 2000..(Y−1), find optimal parameters, test on year Y.",
+        "Each year: train on 2000..(Y−1), find optimal parameters, test on year Y.\n"
+        "Fixed champion outperforms window-specific optimization OOS in 12 of 16 trials.",
         fontsize=11, y=1.01
     )
 
