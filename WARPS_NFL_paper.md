@@ -380,6 +380,12 @@ Whatever the mechanism, the finding is clear: EPA did not improve preseason win-
 
 The finding that Pythagorean win expectation is the most valuable signal is consistent with the broader sports analytics literature. Actual win-loss records contain substantial luck: close games, fumble bounces, and tipped passes create variance around the true quality of a team. Pythagorean expectation averages out this game-level variance by focusing on cumulative points scored and allowed, which are harder to sustain artificially over a full season.
 
+An apparent tension in the results warrants clarification. WARPS beats the Pythagorean baseline in 25 of 26 seasons, yet the full-sample minimum occurs at w_pyth=1.00 with no point-differential supplement. These findings are not contradictory because they compare different benchmarks.
+
+The season-by-season comparison uses raw Pythagorean expectation as the baseline — that is, Pythagorean win expectation with no regression toward the league mean (R=1.00). The full-sample minimum, by contrast, applies regression toward the league mean (R=0.75) before generating win projections. The evidence suggests that regression is responsible for most of the predictive improvement over raw Pythagorean. Once regression is applied, the objective surface becomes extremely flat: pure Pythagorean, the 75/25 champion blend, and many nearby configurations produce nearly identical forecast accuracy.
+
+This interpretation reinforces the central conclusion of the paper. The primary contribution is not identifying a precise optimal blend between Pythagorean expectation and point differential. Rather, it is demonstrating that a regressed points-based signal is stable, robust, and resistant to meaningful improvement from the enhancements tested here.
+
 ### 6.4 Why Simplicity Wins
 
 Points scored and allowed are among the most information-dense statistics in team sports. A final score aggregates hundreds of individual plays — offensive execution, defensive resistance, special teams, and in-game strategy — into a single number. Pythagorean expectation then non-linearly transforms that aggregate in a way that downweights fluky close-game outcomes and upweights sustained dominance. The result is a single statistic that already encodes much of what any advanced metric is trying to measure.
