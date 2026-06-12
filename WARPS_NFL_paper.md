@@ -291,9 +291,30 @@ Residual analysis also shows approximately uniform error variance across the pro
 
 All EPA-based metrics — passing EPA per play, rushing EPA per play, success rate, explosive play rate, and turnover differential — received zero weight in the champion model. This is not a rounding artifact. The grid search explored blends at increments of 0.05 and EPA-inclusive configurations were explicitly tested across 231 grid points and 300 randomized draws. Each received weight 0.00.
 
-This finding requires explanation, not dismissal. EPA is a sophisticated and contextually appropriate measure of play-level efficiency. The most likely explanation is a redundancy problem: Pythagorean expectation and point differential together already capture most of the season-level quality signal that EPA encodes. EPA's advantage is granularity — it distinguishes a 3rd-and-10 gain from a 3rd-and-1 gain — but that granularity appears to average out over a full season. Two teams with the same aggregate points scored and allowed may have achieved them via very different EPA profiles, but their year-over-year win-total trajectories look the same in this dataset.
+To investigate the mechanism, we conducted a post-hoc decomposition across 829 lagged team-season pairs (year T features predicting year T+1 wins). Three analyses were run: (1) raw and partial predictive correlation with next-year wins, (2) year-over-year autocorrelation, and (3) incremental R² beyond a Pythagorean baseline.
 
-This is a null result, not a refutation of EPA as a metric. EPA does not improve preseason win-total forecasts in this framework, given that points-based signals are already included. Whether it would improve *in-season* forecasts or game-level models is a different question not addressed here.
+**The stability hypothesis does not explain the null result.** Most EPA metrics are no less persistent year-over-year than Pythagorean: pass EPA differential has the highest autocorrelation of any metric tested (0.454), and net EPA per play (0.401) and success rate differential (0.441) both exceed Pythagorean's autocorrelation (0.393). Only turnover margin (0.193) and explosive play rate (0.236) show meaningfully lower year-over-year stability.
+
+**Multicollinearity with Pythagorean is the primary mechanism.** EPA metrics carry substantial raw predictive correlation with next-year wins (r ≈ 0.22–0.36), but this signal largely overlaps with what Pythagorean already encodes. When Pythagorean is partialled out, most EPA partial correlations collapse to near zero: net EPA per play falls from r = 0.364 to partial r = 0.057 (p = 0.10), and pass EPA drops from r = 0.301 to partial r = 0.054 (p = 0.12).
+
+**Two metrics show residual signal that is real but small.** Success rate differential retains a partial r = 0.118 (p < 0.001) and contributes the largest incremental R² of any tested feature (ΔR² = +0.012 beyond Pythagorean baseline). Rush EPA differential shows partial r = 0.088 (p = 0.011, ΔR² = +0.007). These are statistically detectable relationships, but the practical gain — approximately 0.03–0.05 wins MAE improvement — is below the resolution of the discrete grid search (0.05 weight increments) and does not survive the train/validation cross-validation framework. Whether finer-grained optimization or longer training histories would unlock this signal is a question for future work.
+
+**Table 5c: EPA mechanism — partial correlations and incremental R²**
+
+| Feature | Raw r | Partial r (|Pythagorean) | p | ΔR² |
+|---|---|---|---|---|
+| Pythagorean edge | +0.361 | +0.361 | <0.001 | — |
+| Point diff/game | +0.363 | +0.046 | 0.19 | +0.002 |
+| Net EPA/play | +0.364 | +0.057 | 0.10 | +0.003 |
+| Pass EPA diff | +0.301 | +0.054 | 0.12 | +0.003 |
+| Rush EPA diff | +0.232 | +0.088 | 0.011 | +0.007 |
+| Success rate diff | +0.360 | +0.118 | <0.001 | +0.012 |
+| Explosive play diff | +0.221 | +0.023 | 0.51 | <0.001 |
+| Turnover margin | +0.211 | −0.028 | 0.42 | +0.001 |
+
+This is a null result in the grid-search sense, not a refutation of EPA as a metric. The evidence suggests EPA metrics largely recapture the season-level quality signal already encoded in Pythagorean. The residual information in success rate and rush EPA is real but too small to survive the discrete optimization and cross-validation framework used here.
+
+![Figure 4. EPA mechanism analysis. Panel A: raw predictive correlation (solid bars) and partial correlation controlling for Pythagorean (lighter bars) for each metric. Panel B: year-over-year autocorrelation. Most EPA metrics are as stable or more stable than Pythagorean; the null result reflects multicollinearity, not noisiness.](warps_fig4_epa_mechanism.png)
 
 ### 5.8 Enhancement Tests — Principled Null Results
 
