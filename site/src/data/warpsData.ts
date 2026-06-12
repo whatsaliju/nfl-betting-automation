@@ -118,7 +118,7 @@ export const calibrationData: CalibrationRow[] = [
 ];
 
 export const metricRanking: MetricRow[] = [
-  { model: "WARPS v1.8 champion (75% Pythagorean + 25% Point Differential)", type: "WARPS composite", warpsMae: 2.352, beatsAll: true },
+  { model: "WARPS v1.8 representative champion (75% Pythagorean + 25% Point Differential)", type: "WARPS composite", warpsMae: 2.376, beatsAll: true },
   { model: "pyth=0.70, point_diff=0.30 blend", type: "WARPS composite", warpsMae: 2.358, beatsAll: true },
   { model: "pyth=0.65, point_diff=0.35 blend", type: "WARPS composite", warpsMae: 2.358, beatsAll: true },
   { model: "pyth=0.75, pass=0.05, point_diff=0.20 blend", type: "WARPS composite", warpsMae: 2.358, beatsAll: true },
