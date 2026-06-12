@@ -85,7 +85,8 @@ def analysis_correlations(lagged):
     """Pearson r, partial r (controlling for pyth_edge), and p-value for each feature."""
     rows = []
     for feat in ALL_FEATURES:
-        sub = lagged[[feat, "next_wins", "pyth_edge"]].dropna()
+        col_list = list(dict.fromkeys([feat, "next_wins", "pyth_edge"]))  # dedup when feat == "pyth_edge"
+        sub = lagged[col_list].dropna()
         r, p = stats.pearsonr(sub[feat], sub["next_wins"])
 
         # Partial correlation: feat vs next_wins controlling for pyth_edge
