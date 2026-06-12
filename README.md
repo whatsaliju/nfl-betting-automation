@@ -6,21 +6,24 @@ NFL win-total forecasting and market analysis, including the **WARPS-NFL™** re
 
 **Win Average Regression Predictive Score** — a preseason NFL win-total forecasting model.
 
-- **26-season backtest (2000–2025):** MAE 2.374 wins/team, beats Pythagorean baseline in 25 of 26 seasons
-- **Walk-forward stability:** Pythagorean-dominant weight structure re-emerges independently in all 16 expanding training windows (2010–2025) — same result every year
-- **Broad parameter basin:** 24% of tested weight/regression configurations fall within 0.05 wins of champion — not a knife-edge fit
+- **26-season backtest (2000–2025):** MAE 2.376 wins/team, beats Pythagorean baseline in 25 of 26 seasons
+- **Walk-forward stability:** True retraining across 16 expanding windows (2010–2025) selects varied configurations (w_pyth: 0.50–1.00, median=0.57) — the objective surface is too flat to identify a consistently superior configuration; the fixed representative champion wins 12 of 16 out-of-sample tests
+- **Broad parameter basin:** 100% of tested weight/regression configurations fall within 0.05 wins of champion — a completely flat surface
 - **EPA null result:** EPA metrics, success rate, explosive play rate each assigned zero weight once points-based signals included
 - **Statistical significance:** p < 0.0001 vs Pythagorean (Diebold-Mariano), p < 0.01 on held-out validation (2022–2025)
-- **Champion model:** ~70–75% Pythagorean win expectation + ~25–30% point differential + 0.75 regression factor
+- **Representative champion configuration:** ~75% Pythagorean win expectation + ~25% point differential + 0.75 regression factor
 - **Three-model consensus screen** (v1.5d · v1.6 · v1.8) for high-conviction 2026 picks
 - **Live dashboard:** [lijuvarughese.com/labs/nfl-edge](https://lijuvarughese.com/labs/nfl-edge/)
 
 **Research paper (v2.2):** [`WARPS_NFL_paper.md`](./WARPS_NFL_paper.md) — canonical source of truth, includes walk-forward table, MAE heatmap, EPA discussion, stability analysis.
 
+**Preprint:** [SSRN Abstract 6926058](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6926058)
+
 **To cite:**
 ```
 Varughese, L. (2026). WARPS-NFL: A Preseason Win-Total Forecasting Model
-for the National Football League. https://github.com/whatsaliju/nfl-betting-automation
+for the National Football League. SSRN Working Paper 6926058.
+https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6926058
 ```
 
 ### Run the model
