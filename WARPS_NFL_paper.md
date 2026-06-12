@@ -65,7 +65,7 @@ Carroll, Palmer, and Thorn (1988) first applied efficiency-based thinking system
 
 ### 2.2 EPA-Based Metrics
 
-Expected Points Added (EPA) per play has become the standard efficiency metric in modern NFL analytics. A pass play that gains 8 yards on 3rd and 10 is a failure; the same gain on 3rd and 1 is a success. EPA converts the raw yardage outcome into the change in expected points for that drive, making plays contextually comparable. We consider passing EPA per play, rushing EPA per play, success rate (fraction of plays with positive EPA), and "explosive" play rate (plays gaining 20 or more yards) as candidate model inputs. Section 5.6 reports the result.
+Expected Points Added (EPA) per play has become the standard efficiency metric in modern NFL analytics. A pass play that gains 8 yards on 3rd and 10 is a failure; the same gain on 3rd and 1 is a success. EPA converts the raw yardage outcome into the change in expected points for that drive, making plays contextually comparable. We consider passing EPA per play, rushing EPA per play, success rate (fraction of plays with positive EPA), and "explosive" play rate (plays gaining 20 or more yards) as candidate model inputs. Section 5.7 reports the result.
 
 ### 2.3 Regression Toward the Mean
 
@@ -268,7 +268,26 @@ Basin summary (champion MAE = 2.374, threshold = 2.424):
 
 ![Figure 2. MAE landscape — Pythagorean weight × regression factor (full sample 2000–2025). White star = champion (w_pyth=0.75, R=0.75, MAE=2.374). Yellow diamond = full-sample minimum (w_pyth=0.70, R=0.85, MAE=2.371). Green dashes = basin boundary (MAE ≤ 2.424, 24% of configurations).](warps_fig2_basin.png)
 
-### 5.6 The EPA Null Result
+### 5.6 Prediction Intervals
+
+Beyond point forecasts, we characterize forecast uncertainty using residual-based prediction intervals. For each team-season in the backtest, the signed residual is defined as actual wins minus projected wins. The mean residual across all 830 team-seasons is 0.000 (zero systematic bias), with a standard deviation of 2.89 wins. Prediction intervals at coverage level α are constructed as the projection plus the (1−α)/2 and 1−(1−α)/2 quantiles of leave-year-out residuals — residuals from all seasons except the target year, eliminating in-sample circularity.
+
+**Table 5b: Prediction interval calibration (leave-year-out)**
+
+| Stated coverage | Full-sample actual | Validation actual | Avg width |
+|---|---|---|---|
+| 50% | 50.1% | 46.9% | ±2.1w |
+| 70% | 70.1% | 65.6% | ±3.2w |
+| 80% | 79.8% | 75.0% | ±3.9w |
+| 90% | 89.8% | 87.5% | ±4.6w |
+
+Full-sample calibration is near-exact at all levels (within 0.2 percentage points). The validation window (2022–2025) under-covers by approximately 3–5 percentage points, consistent with the elevated forecast errors observed in those seasons. The 80% prediction interval has an average width of ±3.9 wins, reflecting the fundamental difficulty of NFL preseason forecasting.
+
+Residual analysis also shows approximately uniform error variance across the projection range: the 80% interval width varies only from 7.53 to 7.85 wins across projection bins (5–7, 7–9, and 9–11 projected wins), indicating approximately homoskedastic forecast errors. Teams projected at the extremes are not systematically harder or easier to forecast than mid-range teams.
+
+![Figure 3. Prediction interval calibration. Panel A: stated vs actual coverage using leave-year-out residuals (full sample: near-perfect; validation 2022–2025: slight under-coverage consistent with elevated recent volatility). Panel B: 80% interval width by projection bin — approximately flat across the projection range.](warps_fig3_calibration.png)
+
+### 5.7 The EPA Null Result
 
 All EPA-based metrics — passing EPA per play, rushing EPA per play, success rate, explosive play rate, and turnover differential — received zero weight in the champion model. This is not a rounding artifact. The grid search explored blends at increments of 0.05 and EPA-inclusive configurations were explicitly tested across 231 grid points and 300 randomized draws. Each received weight 0.00.
 
@@ -276,7 +295,7 @@ This finding requires explanation, not dismissal. EPA is a sophisticated and con
 
 This is a null result, not a refutation of EPA as a metric. EPA does not improve preseason win-total forecasts in this framework, given that points-based signals are already included. Whether it would improve *in-season* forecasts or game-level models is a different question not addressed here.
 
-### 5.7 Enhancement Tests — Principled Null Results
+### 5.8 Enhancement Tests — Principled Null Results
 
 **Table 6: Investigation of potential predictive enhancements**
 
@@ -289,7 +308,7 @@ All tests use the same train/validation split. The null result for three indepen
 
 The SOS null result is a result, not just a limitation. We tested a recursive SOS adjustment that re-weights opponent quality into each team's efficiency estimate. It produced zero improvement (full MAE Δ = 0.000) and a small increase in validation error (+0.002). The most likely mechanism: the NFL's parity-scheduling system creates an endogenous feedback loop where strong teams face harder schedules and weak teams face softer ones, meaning an SOS correction pushes in the right direction but by approximately the same amount that schedule difficulty already depressed or inflated the observed statistics.
 
-### 5.8 Calibration
+### 5.9 Calibration
 
 We divide all team-season predictions into six equal-sized buckets by projected win total and examine whether predictions are systematically biased in any range.
 
@@ -306,7 +325,7 @@ We divide all team-season predictions into six equal-sized buckets by projected 
 
 Biases are small (under 0.35 wins) in every bucket with no systematic directional pattern.
 
-### 5.9 Directional Accuracy and Profitability
+### 5.10 Directional Accuracy and Profitability
 
 Across all WARPS bets with edge ≥ 0.5 wins (325 bets, 2003–2020), directional hit rate is 47.4% — below the 52.4% break-even at −110 juice. Undifferentiated betting on any WARPS signal is not profitable after vig. Filtering to 3-model consensus at ≥ 1.5 win edge raises the directional hit rate to **52.6%** (+9.5% ROI, 19 bets). The 19-bet sample is far too small for reliable inference; this should be treated as exploratory.
 
@@ -323,7 +342,7 @@ Across all WARPS bets with edge ≥ 0.5 wins (325 bets, 2003–2020), directiona
 
 The main finding: Vegas is largely efficient against publicly available efficiency metrics. WARPS's better calibration is evident at extreme edges — at ≥2.0 win disagreements with Vegas, WARPS breaks even while Pythagorean loses at −20.4% ROI. Regression-to-mean correction prevents systematic overconfidence at the tails. Vegas wins.
 
-### 5.10 2026 Season Consensus Screen
+### 5.11 2026 Season Consensus Screen
 
 The three-model consensus screen identifies teams where all three WARPS versions agree on direction with individual edge ≥ 1.5 wins. Current-season applications and full projection tables are available at https://github.com/whatsaliju/nfl-betting-automation.
 
