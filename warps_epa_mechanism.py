@@ -260,6 +260,9 @@ def main():
     print("Loading raw NFL data (may take 20–40 min first run)...")
     schedules, ts = load_raw_data()
 
+    # Drop any duplicate columns that can arise from the merge chain in load_raw_data
+    ts = ts.loc[:, ~ts.columns.duplicated()].copy()
+
     lagged   = build_lagged(ts)
     ac_data  = build_autocorr(ts)
 
