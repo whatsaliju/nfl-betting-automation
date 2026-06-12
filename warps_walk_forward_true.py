@@ -110,7 +110,7 @@ def run_q1(ts_diffs, schedules):
     df = pd.DataFrame(results)
     df.to_csv("warps_q1_walk_forward.csv", index=False)
 
-    w_wins = (df["oos_delta"] > 0).sum()
+    w_wins = (df["oos_delta"] < 0).sum()  # negative delta = champ has lower MAE = champ wins
     avg_d  = df["oos_delta"].mean()
     med_wpy = df["opt_w_pyth"].median()
     iqr_wpy = (df["opt_w_pyth"].quantile(0.25), df["opt_w_pyth"].quantile(0.75))
