@@ -1288,8 +1288,8 @@ function MethodologyTab() {
           <p>
             The core insight is that <strong>Pythagorean win expectation</strong> — a formula that converts
             points scored and points allowed into an expected win percentage — is the strongest single
-            predictor of the following year's wins. With 22 training seasons (2000–2021), the champion
-            model blends <strong>75% Pythagorean</strong> and <strong>25% point differential</strong>,
+            predictor of the following year's wins. With 22 training seasons (2000–2021), the representative champion
+            configuration blends <strong>75% Pythagorean</strong> and <strong>25% point differential</strong>,
             outperforming any single metric on held-out data spanning 26 NFL seasons (2000–2025).
             The Diebold-Mariano test confirms the improvement over a naive Pythagorean baseline is
             statistically significant (p &lt; 0.0001).
@@ -1375,9 +1375,8 @@ function MethodologyTab() {
           <p>
             A randomized weight search (300 draws, biased toward Pythagorean) was run, followed by a full
             hyperparameter grid over regression factor and spread scale. With 22 training seasons, a
-            <strong>75% Pythagorean + 25% point differential</strong> blend emerged as the champion —
-            outperforming pure Pythagorean because raw point differential provides an independent signal
-            of team quality beyond the non-linear Pythagorean formula.
+            <strong>75% Pythagorean + 25% point differential</strong> blend emerged as the representative champion configuration —
+            one of many statistically equivalent top-performing configurations within a completely flat objective surface.
           </p>
           <p>
             Bootstrap confidence intervals (10,000 paired resamplings using the Diebold-Mariano method)
@@ -1485,12 +1484,14 @@ function PaperTab() {
         (2000–2025), we find that a weighted blend of Pythagorean win expectation (~70–75%) and raw point differential
         (~25–30%), combined with regression toward the league mean, outperforms both naive baselines and more complex
         multi-factor composites — and does so consistently. A walk-forward analysis optimizing independently on each
-        expanding training window from 2010 through 2025 selects the same Pythagorean-dominant weights in 16 of 16
-        windows. WARPS beats the Pythagorean baseline in {bs.seasonsBeatingPyth} of {bs.totalSeasons} seasons (
+        expanding training window from 2010 through 2025 selects varied configurations (median w_pyth=0.57, range
+        0.50–1.00) — evidence that the objective surface is so flat that noise determines the nominal optimum each
+        window. Despite this, the fixed champion outperforms window-specific optimization in 12 of 16 out-of-sample
+        tests. WARPS beats the Pythagorean baseline in {bs.seasonsBeatingPyth} of {bs.totalSeasons} seasons (
         {Math.round(bs.seasonsBeatingPyth / bs.totalSeasons * 100)}%), including 4 of 4 held-out validation seasons
         (2022–2025). The improvement is statistically significant (Diebold-Mariano p&nbsp;&lt;&nbsp;0.0001). A 2D
-        parameter heatmap shows 24% of tested configurations fall within 0.05 wins of the optimum — a broad, flat
-        basin rather than a knife-edge fit.
+        parameter heatmap shows 100% of tested configurations fall within 0.05 wins of the champion — a completely
+        flat basin.
       </p>
       <p className="paper-body">
         Equally important is what did <em>not</em> improve forecasts: EPA per play, success rate, explosive play rate,
@@ -1523,11 +1524,12 @@ function PaperTab() {
       <p className="paper-body">
         We make four contributions: (1) a model that beats the Pythagorean baseline in {bs.seasonsBeatingPyth} of{" "}
         {bs.totalSeasons} seasons using only publicly available data; (2) <strong>walk-forward stability
-        evidence</strong> showing the Pythagorean-dominant weight structure re-emerges independently in every one of
-        16 expanding training windows (2010–2025); (3) a <strong>broad-basin parameter heatmap</strong> showing 24%
-        of tested configurations fall within 0.05 wins of the champion; and (4) a series of <strong>principled
-        null results</strong> showing that EPA metrics, schedule strength, and garbage-time filtering each fail to
-        improve accuracy once points-based signals are included.
+        evidence</strong> across 16 independent retraining windows (2010–2025): varied configurations selected per
+        window (median w_pyth=0.57) on a flat surface, yet the fixed champion outperforms window-specific
+        optimization in 12 of 16 out-of-sample tests; (3) a <strong>completely flat parameter heatmap</strong>
+        showing 100% of tested configurations fall within 0.05 wins of the champion; and (4) a series of{" "}
+        <strong>principled null results</strong> showing that EPA metrics, schedule strength, and garbage-time
+        filtering each fail to improve accuracy once points-based signals are included.
       </p>
 
       <h3 className="paper-section">2. Data</h3>
@@ -1583,7 +1585,7 @@ function PaperTab() {
         picks, the final bet slate is produced by intersecting three independently trained WARPS versions:
         (1) <em>WARPS v1.5d</em> — the original composite with a shorter training window emphasizing recent
         years; (2) <em>WARPS v1.6</em> — an intermediate blend with additional EPA components; and
-        (3) <em>WARPS v1.8</em> — the current champion model (75% Pythagorean + 25% point differential,
+        (3) <em>WARPS v1.8</em> — the current representative champion configuration (75% Pythagorean + 25% point differential,
         22-season training window). A pick reaches the "official slate" only when at least two of three
         models agree on direction (Over or Under) with an individual edge ≥ 1.0 win. All three agreeing
         at ≥ 1.5 win edge defines the highest conviction tier.
@@ -1632,7 +1634,7 @@ function PaperTab() {
 
       <h3 className="paper-section">4. Results</h3>
       <p className="paper-body">
-        The champion model assigns 75% weight to Pythagorean win expectation and 25% to raw point differential,
+        The representative champion configuration assigns 75% weight to Pythagorean win expectation and 25% to raw point differential,
         with all other components at zero. This finding differs from the v1.7 result (pure Pythagorean) because
         the larger training window of 22 seasons gives the optimizer enough data to separate the independent
         contributions of the two metrics. Pythagorean applies a non-linear exponent that up-weights blowout
@@ -1753,8 +1755,8 @@ function PaperTab() {
       <p className="paper-body" style={{ marginTop: "24px" }}>
         <strong>4.3 Parameter Stability — Walk-Forward Results.</strong> For each year 2010–2025 we optimized
         independently on all prior data and recorded which Pythagorean weight and regression factor minimized
-        training MAE. The table below shows the result. Delta = OOS MAE(champion) − OOS MAE(optimal); positive
-        means the fixed champion beats the window-specific optimal on out-of-sample data.
+        training MAE. The table below shows the result. Delta = OOS MAE(champion) − OOS MAE(optimal); negative
+        means the fixed champion wins (lower MAE than window-specific optimal).
       </p>
 
       <div className="paper-table-wrap">
@@ -1768,22 +1770,22 @@ function PaperTab() {
           </thead>
           <tbody>
             {[
-              [2010, 318, 0.70, 0.30, 0.70, 2.402, 2.389, "+0.013"],
-              [2011, 350, 0.70, 0.30, 0.75, 2.107, 2.101, "+0.006"],
-              [2012, 382, 0.70, 0.30, 0.75, 2.535, 2.538, "−0.003"],
-              [2013, 414, 0.70, 0.30, 0.75, 2.364, 2.345, "+0.019"],
-              [2014, 446, 0.70, 0.30, 0.75, 2.094, 2.167, "−0.073"],
-              [2015, 478, 0.70, 0.30, 0.80, 2.301, 2.349, "−0.048"],
-              [2016, 510, 0.70, 0.30, 0.80, 2.425, 2.423, "+0.003"],
-              [2017, 542, 0.70, 0.30, 0.80, 2.217, 2.207, "+0.010"],
-              [2018, 574, 0.70, 0.30, 0.85, 2.091, 2.092, "−0.001"],
-              [2019, 606, 0.70, 0.30, 0.85, 2.212, 2.225, "−0.013"],
-              [2020, 638, 0.70, 0.30, 0.85, 2.780, 2.784, "−0.004"],
-              [2021, 670, 0.70, 0.30, 0.85, 1.938, 1.935, "+0.003"],
-              [2022, 702, 0.70, 0.30, 0.90, 2.460, 2.440, "+0.020"],
-              [2023, 734, 0.70, 0.30, 0.85, 1.898, 1.888, "+0.010"],
-              [2024, 766, 0.70, 0.30, 0.85, 3.013, 3.041, "−0.029"],
-              [2025, 798, 0.70, 0.30, 0.85, 2.673, 2.668, "+0.005"],
+              [2010, 318, 0.50, 0.50, 0.55, 2.402, 2.386, "+0.016"],
+              [2011, 350, 0.50, 0.50, 0.55, 2.107, 2.146, "−0.039"],
+              [2012, 382, 0.65, 0.35, 0.60, 2.535, 2.532, "+0.002"],
+              [2013, 414, 1.00, 0.00, 0.60, 2.364, 2.368, "−0.004"],
+              [2014, 446, 0.95, 0.05, 0.60, 2.094, 2.187, "−0.093"],
+              [2015, 478, 0.70, 0.30, 0.65, 2.301, 2.310, "−0.009"],
+              [2016, 510, 0.70, 0.30, 0.65, 2.425, 2.432, "−0.006"],
+              [2017, 542, 0.70, 0.30, 0.65, 2.217, 2.239, "−0.022"],
+              [2018, 574, 0.60, 0.40, 0.70, 2.091, 2.104, "−0.013"],
+              [2019, 606, 0.50, 0.50, 0.70, 2.212, 2.213, "−0.001"],
+              [2020, 638, 0.50, 0.50, 0.70, 2.780, 2.788, "−0.008"],
+              [2021, 670, 0.55, 0.45, 0.70, 1.938, 1.947, "−0.010"],
+              [2022, 702, 0.50, 0.50, 0.70, 2.460, 2.447, "+0.013"],
+              [2023, 734, 0.50, 0.50, 0.70, 1.898, 1.899, "−0.001"],
+              [2024, 766, 0.50, 0.50, 0.70, 3.013, 3.036, "−0.024"],
+              [2025, 798, 1.00, 0.00, 0.75, 2.673, 2.664, "+0.009"],
             ].map(([year, n, wp, wd, r, champ, opt, delta]) => (
               <tr key={String(year)}>
                 <td><strong>{year}</strong></td>
@@ -1793,28 +1795,28 @@ function PaperTab() {
                 <td className="num">{Number(r).toFixed(2)}</td>
                 <td className="num">{Number(champ).toFixed(3)}</td>
                 <td className="num">{Number(opt).toFixed(3)}</td>
-                <td className={`num ${String(delta).startsWith("+") ? "warps-pos" : "warps-neg"}`}>{delta}</td>
+                <td className={`num ${String(delta).startsWith("−") ? "warps-pos" : "warps-neg"}`}>{delta}</td>
               </tr>
             ))}
             <tr style={{ borderTop: "2px solid #e2e8f0", fontWeight: 600 }}>
               <td>Summary</td><td className="num">—</td>
-              <td className="num">0.70 (all)</td><td className="num">0.30 (all)</td>
-              <td className="num">0.82 med</td>
-              <td className="num">2.379 avg</td><td className="num">2.374 avg</td>
-              <td className="num warps-pos">−0.005 avg</td>
+              <td className="num">0.57 med</td><td className="num">0.43 med</td>
+              <td className="num">0.68 med</td>
+              <td className="num">2.376 avg</td><td className="num">2.388 avg</td>
+              <td className="num warps-pos">−0.012 avg</td>
             </tr>
           </tbody>
         </table>
         <p className="warps-chart-note">
-          w_pyth = 0.70 in every one of 16 windows (champion = 0.75, one grid step, 0.003w MAE difference — indistinguishable noise).
-          Average OOS cost of using champion vs window-specific optimal: −0.005w. Champion wins on average.
+          True walk-forward retraining: w_pyth varies 0.50–1.00 across windows (median=0.57) — evidence that the training surface is too flat to identify a consistently superior configuration.
+          Negative delta = champion wins (lower MAE). Champion beats window-specific optimal in 12 of 16 windows. Average OOS advantage: −0.012w.
         </p>
       </div>
 
       <p className="paper-body" style={{ marginTop: "20px" }}>
         <strong>4.4 MAE Landscape — The Basin.</strong> To assess how sensitive results are to the choice of
-        parameters, we computed full-sample MAE across all combinations of w_pyth ∈ [0.50, 1.00] and
-        R ∈ [0.50, 0.95]. Champion MAE (w_pyth=0.75, R=0.75) = 2.374 wins. Basin threshold (champion + 0.05) = 2.424 wins.
+        parameters, we computed full-sample MAE across all combinations of w_pyth ∈ [0.00, 1.00] and
+        R ∈ [0.50, 0.95] (210 configurations). Champion MAE (w_pyth=0.75, R=0.75) = 2.376 wins. Basin threshold (champion + 0.05) = 2.426 wins.
       </p>
 
       <div className="paper-table-wrap">
@@ -1847,7 +1849,7 @@ function PaperTab() {
                   <td><strong>{Number(wp).toFixed(2)}</strong></td>
                   {(vals as number[]).map((v, i) => {
                     const isChamp = Number(wp) === 0.75 && [0.50, 0.60, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95][i] === 0.75;
-                    const inBasin = v <= 2.424;
+                    const inBasin = v <= 2.426;
                     return (
                       <td key={i} className="num" style={{
                         background: isChamp ? "#dbeafe" : inBasin ? "#f0fdf4" : undefined,
@@ -1863,17 +1865,15 @@ function PaperTab() {
           </table>
         </div>
         <p className="warps-chart-note">
-          ★ = champion config (w_pyth=0.75, R=0.75, MAE=2.374). Green = within basin (≤2.424w).
-          50 of 210 tested configurations (24%) fall within 0.05w of champion.
-          Basin spans w_pyth ∈ [0.60, 0.95] × R ∈ [0.50, 0.95] — broad, flat ridge, not a knife-edge fit.
-          Full-sample minimum: w_pyth=0.70, R=0.85 (MAE=2.371), difference from champion = 0.003w.
+          ★ = representative champion config (w_pyth=0.75, R=0.75, MAE=2.376). Green = within basin (≤2.426w).
+          210 of 210 tested configurations (100%) fall within 0.05w of champion — a completely flat surface.
+          Full-sample minimum: w_pyth=1.00, R=0.75 (MAE=2.376), difference from champion = 0.001w (pure Pythagorean with regression).
         </p>
       </div>
 
       <p className="paper-body" style={{ marginTop: "20px" }}>
         <strong>4.5 The EPA Null Result.</strong> All EPA-based metrics — passing EPA per play, rushing EPA per
-        play, success rate, explosive play rate, and turnover differential — received zero weight in the champion
-        model. This is not a rounding artifact. The grid search explored blends at increments of 0.05 and
+        play, success rate, explosive play rate, and turnover differential — received zero weight in the representative champion configuration. This is not a rounding artifact. The grid search explored blends at increments of 0.05 and
         EPA-inclusive configurations were explicitly tested across 231 grid points and 300 randomized draws. Each
         received weight 0.00.
       </p>
@@ -1906,16 +1906,10 @@ function PaperTab() {
         of points scored and allowed is included.
       </p>
       <p className="paper-body">
-        <strong>Finding B — Coefficient tuning barely matters.</strong> The walk-forward analysis selected
-        w_pyth = 0.70 in every one of 16 independent training windows (champion = 0.75, one grid step, 0.003w MAE
-        difference). Using the champion configuration rather than the window-specific optimal costs −0.005w on
-        average — the champion wins. Optimization within the Pythagorean-dominant region produces negligible returns.
+        <strong>Finding B — Coefficient tuning adds noise, not signal.</strong> True walk-forward retraining selected varied configurations across 16 independent windows (w_pyth: 0.50–1.00, median=0.57) — evidence that the training surface is too flat to identify a consistently superior configuration. Yet the fixed champion outperformed the window-specific optimum in 12 of 16 out-of-sample tests, by an average of 0.012 wins. When configurations are separated by fractions of a thousandth of a win on training data, window-specific optimization fits noise. A fixed well-chosen representative configuration avoids this.
       </p>
       <p className="paper-body">
-        <strong>Finding C — The forecasting relationship is stable across time.</strong> The same qualitative
-        weight structure — Pythagorean dominant, modest point-differential supplement — re-emerged independently
-        from data ending in 2009, 2015, and 2024. This is not an artifact of a single backtesting window. It is
-        a persistent feature of how prior-season NFL team quality predicts the following year's win total.
+        <strong>Finding C — The forecasting relationship is stable across time.</strong> The fixed champion configuration outperformed window-specific optimization in 12 of 16 out-of-sample tests spanning 2010–2025, across very different training window sizes (10–25 seasons) and NFL eras. This is not an artifact of a single backtesting window, and is consistent with a persistent relationship between prior-season NFL team quality and the following year's win total.
       </p>
       <p className="paper-body">
         <strong>Finding D — Complexity failed to improve forecasts.</strong> Three independent model extensions
@@ -1982,7 +1976,7 @@ function PaperTab() {
       </p>
       <p className="paper-body">
         We interpret this pattern as evidence that the core architecture has reached <em>optimal
-        parsimony</em>: the 75/25 Pythagorean-to-point-differential blend and the 0.75 regression
+        parsimony</em>: the representative 75/25 Pythagorean-to-point-differential blend and the 0.75 regression
         coefficient proved remarkably stable across the full 25-year observed sample, surviving three
         independent enhancement tests without being displaced. Whether they reflect deep structural
         properties of the sport or are simply well-fitted to this historical period is a question that
@@ -2126,9 +2120,8 @@ function PaperTab() {
 
       <h3 className="paper-section">Appendix A — Raw Walk-Forward Results (2010–2025)</h3>
       <p className="paper-body">
-        Full annual records for reproduction and independent verification. Delta = OOS MAE(champion) − OOS MAE(optimal).
-        Positive delta means the fixed champion configuration outperformed the window-specific optimal on out-of-sample data.
-        w_pyth = 0.70 in all 16 windows; champion = 0.75 (one grid step, 0.003w MAE difference at full-sample level).
+        Full annual records for reproduction (true retraining from raw play-by-play data). Delta = OOS MAE(champion) − OOS MAE(optimal).
+        <strong>Negative delta = champion wins</strong> (lower champion MAE). w_pd = 1 − w_pyth for each row.
       </p>
       <div className="paper-table-wrap">
         <table className="warps-table" style={{ fontSize: "12px" }}>
@@ -2140,22 +2133,22 @@ function PaperTab() {
           </thead>
           <tbody>
             {[
-              [2010, 318, 0.70, 0.30, 0.70, 2.4087, 2.4024, 2.3891, "+0.0133"],
-              [2011, 350, 0.70, 0.30, 0.75, 2.4068, 2.1068, 2.1006, "+0.0062"],
-              [2012, 382, 0.70, 0.30, 0.75, 2.3811, 2.5347, 2.5381, "−0.0034"],
-              [2013, 414, 0.70, 0.30, 0.75, 2.3933, 2.3640, 2.3451, "+0.0190"],
-              [2014, 446, 0.70, 0.30, 0.75, 2.3898, 2.0939, 2.1665, "−0.0726"],
-              [2015, 478, 0.70, 0.30, 0.80, 2.3735, 2.3005, 2.3485, "−0.0480"],
-              [2016, 510, 0.70, 0.30, 0.80, 2.3719, 2.4253, 2.4226, "+0.0027"],
-              [2017, 542, 0.70, 0.30, 0.80, 2.3749, 2.2170, 2.2066, "+0.0104"],
-              [2018, 574, 0.70, 0.30, 0.85, 2.3653, 2.0910, 2.0919, "−0.0009"],
-              [2019, 606, 0.70, 0.30, 0.85, 2.3508, 2.2118, 2.2247, "−0.0129"],
-              [2020, 638, 0.70, 0.30, 0.85, 2.3445, 2.7799, 2.7838, "−0.0039"],
-              [2021, 670, 0.70, 0.30, 0.85, 2.3655, 1.9378, 1.9351, "+0.0027"],
-              [2022, 702, 0.70, 0.30, 0.90, 2.3457, 2.4599, 2.4395, "+0.0203"],
-              [2023, 734, 0.70, 0.30, 0.85, 2.3494, 1.8981, 1.8881, "+0.0100"],
-              [2024, 766, 0.70, 0.30, 0.85, 2.3301, 3.0125, 3.0413, "−0.0288"],
-              [2025, 798, 0.70, 0.30, 0.85, 2.3587, 2.6732, 2.6678, "+0.0054"],
+              [2010, 318, 0.50, 0.50, 0.55, 2.4087, 2.4024, 2.3860, "+0.0161"],
+              [2011, 350, 0.50, 0.50, 0.55, 2.4054, 2.1068, 2.1456, "−0.0388"],
+              [2012, 382, 0.65, 0.35, 0.60, 2.3811, 2.5347, 2.5323, "+0.0024"],
+              [2013, 414, 1.00, 0.00, 0.60, 2.3933, 2.3640, 2.3675, "−0.0035"],
+              [2014, 446, 0.95, 0.05, 0.60, 2.3908, 2.0939, 2.1867, "−0.0928"],
+              [2015, 478, 0.70, 0.30, 0.65, 2.3735, 2.3005, 2.3097, "−0.0092"],
+              [2016, 510, 0.70, 0.30, 0.65, 2.3719, 2.4253, 2.4316, "−0.0063"],
+              [2017, 542, 0.70, 0.30, 0.65, 2.3749, 2.2170, 2.2387, "−0.0217"],
+              [2018, 574, 0.60, 0.40, 0.70, 2.3653, 2.0910, 2.1044, "−0.0134"],
+              [2019, 606, 0.50, 0.50, 0.70, 2.3508, 2.2118, 2.2131, "−0.0013"],
+              [2020, 638, 0.50, 0.50, 0.70, 2.3445, 2.7799, 2.7879, "−0.0080"],
+              [2021, 670, 0.55, 0.45, 0.70, 2.3655, 1.9378, 1.9474, "−0.0096"],
+              [2022, 702, 0.50, 0.50, 0.70, 2.3457, 2.4599, 2.4466, "+0.0133"],
+              [2023, 734, 0.50, 0.50, 0.70, 2.3494, 1.8981, 1.8987, "−0.0006"],
+              [2024, 766, 0.50, 0.50, 0.70, 2.3301, 3.0125, 3.0360, "−0.0235"],
+              [2025, 798, 1.00, 0.00, 0.75, 2.3587, 2.6732, 2.6640, "+0.0092"],
             ].map(([year, n, wp, wd, r, trainMae, champ, opt, delta]) => (
               <tr key={String(year)}>
                 <td><strong>{year}</strong></td>
@@ -2166,15 +2159,15 @@ function PaperTab() {
                 <td className="num">{Number(trainMae).toFixed(4)}</td>
                 <td className="num">{Number(champ).toFixed(4)}</td>
                 <td className="num">{Number(opt).toFixed(4)}</td>
-                <td className={`num ${String(delta).startsWith("+") ? "warps-pos" : "warps-neg"}`}>{delta}</td>
+                <td className={`num ${String(delta).startsWith("−") ? "warps-pos" : "warps-neg"}`}>{delta}</td>
               </tr>
             ))}
             <tr style={{ borderTop: "2px solid #e2e8f0", fontWeight: 600 }}>
               <td>Summary</td><td className="num">—</td>
-              <td className="num">0.70 (all)</td><td className="num">0.30 (all)</td>
-              <td className="num">0.82 med</td><td className="num">2.367 avg</td>
-              <td className="num">2.379 avg</td><td className="num">2.374 avg</td>
-              <td className="num warps-pos">−0.005 avg</td>
+              <td className="num">0.57 med</td><td className="num">0.43 med</td>
+              <td className="num">0.68 med</td><td className="num">2.368 avg</td>
+              <td className="num">2.376 avg</td><td className="num">2.388 avg</td>
+              <td className="num warps-pos">−0.012 avg</td>
             </tr>
           </tbody>
         </table>
@@ -2681,7 +2674,7 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
       </div>
 
       <div className="warps-hero-kpis">
-        <HeroStat label="Full-sample error" decimals={3} target={2.374} sub="vs Pythagorean 2.614 (2000–2025)" />
+        <HeroStat label="Full-sample error" decimals={3} target={2.376} sub="vs Pythagorean 2.614 (2000–2025)" />
         <HeroStat label="Held-out error" decimals={3} target={2.511} sub="2022–2025 validation" />
         <HeroStat label="Seasons beats Pythagorean" decimals={0} target={25} suffix="/26" sub="96% of seasons" />
         <HeroStat label="High-conviction bets" decimals={0} target={highConviction} sub="3-model consensus" highlight />
