@@ -380,19 +380,27 @@ Whatever the mechanism, the finding is clear: EPA did not improve preseason win-
 
 The finding that Pythagorean win expectation is the most valuable signal is consistent with the broader sports analytics literature. Actual win-loss records contain substantial luck: close games, fumble bounces, and tipped passes create variance around the true quality of a team. Pythagorean expectation averages out this game-level variance by focusing on cumulative points scored and allowed, which are harder to sustain artificially over a full season.
 
-### 6.4 Why Point Differential Adds Value
+### 6.4 Why Simplicity Wins
+
+Points scored and allowed are among the most information-dense statistics in team sports. A final score aggregates hundreds of individual plays — offensive execution, defensive resistance, special teams, and in-game strategy — into a single number. Pythagorean expectation then non-linearly transforms that aggregate in a way that downweights fluky close-game outcomes and upweights sustained dominance. The result is a single statistic that already encodes much of what any advanced metric is trying to measure.
+
+Most modern NFL efficiency metrics — EPA per play, success rate, explosive play rate — are computed from the same play-by-play events that ultimately determine the final score. They are, in a precise sense, upstream components of points. Once a season's aggregate scoring is known, these play-level summaries provide limited additional information about a team's underlying quality, because that quality has already been expressed in the score. The partial correlation analysis in §5.7 confirms this empirically: EPA metrics lose almost all predictive power once Pythagorean expectation is controlled for.
+
+This explains why the objective surface is flat across a wide parameter range, and why repeated enhancement attempts failed. The forecasting problem is not under-specified — it has a dominant signal, and the challenge is identifying it. Once Pythagorean expectation captures that signal, alternatives that appear richer in theory offer diminishing returns in practice. The finding is not that complexity is wrong. It is that the information complexity attempts to add has already been processed and discarded in the aggregation to final scores.
+
+### 6.5 Why Point Differential Adds Value (Marginally)
 
 When we have 22 training seasons, the optimizer identifies a role for raw point differential alongside Pythagorean. The two metrics carry overlapping but not identical information. Pythagorean applies a 2.37 exponent that non-linearly up-weights blowout margins. A team that wins every game by 3 points has the same total point differential as one that alternates blowout wins with close losses, but their Pythagorean scores differ substantially. Raw point differential, being linear, treats these teams more similarly. The champion model suggests a blend is optimal: Pythagorean's non-linear sensitivity is valuable, but pure Pythagorean can overweight seasons where blowout margins may not persist.
 
-### 6.5 The 2014 Exception
+### 6.6 The 2014 Exception
 
 The only season where WARPS underperformed Pythagorean was 2014 (WARPS MAE 2.094 vs Pythagorean 2.018, margin 0.076 wins). The 2014 exception illustrates that efficiency-based models remain vulnerable to personnel and organizational changes not represented in prior-season statistics.
 
-### 6.6 NFL Regime Volatility — 2024 and 2025
+### 6.7 NFL Regime Volatility — 2024 and 2025
 
 The 2024 and 2025 seasons produced the highest WARPS MAEs in the 26-season sample (3.01 and 2.67 respectively). The fat-tail errors are concentrated in two identifiable groups: (1) sustained-excellence teams that exceeded what any regression-toward-mean model can capture; and (2) rapid collapse teams whose declines were associated with major personnel and organizational changes not represented in the model. Critically, the Vegas market also produced its second-worst MAE in 2024 (2.86 wins), confirming that 2024–2025 represented an industry-wide forecasting challenge. Diagnostic analysis suggests these large residuals were primarily associated with factors such as coaching turnover and quarterback disruption. These post-hoc observations are descriptive rather than causal and should be interpreted as hypotheses for the observed fat-tail errors. Conditional regression schemes for sustained-excellence franchises represent a promising direction for future work.
 
-### 6.7 The Role of the Consensus Screen
+### 6.8 The Role of the Consensus Screen
 
 The three-model consensus screen is designed to reduce false positives. Each model version was trained with different data windows or search procedures, making their errors partially independent. When all three agree, the signal is more robust than any single model alone.
 
