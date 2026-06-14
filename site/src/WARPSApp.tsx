@@ -1,4 +1,4 @@
-import { BarChart3, FlaskConical } from "lucide-react";
+import { BarChart3, FlaskConical, Home } from "lucide-react";
 import { WARPSView } from "./components/WARPSView";
 import { bootstrapStats } from "./data/warpsData";
 
@@ -14,6 +14,10 @@ export default function WARPSApp() {
           </div>
         </div>
         <div className="warps-header-kpis">
+          <a className="warps-home-link" href="https://lijuvarughese.com/">
+            <Home size={14} />
+            Main Page
+          </a>
           <div className="warps-header-kpi">
             <strong>{bootstrapStats.warpsMaeFull.toFixed(3)}</strong>
             <span>MAE wins (26 seasons)</span>

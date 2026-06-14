@@ -1,4 +1,4 @@
-import { Activity, BarChart3, Brain, CalendarDays, ClipboardList, Crosshair, FlaskConical, Gauge, GitBranch, Grid3X3, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
+import { Activity, BarChart3, Brain, CalendarDays, ClipboardList, Crosshair, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { CompareView } from "./components/CompareView";
 import { EdgeBoardView } from "./components/EdgeBoardView";
@@ -147,6 +147,10 @@ function App() {
           </div>
         </div>
         <div className="status-row">
+          <a className="site-home-link" href="https://lijuvarughese.com/">
+            <Home size={14} />
+            Main Page
+          </a>
           <span className={engineError ? "status-pill warning" : "status-pill ok"}>
             <ShieldCheck size={14} />
             {engineError ? "Feed offline" : `Live feed v${engineFeed?.feed_version || "…"}`}

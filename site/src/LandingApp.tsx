@@ -1,31 +1,75 @@
-import { Activity, BarChart3, ExternalLink, FlaskConical, Grid3X3, TrendingUp } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  ExternalLink,
+  FlaskConical,
+  Grid3X3,
+  LineChart,
+  Search,
+  TrendingUp,
+} from "lucide-react";
 
 export default function LandingApp() {
   return (
     <div className="landing-shell">
       <header className="landing-header">
-        <h1 className="landing-name">Liju Varughese</h1>
-        <p className="landing-tagline">NFL Analytics · Sports Betting · Trading</p>
+        <nav className="landing-nav" aria-label="Project navigation">
+          <span className="landing-brand">Liju Varughese</span>
+          <div className="landing-nav-links">
+            <a href="matrix.html">Matrix</a>
+            <a href="warps.html">WARPS</a>
+            <a href="https://lijuvarughese.com/ytts/">YTTS</a>
+          </div>
+        </nav>
+        <div className="landing-hero-grid">
+          <div>
+            <p className="landing-kicker">Project Lab</p>
+            <h1 className="landing-name">Sports models and market screens.</h1>
+            <p className="landing-tagline">
+              A personal project lab built to compare assumptions, surface edges, and keep score over time.
+            </p>
+            <div className="landing-actions">
+              <a href="matrix.html" className="landing-button primary">Open NFL Edge Hub</a>
+              <a href="#projects" className="landing-button secondary">Browse Projects</a>
+            </div>
+          </div>
+          <aside className="landing-snapshot" aria-label="Project snapshot">
+            <div className="snapshot-row">
+              <Grid3X3 size={18} />
+              <div>
+                <strong>NFL Edge Hub</strong>
+                <span>Full-season matchup grid, weekly edges, scorecards, and comparison views.</span>
+              </div>
+            </div>
+            <div className="snapshot-row">
+              <FlaskConical size={18} />
+              <div>
+                <strong>WARPS-NFL</strong>
+                <span>Win-total research model with 26-season historical validation context.</span>
+              </div>
+            </div>
+            <div className="snapshot-row">
+              <TrendingUp size={18} />
+              <div>
+                <strong>YTTS Screener</strong>
+                <span>Weekly equity screen with research notes, risk checks, and PM dashboards.</span>
+              </div>
+            </div>
+          </aside>
+        </div>
       </header>
 
       <main className="landing-main">
         <section className="landing-about">
+          <h2>Three dashboards I keep coming back to.</h2>
           <p>
-            I build data-driven systems at the intersection of sports analytics and financial markets.
-            On the NFL side, I run statistical models to find mispriced preseason win totals,
-            track weekly betting edges, and backtest signals across 26 seasons of play-by-play data.
-            On the trading side, I manage a systematic portfolio with research screens,
-            long-hold position tracking, and an active trading desk.
-          </p>
-          <p>
-            Everything here is built from scratch — custom models, live data pipelines,
-            and dashboards I actually use every day.
+            One for NFL matchups, one for win-total research, and one for equity screens.
+            The common thread is simple: make the assumptions visible, compare the model against reality,
+            and keep improving the next version.
           </p>
         </section>
 
-        <div className="landing-divider" />
-
-        <section className="landing-projects">
+        <section className="landing-projects" id="projects">
 
           <div className="landing-project">
             <div className="landing-project-head">
@@ -80,6 +124,24 @@ export default function LandingApp() {
             </div>
           </div>
 
+        </section>
+
+        <section className="landing-method">
+          <div className="method-card">
+            <Search size={18} />
+            <strong>Compare assumptions</strong>
+            <span>Put schedules, lines, projections, and screens in one place.</span>
+          </div>
+          <div className="method-card">
+            <LineChart size={18} />
+            <strong>Surface edges</strong>
+            <span>Highlight model disagreements, quality flags, and research gaps.</span>
+          </div>
+          <div className="method-card">
+            <BarChart3 size={18} />
+            <strong>Keep score</strong>
+            <span>Track validation, results, and what should change next.</span>
+          </div>
         </section>
       </main>
 
