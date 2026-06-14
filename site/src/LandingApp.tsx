@@ -21,51 +21,52 @@ export default function LandingApp() {
             <a href="https://lijuvarughese.com/ytts/">YTTS</a>
           </div>
         </nav>
-        <div className="landing-hero-grid">
-          <div>
+        <div className="landing-hero">
+          <div className="landing-hero-copy">
             <p className="landing-kicker">Project Lab</p>
             <h1 className="landing-name">Sports models and market screens.</h1>
             <p className="landing-tagline">
               A personal project lab built to compare assumptions, surface edges, and keep score over time.
             </p>
             <div className="landing-actions">
-              <a href="matrix.html" className="landing-button primary">Open NFL Edge Hub</a>
-              <a href="#projects" className="landing-button secondary">Browse Projects</a>
+              <a href="#projects" className="landing-button primary">View Projects</a>
+              <a href="matrix.html" className="landing-button secondary">NFL Edge Hub</a>
+              <a href="warps.html" className="landing-button secondary">WARPS</a>
+              <a href="https://lijuvarughese.com/ytts/" className="landing-button secondary">YTTS</a>
             </div>
           </div>
-          <aside className="landing-snapshot" aria-label="Project snapshot">
-            <div className="snapshot-row">
-              <Grid3X3 size={18} />
+          <div className="landing-snapshot" aria-label="Project snapshot">
+            <a className="snapshot-row" href="matrix.html">
+              <Grid3X3 size={19} />
               <div>
                 <strong>NFL Edge Hub</strong>
-                <span>Full-season matchup grid, weekly edges, scorecards, and comparison views.</span>
+                <span>Matchup grid, weekly edges, scorecards, and comparison views.</span>
               </div>
-            </div>
-            <div className="snapshot-row">
-              <FlaskConical size={18} />
+            </a>
+            <a className="snapshot-row" href="warps.html">
+              <FlaskConical size={19} />
               <div>
                 <strong>WARPS-NFL</strong>
-                <span>Win-total research model with 26-season historical validation context.</span>
+                <span>Win-total research model with historical validation context.</span>
               </div>
-            </div>
-            <div className="snapshot-row">
-              <TrendingUp size={18} />
+            </a>
+            <a className="snapshot-row" href="https://lijuvarughese.com/ytts/">
+              <TrendingUp size={19} />
               <div>
                 <strong>YTTS Screener</strong>
-                <span>Weekly equity screen with research notes, risk checks, and PM dashboards.</span>
+                <span>Equity screen with research notes, risk checks, and PM dashboards.</span>
               </div>
-            </div>
-          </aside>
+            </a>
+          </div>
         </div>
       </header>
 
       <main className="landing-main">
         <section className="landing-about">
-          <h2>Three dashboards I keep coming back to.</h2>
+          <h2>Small systems for testing ideas.</h2>
           <p>
-            One for NFL matchups, one for win-total research, and one for equity screens.
-            The common thread is simple: make the assumptions visible, compare the model against reality,
-            and keep improving the next version.
+            Each project starts with a question, turns it into a model or dashboard, and then keeps score.
+            The goal is not to make every answer automatic; it is to make the logic visible enough to improve.
           </p>
         </section>
 
