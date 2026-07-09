@@ -37,7 +37,14 @@ export interface ConsensusRow {
   avgEdge: number;
   consensus: string;
   dynasty?: "positive" | "negative";
+  overOdds?: number;
+  underOdds?: number;
 }
+
+export const linesMetadata = {
+  source: "BetMGM",
+  date: "2026-07-05",
+};
 
 export interface BootstrapStats {
   warpsMaeFull: number;
@@ -152,38 +159,39 @@ export const bootstrapStats: BootstrapStats = {
 };
 
 export const consensusData: ConsensusRow[] = [
-  { team: "NO",  marketTotal: 4.5,  v18Wins: 8.32,  v18Edge: 3.82,  v15dEdge: 4.26,  v16Edge: 3.75,  avgEdge: 3.95,  consensus: "3-model Over" },
-  { team: "NE",  marketTotal: 8.5,  v18Wins: 11.47, v18Edge: 2.97,  v15dEdge: 2.61,  v16Edge: 3.34,  avgEdge: 2.97,  consensus: "3-model Over" },
-  { team: "JAX", marketTotal: 7.5,  v18Wins: 10.41, v18Edge: 2.91,  v15dEdge: 2.39,  v16Edge: 3.19,  avgEdge: 2.83,  consensus: "3-model Over" },
-  { team: "NYG", marketTotal: 5.5,  v18Wins: 7.56,  v18Edge: 2.06,  v15dEdge: 2.12,  v16Edge: 1.92,  avgEdge: 2.03,  consensus: "3-model Over" },
-  { team: "IND", marketTotal: 7.5,  v18Wins: 9.14,  v18Edge: 1.64,  v15dEdge: 1.44,  v16Edge: 1.71,  avgEdge: 1.59,  consensus: "3-model Over" },
-  { team: "ARI", marketTotal: 4.5,  v18Wins: 5.88,  v18Edge: 1.38,  v15dEdge: 1.92,  v16Edge: 1.02,  avgEdge: 1.44,  consensus: "2-Strong Over" },
-  { team: "MIA", marketTotal: 4.5,  v18Wins: 5.89,  v18Edge: 1.39,  v15dEdge: 1.53,  v16Edge: 0.99,  avgEdge: 1.30,  consensus: "2-model Over" },
-  { team: "ATL", marketTotal: 6.5,  v18Wins: 7.70,  v18Edge: 1.20,  v15dEdge: 1.49,  v16Edge: 1.06,  avgEdge: 1.25,  consensus: "2-Strong Over" },
-  { team: "CLE", marketTotal: 5.5,  v18Wins: 6.37,  v18Edge: 0.87,  v15dEdge: 1.18,  v16Edge: 0.47,  avgEdge: 0.84,  consensus: "Split / No bet" },
-  { team: "WAS", marketTotal: 7.5,  v18Wins: 7.98,  v18Edge: 0.48,  v15dEdge: 0.94,  v16Edge: 0.38,  avgEdge: 0.60,  consensus: "Split / No bet" },
-  { team: "HOU", marketTotal: 9.5,  v18Wins: 9.96,  v18Edge: 0.46,  v15dEdge: -0.11, v16Edge: 0.75,  avgEdge: 0.37,  consensus: "Split / No bet" },
-  { team: "PIT", marketTotal: 8.5,  v18Wins: 8.59,  v18Edge: 0.09,  v15dEdge: 0.02,  v16Edge: 0.12,  avgEdge: 0.08,  consensus: "Split / No bet" },
-  { team: "CAR", marketTotal: 7.5,  v18Wins: 7.51,  v18Edge: 0.01,  v15dEdge: 0.34,  v16Edge: -0.20, avgEdge: 0.05,  consensus: "Split / No bet", dynasty: "negative" },
-  { team: "SEA", marketTotal: 10.5, v18Wins: 10.52, v18Edge: 0.02,  v15dEdge: -0.56, v16Edge: 0.32,  avgEdge: -0.08, consensus: "Split / No bet" },
-  { team: "DEN", marketTotal: 9.5,  v18Wins: 9.36,  v18Edge: -0.14, v15dEdge: -0.31, v16Edge: 0.05,  avgEdge: -0.13, consensus: "Split / No bet" },
-  { team: "TB",  marketTotal: 8.5,  v18Wins: 8.30,  v18Edge: -0.20, v15dEdge: -0.27, v16Edge: -0.23, avgEdge: -0.23, consensus: "Split / No bet" },
-  { team: "TEN", marketTotal: 6.5,  v18Wins: 6.15,  v18Edge: -0.35, v15dEdge: 0.28,  v16Edge: -0.70, avgEdge: -0.25, consensus: "Split / No bet" },
-  { team: "DET", marketTotal: 10.5, v18Wins: 10.19, v18Edge: -0.31, v15dEdge: -0.45, v16Edge: -0.07, avgEdge: -0.28, consensus: "Split / No bet" },
-  { team: "GB",  marketTotal: 9.5,  v18Wins: 8.87,  v18Edge: -0.63, v15dEdge: -0.41, v16Edge: -0.55, avgEdge: -0.53, consensus: "Split / No bet" },
-  { team: "LAR", marketTotal: 11.5, v18Wins: 10.80, v18Edge: -0.70, v15dEdge: -0.72, v16Edge: -0.40, avgEdge: -0.61, consensus: "Split / No bet" },
-  { team: "LV",  marketTotal: 6.5,  v18Wins: 5.72,  v18Edge: -0.78, v15dEdge: -0.01, v16Edge: -1.24, avgEdge: -0.68, consensus: "Split / No bet" },
-  { team: "LAC", marketTotal: 9.5,  v18Wins: 8.63,  v18Edge: -0.87, v15dEdge: -0.69, v16Edge: -0.85, avgEdge: -0.80, consensus: "Split / No bet" },
-  { team: "MIN", marketTotal: 9.5,  v18Wins: 8.72,  v18Edge: -0.78, v15dEdge: -0.99, v16Edge: -0.73, avgEdge: -0.83, consensus: "Split / No bet" },
-  { team: "CIN", marketTotal: 9.5,  v18Wins: 8.41,  v18Edge: -1.09, v15dEdge: -1.21, v16Edge: -1.06, avgEdge: -1.12, consensus: "2-Strong Under" },
-  { team: "CHI", marketTotal: 9.5,  v18Wins: 8.30,  v18Edge: -1.20, v15dEdge: -1.27, v16Edge: -1.23, avgEdge: -1.23, consensus: "2-Strong Under" },
-  { team: "SF",  marketTotal: 10.5, v18Wins: 9.37,  v18Edge: -1.13, v15dEdge: -1.79, v16Edge: -0.99, avgEdge: -1.30, consensus: "2-model Under" },
-  { team: "NYJ", marketTotal: 6.5,  v18Wins: 5.18,  v18Edge: -1.32, v15dEdge: -1.06, v16Edge: -1.72, avgEdge: -1.36, consensus: "2-Strong Under", dynasty: "negative" },
-  { team: "DAL", marketTotal: 9.5,  v18Wins: 8.05,  v18Edge: -1.45, v15dEdge: -1.49, v16Edge: -1.50, avgEdge: -1.48, consensus: "2-Strong Under" },
-  { team: "BAL", marketTotal: 11.5, v18Wins: 9.67,  v18Edge: -1.83, v15dEdge: -2.02, v16Edge: -1.63, avgEdge: -1.82, consensus: "3-model Under" },
-  { team: "KC",  marketTotal: 11.5, v18Wins: 9.59,  v18Edge: -1.91, v15dEdge: -2.18, v16Edge: -1.72, avgEdge: -1.94, consensus: "3-model Under", dynasty: "positive" },
-  { team: "PHI", marketTotal: 11.5, v18Wins: 9.27,  v18Edge: -2.23, v15dEdge: -2.36, v16Edge: -2.07, avgEdge: -2.22, consensus: "3-model Under" },
-  { team: "BUF", marketTotal: 12.5, v18Wins: 10.10, v18Edge: -2.40, v15dEdge: -2.63, v16Edge: -2.19, avgEdge: -2.40, consensus: "3-model Under", dynasty: "positive" },
+  // Sorted by avgEdge desc. Lines: BetMGM, 2026-07-05.
+  { team: "NE",  marketTotal: 9.5,  v18Wins: 11.47, v18Edge:  1.97, v15dEdge:  1.61, v16Edge:  2.34, avgEdge:  1.97, consensus: "3-model Over",   overOdds: -145, underOdds:  120 },
+  { team: "IND", marketTotal: 7.5,  v18Wins:  9.14, v18Edge:  1.64, v15dEdge:  1.44, v16Edge:  1.71, avgEdge:  1.60, consensus: "3-model Over",   overOdds: -125, underOdds:  105 },
+  { team: "ARI", marketTotal: 4.5,  v18Wins:  5.88, v18Edge:  1.38, v15dEdge:  1.92, v16Edge:  1.02, avgEdge:  1.44, consensus: "2-Strong Over",  overOdds:  150, underOdds: -185 },
+  { team: "MIA", marketTotal: 4.5,  v18Wins:  5.89, v18Edge:  1.39, v15dEdge:  1.53, v16Edge:  0.99, avgEdge:  1.30, consensus: "2-model Over",   overOdds:  110, underOdds: -130 },
+  { team: "NO",  marketTotal: 7.5,  v18Wins:  8.32, v18Edge:  0.82, v15dEdge:  1.26, v16Edge:  0.75, avgEdge:  0.94, consensus: "2-Strong Over",  overOdds: -125, underOdds:  105 },
+  { team: "JAX", marketTotal: 9.5,  v18Wins: 10.41, v18Edge:  0.91, v15dEdge:  0.39, v16Edge:  1.19, avgEdge:  0.83, consensus: "2-Strong Over",  overOdds:  120, underOdds: -145 },
+  { team: "WAS", marketTotal: 7.5,  v18Wins:  7.98, v18Edge:  0.48, v15dEdge:  0.94, v16Edge:  0.38, avgEdge:  0.60, consensus: "Split / No bet", overOdds: -130, underOdds:  110 },
+  { team: "HOU", marketTotal: 9.5,  v18Wins:  9.96, v18Edge:  0.46, v15dEdge: -0.11, v16Edge:  0.75, avgEdge:  0.37, consensus: "Split / No bet", overOdds: -125, underOdds:  105 },
+  { team: "LV",  marketTotal: 5.5,  v18Wins:  5.72, v18Edge:  0.22, v15dEdge:  0.99, v16Edge: -0.24, avgEdge:  0.32, consensus: "Split / No bet", overOdds: -155, underOdds:  130 },
+  { team: "ATL", marketTotal: 7.5,  v18Wins:  7.70, v18Edge:  0.20, v15dEdge:  0.49, v16Edge:  0.06, avgEdge:  0.25, consensus: "Split / No bet", overOdds:  115, underOdds: -140 },
+  { team: "MIN", marketTotal: 8.5,  v18Wins:  8.72, v18Edge:  0.22, v15dEdge:  0.01, v16Edge:  0.27, avgEdge:  0.17, consensus: "Split / No bet", overOdds: -110, underOdds: -110 },
+  { team: "PIT", marketTotal: 8.5,  v18Wins:  8.59, v18Edge:  0.09, v15dEdge:  0.02, v16Edge:  0.12, avgEdge:  0.08, consensus: "Split / No bet", overOdds:  115, underOdds: -140 },
+  { team: "CAR", marketTotal: 7.5,  v18Wins:  7.51, v18Edge:  0.01, v15dEdge:  0.34, v16Edge: -0.20, avgEdge:  0.05, consensus: "Split / No bet", overOdds:  110, underOdds: -130, dynasty: "negative" },
+  { team: "NYG", marketTotal: 7.5,  v18Wins:  7.56, v18Edge:  0.06, v15dEdge:  0.12, v16Edge: -0.08, avgEdge:  0.03, consensus: "Split / No bet", overOdds: -110, underOdds: -110 },
+  { team: "SEA", marketTotal: 10.5, v18Wins: 10.52, v18Edge:  0.02, v15dEdge: -0.56, v16Edge:  0.32, avgEdge: -0.07, consensus: "Split / No bet", overOdds: -125, underOdds:  105 },
+  { team: "DEN", marketTotal: 9.5,  v18Wins:  9.36, v18Edge: -0.14, v15dEdge: -0.31, v16Edge:  0.05, avgEdge: -0.13, consensus: "Split / No bet", overOdds: -125, underOdds:  105 },
+  { team: "CLE", marketTotal: 6.5,  v18Wins:  6.37, v18Edge: -0.13, v15dEdge:  0.18, v16Edge: -0.53, avgEdge: -0.16, consensus: "Split / No bet", overOdds:  155, underOdds: -190 },
+  { team: "TB",  marketTotal: 8.5,  v18Wins:  8.30, v18Edge: -0.20, v15dEdge: -0.27, v16Edge: -0.23, avgEdge: -0.23, consensus: "Split / No bet", overOdds:  110, underOdds: -130 },
+  { team: "TEN", marketTotal: 6.5,  v18Wins:  6.15, v18Edge: -0.35, v15dEdge:  0.28, v16Edge: -0.70, avgEdge: -0.26, consensus: "Split / No bet", overOdds: -105, underOdds: -115 },
+  { team: "DET", marketTotal: 10.5, v18Wins: 10.19, v18Edge: -0.31, v15dEdge: -0.45, v16Edge: -0.07, avgEdge: -0.28, consensus: "Split / No bet", overOdds: -130, underOdds:  110 },
+  { team: "NYJ", marketTotal: 5.5,  v18Wins:  5.18, v18Edge: -0.32, v15dEdge: -0.06, v16Edge: -0.72, avgEdge: -0.37, consensus: "Split / No bet", overOdds: -110, underOdds: -110, dynasty: "negative" },
+  { team: "BUF", marketTotal: 10.5, v18Wins: 10.10, v18Edge: -0.40, v15dEdge: -0.63, v16Edge: -0.19, avgEdge: -0.41, consensus: "Split / No bet", overOdds: -145, underOdds:  120, dynasty: "positive" },
+  { team: "LAR", marketTotal: 11.5, v18Wins: 10.80, v18Edge: -0.70, v15dEdge: -0.72, v16Edge: -0.40, avgEdge: -0.61, consensus: "Split / No bet", overOdds: -140, underOdds:  115 },
+  { team: "KC",  marketTotal: 10.5, v18Wins:  9.59, v18Edge: -0.91, v15dEdge: -1.18, v16Edge: -0.72, avgEdge: -0.94, consensus: "2-model Under",  overOdds:  120, underOdds: -145, dynasty: "positive" },
+  { team: "CIN", marketTotal: 9.5,  v18Wins:  8.41, v18Edge: -1.09, v15dEdge: -1.21, v16Edge: -1.06, avgEdge: -1.12, consensus: "2-Strong Under", overOdds: -155, underOdds:  130 },
+  { team: "PHI", marketTotal: 10.5, v18Wins:  9.27, v18Edge: -1.23, v15dEdge: -1.36, v16Edge: -1.07, avgEdge: -1.22, consensus: "2-Strong Under", overOdds:  120, underOdds: -145 },
+  { team: "CHI", marketTotal: 9.5,  v18Wins:  8.30, v18Edge: -1.20, v15dEdge: -1.27, v16Edge: -1.23, avgEdge: -1.23, consensus: "2-Strong Under", overOdds:  105, underOdds: -125 },
+  { team: "SF",  marketTotal: 10.5, v18Wins:  9.37, v18Edge: -1.13, v15dEdge: -1.79, v16Edge: -0.99, avgEdge: -1.30, consensus: "2-Strong Under", overOdds:  105, underOdds: -125 },
+  { team: "DAL", marketTotal: 9.5,  v18Wins:  8.05, v18Edge: -1.45, v15dEdge: -1.49, v16Edge: -1.50, avgEdge: -1.48, consensus: "2-Strong Under", overOdds:  105, underOdds: -125 },
+  { team: "GB",  marketTotal: 10.5, v18Wins:  8.87, v18Edge: -1.63, v15dEdge: -1.41, v16Edge: -1.55, avgEdge: -1.53, consensus: "3-model Under",  overOdds:  145, underOdds: -175 },
+  { team: "LAC", marketTotal: 10.5, v18Wins:  8.63, v18Edge: -1.87, v15dEdge: -1.69, v16Edge: -1.85, avgEdge: -1.80, consensus: "3-model Under",  overOdds:  120, underOdds: -145 },
+  { team: "BAL", marketTotal: 11.5, v18Wins:  9.67, v18Edge: -1.83, v15dEdge: -2.02, v16Edge: -1.63, avgEdge: -1.83, consensus: "3-model Under",  overOdds:  118, underOdds: -140 },
 ];
 
 // Profitability simulation against Vegas win totals (nflverse, 2003-2020)

@@ -2,7 +2,7 @@ import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, Crosshair, FileT
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { teamColors, teamLogos } from "../data/nflData";
 import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
-import { bootstrapStats, byYearData, calibrationData, consensusData, historicalTeamData, metricRanking, pnlByYear, profitabilityData, residualHistogram, trajectoryData, type ConsensusRow } from "../data/warpsData";
+import { bootstrapStats, byYearData, calibrationData, consensusData, historicalTeamData, linesMetadata, metricRanking, pnlByYear, profitabilityData, residualHistogram, trajectoryData, type ConsensusRow } from "../data/warpsData";
 
 type WARPSTab = "slate" | "performance" | "methodology" | "paper" | "quadrant";
 
@@ -662,6 +662,13 @@ function PickCardDetail({ row, qbInfo }: { row: ConsensusRow; qbInfo: QBAdjResul
           <strong>{Math.round(prob * 100)}%</strong>
           <span>{overBEP ? "+EV" : "−EV"}</span>
         </div>
+        {(row.overOdds !== undefined || row.underOdds !== undefined) && (
+          <div className="pcd-odds">
+            <span className="pcd-stat-label">BetMGM</span>
+            <span>O {row.overOdds !== undefined ? (row.overOdds > 0 ? `+${row.overOdds}` : String(row.overOdds)) : "—"}</span>
+            <span>U {row.underOdds !== undefined ? (row.underOdds > 0 ? `+${row.underOdds}` : String(row.underOdds)) : "—"}</span>
+          </div>
+        )}
         {qbInfo && (
           <div className={`pcd-qb ${qbInfo.adj > 0 ? "qb-pos" : "qb-neg"}`}>
             <span className="pcd-stat-label">QB adj</span>
@@ -742,6 +749,8 @@ function SlateTab({
         <span>Best historical tier: 3-model consensus avg edge ≥1.5w → <strong>52.6% win / +9.5% ROI</strong> (19 bets, 2003–2020)</span>
         <span className="vig-sep">·</span>
         <span className="vig-note">% on cards = model-implied win prob (σ≈3w), not historical hit rate</span>
+        <span className="vig-sep">·</span>
+        <span className="lines-source-note">Lines: {linesMetadata.source} · {linesMetadata.date}</span>
       </div>
       {tiers.map(({ label, key, icon }) => {
         const tierRows = rows.filter((r) => r.consensus === key);
@@ -784,6 +793,11 @@ function SlateTab({
                     <div className="pick-card-direction">{isOver ? "OVER" : "UNDER"}</div>
                     <div className="pick-card-line">{row.marketTotal.toFixed(1)} line</div>
                     <div className="pick-card-proj">{row.v18Wins.toFixed(1)} proj</div>
+                    {(isOver ? row.overOdds : row.underOdds) !== undefined && (
+                      <div className="pick-card-odds">
+                        {(() => { const o = isOver ? row.overOdds! : row.underOdds!; return o > 0 ? `+${o}` : String(o); })()}
+                      </div>
+                    )}
                     <div className="pick-card-models">
                       <span
                         className={`pm-dot ${row.v15dEdge > 0 ? "pm-over" : "pm-under"}`}
