@@ -2680,6 +2680,17 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
         <HeroStat label="High-conviction bets" decimals={0} target={highConviction} sub="3-model consensus" highlight />
       </div>
 
+      <p className="warps-citation">
+        <FileText size={12} />{" "}
+        <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6926058" target="_blank" rel="noopener noreferrer">
+          Varughese (2026) — SSRN 6926058
+        </a>
+        {" · "}
+        <a href="https://github.com/whatsaliju/nfl-betting-automation" target="_blank" rel="noopener noreferrer">
+          Open-source code
+        </a>
+      </p>
+
       <div className="segmented warps-tabs">
         <button className={tab === "slate" ? "active" : ""} onClick={() => switchTab("slate")}>
           <Activity size={14} /> 2026 Bet Slate
