@@ -129,7 +129,7 @@ export const metricRanking: MetricRow[] = [
 ];
 
 export const bootstrapStats: BootstrapStats = {
-  warpsMaeFull: 2.374,
+  warpsMaeFull: 2.376,
   warpsMaeFullCi: [2.261, 2.485],
   pythMaeFull: 2.614,
   pwMaeFull: 2.888,
