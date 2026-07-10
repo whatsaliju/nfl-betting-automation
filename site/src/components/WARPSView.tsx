@@ -1445,6 +1445,26 @@ function MethodologyTab() {
         (good teams rarely repeat perfectly), then compare the result to Vegas. Click any section
         below to expand the details.
       </ExplainerBanner>
+      <div className="warps-inputs-callout">
+        <div className="wic-label">Model inputs — prior season only, team level</div>
+        <div className="wic-inputs">
+          <div className="wic-input">
+            <span className="wic-num">①</span>
+            <div>
+              <strong>Pythagorean win expectation</strong>
+              <span className="wic-sub">Points scored² ÷ (points scored² + points allowed²) → expected wins. Strips out close-game luck.</span>
+            </div>
+          </div>
+          <div className="wic-input">
+            <span className="wic-num">②</span>
+            <div>
+              <strong>Point differential</strong>
+              <span className="wic-sub">Raw scoring margin per season. Blended in at 25% weight as a secondary strength signal.</span>
+            </div>
+          </div>
+        </div>
+        <div className="wic-footer">No player stats · No roster moves · No offseason news · No QB ratings · No draft picks</div>
+      </div>
       {sections.map(({ key, title, content }) => (
         <div key={key} className="warps-accordion">
           <button className="warps-accordion-head" onClick={() => toggle(key)}>
