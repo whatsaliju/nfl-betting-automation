@@ -1317,9 +1317,9 @@ function MethodologyTab() {
       content: (
         <div className="warps-prose">
           <ol>
-            <li><strong>Season stats</strong> — Pull PBP via nfl_data_py: pass EPA/play, rush EPA/play, success rate, explosive rate, point differential, turnover differential. Compute Pythagorean wins.</li>
+            <li><strong>Season stats</strong> — Pull PBP via nfl_data_py. Many metrics are computed (EPA/play, success rate, explosive rate, turnover differential) and <em>tested</em>, but the champion model uses only two: <strong>Pythagorean win expectation</strong> and <strong>point differential</strong>. All other metrics received zero weight in the grid search.</li>
             <li><strong>Rating normalization</strong> — Z-score each component across all teams in a season.</li>
-            <li><strong>Composite prior</strong> — Weighted sum of z-scores with champion weights (pyth=1.0, others=0). Converted back to win scale via logit-spread regression (logit_scale=5.5).</li>
+            <li><strong>Composite prior</strong> — Weighted sum: pyth weight=0.75, point-diff weight=0.25, all others=0.00. Converted back to win scale via logit-spread regression (logit_scale=5.5).</li>
             <li><strong>Regression to mean</strong> — Blend prior rating with 8.5-win mean at regression_factor=0.75: <code>proj = factor × prior + (1−factor) × 8.5</code></li>
             <li><strong>Market signal overlay</strong> — Compare to Vegas preseason totals. Edge = WARPS proj − market O/U. Classify as Strong (≥1.0), Playable (0.5–1.0), or No bet.</li>
             <li><strong>3-model consensus</strong> — Intersect signals from WARPS v1.5d, v1.6, and v1.8 (see Section 3.2). Only bets where ≥2 models agree on direction are surfaced as picks.</li>
