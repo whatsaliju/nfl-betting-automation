@@ -1446,7 +1446,7 @@ function MethodologyTab() {
         below to expand the details.
       </ExplainerBanner>
       <div className="warps-inputs-callout">
-        <div className="wic-label">Model inputs — prior season only, team level</div>
+        <div className="wic-label">Statistical core — prior season, team level only</div>
         <div className="wic-inputs">
           <div className="wic-input">
             <span className="wic-num">①</span>
@@ -1463,7 +1463,18 @@ function MethodologyTab() {
             </div>
           </div>
         </div>
-        <div className="wic-footer">No player stats · No roster moves · No offseason news · No QB ratings · No draft picks</div>
+        <div className="wic-divider">+ optional overlays (applied on top of the statistical core)</div>
+        <div className="wic-overlays">
+          <div className="wic-overlay">
+            <strong>QB tier adjustment</strong>
+            <span className="wic-sub">Manually applied when a team's QB situation changes meaningfully in the offseason. Toggle on/off on the bet slate.</span>
+          </div>
+          <div className="wic-overlay">
+            <strong>Dynasty persistence modifier</strong>
+            <span className="wic-sub">Teams with 4+ consecutive above-average seasons regress less (R=0.95 vs R=0.75). Accounts for sustained elite rosters.</span>
+          </div>
+        </div>
+        <div className="wic-footer">No EPA · No success rate · No schedule strength · No draft picks · No offseason news</div>
       </div>
       {sections.map(({ key, title, content }) => (
         <div key={key} className="warps-accordion">
