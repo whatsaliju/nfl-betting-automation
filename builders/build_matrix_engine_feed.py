@@ -100,8 +100,15 @@ def canonical_tla(team):
 
 
 def sort_master_path(path):
-    match = re.search(r"week(\d+)_master\.json$", path.name)
-    return int(match.group(1)) if match else 999
+    match = re.search(r"week(?:(PRE)(\d+)|(\d+)|([A-Z]+))_master\.json$", path.name)
+    if not match:
+        return (9, 999, path.name)
+    if match.group(1) == "PRE":
+        return (0, int(match.group(2)), path.name)
+    if match.group(3):
+        return (1, int(match.group(3)), path.name)
+    postseason_order = {"WC": 19, "DIV": 20, "CONF": 21, "CON": 21, "SB": 22}
+    return (2, postseason_order.get(match.group(4), 999), path.name)
 
 
 def first_present(row, names):
@@ -609,8 +616,9 @@ def team_cell_payload(game, team_side):
         latest.get("pick_market") == "spread"
         and ((is_away and pick_side == "AWAY") or ((not is_away) and pick_side == "HOME"))
     )
+    season_prefix = "PRE" if game.get("season_type") == "PRE" else ""
     return {
-        "key": f"{team}:W{game.get('week')}",
+        "key": f"{team}:{season_prefix}W{game.get('week')}",
         "team": team,
         "week": game.get("week"),
         "season": game.get("season"),

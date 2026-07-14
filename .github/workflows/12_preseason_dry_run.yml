@@ -1,0 +1,91 @@
+name: 12 Preseason Engine Dry Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "NFL season"
+        required: false
+        default: "2026"
+        type: string
+      week:
+        description: "Preseason week"
+        required: false
+        default: "1"
+        type: string
+      live_schedule:
+        description: "Fetch ESPN preseason schedule and build weekPRE master"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      commit_artifacts:
+        description: "Commit generated preseason dry-run artifacts"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: write
+
+jobs:
+  preseason-dry-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: python -m pip install pandas numpy requests
+
+      - name: Offline readiness report
+        run: |
+          python3 scripts/preseason_dry_run_report.py \
+            --season ${{ github.event.inputs.season }} \
+            --week ${{ github.event.inputs.week }}
+
+      - name: Optional live schedule dry run
+        if: ${{ github.event.inputs.live_schedule == 'true' }}
+        run: |
+          python3 builders/build_week_master_table.py \
+            --season ${{ github.event.inputs.season }} \
+            --week ${{ github.event.inputs.week }} \
+            --season-type PRE
+          python3 builders/build_matrix_engine_feed.py
+
+      - name: Upload dry-run artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: preseason-dry-run
+          path: |
+            data/historical/preseason_dry_run_report.json
+            data/historical/preseason_dry_run_report.md
+            data/historical/weekPRE*_master.csv
+            data/historical/weekPRE*_master.json
+          if-no-files-found: ignore
+
+      - name: Commit dry-run artifacts
+        if: ${{ github.event.inputs.commit_artifacts == 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/historical/preseason_dry_run_report.json data/historical/preseason_dry_run_report.md
+          git add data/historical/weekPRE*_master.csv data/historical/weekPRE*_master.json 2>/dev/null || true
+          git add data/historical/matrix_engine_feed.json data/historical/matrix_engine_feed.csv 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No preseason dry-run changes to commit."
+            exit 0
+          fi
+          git commit -m "Run preseason engine dry run"
+          git pull --rebase origin main
+          git push origin main

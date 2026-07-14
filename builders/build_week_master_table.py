@@ -37,6 +37,14 @@ def week_key(week) -> str:
     return str(week).strip().upper()
 
 
+def week_slug(week, season_type: str = None) -> str:
+    key = week_key(week)
+    normalized_type = builder_season_type(season_type, week)
+    if normalized_type == "PRE":
+        return f"PRE{key}"
+    return key
+
+
 def builder_season_type(season_type, week) -> str:
     key = week_key(week)
     if key in PLAYOFF_LABEL_TO_ESPN_WEEK:
@@ -278,10 +286,11 @@ def attach_results(df, season, week, season_type: str = None):
 def build_week_master(season: int, week, season_type: str = None):
     season_type = builder_season_type(season_type, week)
     key = week_key(week)
+    slug = week_slug(week, season_type)
     print(f"📅 Fetching authoritative schedule for {season} Week {key}...")
     df = fetch_week_schedule(season, week, season_type)
 
-    week_dir = os.path.join(DATA_DIR, "week" + key)
+    week_dir = os.path.join(DATA_DIR, "week" + slug)
 
     print("📥 Loading snapshots...")
     print("🧩 Attaching snapshots...")
@@ -295,8 +304,8 @@ def build_week_master(season: int, week, season_type: str = None):
     df = attach_results(df, season, week, season_type)
 
     os.makedirs(OUTPUT_BASE, exist_ok=True)
-    out_path = os.path.join(OUTPUT_BASE, f"week{key}_master.csv")
-    out_json_path = os.path.join(OUTPUT_BASE, f"week{key}_master.json")
+    out_path = os.path.join(OUTPUT_BASE, f"week{slug}_master.csv")
+    out_json_path = os.path.join(OUTPUT_BASE, f"week{slug}_master.json")
 
     if os.path.exists(out_path):
         existing = pd.read_csv(out_path)

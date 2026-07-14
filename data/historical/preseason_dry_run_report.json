@@ -1,0 +1,80 @@
+{
+  "season": 2026,
+  "season_type": "PRE",
+  "week": 1,
+  "artifact_slug": "PRE1",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "season type normalization",
+      "status": "PASS",
+      "detail": "PRE resolves to PRE"
+    },
+    {
+      "name": "nflverse game type",
+      "status": "PASS",
+      "detail": "PRE maps to nflverse PRE games"
+    },
+    {
+      "name": "ESPN season type",
+      "status": "PASS",
+      "detail": "PRE maps to ESPN seasontype=1"
+    },
+    {
+      "name": "ESPN week",
+      "status": "PASS",
+      "detail": "PRE Week 1 maps to ESPN week 1"
+    },
+    {
+      "name": "builder ESPN params",
+      "status": "PASS",
+      "detail": "{\"dates\": 2026, \"seasontype\": 1, \"week\": 1}"
+    },
+    {
+      "name": "master builder season type",
+      "status": "PASS",
+      "detail": "builder uses PRE"
+    },
+    {
+      "name": "preseason artifact slug",
+      "status": "PASS",
+      "detail": "week 1 writes as weekPRE1_master"
+    },
+    {
+      "name": "feed sort isolation",
+      "status": "PASS",
+      "detail": "preseason master files sort before regular-season master files"
+    },
+    {
+      "name": "enhanced workflow PRE env",
+      "status": "PASS",
+      "detail": "/Users/lijuv/nfl-betting-automation/.github/workflows/4.5_enhanced_pro_workflow.yml"
+    },
+    {
+      "name": "preseason dry-run workflow",
+      "status": "PASS",
+      "detail": "/Users/lijuv/nfl-betting-automation/.github/workflows/12_preseason_dry_run.yml"
+    },
+    {
+      "name": "contract compile hook",
+      "status": "PASS",
+      "detail": "/Users/lijuv/nfl-betting-automation/.github/workflows/0_engine_contracts.yml"
+    },
+    {
+      "name": "command center readiness copy",
+      "status": "PASS",
+      "detail": "/Users/lijuv/nfl-betting-automation/site/src/components/CommandCenterView.tsx"
+    },
+    {
+      "name": "survivor planning artifact",
+      "status": "PASS",
+      "detail": "/Users/lijuv/nfl-betting-automation/site/src/data/survivorRecommendations2026.json"
+    },
+    {
+      "name": "weekly betting card artifact",
+      "status": "PASS",
+      "detail": "/Users/lijuv/nfl-betting-automation/data/historical/weekly_betting_card.json"
+    }
+  ],
+  "next_live_command": "python3 builders/build_week_master_table.py --season 2026 --week 1 --season-type PRE"
+}

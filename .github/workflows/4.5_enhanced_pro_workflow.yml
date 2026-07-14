@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       week:
-        description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB)'
+        description: 'NFL Week/Round (PRE 1-4, REG 1-18, WC, DIV, CONF, SB)'
         required: true
         type: string
       season:
@@ -14,6 +14,12 @@ on:
         required: false
         default: '2026'
         type: string
+      season_type:
+        description: 'Season type'
+        required: false
+        default: 'REG'
+        type: choice
+        options: [PRE, REG, POST]
       analysis_type:
         description: 'Type of analysis'
         required: false
@@ -48,6 +54,9 @@ jobs:
           [ -z "$SEASON" ] && SEASON="${{ github.event.client_payload.season }}"
           [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
           [ -z "$SEASON" ] && SEASON="2026"
+          SEASON_TYPE="${{ github.event.inputs.season_type }}"
+          [ -z "$SEASON_TYPE" ] && SEASON_TYPE="${{ github.event.client_payload.season_type }}"
+          [ -z "$SEASON_TYPE" ] && SEASON_TYPE="REG"
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK="${{ github.event.inputs.week }}"
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
@@ -84,6 +93,7 @@ jobs:
           
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "season=$SEASON" >> $GITHUB_OUTPUT
+          echo "season_type=$SEASON_TYPE" >> $GITHUB_OUTPUT
           echo "stage=$STAGE" >> $GITHUB_OUTPUT
           echo "prefix=$PREFIX" >> $GITHUB_OUTPUT
           echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
@@ -96,6 +106,7 @@ jobs:
           ROTOWIRE_FILE: ${{ github.event.client_payload.rotowire_file }}
           REFEREE_TRENDS_FILE: data/historical/sdql_results.csv
           NFL_SEASON: ${{ steps.info.outputs.season }}
+          NFL_SEASON_TYPE: ${{ steps.info.outputs.season_type }}
         run: |
           WEEK=${{ steps.info.outputs.week }}
           python3 -m analyzers.nfl_pro_analyzer $WEEK
@@ -240,7 +251,8 @@ jobs:
         run: |
           python3 builders/build_week_master_table.py \
             --season ${{ steps.info.outputs.season }} \
-            --week ${{ steps.info.outputs.week }}
+            --week ${{ steps.info.outputs.week }} \
+            --season-type ${{ steps.info.outputs.season_type }}
 
       - name: Build Matrix Engine Feed
         run: |
