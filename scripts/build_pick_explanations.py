@@ -195,6 +195,23 @@ def explanation_row(row, promotion_rows):
         reasons.append("Value-gap alignment supports the side")
     elif row.get("value_gap_pick_alignment") == "conflict":
         reasons.append("Value-gap alignment conflicts with the side")
+    warps_alignment = row.get("warps_spread_pick_alignment")
+    warps_side = row.get("warps_spread_side")
+    warps_edge = float_or_none(row.get("warps_spread_edge_points"))
+    if warps_alignment == "aligned":
+        reason = "WARPS fair-line prior agrees with the spread side"
+        if warps_edge is not None:
+            reason += f" ({warps_edge:+.1f} pts)"
+        reasons.append(reason)
+    elif warps_alignment == "conflict":
+        detail = f" toward {warps_side}" if warps_side else ""
+        reasons.append(f"WARPS fair-line prior conflicts{detail}")
+    elif warps_alignment == "neutral":
+        reasons.append("WARPS fair-line prior is near neutral")
+    if row.get("warps_overlay_status") == "priced" and row.get("warps_ml_side"):
+        ml_ev = float_or_none(row.get("warps_ml_ev"))
+        ml_text = f"{ml_ev:+.1%} EV" if ml_ev is not None else "priced"
+        reasons.append(f"WARPS moneyline overlay: {row.get('warps_ml_side')} {ml_text}")
     if matches:
         reasons.append(f"Promoted factors matched: {len(matches)}")
     if source_warnings:
@@ -235,6 +252,8 @@ def explanation_row(row, promotion_rows):
             "market_expectation": row.get("market_expectation_pick_alignment"),
             "value_gap": row.get("value_gap_pick_alignment"),
             "overperformance": row.get("overperformance_pick_alignment"),
+            "warps_spread": row.get("warps_spread_pick_alignment"),
+            "warps_moneyline": row.get("warps_ml_pick_alignment"),
         },
         "reasons": reasons[:8],
         "result": row.get("bet_result"),

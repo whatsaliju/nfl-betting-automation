@@ -24,6 +24,7 @@ FACTOR_PROMOTION_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configure
 PROMOTION_OVERLAY_SIMULATION = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "promotion_overlay_simulation.json"
 SOURCE_RELIABILITY_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "source_reliability_report.json"
 PICK_EXPLANATIONS = HISTORICAL_DIR / "pick_explanations.json"
+WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
 PYTHAGOREAN_EXPONENT = 2.37
 VEGAS_WIN_TOTALS_2025 = {
@@ -113,6 +114,12 @@ def number_or_none(value):
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def text_or_none(value):
+    if value in (None, ""):
+        return None
+    return str(value)
 
 
 def normalize_trace(trace):
@@ -355,6 +362,108 @@ def side_from_delta(value, threshold=0.5):
     return "NEUTRAL"
 
 
+def side_alignment(feature_side, pick_side):
+    if pick_side not in {"AWAY", "HOME"}:
+        return "no_pick" if not pick_side else "non_side_pick"
+    if feature_side in (None, "", "NONE"):
+        return "missing"
+    if feature_side == "NEUTRAL":
+        return "neutral"
+    return "aligned" if feature_side == pick_side else "conflict"
+
+
+def fair_spread_side(overlay):
+    home_spread = number_or_none(overlay.get("fair_home_spread"))
+    away_spread = number_or_none(overlay.get("fair_away_spread"))
+    if home_spread is None or away_spread is None:
+        return None
+    if home_spread <= -0.5:
+        return "HOME"
+    if away_spread <= -0.5:
+        return "AWAY"
+    return "NEUTRAL"
+
+
+def load_warps_market_overlay():
+    if not WARPS_MARKET_OVERLAY.exists():
+        return {}
+    with WARPS_MARKET_OVERLAY.open() as f:
+        rows = list(csv.DictReader(f))
+    return {
+        (
+            str(row.get("season") or ""),
+            str(row.get("week") or ""),
+            row.get("matchup_key"),
+        ): row
+        for row in rows
+        if row.get("season") and row.get("week") and row.get("matchup_key")
+    }
+
+
+def warps_overlay_payload(game, overlay_index, best_edge):
+    overlay = overlay_index.get((
+        str(game.get("season") or ""),
+        str(game.get("week") or ""),
+        game.get("matchup_key"),
+    ))
+    if not overlay:
+        return {
+            "available": False,
+            "status": "unavailable",
+            "recommendation_policy": "forecast_context_only",
+            "reason": "WARPS market overlay not available for this matchup",
+        }
+
+    priced_side = text_or_none(overlay.get("spread_overlay_side"))
+    fair_side = fair_spread_side(overlay)
+    spread_side = priced_side or fair_side
+    ml_side = text_or_none(overlay.get("ml_overlay_side"))
+    pick_market = best_edge.get("market")
+    pick_side = best_edge.get("side")
+    spread_alignment = (
+        side_alignment(spread_side, pick_side)
+        if pick_market == "spread"
+        else "no_spread_pick"
+    )
+    ml_alignment = (
+        side_alignment(ml_side, pick_side)
+        if pick_market == "moneyline"
+        else "research_only"
+    )
+
+    return {
+        "available": True,
+        "status": overlay.get("status") or "fair_line_only",
+        "source": overlay.get("source") or "WARPS game prior",
+        "recommendation_policy": overlay.get("recommendation_policy") or "overlay_only_until_weekly_engine_confirmation",
+        "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
+        "away_tla": overlay.get("away_tla"),
+        "home_tla": overlay.get("home_tla"),
+        "away_warps_wins": number_or_none(overlay.get("away_warps_wins")),
+        "home_warps_wins": number_or_none(overlay.get("home_warps_wins")),
+        "fair_home_spread": number_or_none(overlay.get("fair_home_spread")),
+        "fair_away_spread": number_or_none(overlay.get("fair_away_spread")),
+        "home_win_prob": number_or_none(overlay.get("home_win_prob")),
+        "away_win_prob": number_or_none(overlay.get("away_win_prob")),
+        "home_fair_moneyline": text_or_none(overlay.get("home_fair_moneyline")),
+        "away_fair_moneyline": text_or_none(overlay.get("away_fair_moneyline")),
+        "market_home_spread": number_or_none(overlay.get("market_home_spread")),
+        "market_away_spread": number_or_none(overlay.get("market_away_spread")),
+        "market_home_moneyline": number_or_none(overlay.get("market_home_moneyline")),
+        "market_away_moneyline": number_or_none(overlay.get("market_away_moneyline")),
+        "spread_side": spread_side,
+        "spread_team": text_or_none(overlay.get("spread_overlay_team")),
+        "spread_edge_points": number_or_none(overlay.get("spread_overlay_edge_points")),
+        "spread_pick_alignment": spread_alignment,
+        "fair_spread_side": fair_side,
+        "ml_side": ml_side,
+        "ml_team": text_or_none(overlay.get("ml_overlay_team")),
+        "ml_edge_prob": number_or_none(overlay.get("ml_overlay_edge_prob")),
+        "ml_ev": number_or_none(overlay.get("ml_overlay_ev")),
+        "ml_pick_alignment": ml_alignment,
+    }
+
+
 def expectation_matchup_payload(away, home, expectations):
     away_key = canonical_tla(away)
     home_key = canonical_tla(home)
@@ -387,7 +496,7 @@ def expectation_matchup_payload(away, home, expectations):
     }
 
 
-def edge_board_payload(game, expectations):
+def edge_board_payload(game, expectations, warps_index):
     latest = game["latest"]
     trace = normalize_trace(latest.get("recommendation_trace"))
     final_decision = trace.get("final_decision") or {}
@@ -418,6 +527,7 @@ def edge_board_payload(game, expectations):
         "recommendation": latest.get("recommendation"),
         "status": "play" if best_market else "pass",
     }
+    warps_overlay = warps_overlay_payload(game, warps_index, best_edge)
 
     factors = []
     for candidate in (spread, total):
@@ -433,6 +543,16 @@ def edge_board_payload(game, expectations):
                     "impact": impact,
                     "status": signal.get("status", "aligned"),
                 })
+    if warps_overlay.get("available") and best_market == "spread":
+        alignment = warps_overlay.get("spread_pick_alignment")
+        if alignment in {"aligned", "conflict", "neutral"}:
+            factors.append({
+                "market": "spread",
+                "source": "WARPS fair-line prior",
+                "side": warps_overlay.get("spread_side"),
+                "impact": warps_overlay.get("spread_edge_points"),
+                "status": alignment,
+            })
 
     return {
         "season": game.get("season"),
@@ -460,6 +580,7 @@ def edge_board_payload(game, expectations):
             },
         },
         "factor_summary": factors,
+        "warps_market_overlay": warps_overlay,
         "schedule_context": schedule_context,
         "expectation_context": expectation_matchup_payload(away, home, expectations),
         "source_health_status": latest.get("source_health_status"),
@@ -738,7 +859,8 @@ def build_feed():
 
     team_expectations = build_team_expectations(games)
     explanation_index = load_pick_explanation_index()
-    edge_board = [edge_board_payload(game, team_expectations) for game in games]
+    warps_index = load_warps_market_overlay()
+    edge_board = [edge_board_payload(game, team_expectations, warps_index) for game in games]
     for row in edge_board:
         stage = row.get("stage") or "final"
         row["explanation"] = (

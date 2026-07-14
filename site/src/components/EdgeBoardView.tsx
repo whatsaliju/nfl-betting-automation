@@ -39,9 +39,19 @@ function signed(value?: number | null) {
   return `${value > 0 ? "+" : ""}${value.toFixed(1)}`;
 }
 
+function percent(value?: number | null) {
+  if (typeof value !== "number") return "n/a";
+  return `${(value * 100).toFixed(1)}%`;
+}
+
 function actionLabel(action?: string) {
   if (!action) return "pass";
   return action.replace(/_/g, " ");
+}
+
+function alignmentLabel(value?: string | null) {
+  if (!value) return "unavailable";
+  return value.replace(/_/g, " ");
 }
 
 export function EdgeBoardView({ games }: { games: EdgeBoardGame[] }) {
@@ -140,6 +150,27 @@ export function EdgeBoardView({ games }: { games: EdgeBoardGame[] }) {
                   <span>Py {game.expectation_context.pythagorean_side || "n/a"} {signed(game.expectation_context.pythagorean_wins_delta)}</span>
                   <span>Value {game.expectation_context.value_gap_side || "n/a"} {signed(game.expectation_context.pythagorean_vs_vegas_delta)}</span>
                   <span>Act-Py {game.expectation_context.overperformance_side || "n/a"} {signed(game.expectation_context.actual_vs_pythagorean_delta)}</span>
+                </div>
+              )}
+
+              {game.warps_market_overlay?.available && (
+                <div className={`warps-edge-strip ${game.warps_market_overlay.spread_pick_alignment || "context"}`}>
+                  <div>
+                    <strong>WARPS</strong>
+                    <span>{alignmentLabel(game.warps_market_overlay.spread_pick_alignment)}</span>
+                  </div>
+                  <div>
+                    <span>Fair spread</span>
+                    <b>
+                      {game.home_tla} {signed(game.warps_market_overlay.fair_home_spread)}
+                    </b>
+                  </div>
+                  <div>
+                    <span>Win prob</span>
+                    <b>
+                      {game.home_tla} {percent(game.warps_market_overlay.home_win_prob)}
+                    </b>
+                  </div>
                 </div>
               )}
 

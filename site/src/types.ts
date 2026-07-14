@@ -101,6 +101,39 @@ export interface WarpsMarketOverlay {
   source: string;
 }
 
+export interface EdgeWarpsMarketOverlay {
+  available: boolean;
+  status: "priced" | "fair_line_only" | "unavailable" | string;
+  source?: string | null;
+  recommendation_policy?: string | null;
+  historical_policy?: string | null;
+  reason?: string | null;
+  away_tla?: string | null;
+  home_tla?: string | null;
+  away_warps_wins?: number | null;
+  home_warps_wins?: number | null;
+  fair_home_spread?: number | null;
+  fair_away_spread?: number | null;
+  home_win_prob?: number | null;
+  away_win_prob?: number | null;
+  home_fair_moneyline?: string | null;
+  away_fair_moneyline?: string | null;
+  market_home_spread?: number | null;
+  market_away_spread?: number | null;
+  market_home_moneyline?: number | null;
+  market_away_moneyline?: number | null;
+  spread_side?: "HOME" | "AWAY" | "NEUTRAL" | null;
+  fair_spread_side?: "HOME" | "AWAY" | "NEUTRAL" | null;
+  spread_team?: string | null;
+  spread_edge_points?: number | null;
+  spread_pick_alignment?: "aligned" | "conflict" | "neutral" | "missing" | "no_pick" | "no_spread_pick" | string;
+  ml_side?: "HOME" | "AWAY" | null;
+  ml_team?: string | null;
+  ml_edge_prob?: number | null;
+  ml_ev?: number | null;
+  ml_pick_alignment?: string | null;
+}
+
 export interface EngineGame {
   season: number;
   season_type: SeasonType;
@@ -183,6 +216,7 @@ export interface EdgeBoardGame {
     impact?: number;
     status?: string;
   }>;
+  warps_market_overlay?: EdgeWarpsMarketOverlay;
   schedule_context: {
     division_game: boolean;
     conference_game: boolean;

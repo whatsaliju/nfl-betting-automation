@@ -779,6 +779,50 @@ select {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.warps-edge-strip {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr 1fr;
+  gap: 6px;
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  background: #fff;
+  padding: 7px;
+}
+.warps-edge-strip.aligned {
+  border-color: #8bc8a6;
+  background: #f3fbf6;
+}
+.warps-edge-strip.conflict {
+  border-color: #f0c37a;
+  background: #fff8ea;
+}
+.warps-edge-strip.neutral {
+  background: #f8fafc;
+}
+.warps-edge-strip div {
+  min-width: 0;
+}
+.warps-edge-strip strong,
+.warps-edge-strip span,
+.warps-edge-strip b {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.warps-edge-strip strong {
+  color: #213547;
+  font-size: 12px;
+}
+.warps-edge-strip span {
+  color: #64748b;
+  font-size: 11px;
+  text-transform: capitalize;
+}
+.warps-edge-strip b {
+  color: #334155;
+  font-size: 12px;
+}
 .week-edge-summary {
   flex-direction: column;
   align-items: stretch;

@@ -225,6 +225,7 @@ def build_row(game):
     spread = get_market(game, "spread")
     total = get_market(game, "total")
     moneyline = get_market(game, "moneyline")
+    warps = game.get("warps_market_overlay") or {}
     schedule = game.get("schedule_context") or {}
     expectation = get_context(game)
     result = game.get("result") or {}
@@ -285,6 +286,30 @@ def build_row(game):
         "moneyline_selected_ev": number_or_blank(moneyline.get("selected_ev")),
         "moneyline_selected_edge": number_or_blank(moneyline.get("selected_edge")),
         "moneyline_market_hold": number_or_blank(moneyline.get("market_hold")),
+        "warps_overlay_available": bool_text(warps.get("available")),
+        "warps_overlay_status": warps.get("status") or "",
+        "warps_source": warps.get("source") or "",
+        "warps_policy": warps.get("recommendation_policy") or "",
+        "warps_spread_side": warps.get("spread_side") or "",
+        "warps_fair_spread_side": warps.get("fair_spread_side") or "",
+        "warps_spread_team": warps.get("spread_team") or "",
+        "warps_spread_edge_points": number_or_blank(warps.get("spread_edge_points")),
+        "warps_spread_pick_alignment": warps.get("spread_pick_alignment") or "",
+        "warps_fair_home_spread": number_or_blank(warps.get("fair_home_spread")),
+        "warps_fair_away_spread": number_or_blank(warps.get("fair_away_spread")),
+        "warps_home_win_prob": number_or_blank(warps.get("home_win_prob")),
+        "warps_away_win_prob": number_or_blank(warps.get("away_win_prob")),
+        "warps_home_fair_moneyline": warps.get("home_fair_moneyline") or "",
+        "warps_away_fair_moneyline": warps.get("away_fair_moneyline") or "",
+        "warps_market_home_spread": number_or_blank(warps.get("market_home_spread")),
+        "warps_market_away_spread": number_or_blank(warps.get("market_away_spread")),
+        "warps_market_home_moneyline": number_or_blank(warps.get("market_home_moneyline")),
+        "warps_market_away_moneyline": number_or_blank(warps.get("market_away_moneyline")),
+        "warps_ml_side": warps.get("ml_side") or "",
+        "warps_ml_team": warps.get("ml_team") or "",
+        "warps_ml_edge_prob": number_or_blank(warps.get("ml_edge_prob")),
+        "warps_ml_ev": number_or_blank(warps.get("ml_ev")),
+        "warps_ml_pick_alignment": warps.get("ml_pick_alignment") or "",
         "division_game": bool_text(schedule.get("division_game")),
         "conference_game": bool_text(schedule.get("conference_game")),
         "away_division": schedule.get("away_division") or "",
