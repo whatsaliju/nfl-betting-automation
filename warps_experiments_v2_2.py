@@ -76,44 +76,38 @@ def mae(errors):
     return np.mean(np.abs(errors))
 
 
-# ── Data loading (same as v1.8) ────────────────────────────────────────────────
+# ── Data loading ──────────────────────────────────────────────────────────────
+#
+# Schedules-only path: computes pf, pa, wins, games, pyth_wins from game scores.
+# No PBP download required — avoids 403 errors on recent seasons.
+# EXP-4 (turnover-adj) uses a PBP-optional path; skipped gracefully if unavailable.
 
-def load_data(start=1999, end=2025):
+SCHEDULES_URL = "https://raw.githubusercontent.com/leesharpe/nfldata/master/data/games.csv"
+
+def load_schedules(start=1999, end=2025):
     seasons = list(range(start, end + 1))
     print(f"[INFO] Loading schedules for {seasons[0]}-{seasons[-1]}...")
     try:
         schedules = nfl.import_schedules(seasons)
+        if "game_type" not in schedules.columns and "season_type" in schedules.columns:
+            schedules = schedules.rename(columns={"season_type": "game_type"})
     except Exception as e:
-        print(f"[WARN] nfl.import_schedules failed ({e}), trying fallback URL...")
-        url = "https://raw.githubusercontent.com/leesharpe/nfldata/master/data/games.csv"
-        schedules = pd.read_csv(url)
+        print(f"[WARN] nfl.import_schedules failed ({e}), using fallback CSV...")
+        schedules = pd.read_csv(SCHEDULES_URL)
         schedules = schedules[schedules["season"].isin(seasons)]
 
     schedules["home_team"] = schedules["home_team"].map(norm_team)
     schedules["away_team"] = schedules["away_team"].map(norm_team)
+    return schedules
 
-    print("[INFO] Loading PBP data (this may take a few minutes)...")
-    pbp = nfl.import_pbp_data(seasons, downcast=True)
-    pbp = pbp[pbp["season_type"].eq("REG")].copy()
-    for col in ["posteam", "defteam"]:
-        pbp[col] = pbp[col].map(norm_team)
-    pbp = pbp.dropna(subset=["posteam", "defteam", "epa"])
 
-    turnover_col = "turnover" if "turnover" in pbp.columns else "interception"
+def build_team_stats_from_schedules(schedules):
+    """Compute per-team per-season records (wins, pf, pa, games, pyth_wins) from game scores."""
+    # Filter: REG games only, completed (both scores present)
+    game_type_col = "game_type" if "game_type" in schedules.columns else "season_type"
+    reg = schedules[schedules[game_type_col].eq("REG")].copy()
+    reg = reg.dropna(subset=["home_score", "away_score"])
 
-    off_base = (
-        pbp.groupby(["season", "posteam"], as_index=False)
-           .agg(off_turnovers=(turnover_col, "mean"))
-           .rename(columns={"posteam": "team"})
-    )
-    def_base = (
-        pbp.groupby(["season", "defteam"], as_index=False)
-           .agg(def_turnovers_forced=(turnover_col, "mean"))
-           .rename(columns={"defteam": "team"})
-    )
-    team_stats = off_base.merge(def_base, on=["season", "team"], how="inner")
-
-    reg = schedules[schedules["game_type"].eq("REG")].copy().dropna(subset=["home_score", "away_score"])
     rows = []
     for _, g in reg.iterrows():
         home, away = norm_team(g["home_team"]), norm_team(g["away_team"])
@@ -121,21 +115,60 @@ def load_data(start=1999, end=2025):
         hw = 0.5 if hs == as_ else (1.0 if hs > as_ else 0.0)
         rows += [
             [int(g["season"]), home, hw, hs, as_],
-            [int(g["season"]), away, 1-hw, as_, hs],
+            [int(g["season"]), away, 1 - hw, as_, hs],
         ]
 
     records = pd.DataFrame(rows, columns=["season", "team", "wins", "pf", "pa"])
     records = records.groupby(["season", "team"], as_index=False).agg(
         wins=("wins", "sum"), games=("wins", "count"), pf=("pf", "sum"), pa=("pa", "sum")
     )
-    records["pyth_wins"] = records.apply(
-        lambda r: pyth_win_pct(r["pf"], r["pa"]) * r["games"], axis=1
-    )
+    records["pyth_wins"]     = records.apply(lambda r: pyth_win_pct(r["pf"], r["pa"]) * r["games"], axis=1)
+    records["point_diff_pg"] = (records["pf"] - records["pa"]) / records["games"]
+    return records
 
-    team_stats = team_stats.merge(records, on=["season", "team"], how="inner")
-    team_stats["turnover_margin"] = team_stats["def_turnovers_forced"] - team_stats["off_turnovers"]
-    team_stats["point_diff_pg"]   = (team_stats["pf"] - team_stats["pa"]) / team_stats["games"]
 
+def load_turnover_margins(start=1999, end=2023):
+    """
+    Load per-team per-season turnover margins from PBP.
+    Returns None if PBP data is unavailable (e.g. 403 in restricted environments).
+    Only loads seasons up to end to avoid 403 on recent data.
+    """
+    seasons = list(range(start, end + 1))
+    print(f"[INFO] Loading PBP turnover data for {seasons[0]}-{seasons[-1]} (optional)...")
+    try:
+        pbp = nfl.import_pbp_data(seasons, downcast=True)
+        if "season_type" not in pbp.columns:
+            print("[WARN] PBP missing season_type column — skipping turnover experiment")
+            return None
+        pbp = pbp[pbp["season_type"].eq("REG")].copy()
+        for col in ["posteam", "defteam"]:
+            pbp[col] = pbp[col].map(norm_team)
+        pbp = pbp.dropna(subset=["posteam", "defteam"])
+
+        turnover_col = "turnover" if "turnover" in pbp.columns else "interception"
+        off = pbp.groupby(["season", "posteam"], as_index=False).agg(
+            off_to=(turnover_col, "mean")
+        ).rename(columns={"posteam": "team"})
+        def_ = pbp.groupby(["season", "defteam"], as_index=False).agg(
+            def_to_forced=(turnover_col, "mean")
+        ).rename(columns={"defteam": "team"})
+        to = off.merge(def_, on=["season", "team"], how="inner")
+        to["turnover_margin"] = to["def_to_forced"] - to["off_to"]
+        print(f"[INFO] Turnover data loaded: {len(to)} team-seasons")
+        return to[["season", "team", "turnover_margin"]]
+    except Exception as e:
+        print(f"[WARN] PBP load failed ({e}) — EXP-4 will be skipped")
+        return None
+
+
+def load_data(start=1999, end=2025):
+    schedules  = load_schedules(start, end)
+    team_stats = build_team_stats_from_schedules(schedules)
+    to_margins = load_turnover_margins(start, min(end, 2023))
+    if to_margins is not None:
+        team_stats = team_stats.merge(to_margins, on=["season", "team"], how="left")
+    else:
+        team_stats["turnover_margin"] = np.nan
     return schedules, team_stats
 
 
@@ -520,32 +553,42 @@ def main():
     print("\n" + "=" * 70)
     print(f"EXP-4: Turnover-adjusted point differential (strip {TURNOVER_POINT_VALUE}pts/turnover)")
     print("=" * 70)
-    to_results = []
-    for w_pyth in np.arange(0.0, 1.05, 0.1):
-        w_pd = round(1.0 - w_pyth, 10)
-        w_pd = max(w_pd, 0.0)
-        weights = {"z_pyth": round(w_pyth, 2), "z_pd": round(w_pd, 2)}
+    has_to = team_stats["turnover_margin"].notna().any()
+    if not has_to:
+        print("  [SKIP] Turnover data unavailable in this environment (PBP 403). "
+              "Re-run locally with full nflverse access.")
+        summary.append({
+            "experiment": "EXP-4: Turnover-adj pd",
+            "best_val_mae": float("nan"), "best_train_mae": float("nan"),
+            "delta_val": float("nan"), "best_config": "SKIPPED — PBP unavailable",
+        })
+    else:
+        to_results = []
+        for w_pyth in np.arange(0.0, 1.05, 0.1):
+            w_pd = round(1.0 - w_pyth, 10)
+            w_pd = max(w_pd, 0.0)
+            weights = {"z_pyth": round(w_pyth, 2), "z_pd": round(w_pd, 2)}
 
-        def _fn(sd, as_, _w=weights):
-            return features_turnover_adj_pd(sd, as_)
+            def _fn(sd, as_, _w=weights):
+                return features_turnover_adj_pd(sd, as_)
 
-        t_mae, v_mae, _ = evaluate_config(schedules, team_stats, _fn, weights, CHAMPION_R)
-        to_results.append({"w_pyth": round(w_pyth, 2), "w_pd_adj": round(w_pd, 2),
-                           "train_mae": t_mae, "val_mae": v_mae})
-        print(f"  w_pyth={w_pyth:.1f} w_pd_adj={w_pd:.1f} → train={t_mae:.4f}  val={v_mae:.4f}")
+            t_mae, v_mae, _ = evaluate_config(schedules, team_stats, _fn, weights, CHAMPION_R)
+            to_results.append({"w_pyth": round(w_pyth, 2), "w_pd_adj": round(w_pd, 2),
+                               "train_mae": t_mae, "val_mae": v_mae})
+            print(f"  w_pyth={w_pyth:.1f} w_pd_adj={w_pd:.1f} → train={t_mae:.4f}  val={v_mae:.4f}")
 
-    to_df = pd.DataFrame(to_results).sort_values("val_mae").reset_index(drop=True)
-    best_to = to_df.iloc[0]
-    delta_to = best_to["val_mae"] - champ_val
-    print(f"\n  Best: w_pyth={best_to['w_pyth']:.2f}  val={best_to['val_mae']:.4f}  "
-          f"Δ vs champion: {delta_to:+.4f}")
-    summary.append({
-        "experiment": "EXP-4: Turnover-adj pd",
-        "best_val_mae": best_to["val_mae"],
-        "best_train_mae": best_to["train_mae"],
-        "delta_val": delta_to,
-        "best_config": f"w_pyth={best_to['w_pyth']:.2f}, w_pd_adj={best_to['w_pd_adj']:.2f}",
-    })
+        to_df = pd.DataFrame(to_results).sort_values("val_mae").reset_index(drop=True)
+        best_to = to_df.iloc[0]
+        delta_to = best_to["val_mae"] - champ_val
+        print(f"\n  Best: w_pyth={best_to['w_pyth']:.2f}  val={best_to['val_mae']:.4f}  "
+              f"Δ vs champion: {delta_to:+.4f}")
+        summary.append({
+            "experiment": "EXP-4: Turnover-adj pd",
+            "best_val_mae": best_to["val_mae"],
+            "best_train_mae": best_to["train_mae"],
+            "delta_val": delta_to,
+            "best_config": f"w_pyth={best_to['w_pyth']:.2f}, w_pd_adj={best_to['w_pd_adj']:.2f}",
+        })
 
     # ── Summary table ──────────────────────────────────────────────────────────
     print("\n" + "=" * 70)
