@@ -41,6 +41,7 @@ python scripts/backtest_warps_game_edges.py   # WARPS fair spread/ML vs historic
 python scripts/fetch_current_odds_api.py       # fetch raw current spreads/ML from The Odds API
 python scripts/normalize_current_market_odds.py data/current_odds.json --input-format odds-api-json
 python scripts/build_2026_warps_market_overlay.py  # 2026 site overlay for WARPS fair spread/ML
+python scripts/refresh_2026_warps_market_overlay.py --fetch-odds-api  # end-to-end current odds refresh
 python warps_bootstrap_v1_8.py            # bootstrap confidence intervals
 python warps_profitability_backtest.py    # P&L vs historical Vegas lines
 python warps_stability_csv.py             # Q1/Q2/Q3 stability analysis (no download needed)
@@ -65,6 +66,7 @@ python warps_stability_csv.py             # Q1/Q2/Q3 stability analysis (no down
 | `data/historical/current_market_odds.csv` | Normalized current spread/ML prices for joining WARPS fair lines to books |
 | `data/historical/warps_2026_market_overlay.csv` | 2026 WARPS fair-line overlay for weekly spread/ML market comparison |
 | `site/src/data/warpsMarketOverlay2026.json` | Static site copy of the 2026 WARPS spread/ML overlay |
+| `data/current_odds_api.json` | Raw current Odds API response when the WARPS market overlay refresh workflow runs |
 | `warps_profitability_summary.csv` | P&L by model and edge threshold (2003–2020) |
 | `warps_q1_walk_forward.csv` | Walk-forward parameter stability table (2010–2025) |
 | `warps_q2_year_by_year.csv` | Year-by-year WARPS vs Pythagorean MAE comparison |
