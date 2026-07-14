@@ -68,8 +68,8 @@ def load_schedules(game_types=("REG",)) -> pd.DataFrame:
     df["referee_key"] = df["referee"].apply(normalize_name)
     df["home_margin"] = df["home_score"] - df["away_score"]
     df["away_margin"] = df["away_score"] - df["home_score"]
-    # nflverse spread_line is from the home-team perspective:
-    # positive = home favored, negative = away favored.
+    # nflverse spread_line is from the away-team perspective:
+    # positive = away underdog/home favorite, negative = away favorite.
     df["home_cover_margin"] = df["home_margin"] - df["spread_line"]
     df["away_cover_margin"] = df["away_margin"] + df["spread_line"]
     df["game_total"] = df["away_score"] + df["home_score"]
