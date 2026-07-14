@@ -30,6 +30,7 @@ Current champion model is **v2.3**. v1.x files remain useful historical baseline
 | `warps_monte_carlo.py` | Empirical residual Monte Carlo layer for 2026 win distributions and market-side probabilities. |
 | `warps_betting_value_backtest.py` | Walk-forward betting-value lab — joins historical win totals/odds, model probabilities, no-vig market probabilities, and realized units. |
 | `warps_2026_betting_card.py` | Applies historically tested gates to current 2026 projections/prices and writes the current betting card. |
+| `warps_betting_stability_audit.py` | Stress-tests betting gates with era splits, leave-one-season-out, season concentration, and current-card fragility labels. |
 | `warps_nfl_model_v1_8.py` | Prior champion baseline — full backtest (2000–2025) + 2026 projections. |
 | `warps_nfl_model_v1_5d.py` | Earlier version — shorter training window, used as one of three consensus models |
 | `warps_nfl_model_v1_6.py` | Intermediate version with additional EPA components — used as second consensus model |
@@ -118,6 +119,9 @@ Current champion model is **v2.3**. v1.x files remain useful historical baseline
 | `warps_betting_value_summary.csv` | Threshold grid summary for win-edge and price-edge gates |
 | `warps_betting_value_gate_summary.csv` | Richer betting gate grid with side splits, model-probability filters, model-agreement counts, and season stability |
 | `warps_betting_value_by_year.csv` | Year-by-year betting-value P&L for the default gate |
+| `warps_betting_stability_report.md` | Human-readable stability audit for the betting gates and current 2026 card |
+| `warps_betting_gate_stability.csv` | Machine-readable gate stress tests: base, eras, and leave-one-season-out slices |
+| `warps_2026_card_stability_audit.csv` | Current 2026 betting card annotated with historical gate fragility flags |
 
 ### Stability analysis outputs (Q1/Q2/Q3)
 
