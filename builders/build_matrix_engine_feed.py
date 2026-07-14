@@ -25,6 +25,7 @@ PROMOTION_OVERLAY_SIMULATION = ROOT / "data" / "backtests" / "engine_2026_1_conf
 SOURCE_RELIABILITY_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "source_reliability_report.json"
 WARPS_SELECTOR_ALIGNMENT_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "warps_selector_alignment_audit.json"
 MARKET_ROUTER_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "market_router_audit.json"
+CLV_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "clv_audit.json"
 PICK_EXPLANATIONS = HISTORICAL_DIR / "pick_explanations.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
@@ -713,6 +714,7 @@ def research_summary_payload():
         "source_reliability": None,
         "warps_selector_alignment": None,
         "market_router": None,
+        "clv_audit": None,
     }
 
     if FEATURE_RESEARCH_REPORT.exists():
@@ -864,6 +866,15 @@ def research_summary_payload():
             "moneyline_research_rows": market_report.get("moneyline_research_rows"),
             "verdict": market_report.get("verdict") or {},
             "summary_rows": (market_report.get("summary_rows") or [])[:12],
+        }
+    if CLV_AUDIT.exists():
+        clv_report = json.loads(CLV_AUDIT.read_text())
+        summary["clv_audit"] = {
+            "selected_bets": clv_report.get("selected_bets"),
+            "market_reference_rows": clv_report.get("market_reference_rows"),
+            "overall": clv_report.get("overall") or {},
+            "verdict": clv_report.get("verdict") or {},
+            "buckets": (clv_report.get("buckets") or [])[:12],
         }
     return summary
 

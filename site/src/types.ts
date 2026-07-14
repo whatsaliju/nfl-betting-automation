@@ -447,6 +447,49 @@ export interface MarketRouterAudit {
   }>;
 }
 
+export interface ClvAudit {
+  selected_bets?: number | null;
+  market_reference_rows?: number | null;
+  overall?: {
+    plays?: number | null;
+    wins?: number | null;
+    losses?: number | null;
+    pushes?: number | null;
+    win_rate?: number | null;
+    avg_clv?: number | null;
+    beat_close?: number | null;
+    lost_to_close?: number | null;
+    push_close?: number | null;
+    beat_close_rate?: number | null;
+  };
+  verdict?: {
+    status?: string | null;
+    recommendation?: string | null;
+    best_market_by_clv?: {
+      section?: string;
+      bucket?: string;
+      plays?: number | null;
+      wins?: number | null;
+      losses?: number | null;
+      pushes?: number | null;
+      win_rate?: number | null;
+      avg_clv?: number | null;
+      beat_close_rate?: number | null;
+    } | null;
+  };
+  buckets?: Array<{
+    section: string;
+    bucket: string;
+    plays?: number | null;
+    wins?: number | null;
+    losses?: number | null;
+    pushes?: number | null;
+    win_rate?: number | null;
+    avg_clv?: number | null;
+    beat_close_rate?: number | null;
+  }>;
+}
+
 export interface ResearchSummary {
   available: boolean;
   status: "BUILDING_SAMPLE" | "MONITORING" | "READY_FOR_MODELING" | string;
@@ -475,6 +518,7 @@ export interface ResearchSummary {
   source_reliability?: SourceReliability | null;
   warps_selector_alignment?: WarpsSelectorAlignment | null;
   market_router?: MarketRouterAudit | null;
+  clv_audit?: ClvAudit | null;
 }
 
 export interface EngineFeed {

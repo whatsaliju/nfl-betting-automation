@@ -10,6 +10,11 @@ function signed(value?: number | null) {
   return `${value > 0 ? "+" : ""}${(value * 100).toFixed(1)} pts`;
 }
 
+function signedRaw(value?: number | null) {
+  if (typeof value !== "number") return "n/a";
+  return `${value > 0 ? "+" : ""}${value.toFixed(2)}`;
+}
+
 function record(row: Pick<PolicySimulation, "wins" | "losses">) {
   return `${row.wins ?? 0}-${row.losses ?? 0}`;
 }
@@ -52,7 +57,8 @@ const fallback: ResearchSummary = {
   promotion_overlay_simulations: [],
   source_reliability: null,
   warps_selector_alignment: null,
-  market_router: null
+  market_router: null,
+  clv_audit: null
 };
 
 export function ResearchView({ summary }: { summary?: ResearchSummary }) {
@@ -67,6 +73,7 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
   const sourceReliability = report.source_reliability;
   const warpsAlignment = report.warps_selector_alignment;
   const marketRouter = report.market_router;
+  const clvAudit = report.clv_audit;
 
   return (
     <section className="panel research-panel">
@@ -136,6 +143,15 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
             <p>No market router audit is available yet.</p>
           )}
           <span>{(marketRouter?.verdict?.status || "building_sample").replace(/_/g, " ")}</span>
+        </article>
+        <article className="research-card">
+          <h3><ShieldCheck size={16} /> Price Discipline</h3>
+          {clvAudit?.verdict ? (
+            <p>{clvAudit.verdict.recommendation || "Closing-line value tracking is active."}</p>
+          ) : (
+            <p>No closing-line value audit is available yet.</p>
+          )}
+          <span>{pct(clvAudit?.overall?.beat_close_rate)} beat close</span>
         </article>
       </div>
 
@@ -220,6 +236,49 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
               {!marketRouter.summary_rows?.length && (
                 <tr>
                   <td colSpan={5}>No market router buckets are available yet.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {clvAudit && (
+        <div className="policy-table-shell">
+          <h3 className="table-heading">Price Discipline</h3>
+          <div className="source-reliability-head">
+            <span className={`research-status ${clvAudit.verdict?.status === "BUILDING_SAMPLE" ? "warning" : "ok"}`}>
+              {clvAudit.verdict?.status || "unknown"}
+            </span>
+            <span>{clvAudit.selected_bets ?? 0} selected bets</span>
+            <span>{signedRaw(clvAudit.overall?.avg_clv)} avg CLV</span>
+            <span>{pct(clvAudit.overall?.beat_close_rate)} beat close</span>
+          </div>
+          <table className="compare-table policy-table">
+            <thead>
+              <tr>
+                <th>Section</th>
+                <th>Bucket</th>
+                <th>Plays</th>
+                <th>Record</th>
+                <th>Avg CLV</th>
+                <th>Beat Close</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(clvAudit.buckets || []).map((row) => (
+                <tr key={`${row.section}-${row.bucket}`}>
+                  <td>{row.section.replace(/_/g, " ")}</td>
+                  <td>{row.bucket.replace(/_/g, " ")}</td>
+                  <td>{row.plays ?? 0}</td>
+                  <td>{row.wins ?? 0}-{row.losses ?? 0}</td>
+                  <td className={(row.avg_clv ?? 0) >= 0 ? "positive" : "negative"}>{signedRaw(row.avg_clv)}</td>
+                  <td>{pct(row.beat_close_rate)}</td>
+                </tr>
+              ))}
+              {!clvAudit.buckets?.length && (
+                <tr>
+                  <td colSpan={6}>No CLV buckets are available yet.</td>
                 </tr>
               )}
             </tbody>
