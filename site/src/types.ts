@@ -358,6 +358,52 @@ export interface SurvivorPoolEvSummaryRow {
   avg_finish_week: number;
 }
 
+export interface WeeklyCommandCenter {
+  available: boolean;
+  generated_from?: string;
+  current_context: CurrentContext;
+  decision_mode?: string;
+  do_nothing_warning: boolean;
+  warnings: string[];
+  betting_card: {
+    available: boolean;
+    plays: number;
+    watch: number;
+    passes: number;
+    top_cards: WeeklyBettingCardRow[];
+  };
+  best_edges?: EdgeBoardGame[];
+  survivor?: {
+    available: boolean;
+    week: number;
+    primary?: unknown;
+    safest?: unknown;
+    pool_cards?: Array<{
+      week: number;
+      pool_size: number;
+      payout_style: string;
+      safe?: unknown;
+      balanced?: unknown;
+      leverage?: unknown;
+    }>;
+    path_pick?: unknown;
+  };
+  warps_watch?: Array<{
+    team: string;
+    opponent: string;
+    home_away: HomeAway;
+    matchup_key: string;
+    win_probability: number | null;
+    fair_moneyline?: string | null;
+    fair_spread?: number | null;
+    status?: string | null;
+  }>;
+  source_health?: {
+    preseason_dry_run?: EngineFeed["preseason_dry_run"];
+    card_available?: boolean;
+  };
+}
+
 export interface TeamExpectation {
   team: string;
   conference: string;
@@ -634,6 +680,7 @@ export interface EngineFeed {
   team_cell_count: number;
   edge_board_count?: number;
   current_context?: CurrentContext;
+  weekly_command_center?: WeeklyCommandCenter;
   model_readiness?: {
     available: boolean;
     status: string;

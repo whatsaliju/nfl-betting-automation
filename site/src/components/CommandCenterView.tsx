@@ -125,7 +125,8 @@ export function CommandCenterView({
   warpsRows: WarpsMarketOverlay[];
   onNavigate: (view: "card" | "edges" | "survivor" | "warps" | "scout") => void;
 }) {
-  const context = engineFeed?.current_context;
+  const command = engineFeed?.weekly_command_center;
+  const context = command?.current_context || engineFeed?.current_context;
   const cards = bettingCard?.cards || currentCardRows(engineFeed).filter(
     (card) => context && card.season === context.season && card.season_type === context.season_type && card.week === context.week
   );
@@ -142,7 +143,8 @@ export function CommandCenterView({
   const survivorBacktestBest = survivorBacktest?.best_strategy;
   const survivorPoolEv = engineFeed?.survivor_pool_ev;
   const survivorPoolBest = survivorPoolEv?.best_strategy;
-  const hasAction = groups.plays.length + groups.watch.length + edges.length > 0;
+  const commandCard = command?.betting_card;
+  const hasAction = command ? !command.do_nothing_warning : groups.plays.length + groups.watch.length + edges.length > 0;
 
   return (
     <section className="command-center">
@@ -151,7 +153,7 @@ export function CommandCenterView({
           <span className="command-eyebrow">Weekly Command Center</span>
           <h2>{commandWeekLabel} Decision Board</h2>
           <p>
-            Betting card, survivor, WARPS priors, and engine health in one place. {context?.message || "Detailed tabs stay available when you want to drill in."}
+            Betting card, survivor, WARPS priors, and engine health in one place. {command?.warnings?.[0] || context?.message || "Detailed tabs stay available when you want to drill in."}
           </p>
         </div>
         <div className="command-status-stack">
@@ -177,8 +179,8 @@ export function CommandCenterView({
       <div className="command-kpi-grid">
         <button className="command-kpi" onClick={() => onNavigate("card")}>
           <span>Betting Plays</span>
-          <strong>{groups.plays.length}</strong>
-          <small>{groups.watch.length} watch · {groups.passes.length} pass</small>
+          <strong>{commandCard?.plays ?? groups.plays.length}</strong>
+          <small>{commandCard?.watch ?? groups.watch.length} watch · {commandCard?.passes ?? groups.passes.length} pass</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("survivor")}>
           <span>Survivor Pick</span>
@@ -197,7 +199,12 @@ export function CommandCenterView({
         </button>
       </div>
 
-      {!hasAction && (
+      {command?.do_nothing_warning ? (
+        <div className="feed-warning command-warning">
+          <AlertTriangle size={16} />
+          {command.warnings.join(" ")}
+        </div>
+      ) : !hasAction && (
         <div className="feed-warning command-warning">
           <AlertTriangle size={16} />
           The current context has no actionable plays. That is expected while live 2026 weekly inputs are not flowing yet; use Survivor and WARPS as planning layers.

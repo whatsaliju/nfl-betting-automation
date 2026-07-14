@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 HISTORICAL_DIR = ROOT / "data" / "historical"
 OUTPUT_JSON = HISTORICAL_DIR / "matrix_engine_feed.json"
 OUTPUT_CSV = HISTORICAL_DIR / "matrix_engine_feed.csv"
+WEEKLY_COMMAND_CENTER = HISTORICAL_DIR / "weekly_command_center.json"
 READINESS_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "model_readiness_report.json"
 FEATURE_RESEARCH_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "feature_research_report.json"
 FEATURE_POLICY_SIMULATION = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "feature_policy_simulation.json"
@@ -32,6 +33,7 @@ WEEKLY_BETTING_CARD = HISTORICAL_DIR / "weekly_betting_card.json"
 PRESEASON_DRY_RUN_REPORT = HISTORICAL_DIR / "preseason_dry_run_report.json"
 SURVIVOR_BACKTEST_REPORT = HISTORICAL_DIR / "survivor_backtest_report.json"
 SURVIVOR_POOL_EV_BACKTEST = HISTORICAL_DIR / "survivor_pool_ev_backtest.json"
+SURVIVOR_RECOMMENDATIONS = HISTORICAL_DIR / "survivor_recommendations_2026.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
 ACTIVE_SEASON = 2026
@@ -812,6 +814,114 @@ def survivor_pool_ev_payload():
     }
 
 
+def load_survivor_recommendations():
+    if not SURVIVOR_RECOMMENDATIONS.exists():
+        return {}
+    return json.loads(SURVIVOR_RECOMMENDATIONS.read_text())
+
+
+def current_card_rows(card_payload, context):
+    rows = card_payload.get("cards") or []
+    return [
+        row for row in rows
+        if row.get("season") == context.get("season")
+        and row.get("season_type") == context.get("season_type")
+        and row.get("week") == context.get("week")
+    ]
+
+
+def survivor_command_payload(context):
+    payload = load_survivor_recommendations()
+    week = context.get("week") or 1
+    pool_cards = [
+        row for row in payload.get("pool_cards", [])
+        if row.get("week") == week and row.get("payout_style") == "top_heavy"
+    ]
+    pool_cards.sort(key=lambda row: row.get("pool_size") or 0)
+    weekly = next((row for row in payload.get("weekly", []) if row.get("week") == week), {})
+    return {
+        "available": bool(payload),
+        "week": week,
+        "primary": weekly.get("primary"),
+        "safest": weekly.get("safest"),
+        "pool_cards": pool_cards,
+        "path_pick": next(
+            (row for row in (payload.get("optimal_path") or {}).get("picks", []) if row.get("week") == week),
+            None,
+        ),
+    }
+
+
+def warps_command_payload(context, warps_index):
+    week = context.get("week") or 1
+    rows = []
+    for row in warps_index.values():
+        if int(number_or_none(row.get("week")) or 0) != int(week):
+            continue
+        for side in ("home", "away"):
+            team = row.get(f"{side}_tla")
+            opponent = row.get("away_tla" if side == "home" else "home_tla")
+            rows.append({
+                "team": team,
+                "opponent": opponent,
+                "home_away": side,
+                "matchup_key": row.get("matchup_key"),
+                "win_probability": number_or_none(row.get(f"{side}_win_prob")),
+                "fair_moneyline": row.get(f"{side}_fair_moneyline"),
+                "fair_spread": number_or_none(row.get(f"fair_{side}_spread")),
+                "status": row.get("status"),
+            })
+    rows.sort(key=lambda row: row.get("win_probability") or 0, reverse=True)
+    return rows[:6]
+
+
+def weekly_command_center_payload(context, weekly_card, edge_board, preseason, warps_index):
+    cards = current_card_rows(weekly_card, context)
+    plays = [row for row in cards if row.get("action") == "play"]
+    watch = [row for row in cards if row.get("action") in {"watch", "lean"}]
+    passes = [row for row in cards if row.get("action") == "pass"]
+    current_edges = [
+        row for row in edge_board
+        if row.get("season") == context.get("season")
+        and row.get("season_type") == context.get("season_type")
+        and row.get("week") == context.get("week")
+    ]
+    best_edges = [
+        row for row in current_edges
+        if (row.get("best_edge") or {}).get("status") == "play"
+    ]
+    best_edges.sort(key=lambda row: (row.get("best_edge") or {}).get("score") or 0, reverse=True)
+    warnings = []
+    if not context.get("has_betting_card"):
+        warnings.append("No live betting card is published for the current context.")
+    if not plays and not watch:
+        warnings.append("No actionable betting plays or watchlist spots are active.")
+    if preseason.get("available") and preseason.get("status") != "PASS":
+        warnings.append("Preseason dry-run checks are not fully passing.")
+    return {
+        "available": True,
+        "generated_from": "matrix_engine_feed_builder",
+        "current_context": context,
+        "decision_mode": context.get("mode"),
+        "do_nothing_warning": bool(warnings),
+        "warnings": warnings,
+        "betting_card": {
+            "available": bool(context.get("has_betting_card")),
+            "plays": len(plays),
+            "watch": len(watch),
+            "passes": len(passes),
+            "top_cards": (plays + watch)[:6],
+        },
+        "best_edges": best_edges[:6],
+        "survivor": survivor_command_payload(context),
+        "warps_watch": warps_command_payload(context, warps_index),
+        "source_health": {
+            "preseason_dry_run": preseason,
+            "card_available": bool(context.get("has_betting_card")),
+        },
+    }
+
+
 def model_readiness_payload():
     if not READINESS_REPORT.exists():
         return {
@@ -1085,6 +1195,8 @@ def build_feed():
     )
     weekly_card = weekly_betting_card_payload()
     preseason = preseason_dry_run_payload()
+    current_context = current_context_payload(games, weekly_card, preseason)
+    command_center = weekly_command_center_payload(current_context, weekly_card, edge_board, preseason, warps_index)
 
     feed = {
         "feed_version": "2026.1",
@@ -1092,7 +1204,8 @@ def build_feed():
         "game_count": len(games),
         "team_cell_count": len(team_cells),
         "edge_board_count": len(edge_board),
-        "current_context": current_context_payload(games, weekly_card, preseason),
+        "current_context": current_context,
+        "weekly_command_center": command_center,
         "model_readiness": model_readiness_payload(),
         "research_summary": research_summary_payload(),
         "team_expectations": team_expectations,
@@ -1142,8 +1255,10 @@ def main():
     feed = build_feed()
     OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_JSON.write_text(json.dumps(feed, indent=2, default=str))
+    WEEKLY_COMMAND_CENTER.write_text(json.dumps(feed["weekly_command_center"], indent=2, default=str))
     write_csv(feed["team_cells"])
     print(f"Wrote {OUTPUT_JSON}")
+    print(f"Wrote {WEEKLY_COMMAND_CENTER}")
     print(f"Wrote {OUTPUT_CSV}")
     print(f"Games: {feed['game_count']} | Team cells: {feed['team_cell_count']}")
 
