@@ -51,7 +51,8 @@ const fallback: ResearchSummary = {
   promoted_factors: [],
   promotion_overlay_simulations: [],
   source_reliability: null,
-  warps_selector_alignment: null
+  warps_selector_alignment: null,
+  market_router: null
 };
 
 export function ResearchView({ summary }: { summary?: ResearchSummary }) {
@@ -65,6 +66,7 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
   const promotionSummary = report.promotion_summary || {};
   const sourceReliability = report.source_reliability;
   const warpsAlignment = report.warps_selector_alignment;
+  const marketRouter = report.market_router;
 
   return (
     <section className="panel research-panel">
@@ -126,6 +128,15 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
           )}
           <span>{(warpsAlignment?.verdict?.status || "context_only").replace(/_/g, " ")}</span>
         </article>
+        <article className="research-card">
+          <h3><FlaskConical size={16} /> Market Router</h3>
+          {marketRouter?.verdict ? (
+            <p>{marketRouter.verdict.recommendation || "Market router evidence is still building."}</p>
+          ) : (
+            <p>No market router audit is available yet.</p>
+          )}
+          <span>{(marketRouter?.verdict?.status || "building_sample").replace(/_/g, " ")}</span>
+        </article>
       </div>
 
       {report.observations.length > 0 && (
@@ -168,6 +179,47 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
               {!warpsAlignment.alignment_buckets?.length && (
                 <tr>
                   <td colSpan={4}>No WARPS alignment buckets are available yet.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {marketRouter && (
+        <div className="policy-table-shell">
+          <h3 className="table-heading">Market Router Ledger</h3>
+          <div className="source-reliability-head">
+            <span className={`research-status ${marketRouter.verdict?.status === "BUILDING_SAMPLE" ? "warning" : "ok"}`}>
+              {marketRouter.verdict?.status || "unknown"}
+            </span>
+            <span>{marketRouter.ledger_rows ?? 0} ledger rows</span>
+            <span>{marketRouter.selected_bets ?? 0} selected bets</span>
+            <span>{marketRouter.moneyline_research_rows ?? 0} ML research</span>
+          </div>
+          <table className="compare-table policy-table">
+            <thead>
+              <tr>
+                <th>Section</th>
+                <th>Bucket</th>
+                <th>Plays</th>
+                <th>Record</th>
+                <th>Win Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(marketRouter.summary_rows || []).map((row) => (
+                <tr key={`${row.section}-${row.bucket}`}>
+                  <td>{row.section.replace(/_/g, " ")}</td>
+                  <td>{row.bucket.replace(/_/g, " ")}</td>
+                  <td>{row.plays ?? 0}</td>
+                  <td>{row.wins ?? 0}-{row.losses ?? 0}</td>
+                  <td>{pct(row.win_rate)}</td>
+                </tr>
+              ))}
+              {!marketRouter.summary_rows?.length && (
+                <tr>
+                  <td colSpan={5}>No market router buckets are available yet.</td>
                 </tr>
               )}
             </tbody>

@@ -418,6 +418,35 @@ export interface WarpsSelectorAlignment {
   policy_simulations?: PolicySimulation[];
 }
 
+export interface MarketRouterAudit {
+  ledger_rows?: number | null;
+  selected_bets?: number | null;
+  moneyline_research_rows?: number | null;
+  verdict?: {
+    status?: string | null;
+    recommendation?: string | null;
+    baseline_win_rate?: number | null;
+    best_market?: {
+      section?: string;
+      bucket?: string;
+      plays?: number | null;
+      wins?: number | null;
+      losses?: number | null;
+      pushes?: number | null;
+      win_rate?: number | null;
+    } | null;
+  };
+  summary_rows?: Array<{
+    section: string;
+    bucket: string;
+    plays?: number | null;
+    wins?: number | null;
+    losses?: number | null;
+    pushes?: number | null;
+    win_rate?: number | null;
+  }>;
+}
+
 export interface ResearchSummary {
   available: boolean;
   status: "BUILDING_SAMPLE" | "MONITORING" | "READY_FOR_MODELING" | string;
@@ -445,6 +474,7 @@ export interface ResearchSummary {
   promotion_overlay_simulations?: PromotionOverlaySimulation[];
   source_reliability?: SourceReliability | null;
   warps_selector_alignment?: WarpsSelectorAlignment | null;
+  market_router?: MarketRouterAudit | null;
 }
 
 export interface EngineFeed {

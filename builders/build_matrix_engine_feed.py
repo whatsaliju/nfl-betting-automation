@@ -24,6 +24,7 @@ FACTOR_PROMOTION_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configure
 PROMOTION_OVERLAY_SIMULATION = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "promotion_overlay_simulation.json"
 SOURCE_RELIABILITY_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "source_reliability_report.json"
 WARPS_SELECTOR_ALIGNMENT_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "warps_selector_alignment_audit.json"
+MARKET_ROUTER_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "market_router_audit.json"
 PICK_EXPLANATIONS = HISTORICAL_DIR / "pick_explanations.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
@@ -711,6 +712,7 @@ def research_summary_payload():
         "promotion_overlay_simulations": [],
         "source_reliability": None,
         "warps_selector_alignment": None,
+        "market_router": None,
     }
 
     if FEATURE_RESEARCH_REPORT.exists():
@@ -853,6 +855,15 @@ def research_summary_payload():
                 if row.get("dimension") == "warps_spread_pick_alignment"
             ],
             "policy_simulations": (warps_report.get("policy_simulations") or [])[:6],
+        }
+    if MARKET_ROUTER_AUDIT.exists():
+        market_report = json.loads(MARKET_ROUTER_AUDIT.read_text())
+        summary["market_router"] = {
+            "ledger_rows": market_report.get("ledger_rows"),
+            "selected_bets": market_report.get("selected_bets"),
+            "moneyline_research_rows": market_report.get("moneyline_research_rows"),
+            "verdict": market_report.get("verdict") or {},
+            "summary_rows": (market_report.get("summary_rows") or [])[:12],
         }
     return summary
 
