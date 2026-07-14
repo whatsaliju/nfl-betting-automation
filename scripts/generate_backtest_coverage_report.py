@@ -58,6 +58,7 @@ def configured_summary(root):
 
 def attempt_summary(root):
     rows = load_json(Path(root) / "summary.json", [])
+    pick_summary = load_json(Path(root) / "pick_results_summary.json", {})
     skipped = []
     failed = []
     completed = []
@@ -87,6 +88,12 @@ def attempt_summary(root):
             }
             for row in failed
         ],
+        "graded": pick_summary.get("graded"),
+        "wins": pick_summary.get("wins"),
+        "losses": pick_summary.get("losses"),
+        "pushes": pick_summary.get("pushes"),
+        "win_rate": pick_summary.get("win_rate"),
+        "by_market": pick_summary.get("by_market") or {},
     }
 
 
@@ -95,12 +102,12 @@ def readiness_verdict(configured, attempt):
     if attempt.get("skipped_weeks"):
         blockers.append("Weeks 1-9 are missing weekly query/referee input files.")
     if attempt.get("failed_weeks"):
-        blockers.append("Fresh full-season replay hits older raw Action CSV schema without normalized_matchup.")
+        blockers.append("Fresh full-season replay still has failed weeks; inspect attempt summary for week-level errors.")
     if configured["week_count"] >= 8 and configured["graded"] >= 18:
         status = "WEEKLY_PIPELINE_READY_MONITOR"
         recommendation = (
             "Current weekly workflows are close to operational for 2026, but full-season historical selector "
-            "validation remains blocked until old Action market files are normalized or earlier weekly query files are restored."
+            "validation remains blocked until earlier weekly query/referee files are restored or regenerated."
         )
     else:
         status = "NOT_READY"
@@ -120,7 +127,6 @@ def build(configured_root, attempt_root):
         "full_2025_attempt": attempt,
         "verdict": readiness_verdict(configured, attempt),
         "next_steps": [
-            "Add a raw Action market normalizer for historical dated CSVs.",
             "Restore or regenerate week1-week9 query/referee files before rerunning full 2025 selector replay.",
             "Run one 2026 preseason dry run after current 2026 data sources are available.",
             "Keep WARPS, market router, and CLV gates in monitor mode until the graded selected-bet sample grows.",
@@ -150,6 +156,9 @@ def markdown(payload):
         f"- Completed weeks: {attempt['completed_weeks']}",
         f"- Skipped weeks: {[row['week'] for row in attempt['skipped_weeks']]}",
         f"- Failed weeks: {[row['week'] for row in attempt['failed_weeks']]}",
+        f"- Graded selected bets: {attempt.get('graded')}",
+        f"- Record: {attempt.get('wins')}-{attempt.get('losses')}-{attempt.get('pushes')}",
+        f"- Win rate: {attempt.get('win_rate')}",
         "",
         "## Verdict",
         "",

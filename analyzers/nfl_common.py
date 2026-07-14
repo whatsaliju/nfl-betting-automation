@@ -8,9 +8,10 @@ import re
 from datetime import date, datetime, time, timedelta, timezone
 
 
+PRESEASON_GAME_TYPES = {"PRE"}
 REGULAR_SEASON_GAME_TYPES = {"REG"}
 POSTSEASON_GAME_TYPES = {"WC", "DIV", "CON", "SB"}
-ALL_GAME_TYPES = REGULAR_SEASON_GAME_TYPES | POSTSEASON_GAME_TYPES
+ALL_GAME_TYPES = PRESEASON_GAME_TYPES | REGULAR_SEASON_GAME_TYPES | POSTSEASON_GAME_TYPES
 
 TEAM_MAP = {
     "ARI": "Arizona Cardinals", "ATL": "Atlanta Falcons", "BAL": "Baltimore Ravens",
@@ -119,9 +120,11 @@ def home_spread_from_line(line_text):
 
 
 def normalize_season_type(season_type=None, week=None):
-    """Return REG or POST, inferring playoffs from nflverse week numbers."""
+    """Return PRE, REG, or POST, inferring playoffs from nflverse week numbers."""
     value = str(season_type or "").strip().upper()
     aliases = {
+        "PRESEASON": "PRE",
+        "PRE_SEASON": "PRE",
         "REGULAR": "REG",
         "REGULAR_SEASON": "REG",
         "POSTSEASON": "POST",
@@ -130,7 +133,7 @@ def normalize_season_type(season_type=None, week=None):
     }
     if value in aliases:
         return aliases[value]
-    if value in {"REG", "POST"}:
+    if value in {"PRE", "REG", "POST"}:
         return value
     if value in POSTSEASON_GAME_TYPES:
         return "POST"
@@ -141,11 +144,16 @@ def normalize_season_type(season_type=None, week=None):
 
 def nflverse_game_types(season_type=None, week=None):
     normalized = normalize_season_type(season_type, week)
+    if normalized == "PRE":
+        return ["PRE"]
     return sorted(POSTSEASON_GAME_TYPES) if normalized == "POST" else ["REG"]
 
 
 def espn_season_type(season_type=None, week=None):
-    return 3 if normalize_season_type(season_type, week) == "POST" else 2
+    normalized = normalize_season_type(season_type, week)
+    if normalized == "PRE":
+        return 1
+    return 3 if normalized == "POST" else 2
 
 
 def espn_week(season_type=None, week=None):
@@ -153,7 +161,7 @@ def espn_week(season_type=None, week=None):
     if week is None:
         return None
     week = int(week)
-    if normalize_season_type(season_type, week) == "REG":
+    if normalize_season_type(season_type, week) in {"PRE", "REG"}:
         return week
     if week == 22:
         return 5
@@ -169,6 +177,10 @@ def regular_season_sunday(season, week):
 
 def week_anchor_date(season, week, season_type=None):
     season_type = normalize_season_type(season_type, week)
+    if season_type == "PRE":
+        # Approximate first preseason Sunday. Exact dry-run dates should come
+        # from schedule data once preseason markets are available.
+        return date(season, 8, 3) + timedelta(days=(int(week) - 1) * 7)
     if season == 2025 and season_type == "POST":
         anchors = {
             19: date(2026, 1, 11),

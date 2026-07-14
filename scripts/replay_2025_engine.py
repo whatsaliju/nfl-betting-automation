@@ -25,6 +25,7 @@ if str(ROOT) not in sys.path:
 
 from analyzers.nflverse_referee_trends import build_referee_trends
 from analyzers.nfl_common import normalize_season_type, reference_time_for_stage, target_date_for_stage
+from scripts.normalize_action_markets import build as normalize_action_markets
 
 DATA = ROOT / "data"
 BACKTEST_ROOT = DATA / "backtests"
@@ -167,6 +168,17 @@ def replay_week(season: int, week: int, stage: str, output_root: Path, season_ty
         "ACTION_WEATHER_FILE": choose_dated_file("action_weather_*.csv", target),
         "ROTOWIRE_FILE": choose_rotowire_file(week, target),
     }
+    normalized_market_summary = None
+    if exact_files["ACTION_MARKETS_FILE"]:
+        normalized_market_file = week_output / f"week{week}_action_markets_normalized.csv"
+        normalized_market_summary = normalize_action_markets(
+            Path(exact_files["ACTION_MARKETS_FILE"]),
+            normalized_market_file,
+        )
+        exact_files["ACTION_MARKETS_FILE"] = str(normalized_market_file)
+        (week_output / f"week{week}_action_markets_normalized_summary.json").write_text(
+            json.dumps(normalized_market_summary, indent=2)
+        )
     quality_warnings = []
     if not exact_files["ROTOWIRE_FILE"]:
         quality_warnings.append(f"missing week-specific RotoWire file for week {week}")
@@ -199,6 +211,7 @@ def replay_week(season: int, week: int, stage: str, output_root: Path, season_ty
         "reference_time": reference_time.isoformat(),
         "returncode": process.returncode,
         "quality_warnings": quality_warnings,
+        "normalized_market_summary": normalized_market_summary,
         **exact_files,
         "output_dir": str(week_output),
     })

@@ -1029,7 +1029,17 @@
           17,
           18
         ],
-        "completed_weeks": [],
+        "completed_weeks": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
         "skipped_weeks": [
           {
             "week": 1,
@@ -1068,64 +1078,37 @@
             "reason": "Missing query file: data/week9/week9_queries.csv"
           }
         ],
-        "failed_weeks": [
-          {
-            "week": 10,
-            "reason": "analyzer exited 1",
-            "source_status": null
+        "failed_weeks": [],
+        "graded": 7,
+        "wins": 5,
+        "losses": 2,
+        "pushes": 0,
+        "win_rate": 0.7143,
+        "by_market": {
+          "spread": {
+            "graded": 2,
+            "wins": 1,
+            "losses": 1,
+            "pushes": 0,
+            "win_rate": 0.5
           },
-          {
-            "week": 11,
-            "reason": "analyzer exited 1",
-            "source_status": null
-          },
-          {
-            "week": 12,
-            "reason": "analyzer exited 1",
-            "source_status": null
-          },
-          {
-            "week": 13,
-            "reason": "analyzer exited 1",
-            "source_status": null
-          },
-          {
-            "week": 14,
-            "reason": "analyzer exited 1",
-            "source_status": null
-          },
-          {
-            "week": 15,
-            "reason": "analyzer exited 1",
-            "source_status": null
-          },
-          {
-            "week": 16,
-            "reason": "analyzer exited 1",
-            "source_status": null
-          },
-          {
-            "week": 17,
-            "reason": "analyzer exited 1",
-            "source_status": null
-          },
-          {
-            "week": 18,
-            "reason": "analyzer exited 1",
-            "source_status": null
+          "total": {
+            "graded": 5,
+            "wins": 4,
+            "losses": 1,
+            "pushes": 0,
+            "win_rate": 0.8
           }
-        ]
+        }
       },
       "verdict": {
         "status": "WEEKLY_PIPELINE_READY_MONITOR",
-        "recommendation": "Current weekly workflows are close to operational for 2026, but full-season historical selector validation remains blocked until old Action market files are normalized or earlier weekly query files are restored.",
+        "recommendation": "Current weekly workflows are close to operational for 2026, but full-season historical selector validation remains blocked until earlier weekly query/referee files are restored or regenerated.",
         "blockers": [
-          "Weeks 1-9 are missing weekly query/referee input files.",
-          "Fresh full-season replay hits older raw Action CSV schema without normalized_matchup."
+          "Weeks 1-9 are missing weekly query/referee input files."
         ]
       },
       "next_steps": [
-        "Add a raw Action market normalizer for historical dated CSVs.",
         "Restore or regenerate week1-week9 query/referee files before rerunning full 2025 selector replay.",
         "Run one 2026 preseason dry run after current 2026 data sources are available.",
         "Keep WARPS, market router, and CLV gates in monitor mode until the graded selected-bet sample grows."
