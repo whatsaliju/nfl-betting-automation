@@ -2,8 +2,9 @@ import { useState } from "react";
 import { divisions, teamLogos } from "../data/nflData";
 import { qbChanges2026 } from "../data/qbData";
 import { classifyCell, cleanOpponent, flagEmoji, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
-import type { EngineTeamCell, GameResult, TeamExpectation, TeamProfile } from "../types";
+import type { EngineTeamCell, GameResult, TeamExpectation, TeamProfile, WarpsMarketOverlay } from "../types";
 import { EngineBadge } from "./EngineBadge";
+import { WarpsMarketBadge } from "./WarpsMarketBadge";
 
 // Win probability from Vegas seasonal O/U lines.
 // λ=0.15 calibrated so a 4-win quality gap → ~65% WP (consistent with NFL moneyline data).
@@ -27,6 +28,7 @@ interface Props {
   metricTitle: string;
   metricLegend: string;
   engineCells: Map<string, EngineTeamCell>;
+  warpsMarketIndex: Map<string, WarpsMarketOverlay>;
   selectedTeam: string | null;
   showHeatmap: boolean;
   expectations: Record<string, TeamExpectation>;
@@ -98,6 +100,7 @@ interface ModalGame {
   teamName: string; oppCode: string; week: number;
   isHome: boolean; daysRest: number | null; hasTravel: boolean;
   teamOV: number | null; oppOV: number | null;
+  warpsOverlay?: WarpsMarketOverlay;
 }
 
 function MatchupModal({ game, onClose }: { game: ModalGame; onClose: () => void }) {
@@ -152,6 +155,18 @@ function MatchupModal({ game, onClose }: { game: ModalGame; onClose: () => void 
             <span>Location</span>
             <strong>{game.isHome ? "Home" : "Away"}</strong>
           </div>
+          {game.warpsOverlay && (
+            <>
+              <div className="mm-stat">
+                <span>WARPS spread</span>
+                <strong>{game.teamName} {game.teamName === game.warpsOverlay.away_tla ? game.warpsOverlay.fair_away_spread.toFixed(1) : game.warpsOverlay.fair_home_spread.toFixed(1)}</strong>
+              </div>
+              <div className="mm-stat">
+                <span>WARPS ML</span>
+                <strong>{game.teamName === game.warpsOverlay.away_tla ? game.warpsOverlay.away_fair_moneyline : game.warpsOverlay.home_fair_moneyline}</strong>
+              </div>
+            </>
+          )}
           {game.daysRest !== null && game.daysRest !== 7 && (
             <div className="mm-stat">
               <span>Days rest</span>
@@ -179,7 +194,7 @@ function MatchupModal({ game, onClose }: { game: ModalGame; onClose: () => void 
   );
 }
 
-export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle, metricLegend, engineCells, selectedTeam, showHeatmap, expectations, results, showCellResults, vegasLines, onSelectTeam, onOpenTeam }: Props) {
+export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle, metricLegend, engineCells, warpsMarketIndex, selectedTeam, showHeatmap, expectations, results, showCellResults, vegasLines, onSelectTeam, onOpenTeam }: Props) {
   const [modalGame, setModalGame] = useState<ModalGame | null>(null);
   const resultIndex = showCellResults ? buildResultIndex(results) : new Map<string, GameResult>();
   const recordIndex = buildRecordIndex(results);
@@ -216,6 +231,7 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
           <div className="legend-item">{metricLegend}</div>
           <div className="legend-item">Rest+ = 10+ day rest</div>
           <div className="legend-item">✈️ significant travel</div>
+          <div className="legend-item"><span className="legend-warps-pill">W</span> WARPS fair spread</div>
           <div className="legend-item" style={{color:"#16a34a"}}>🟩 &gt;68% WP (Gimme)</div>
           <div className="legend-item" style={{color:"#dc2626"}}>🟥 &lt;32% WP (Schedule loss)</div>
         </div>
@@ -283,6 +299,8 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
                   const engine = engineCells.get(`${team.name}:W${week}`);
                   const highlighted = selectedTeam && opponentCode === selectedTeam;
                   const isHome = opponent !== "BYE" && !opponent.startsWith("@");
+                  const matchupKey = isHome ? `${opponentCode}@${team.name}` : `${team.name}@${opponentCode}`;
+                  const warpsOverlay = opponentCode && opponent !== "BYE" ? warpsMarketIndex.get(matchupKey) : undefined;
                   const heatmap = showHeatmap && opponentCode && opponent !== "BYE"
                     ? winProbClass(vegasLines[team.name] ?? null, vegasLines[opponentCode] ?? null, isHome)
                     : "";
@@ -319,6 +337,7 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
                             teamName: team.name, oppCode: opponentCode, week,
                             isHome, daysRest: game?.daysRest ?? null, hasTravel,
                             teamOV: vegasLines[team.name] ?? null, oppOV: vegasLines[opponentCode] ?? null,
+                            warpsOverlay,
                           });
                         } : undefined}
                         style={opponentCode && opponent !== "BYE" ? { cursor: "pointer" } : undefined}
@@ -341,6 +360,7 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
                           {b2b && <span className={b2b.type === "b2b" ? "orange-tag" : "red-tag"}>{b2b.type}</span>}
                         </div>
                         <EngineBadge cell={engine} />
+                        <WarpsMarketBadge overlay={warpsOverlay} team={team.name} compact />
                       </div>
                     </td>
                   );

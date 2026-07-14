@@ -345,6 +345,18 @@ td.ou-miss { background: #fee2e2 !important; }
   border-radius: 3px;
   flex-shrink: 0;
 }
+.legend-warps-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #3730a3;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 800;
+}
 
 .engine-badge {
   display: flex;
@@ -374,6 +386,84 @@ td.ou-miss { background: #fee2e2 !important; }
 .engine-stage-risk { display: inline-flex !important; }
 .engine-badge:has(.pick-on-team) .engine-stage,
 .engine-badge:has(.pick-other-team) .engine-stage { display: inline-flex; }
+
+.warps-market-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 8px;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 7px 8px;
+  color: #1e293b;
+  font-size: 11px;
+  line-height: 1.25;
+}
+.warps-market-badge.compact {
+  width: fit-content;
+  max-width: 100%;
+  align-self: center;
+  flex-direction: row;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  border-radius: 999px;
+  padding: 1px 5px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 9px;
+  font-weight: 800;
+}
+.warps-market-badge.compact span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #3730a3;
+  color: #fff;
+  font-size: 8px;
+}
+.warps-market-badge.compact strong {
+  font-variant-numeric: tabular-nums;
+}
+.warps-market-head,
+.warps-market-lines {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.warps-market-head span {
+  color: #475569;
+  font-weight: 700;
+}
+.warps-market-head strong {
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+  padding: 2px 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+.warps-market-lines {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.warps-market-lines span {
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 2px 6px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.warps-market-edge {
+  color: #0f766e;
+  font-weight: 800;
+}
 
 .sos-very-hard { background: rgba(220, 38, 38, 0.14) !important; }
 .sos-hard { background: rgba(249, 115, 22, 0.12) !important; }

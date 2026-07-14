@@ -62,6 +62,45 @@ export interface EngineTeamCell {
   source_health_status: string | null;
 }
 
+export interface WarpsMarketOverlay {
+  season: number;
+  week: number;
+  matchup_key: string;
+  game_date: string;
+  game_day: string;
+  away_tla: string;
+  home_tla: string;
+  away_warps_wins: number;
+  home_warps_wins: number;
+  fair_home_spread: number;
+  fair_away_spread: number;
+  home_win_prob: number;
+  away_win_prob: number;
+  home_fair_moneyline: string;
+  away_fair_moneyline: string;
+  market_home_spread: number | "";
+  market_away_spread: number | "";
+  market_home_moneyline: number | "";
+  market_away_moneyline: number | "";
+  home_spread_edge: number | "";
+  away_spread_edge: number | "";
+  spread_overlay_side: "HOME" | "AWAY" | "";
+  spread_overlay_team: string;
+  spread_overlay_edge_points: number | "";
+  home_ml_no_vig_prob: number | "";
+  away_ml_no_vig_prob: number | "";
+  moneyline_hold: number | "";
+  home_ml_edge: number | "";
+  away_ml_edge: number | "";
+  ml_overlay_side: "HOME" | "AWAY" | "";
+  ml_overlay_team: string;
+  ml_overlay_edge_prob: number | "";
+  ml_overlay_ev: number | "";
+  status: "priced" | "fair_line_only";
+  recommendation_policy: string;
+  source: string;
+}
+
 export interface EngineGame {
   season: number;
   season_type: SeasonType;

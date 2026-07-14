@@ -15,7 +15,8 @@ import { TeamModal } from "./components/TeamModal";
 import { WeekView } from "./components/WeekView";
 import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDisplayTeamStats, getSeasonResults, getSeasonSchedule, indexEdgeBoard, indexEngineCells, loadEngineFeed, postseasonCells } from "./lib/schedule";
 import { historicalVegasLines } from "./data/nflData";
-import type { EngineFeed, Filter, TeamProfile } from "./types";
+import warpsMarketOverlay2026 from "./data/warpsMarketOverlay2026.json";
+import type { EngineFeed, Filter, TeamProfile, WarpsMarketOverlay } from "./types";
 
 type AppViewMode = "track" | "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
 
@@ -81,6 +82,14 @@ function App() {
   const engineCells = useMemo(() => indexEngineCells(engineFeed, selectedSeason), [engineFeed, selectedSeason]);
   const edgeGames = useMemo(() => edgeBoardGames(engineFeed, selectedSeason), [engineFeed, selectedSeason]);
   const edgeIndex = useMemo(() => indexEdgeBoard(engineFeed, selectedSeason), [engineFeed, selectedSeason]);
+  const warpsMarketIndex = useMemo(() => {
+    const map = new Map<string, WarpsMarketOverlay>();
+    if (selectedSeason !== 2026) return map;
+    for (const row of warpsMarketOverlay2026 as WarpsMarketOverlay[]) {
+      map.set(row.matchup_key, row);
+    }
+    return map;
+  }, [selectedSeason]);
   const playoffCells = useMemo(() => postseasonCells(engineFeed, selectedSeason), [engineFeed, selectedSeason]);
   const overlayCount = engineCells.size + playoffCells.length;
   const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSchedule]);
@@ -226,6 +235,7 @@ function App() {
             metricTitle={metricMeta.title}
             metricLegend={metricMeta.legend}
             engineCells={engineCells}
+            warpsMarketIndex={warpsMarketIndex}
             selectedTeam={selectedTeam}
             showHeatmap={showHeatmap}
             expectations={teamExpectations}
@@ -251,6 +261,7 @@ function App() {
           dayFilter={dayFilter}
           engineCells={engineCells}
           edgeIndex={edgeIndex}
+          warpsMarketIndex={warpsMarketIndex}
           onWeekChange={setSelectedWeek}
           onDayChange={setDayFilter}
         />

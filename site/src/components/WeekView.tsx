@@ -1,7 +1,8 @@
 import { teamLogos } from "../data/nflData";
 import { cleanOpponent, flagEmoji, internationalCode } from "../lib/schedule";
-import type { EdgeBoardGame, EngineTeamCell, TeamProfile } from "../types";
+import type { EdgeBoardGame, EngineTeamCell, TeamProfile, WarpsMarketOverlay } from "../types";
 import { EngineBadge } from "./EngineBadge";
+import { WarpsMarketBadge } from "./WarpsMarketBadge";
 
 interface Props {
   teams: TeamProfile[];
@@ -10,6 +11,7 @@ interface Props {
   dayFilter: string;
   engineCells: Map<string, EngineTeamCell>;
   edgeIndex: Map<string, EdgeBoardGame>;
+  warpsMarketIndex: Map<string, WarpsMarketOverlay>;
   onWeekChange: (week: number) => void;
   onDayChange: (day: string) => void;
 }
@@ -22,7 +24,7 @@ function edgeSummary(edge?: EdgeBoardGame) {
   return "PASS";
 }
 
-export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex, onWeekChange, onDayChange }: Props) {
+export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex, warpsMarketIndex, onWeekChange, onDayChange }: Props) {
   const games = teams
     .flatMap((team) => {
       const game = team.weeks.find((item) => item.week === week);
@@ -54,6 +56,7 @@ export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex
           const awayEngine = engineCells.get(`${awayTeam}:W${week}`);
           const homeEngine = engineCells.get(`${homeTeam}:W${week}`);
           const edge = edgeIndex.get(`${awayTeam}@${homeTeam}`);
+          const warpsOverlay = warpsMarketIndex.get(`${awayTeam}@${homeTeam}`);
           const flag = flagEmoji(internationalCode(homeTeam, week, game.opponent));
           return (
             <article className="game-card" key={`${awayTeam}@${homeTeam}`}>
@@ -69,6 +72,7 @@ export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex
                 <strong>{homeTeam}</strong>
               </div>
               <EngineBadge cell={awayEngine || homeEngine} />
+              <WarpsMarketBadge overlay={warpsOverlay} team={homeTeam} />
               {edge && (
                 <div className={`week-edge-summary ${edge.best_edge.status}`}>
                   <strong>{edgeSummary(edge)}</strong>
