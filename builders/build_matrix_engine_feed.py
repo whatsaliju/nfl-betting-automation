@@ -23,6 +23,7 @@ FACTOR_LEADERBOARD = ROOT / "data" / "backtests" / "engine_2026_1_configured" / 
 FACTOR_PROMOTION_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_promotion_report.json"
 PROMOTION_OVERLAY_SIMULATION = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "promotion_overlay_simulation.json"
 SOURCE_RELIABILITY_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "source_reliability_report.json"
+WARPS_SELECTOR_ALIGNMENT_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "warps_selector_alignment_audit.json"
 PICK_EXPLANATIONS = HISTORICAL_DIR / "pick_explanations.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
@@ -709,6 +710,7 @@ def research_summary_payload():
         "promoted_factors": [],
         "promotion_overlay_simulations": [],
         "source_reliability": None,
+        "warps_selector_alignment": None,
     }
 
     if FEATURE_RESEARCH_REPORT.exists():
@@ -837,6 +839,20 @@ def research_summary_payload():
             "recommendations": source_report.get("recommendations") or [],
             "by_source": (source_report.get("by_source") or [])[:8],
             "feature_status_buckets": source_report.get("feature_status_buckets") or [],
+        }
+    if WARPS_SELECTOR_ALIGNMENT_AUDIT.exists():
+        warps_report = json.loads(WARPS_SELECTOR_ALIGNMENT_AUDIT.read_text())
+        summary["warps_selector_alignment"] = {
+            "graded_picks": warps_report.get("graded_picks"),
+            "graded_spread_picks": warps_report.get("graded_spread_picks"),
+            "warps_joined": warps_report.get("warps_joined"),
+            "baseline": warps_report.get("baseline") or {},
+            "verdict": warps_report.get("verdict") or {},
+            "alignment_buckets": [
+                row for row in warps_report.get("alignment_buckets", [])
+                if row.get("dimension") == "warps_spread_pick_alignment"
+            ],
+            "policy_simulations": (warps_report.get("policy_simulations") or [])[:6],
         }
     return summary
 

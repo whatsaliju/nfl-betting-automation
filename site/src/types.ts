@@ -387,6 +387,37 @@ export interface SourceReliability {
   }>;
 }
 
+export interface WarpsSelectorAlignment {
+  graded_picks?: number | null;
+  graded_spread_picks?: number | null;
+  warps_joined?: number | null;
+  baseline?: {
+    plays?: number | null;
+    wins?: number | null;
+    losses?: number | null;
+    pushes?: number | null;
+    win_rate?: number | null;
+  };
+  verdict?: {
+    status?: string | null;
+    recommendation?: string | null;
+    baseline_win_rate?: number | null;
+    aligned_win_rate?: number | null;
+    conflict_win_rate?: number | null;
+    no_conflict_policy_delta?: number | null;
+  };
+  alignment_buckets?: Array<{
+    dimension: string;
+    value: string;
+    plays?: number | null;
+    wins?: number | null;
+    losses?: number | null;
+    pushes?: number | null;
+    win_rate?: number | null;
+  }>;
+  policy_simulations?: PolicySimulation[];
+}
+
 export interface ResearchSummary {
   available: boolean;
   status: "BUILDING_SAMPLE" | "MONITORING" | "READY_FOR_MODELING" | string;
@@ -413,6 +444,7 @@ export interface ResearchSummary {
   promoted_factors?: PromotedFactor[];
   promotion_overlay_simulations?: PromotionOverlaySimulation[];
   source_reliability?: SourceReliability | null;
+  warps_selector_alignment?: WarpsSelectorAlignment | null;
 }
 
 export interface EngineFeed {

@@ -56,6 +56,7 @@ jobs:
             python3 scripts/evaluate_factor_promotion.py
             python3 scripts/simulate_promotion_overlays.py
             python3 scripts/audit_source_reliability.py
+            python3 scripts/audit_warps_selector_alignment.py
             python3 scripts/build_pick_explanations.py \
               --features data/backtests/engine_2026_1_configured/game_features.csv \
               --json-output data/backtests/engine_2026_1_configured/pick_explanations.json \
@@ -69,6 +70,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/historical/
+          git add data/historical/ data/backtests/engine_2026_1_configured/
           git commit -m "📊 Grade Week ${{ github.event.inputs.week }} results" || exit 0
           git push

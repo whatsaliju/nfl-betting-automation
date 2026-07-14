@@ -1,0 +1,14 @@
+dimension,value,plays,wins,losses,pushes,win_rate,policy,description,removed_plays,removed_wins,removed_losses,removed_pushes,removed_win_rate,plays_delta,wins_delta,losses_delta,win_rate_delta
+warps_spread_pick_alignment,aligned,5,4,1,0,0.8,,,,,,,,,,,
+warps_spread_pick_alignment,conflict,7,5,2,0,0.7143,,,,,,,,,,,
+warps_spread_edge_bucket,abs1_to_2,1,1,0,0,1.0,,,,,,,,,,,
+warps_spread_edge_bucket,abs2_to_3,2,2,0,0,1.0,,,,,,,,,,,
+warps_spread_edge_bucket,abs<1,1,1,0,0,1.0,,,,,,,,,,,
+warps_spread_edge_bucket,abs>=3,8,5,3,0,0.625,,,,,,,,,,,
+best_edge_market,spread,12,9,3,0,0.75,,,,,,,,,,,
+best_edge_market,total,6,5,1,0,0.8333,,,,,,,,,,,
+,,18,14,4,0,0.7778,baseline,Keep every graded engine pick.,0,0,0,0,,0,0,0,0.0
+,,11,9,2,0,0.8182,warps_no_conflict,Keep totals; remove spread picks when WARPS conflicts with the selector side.,7,5,2,0,0.7143,-7,-5,-2,0.0404
+,,11,9,2,0,0.8182,warps_aligned_only,Keep totals; require spread picks to agree with WARPS.,7,5,2,0,0.7143,-7,-5,-2,0.0404
+,,11,9,2,0,0.8182,warps_min_1pt_no_conflict,Keep totals; require spread picks to have at least 1 WARPS point and no conflict.,7,5,2,0,0.7143,-7,-5,-2,0.0404
+,,10,8,2,0,0.8,warps_min_2pt_aligned,Keep totals; require spread picks to agree with WARPS by at least 2 points.,8,6,2,0,0.75,-8,-6,-2,0.0222

@@ -50,7 +50,8 @@ const fallback: ResearchSummary = {
   },
   promoted_factors: [],
   promotion_overlay_simulations: [],
-  source_reliability: null
+  source_reliability: null,
+  warps_selector_alignment: null
 };
 
 export function ResearchView({ summary }: { summary?: ResearchSummary }) {
@@ -63,6 +64,7 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
   const promotionOverlays = report.promotion_overlay_simulations || [];
   const promotionSummary = report.promotion_summary || {};
   const sourceReliability = report.source_reliability;
+  const warpsAlignment = report.warps_selector_alignment;
 
   return (
     <section className="panel research-panel">
@@ -115,6 +117,15 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
           )}
           <span>Selector source of truth</span>
         </article>
+        <article className="research-card">
+          <h3><TrendingUp size={16} /> WARPS Gate Test</h3>
+          {warpsAlignment?.verdict ? (
+            <p>{warpsAlignment.verdict.recommendation || "WARPS selector alignment is being monitored."}</p>
+          ) : (
+            <p>No WARPS selector alignment audit is available yet.</p>
+          )}
+          <span>{(warpsAlignment?.verdict?.status || "context_only").replace(/_/g, " ")}</span>
+        </article>
       </div>
 
       {report.observations.length > 0 && (
@@ -122,6 +133,45 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
           {report.observations.slice(0, 4).map((item) => (
             <p key={item}>{item}</p>
           ))}
+        </div>
+      )}
+
+      {warpsAlignment && (
+        <div className="policy-table-shell">
+          <h3 className="table-heading">WARPS Selector Alignment</h3>
+          <div className="source-reliability-head">
+            <span className={`research-status ${warpsAlignment.verdict?.status === "MONITOR_ONLY" ? "warning" : "ok"}`}>
+              {warpsAlignment.verdict?.status || "unknown"}
+            </span>
+            <span>{warpsAlignment.warps_joined ?? 0}/{warpsAlignment.graded_picks ?? 0} joined</span>
+            <span>{warpsAlignment.graded_spread_picks ?? 0} spread picks</span>
+            <span>{pct(warpsAlignment.verdict?.no_conflict_policy_delta)} no-conflict delta</span>
+          </div>
+          <table className="compare-table policy-table">
+            <thead>
+              <tr>
+                <th>WARPS Bucket</th>
+                <th>Plays</th>
+                <th>Record</th>
+                <th>Win Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(warpsAlignment.alignment_buckets || []).map((row) => (
+                <tr key={row.value}>
+                  <td>{row.value.replace(/_/g, " ")}</td>
+                  <td>{row.plays ?? 0}</td>
+                  <td>{row.wins ?? 0}-{row.losses ?? 0}</td>
+                  <td>{pct(row.win_rate)}</td>
+                </tr>
+              ))}
+              {!warpsAlignment.alignment_buckets?.length && (
+                <tr>
+                  <td colSpan={4}>No WARPS alignment buckets are available yet.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       )}
 
