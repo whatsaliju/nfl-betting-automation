@@ -1,6 +1,7 @@
 import { Activity, BarChart3, Brain, CalendarDays, ClipboardList, Crosshair, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { BettingCardView } from "./components/BettingCardView";
+import { CommandCenterView } from "./components/CommandCenterView";
 import { CompareView } from "./components/CompareView";
 import { EdgeBoardView } from "./components/EdgeBoardView";
 import { ExpectationsView } from "./components/ExpectationsView";
@@ -20,17 +21,17 @@ import { historicalVegasLines } from "./data/nflData";
 import warpsMarketOverlay2026 from "./data/warpsMarketOverlay2026.json";
 import type { EngineFeed, Filter, TeamProfile, WarpsMarketOverlay } from "./types";
 
-type AppViewMode = "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
+type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "card", "survivor", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections"]);
+const VALID_VIEWS = new Set<AppViewMode>(["command", "track", "matrix", "edges", "card", "survivor", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections"]);
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
-  return VALID_VIEWS.has(h) ? h : "matrix";
+  return VALID_VIEWS.has(h) ? h : "command";
 }
 
 function urlToSeason() {
@@ -150,7 +151,7 @@ function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="brand-block brand-home-btn" onClick={() => setViewMode("matrix")} title="Back to matrix">
+        <div className="brand-block brand-home-btn" onClick={() => setViewMode("command")} title="Back to command center">
           <Grid3X3 size={26} />
           <div>
             <h1>NFL Edge Hub</h1>
@@ -195,6 +196,7 @@ function App() {
           ))}
         </div>
         <div className="segmented view-tabs">
+          <button className={viewMode === "command" ? "active" : ""} onClick={() => setViewMode("command")}><Activity size={15} />Command</button>
           <button className={viewMode === "matrix" ? "active" : ""} onClick={() => setViewMode("matrix")}><Grid3X3 size={15} />Matrix</button>
           <button className={viewMode === "week" ? "active" : ""} onClick={() => setViewMode("week")}><CalendarDays size={15} />Week</button>
           <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")}><GitBranch size={15} />Compare</button>
@@ -225,6 +227,15 @@ function App() {
         <div className="feed-warning">
           Engine overlay feed could not be loaded. The schedule, filters, modals, and ESPN result views still work.
         </div>
+      )}
+
+      {viewMode === "command" && (
+        <CommandCenterView
+          engineFeed={engineFeed}
+          edgeGames={edgeGames}
+          warpsRows={warpsMarketOverlay2026 as WarpsMarketOverlay[]}
+          onNavigate={setViewMode}
+        />
       )}
 
       {viewMode === "track" && <TrackRecordView />}
