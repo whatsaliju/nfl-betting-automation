@@ -35,6 +35,7 @@ python warps_monte_carlo.py               # empirical residual win distributions
 python warps_betting_value_backtest.py    # walk-forward model-vs-price betting value artifacts
 python warps_2026_betting_card.py         # gate-applied 2026 betting card from v2.3 + BetMGM
 python warps_betting_stability_audit.py   # stress-test betting gates and 2026 card fragility
+python warps_2026_game_priors.py          # WARPS-derived fair spread/ML priors for every 2026 game
 python warps_bootstrap_v1_8.py            # bootstrap confidence intervals
 python warps_profitability_backtest.py    # P&L vs historical Vegas lines
 python warps_stability_csv.py             # Q1/Q2/Q3 stability analysis (no download needed)
@@ -53,6 +54,7 @@ python warps_stability_csv.py             # Q1/Q2/Q3 stability analysis (no down
 | `warps_betting_stability_report.md` | Stability audit for betting gates: era splits, leave-one-season-out, and card fragility flags |
 | `warps_2026_betting_card.csv` | Gate-applied 2026 betting card using WARPS v2.3, Monte Carlo, and site BetMGM prices |
 | `warps_2026_card_stability_audit.csv` | Current-card rows joined to historical gate fragility metrics |
+| `warps_2026_game_priors.csv` | 2026 matchup-level WARPS priors: fair home spread, fair moneyline, and win probabilities |
 | `warps_profitability_summary.csv` | P&L by model and edge threshold (2003–2020) |
 | `warps_q1_walk_forward.csv` | Walk-forward parameter stability table (2010–2025) |
 | `warps_q2_year_by_year.csv` | Year-by-year WARPS vs Pythagorean MAE comparison |
