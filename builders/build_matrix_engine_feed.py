@@ -26,6 +26,7 @@ SOURCE_RELIABILITY_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configu
 WARPS_SELECTOR_ALIGNMENT_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "warps_selector_alignment_audit.json"
 MARKET_ROUTER_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "market_router_audit.json"
 CLV_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "clv_audit.json"
+BACKTEST_COVERAGE_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "backtest_coverage_report.json"
 PICK_EXPLANATIONS = HISTORICAL_DIR / "pick_explanations.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
@@ -715,6 +716,7 @@ def research_summary_payload():
         "warps_selector_alignment": None,
         "market_router": None,
         "clv_audit": None,
+        "backtest_coverage": None,
     }
 
     if FEATURE_RESEARCH_REPORT.exists():
@@ -876,6 +878,9 @@ def research_summary_payload():
             "verdict": clv_report.get("verdict") or {},
             "buckets": (clv_report.get("buckets") or [])[:12],
         }
+    if BACKTEST_COVERAGE_REPORT.exists():
+        coverage = json.loads(BACKTEST_COVERAGE_REPORT.read_text())
+        summary["backtest_coverage"] = coverage
     return summary
 
 

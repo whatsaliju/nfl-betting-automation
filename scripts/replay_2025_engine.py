@@ -127,7 +127,28 @@ def replay_week(season: int, week: int, stage: str, output_root: Path, season_ty
     week_output.mkdir(parents=True, exist_ok=True)
 
     referee_trends = week_output / "referee_trends.csv"
-    build_referee_trends(week, output=str(referee_trends), write_week_copy=False, season_type=season_type)
+    try:
+        build_referee_trends(week, output=str(referee_trends), write_week_copy=False, season_type=season_type)
+    except FileNotFoundError as exc:
+        summary = {
+            "week": week,
+            "season_type": season_type,
+            "stage": stage,
+            "target_date": target.isoformat(),
+            "reference_time": reference_time.isoformat(),
+            "returncode": None,
+            "games": 0,
+            "plays": 0,
+            "passes": 0,
+            "source_status": "MISSING_INPUT",
+            "quality_warnings": [str(exc)],
+            "error": str(exc),
+            "output_dir": str(week_output),
+        }
+        (week_output / "skip_reason.txt").write_text(str(exc))
+        print(f"\n=== Skipping {season_type} Week {week} {stage} ({target}) ===")
+        print(str(exc))
+        return summary
 
     env = os.environ.copy()
     env.update({

@@ -58,7 +58,8 @@ const fallback: ResearchSummary = {
   source_reliability: null,
   warps_selector_alignment: null,
   market_router: null,
-  clv_audit: null
+  clv_audit: null,
+  backtest_coverage: null
 };
 
 export function ResearchView({ summary }: { summary?: ResearchSummary }) {
@@ -74,6 +75,7 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
   const warpsAlignment = report.warps_selector_alignment;
   const marketRouter = report.market_router;
   const clvAudit = report.clv_audit;
+  const backtestCoverage = report.backtest_coverage;
 
   return (
     <section className="panel research-panel">
@@ -152,6 +154,15 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
             <p>No closing-line value audit is available yet.</p>
           )}
           <span>{pct(clvAudit?.overall?.beat_close_rate)} beat close</span>
+        </article>
+        <article className="research-card">
+          <h3><AlertTriangle size={16} /> Replay Coverage</h3>
+          {backtestCoverage?.verdict ? (
+            <p>{backtestCoverage.verdict.recommendation || "Replay coverage is being monitored."}</p>
+          ) : (
+            <p>No backtest coverage report is available yet.</p>
+          )}
+          <span>{(backtestCoverage?.verdict?.status || "unknown").replace(/_/g, " ")}</span>
         </article>
       </div>
 
@@ -283,6 +294,25 @@ export function ResearchView({ summary }: { summary?: ResearchSummary }) {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {backtestCoverage && (
+        <div className="policy-table-shell">
+          <h3 className="table-heading">Backtest Coverage</h3>
+          <div className="source-reliability-head">
+            <span className={`research-status ${backtestCoverage.verdict?.status === "WEEKLY_PIPELINE_READY_MONITOR" ? "warning" : "ok"}`}>
+              {backtestCoverage.verdict?.status || "unknown"}
+            </span>
+            <span>{backtestCoverage.configured_replay?.week_count ?? 0} replay weeks</span>
+            <span>{backtestCoverage.configured_replay?.graded ?? 0} graded bets</span>
+            <span>{pct(backtestCoverage.configured_replay?.win_rate)} replay win rate</span>
+          </div>
+          <div className="research-observations source-notes">
+            {(backtestCoverage.verdict?.blockers || []).slice(0, 3).map((item) => (
+              <p key={item}>{item}</p>
+            ))}
+          </div>
         </div>
       )}
 

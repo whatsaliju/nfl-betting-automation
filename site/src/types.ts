@@ -490,6 +490,33 @@ export interface ClvAudit {
   }>;
 }
 
+export interface BacktestCoverage {
+  configured_replay?: {
+    weeks?: Array<number | string>;
+    week_count?: number | null;
+    games?: number | null;
+    plays?: number | null;
+    graded?: number | null;
+    wins?: number | null;
+    losses?: number | null;
+    pushes?: number | null;
+    win_rate?: number | null;
+    warnings?: Array<{ week?: number | string; warnings?: string[] }>;
+  };
+  full_2025_attempt?: {
+    weeks_requested?: Array<number | string>;
+    completed_weeks?: Array<number | string>;
+    skipped_weeks?: Array<{ week?: number | string; reason?: string }>;
+    failed_weeks?: Array<{ week?: number | string; reason?: string; source_status?: string }>;
+  };
+  verdict?: {
+    status?: string | null;
+    recommendation?: string | null;
+    blockers?: string[];
+  };
+  next_steps?: string[];
+}
+
 export interface ResearchSummary {
   available: boolean;
   status: "BUILDING_SAMPLE" | "MONITORING" | "READY_FOR_MODELING" | string;
@@ -519,6 +546,7 @@ export interface ResearchSummary {
   warps_selector_alignment?: WarpsSelectorAlignment | null;
   market_router?: MarketRouterAudit | null;
   clv_audit?: ClvAudit | null;
+  backtest_coverage?: BacktestCoverage | null;
 }
 
 export interface EngineFeed {

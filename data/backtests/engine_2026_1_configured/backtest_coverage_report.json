@@ -1,0 +1,166 @@
+{
+  "configured_replay": {
+    "root": "/Users/lijuv/nfl-betting-automation/data/backtests/engine_2026_1_configured",
+    "weeks": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "week_count": 8,
+    "games": 109,
+    "plays": 18,
+    "graded": 18,
+    "wins": 14,
+    "losses": 4,
+    "pushes": 0,
+    "win_rate": 0.7778,
+    "warnings": [
+      {
+        "week": 11,
+        "warnings": [
+          "using generic dated RotoWire file for week 11"
+        ]
+      },
+      {
+        "week": 12,
+        "warnings": [
+          "using generic dated RotoWire file for week 12"
+        ]
+      },
+      {
+        "week": 18,
+        "warnings": [
+          "missing week-specific RotoWire file for week 18"
+        ]
+      }
+    ]
+  },
+  "full_2025_attempt": {
+    "root": "/Users/lijuv/nfl-betting-automation/data/backtests/engine_2026_1_full2025_attempt",
+    "weeks_requested": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "completed_weeks": [],
+    "skipped_weeks": [
+      {
+        "week": 1,
+        "reason": "Missing query file: data/week1/week1_queries.csv"
+      },
+      {
+        "week": 2,
+        "reason": "Missing query file: data/week2/week2_queries.csv"
+      },
+      {
+        "week": 3,
+        "reason": "Missing query file: data/week3/week3_queries.csv"
+      },
+      {
+        "week": 4,
+        "reason": "Missing query file: data/week4/week4_queries.csv"
+      },
+      {
+        "week": 5,
+        "reason": "Missing query file: data/week5/week5_queries.csv"
+      },
+      {
+        "week": 6,
+        "reason": "Missing query file: data/week6/week6_queries.csv"
+      },
+      {
+        "week": 7,
+        "reason": "Missing query file: data/week7/week7_queries.csv"
+      },
+      {
+        "week": 8,
+        "reason": "Missing query file: data/week8/week8_queries.csv"
+      },
+      {
+        "week": 9,
+        "reason": "Missing query file: data/week9/week9_queries.csv"
+      }
+    ],
+    "failed_weeks": [
+      {
+        "week": 10,
+        "reason": "analyzer exited 1",
+        "source_status": null
+      },
+      {
+        "week": 11,
+        "reason": "analyzer exited 1",
+        "source_status": null
+      },
+      {
+        "week": 12,
+        "reason": "analyzer exited 1",
+        "source_status": null
+      },
+      {
+        "week": 13,
+        "reason": "analyzer exited 1",
+        "source_status": null
+      },
+      {
+        "week": 14,
+        "reason": "analyzer exited 1",
+        "source_status": null
+      },
+      {
+        "week": 15,
+        "reason": "analyzer exited 1",
+        "source_status": null
+      },
+      {
+        "week": 16,
+        "reason": "analyzer exited 1",
+        "source_status": null
+      },
+      {
+        "week": 17,
+        "reason": "analyzer exited 1",
+        "source_status": null
+      },
+      {
+        "week": 18,
+        "reason": "analyzer exited 1",
+        "source_status": null
+      }
+    ]
+  },
+  "verdict": {
+    "status": "WEEKLY_PIPELINE_READY_MONITOR",
+    "recommendation": "Current weekly workflows are close to operational for 2026, but full-season historical selector validation remains blocked until old Action market files are normalized or earlier weekly query files are restored.",
+    "blockers": [
+      "Weeks 1-9 are missing weekly query/referee input files.",
+      "Fresh full-season replay hits older raw Action CSV schema without normalized_matchup."
+    ]
+  },
+  "next_steps": [
+    "Add a raw Action market normalizer for historical dated CSVs.",
+    "Restore or regenerate week1-week9 query/referee files before rerunning full 2025 selector replay.",
+    "Run one 2026 preseason dry run after current 2026 data sources are available.",
+    "Keep WARPS, market router, and CLV gates in monitor mode until the graded selected-bet sample grows."
+  ]
+}
