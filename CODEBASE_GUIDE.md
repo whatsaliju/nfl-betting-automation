@@ -28,6 +28,7 @@ Current champion model is **v2.3**. v1.x files remain useful historical baseline
 |---|---|
 | `warps_nfl_model_v2_3.py` | **Main model** — SOS-adjusted Pythagorean champion, full backtest (2000–2025) + 2026 projections. |
 | `warps_monte_carlo.py` | Empirical residual Monte Carlo layer for 2026 win distributions and market-side probabilities. |
+| `warps_betting_value_backtest.py` | Walk-forward betting-value lab — joins historical win totals/odds, model probabilities, no-vig market probabilities, and realized units. |
 | `warps_nfl_model_v1_8.py` | Prior champion baseline — full backtest (2000–2025) + 2026 projections. |
 | `warps_nfl_model_v1_5d.py` | Earlier version — shorter training window, used as one of three consensus models |
 | `warps_nfl_model_v1_6.py` | Intermediate version with additional EPA components — used as second consensus model |
@@ -111,6 +112,10 @@ Current champion model is **v2.3**. v1.x files remain useful historical baseline
 |---|---|
 | `warps_profitability_summary.csv` | P&L by model and edge threshold (2003–2020) |
 | `warps_profitability_by_year.csv` | Year-by-year betting P&L |
+| `warps_betting_value_bets.csv` | Row-level model-vs-price backtest with edge, no-vig market probability, estimated model probability, and realized units |
+| `warps_betting_value_summary.csv` | Threshold grid summary for win-edge and price-edge gates |
+| `warps_betting_value_gate_summary.csv` | Richer betting gate grid with side splits, model-probability filters, model-agreement counts, and season stability |
+| `warps_betting_value_by_year.csv` | Year-by-year betting-value P&L for the default gate |
 
 ### Stability analysis outputs (Q1/Q2/Q3)
 

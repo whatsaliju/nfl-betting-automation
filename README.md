@@ -32,6 +32,7 @@ https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6926058
 pip install nfl_data_py pandas numpy scipy
 python warps_nfl_model_v2_3.py            # current champion backtest + 2026 projections
 python warps_monte_carlo.py               # empirical residual win distributions
+python warps_betting_value_backtest.py    # walk-forward model-vs-price betting value artifacts
 python warps_bootstrap_v1_8.py            # bootstrap confidence intervals
 python warps_profitability_backtest.py    # P&L vs historical Vegas lines
 python warps_stability_csv.py             # Q1/Q2/Q3 stability analysis (no download needed)
@@ -44,6 +45,9 @@ python warps_stability_csv.py             # Q1/Q2/Q3 stability analysis (no down
 | `warps_backtest_team_results_v2_3.csv` | Current champion per-team predictions vs actuals, 2000–2025 |
 | `warps_2026_screen_v2_3.csv` | Current champion 2026 projections and Vegas edges for all 32 teams |
 | `warps_2026_monte_carlo.csv` | 2026 empirical residual Monte Carlo bands and over/under probabilities |
+| `warps_betting_value_bets.csv` | Row-level historical model-vs-price betting value backtest |
+| `warps_betting_value_summary.csv` | Threshold summary for edge and no-vig price-edge filters |
+| `warps_betting_value_gate_summary.csv` | Richer gate grid with side, model-probability, consensus-agreement, and season-stability filters |
 | `warps_profitability_summary.csv` | P&L by model and edge threshold (2003–2020) |
 | `warps_q1_walk_forward.csv` | Walk-forward parameter stability table (2010–2025) |
 | `warps_q2_year_by_year.csv` | Year-by-year WARPS vs Pythagorean MAE comparison |
