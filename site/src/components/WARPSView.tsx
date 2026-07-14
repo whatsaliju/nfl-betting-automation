@@ -2,12 +2,36 @@ import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, Crosshair, FileT
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { teamColors, teamLogos } from "../data/nflData";
 import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
+import bettingCardPayload from "../data/warpsBettingCard2026.json";
 import monteCarloPayload from "../data/warpsMonteCarlo.json";
 import { bootstrapStats, byYearData, calibrationData, consensusData, historicalTeamData, linesMetadata, metricRanking, pnlByYear, profitabilityData, residualHistogram, trajectoryData, type ConsensusRow } from "../data/warpsData";
 
-type WARPSTab = "slate" | "performance" | "methodology" | "paper" | "quadrant";
+type WARPSTab = "slate" | "betting" | "performance" | "methodology" | "paper" | "quadrant";
 
-const VALID_TABS = new Set<WARPSTab>(["slate", "performance", "methodology", "paper", "quadrant"]);
+const VALID_TABS = new Set<WARPSTab>(["slate", "betting", "performance", "methodology", "paper", "quadrant"]);
+
+type BettingCardRow = {
+  team: string;
+  decision: "BET" | "WATCH" | "PASS";
+  stake_tier: "core" | "standard" | "small" | "none";
+  bet_side: "Over" | "Under" | "Pass";
+  line: number;
+  odds: string;
+  warps_v23: number;
+  edge: number;
+  avg_edge: number;
+  model_prob: number;
+  market_no_vig_prob: number;
+  price_edge: number;
+  fair_odds: string;
+  expected_roi: number;
+  agreement_count: number;
+  consensus: string;
+  gate: string;
+  label: string;
+};
+
+const bettingCard = bettingCardPayload as BettingCardRow[];
 
 type MonteCarloTeam = {
   team: string;
@@ -982,6 +1006,143 @@ function SlateTab({
           {rows.filter((r) => r.consensus === "Split / No bet").length} teams with split signals — no bet recommended.
         </span>
       </div>
+    </div>
+  );
+}
+
+function BettingCardTab() {
+  const bets = bettingCard.filter((row) => row.decision === "BET");
+  const watch = bettingCard.filter((row) => row.decision === "WATCH");
+  const core = bets.filter((row) => row.stake_tier === "core");
+  const bestPriceEdge = Math.max(...bets.map((row) => row.price_edge));
+  const avgModelProb = bets.reduce((acc, row) => acc + row.model_prob, 0) / (bets.length || 1);
+
+  const tierLabel = (tier: BettingCardRow["stake_tier"]) => tier === "none" ? "pass" : tier;
+  const sideClass = (side: BettingCardRow["bet_side"]) => side === "Over" ? "bet-over" : side === "Under" ? "bet-under" : "bet-pass";
+
+  return (
+    <div className="warps-tab-content betting-card-tab">
+      <div className="betting-card-hero">
+        <div>
+          <h3 className="warps-section-title">2026 Betting Card — Forecast Edge vs Betting Edge</h3>
+          <p className="warps-section-sub">
+            This tab separates the model forecast from the sportsbook price. A team appears here only after WARPS v2.3,
+            Monte Carlo probability, no-vig market probability, and a historically tested gate are evaluated together.
+          </p>
+        </div>
+        <span className="lines-source-note">Lines: {linesMetadata.source} · {linesMetadata.date}</span>
+      </div>
+
+      <div className="betting-kpi-grid">
+        <div className="betting-kpi"><span>Card bets</span><strong>{bets.length}</strong><small>{core.length} core</small></div>
+        <div className="betting-kpi"><span>Avg model prob</span><strong>{(avgModelProb * 100).toFixed(1)}%</strong><small>card average</small></div>
+        <div className="betting-kpi"><span>Best price edge</span><strong>{(bestPriceEdge * 100).toFixed(1)}pp</strong><small>vs no-vig market</small></div>
+        <div className="betting-kpi"><span>Watch list</span><strong>{watch.length}</strong><small>partial gate</small></div>
+      </div>
+
+      <div className="betting-gate-grid">
+        <div className="betting-gate-card">
+          <strong>Over Gate</strong>
+          <span>edge &gt;= 0.5 wins</span>
+          <span>price edge &gt;= 10pp</span>
+          <span>model probability &gt;= 60%</span>
+          <small>Historical v2.3 gate: 60 bets, +3.45% ROI</small>
+        </div>
+        <div className="betting-gate-card">
+          <strong>Under Gate</strong>
+          <span>edge &gt;= 0.5 wins</span>
+          <span>price edge &gt;= 5pp</span>
+          <span>model probability &gt;= 50%</span>
+          <small>Historical v2.3 gate: 162 bets, +1.61% ROI</small>
+        </div>
+        <div className="betting-gate-card muted">
+          <strong>Interpretation</strong>
+          <span>Forecast edge is not automatically a bet.</span>
+          <span>Price edge and gate fit are the betting filter.</span>
+          <small>Experimental model output; manual roster/news review still matters.</small>
+        </div>
+      </div>
+
+      <h4 className="warps-subsection">Core Card</h4>
+      <div className="betting-core-grid">
+        {core.map((row) => (
+          <div key={row.team} className={`betting-core-card ${sideClass(row.bet_side)}`}>
+            <div className="betting-core-head">
+              <img src={teamLogos[row.team]} alt={row.team} />
+              <div>
+                <strong>{row.team}</strong>
+                <span>{row.bet_side} {row.line.toFixed(1)} · {row.odds}</span>
+              </div>
+              <b>{(row.model_prob * 100).toFixed(0)}%</b>
+            </div>
+            <div className="betting-core-stats">
+              <span>WARPS {row.warps_v23.toFixed(2)}</span>
+              <span>Edge {row.edge > 0 ? "+" : ""}{row.edge.toFixed(2)}</span>
+              <span>Price +{(row.price_edge * 100).toFixed(1)}pp</span>
+            </div>
+            <p>{row.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <h4 className="warps-subsection">Full Betting Card</h4>
+      <div className="pricing-table-wrap">
+        <table className="warps-table betting-card-table">
+          <thead>
+            <tr>
+              <th>Target</th>
+              <th>Tier</th>
+              <th>WARPS</th>
+              <th>Line</th>
+              <th>Odds</th>
+              <th>Model Prob</th>
+              <th>No-Vig Mkt</th>
+              <th>Price Edge</th>
+              <th>Consensus</th>
+              <th>Label</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bets.map((row) => (
+              <tr key={`${row.team}-${row.bet_side}`}>
+                <td>
+                  <div className="pricing-team-cell">
+                    <img src={teamLogos[row.team]} alt={row.team} />
+                    <strong>{row.team} {row.bet_side}</strong>
+                  </div>
+                </td>
+                <td><span className={`stake-pill stake-${row.stake_tier}`}>{tierLabel(row.stake_tier)}</span></td>
+                <td>{row.warps_v23.toFixed(2)}</td>
+                <td>{row.line.toFixed(1)}</td>
+                <td>{row.odds}</td>
+                <td>{(row.model_prob * 100).toFixed(1)}%</td>
+                <td>{(row.market_no_vig_prob * 100).toFixed(1)}%</td>
+                <td className="warps-pos">+{(row.price_edge * 100).toFixed(1)}pp</td>
+                <td>{row.agreement_count}/3</td>
+                <td>{row.label}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {watch.length > 0 && (
+        <>
+          <h4 className="warps-subsection">Watch List</h4>
+          <div className="watch-list-grid">
+            {watch.map((row) => (
+              <div key={row.team} className="watch-card">
+                <div className="pricing-team-cell">
+                  <img src={teamLogos[row.team]} alt={row.team} />
+                  <strong>{row.team} {row.bet_side} {row.line.toFixed(1)}</strong>
+                </div>
+                <span>{row.odds} · {(row.model_prob * 100).toFixed(1)}% model · +{(row.price_edge * 100).toFixed(1)}pp price</span>
+                <small>{row.gate}</small>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -3031,6 +3192,9 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
         <button className={tab === "slate" ? "active" : ""} onClick={() => switchTab("slate")}>
           <Activity size={14} /> 2026 Bet Slate
         </button>
+        <button className={tab === "betting" ? "active" : ""} onClick={() => switchTab("betting")}>
+          <Crosshair size={14} /> Betting Card
+        </button>
         <button className={tab === "performance" ? "active" : ""} onClick={() => switchTab("performance")}>
           <BarChart3 size={14} /> Performance
         </button>
@@ -3053,6 +3217,7 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
           onToggleQbAdj={() => setShowQbAdj((v) => !v)}
         />
       )}
+      {tab === "betting" && <BettingCardTab />}
       {tab === "performance" && <PerformanceTab rows={displayData} qbAdjMap={qbAdjMap} />}
       {tab === "methodology" && <MethodologyTab />}
       {tab === "paper" && <PaperTab />}
