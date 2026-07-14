@@ -10,7 +10,7 @@ export default function WARPSApp() {
           <FlaskConical size={28} className="warps-brand-icon" />
           <div>
             <h1>WARPS-NFL™</h1>
-            <p>Win Average Regression Predictive Score · v1.8 · 2026 season</p>
+            <p>Win Average Regression Predictive Score · v2.3 · 2026 season</p>
           </div>
         </div>
         <div className="warps-header-kpis">

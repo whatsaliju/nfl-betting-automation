@@ -1,5 +1,6 @@
-// WARPS-NFL v1.8 model outputs — embedded from Python run (2026-06-07)
-// Extended training window: 2000-2021 (22 seasons, up from 7 in v1.7)
+// WARPS-NFL v2.3 model outputs — embedded from Python run (2026-07-14)
+// v2.3 change: SOS-adjusted Pythagorean (sole input, w=1.00, pd=0.00) replaces 75/25 blend
+// Full-sample MAE: 2.367 (vs 2.376 for v1.8), 16-window walk-forward: 12/16 wins (Δ=−0.015)
 
 export interface ByYearRow {
   season: number;
@@ -87,32 +88,32 @@ export interface PnlByYearRow {
 }
 
 export const byYearData: ByYearRow[] = [
-  { season: 2000, teams: 31, warpsMae: 2.456, pythMae: 2.587, pwMae: 2.774, warpsRmse: 2.800 },
-  { season: 2001, teams: 31, warpsMae: 2.590, pythMae: 3.452, pwMae: 3.355, warpsRmse: 3.210 },
-  { season: 2002, teams: 32, warpsMae: 1.935, pythMae: 2.121, pwMae: 2.548, warpsRmse: 2.423 },
-  { season: 2003, teams: 32, warpsMae: 2.635, pythMae: 2.875, pwMae: 3.125, warpsRmse: 3.043 },
-  { season: 2004, teams: 32, warpsMae: 2.346, pythMae: 2.792, pwMae: 2.750, warpsRmse: 3.050 },
-  { season: 2005, teams: 32, warpsMae: 2.784, pythMae: 2.944, pwMae: 3.500, warpsRmse: 3.171 },
-  { season: 2006, teams: 32, warpsMae: 2.152, pythMae: 2.803, pwMae: 3.250, warpsRmse: 2.649 },
-  { season: 2007, teams: 32, warpsMae: 2.682, pythMae: 3.004, pwMae: 3.250, warpsRmse: 3.239 },
-  { season: 2008, teams: 32, warpsMae: 2.590, pythMae: 3.015, pwMae: 3.219, warpsRmse: 3.232 },
-  { season: 2009, teams: 32, warpsMae: 2.113, pythMae: 2.117, pwMae: 2.438, warpsRmse: 2.540 },
-  { season: 2010, teams: 32, warpsMae: 2.402, pythMae: 2.896, pwMae: 3.313, warpsRmse: 2.836 },
-  { season: 2011, teams: 32, warpsMae: 2.107, pythMae: 2.280, pwMae: 2.813, warpsRmse: 2.713 },
-  { season: 2012, teams: 32, warpsMae: 2.535, pythMae: 2.698, pwMae: 3.094, warpsRmse: 2.937 },
-  { season: 2013, teams: 32, warpsMae: 2.364, pythMae: 2.607, pwMae: 2.719, warpsRmse: 3.000 },
-  { season: 2014, teams: 32, warpsMae: 2.094, pythMae: 2.018, pwMae: 2.188, warpsRmse: 2.500 },
-  { season: 2015, teams: 32, warpsMae: 2.301, pythMae: 2.485, pwMae: 2.688, warpsRmse: 2.885, vegasMae: 2.234 },
-  { season: 2016, teams: 32, warpsMae: 2.425, pythMae: 2.597, pwMae: 2.844, warpsRmse: 2.922, vegasMae: 2.234 },
-  { season: 2017, teams: 32, warpsMae: 2.217, pythMae: 2.303, pwMae: 3.125, warpsRmse: 2.767, vegasMae: 2.312 },
-  { season: 2018, teams: 32, warpsMae: 2.091, pythMae: 2.198, pwMae: 2.719, warpsRmse: 2.505, vegasMae: 2.078 },
+  { season: 2000, teams: 31, warpsMae: 2.401, pythMae: 2.587, pwMae: 2.774, warpsRmse: 2.800 },
+  { season: 2001, teams: 31, warpsMae: 2.672, pythMae: 3.452, pwMae: 3.355, warpsRmse: 3.210 },
+  { season: 2002, teams: 32, warpsMae: 1.914, pythMae: 2.121, pwMae: 2.548, warpsRmse: 2.423 },
+  { season: 2003, teams: 32, warpsMae: 2.605, pythMae: 2.874, pwMae: 3.125, warpsRmse: 3.043 },
+  { season: 2004, teams: 32, warpsMae: 2.324, pythMae: 2.792, pwMae: 2.750, warpsRmse: 3.050 },
+  { season: 2005, teams: 32, warpsMae: 2.864, pythMae: 2.944, pwMae: 3.500, warpsRmse: 3.171 },
+  { season: 2006, teams: 32, warpsMae: 2.183, pythMae: 2.803, pwMae: 3.250, warpsRmse: 2.649 },
+  { season: 2007, teams: 32, warpsMae: 2.737, pythMae: 3.004, pwMae: 3.250, warpsRmse: 3.239 },
+  { season: 2008, teams: 32, warpsMae: 2.606, pythMae: 3.015, pwMae: 3.219, warpsRmse: 3.232 },
+  { season: 2009, teams: 32, warpsMae: 2.078, pythMae: 2.117, pwMae: 2.438, warpsRmse: 2.540 },
+  { season: 2010, teams: 32, warpsMae: 2.395, pythMae: 2.896, pwMae: 3.313, warpsRmse: 2.836 },
+  { season: 2011, teams: 32, warpsMae: 2.103, pythMae: 2.280, pwMae: 2.813, warpsRmse: 2.713 },
+  { season: 2012, teams: 32, warpsMae: 2.510, pythMae: 2.698, pwMae: 3.094, warpsRmse: 2.937 },
+  { season: 2013, teams: 32, warpsMae: 2.420, pythMae: 2.607, pwMae: 2.719, warpsRmse: 3.000 },
+  { season: 2014, teams: 32, warpsMae: 2.144, pythMae: 2.018, pwMae: 2.188, warpsRmse: 2.500 },
+  { season: 2015, teams: 32, warpsMae: 2.319, pythMae: 2.484, pwMae: 2.688, warpsRmse: 2.885, vegasMae: 2.234 },
+  { season: 2016, teams: 32, warpsMae: 2.495, pythMae: 2.597, pwMae: 2.844, warpsRmse: 2.922, vegasMae: 2.234 },
+  { season: 2017, teams: 32, warpsMae: 2.195, pythMae: 2.303, pwMae: 3.125, warpsRmse: 2.767, vegasMae: 2.312 },
+  { season: 2018, teams: 32, warpsMae: 2.055, pythMae: 2.198, pwMae: 2.719, warpsRmse: 2.505, vegasMae: 2.078 },
   { season: 2019, teams: 32, warpsMae: 2.212, pythMae: 2.259, pwMae: 2.469, warpsRmse: 2.780, vegasMae: 1.984 },
-  { season: 2020, teams: 32, warpsMae: 2.780, pythMae: 2.896, pwMae: 2.906, warpsRmse: 3.118, vegasMae: 2.297 },
-  { season: 2021, teams: 32, warpsMae: 1.938, pythMae: 1.996, pwMae: 2.313, warpsRmse: 2.204, vegasMae: 1.594 },
-  { season: 2022, teams: 32, warpsMae: 2.460, pythMae: 2.853, pwMae: 3.000, warpsRmse: 2.864, vegasMae: 2.469 },
-  { season: 2023, teams: 32, warpsMae: 1.898, pythMae: 2.131, pwMae: 2.594, warpsRmse: 2.391, vegasMae: 1.875 },
-  { season: 2024, teams: 32, warpsMae: 3.013, pythMae: 3.076, pwMae: 2.938, warpsRmse: 3.521, vegasMae: 2.859 },
-  { season: 2025, teams: 32, warpsMae: 2.673, pythMae: 2.978, pwMae: 3.156, warpsRmse: 3.240, vegasMae: 2.438 },
+  { season: 2020, teams: 32, warpsMae: 2.670, pythMae: 2.896, pwMae: 2.906, warpsRmse: 3.118, vegasMae: 2.297 },
+  { season: 2021, teams: 32, warpsMae: 1.834, pythMae: 1.996, pwMae: 2.313, warpsRmse: 2.204, vegasMae: 1.594 },
+  { season: 2022, teams: 32, warpsMae: 2.482, pythMae: 2.853, pwMae: 3.000, warpsRmse: 2.864, vegasMae: 2.469 },
+  { season: 2023, teams: 32, warpsMae: 1.825, pythMae: 2.131, pwMae: 2.594, warpsRmse: 2.391, vegasMae: 1.875 },
+  { season: 2024, teams: 32, warpsMae: 2.836, pythMae: 3.076, pwMae: 2.938, warpsRmse: 3.521, vegasMae: 2.859 },
+  { season: 2025, teams: 32, warpsMae: 2.677, pythMae: 2.978, pwMae: 3.156, warpsRmse: 3.240, vegasMae: 2.438 },
 ];
 
 export const calibrationData: CalibrationRow[] = [
@@ -125,7 +126,7 @@ export const calibrationData: CalibrationRow[] = [
 ];
 
 export const metricRanking: MetricRow[] = [
-  { model: "WARPS v1.8 representative champion (75% Pythagorean + 25% Point Differential)", type: "WARPS composite", warpsMae: 2.376, beatsAll: true },
+  { model: "WARPS v2.3 champion (SOS-adjusted Pythagorean, R=0.75)", type: "WARPS composite", warpsMae: 2.367, beatsAll: true },
   { model: "pyth=0.70, point_diff=0.30 blend", type: "WARPS composite", warpsMae: 2.358, beatsAll: true },
   { model: "pyth=0.65, point_diff=0.35 blend", type: "WARPS composite", warpsMae: 2.358, beatsAll: true },
   { model: "pyth=0.75, pass=0.05, point_diff=0.20 blend", type: "WARPS composite", warpsMae: 2.358, beatsAll: true },
@@ -136,7 +137,7 @@ export const metricRanking: MetricRow[] = [
 ];
 
 export const bootstrapStats: BootstrapStats = {
-  warpsMaeFull: 2.376,
+  warpsMaeFull: 2.367,
   warpsMaeFullCi: [2.261, 2.485],
   pythMaeFull: 2.614,
   pwMaeFull: 2.888,
@@ -159,39 +160,39 @@ export const bootstrapStats: BootstrapStats = {
 };
 
 export const consensusData: ConsensusRow[] = [
-  // Sorted by avgEdge desc. Lines: BetMGM, 2026-07-05.
-  { team: "NE",  marketTotal: 9.5,  v18Wins: 11.47, v18Edge:  1.97, v15dEdge:  1.61, v16Edge:  2.34, avgEdge:  1.97, consensus: "3-model Over",   overOdds: -145, underOdds:  120 },
-  { team: "IND", marketTotal: 7.5,  v18Wins:  9.14, v18Edge:  1.64, v15dEdge:  1.44, v16Edge:  1.71, avgEdge:  1.60, consensus: "3-model Over",   overOdds: -125, underOdds:  105 },
-  { team: "ARI", marketTotal: 4.5,  v18Wins:  5.88, v18Edge:  1.38, v15dEdge:  1.92, v16Edge:  1.02, avgEdge:  1.44, consensus: "2-Strong Over",  overOdds:  150, underOdds: -185 },
-  { team: "MIA", marketTotal: 4.5,  v18Wins:  5.89, v18Edge:  1.39, v15dEdge:  1.53, v16Edge:  0.99, avgEdge:  1.30, consensus: "2-model Over",   overOdds:  110, underOdds: -130 },
-  { team: "NO",  marketTotal: 7.5,  v18Wins:  8.32, v18Edge:  0.82, v15dEdge:  1.26, v16Edge:  0.75, avgEdge:  0.94, consensus: "2-Strong Over",  overOdds: -125, underOdds:  105 },
-  { team: "JAX", marketTotal: 9.5,  v18Wins: 10.41, v18Edge:  0.91, v15dEdge:  0.39, v16Edge:  1.19, avgEdge:  0.83, consensus: "2-Strong Over",  overOdds:  120, underOdds: -145 },
-  { team: "WAS", marketTotal: 7.5,  v18Wins:  7.98, v18Edge:  0.48, v15dEdge:  0.94, v16Edge:  0.38, avgEdge:  0.60, consensus: "Split / No bet", overOdds: -130, underOdds:  110 },
-  { team: "HOU", marketTotal: 9.5,  v18Wins:  9.96, v18Edge:  0.46, v15dEdge: -0.11, v16Edge:  0.75, avgEdge:  0.37, consensus: "Split / No bet", overOdds: -125, underOdds:  105 },
-  { team: "LV",  marketTotal: 5.5,  v18Wins:  5.72, v18Edge:  0.22, v15dEdge:  0.99, v16Edge: -0.24, avgEdge:  0.32, consensus: "Split / No bet", overOdds: -155, underOdds:  130 },
-  { team: "ATL", marketTotal: 7.5,  v18Wins:  7.70, v18Edge:  0.20, v15dEdge:  0.49, v16Edge:  0.06, avgEdge:  0.25, consensus: "Split / No bet", overOdds:  115, underOdds: -140 },
-  { team: "MIN", marketTotal: 8.5,  v18Wins:  8.72, v18Edge:  0.22, v15dEdge:  0.01, v16Edge:  0.27, avgEdge:  0.17, consensus: "Split / No bet", overOdds: -110, underOdds: -110 },
-  { team: "PIT", marketTotal: 8.5,  v18Wins:  8.59, v18Edge:  0.09, v15dEdge:  0.02, v16Edge:  0.12, avgEdge:  0.08, consensus: "Split / No bet", overOdds:  115, underOdds: -140 },
-  { team: "CAR", marketTotal: 7.5,  v18Wins:  7.51, v18Edge:  0.01, v15dEdge:  0.34, v16Edge: -0.20, avgEdge:  0.05, consensus: "Split / No bet", overOdds:  110, underOdds: -130, dynasty: "negative" },
-  { team: "NYG", marketTotal: 7.5,  v18Wins:  7.56, v18Edge:  0.06, v15dEdge:  0.12, v16Edge: -0.08, avgEdge:  0.03, consensus: "Split / No bet", overOdds: -110, underOdds: -110 },
-  { team: "SEA", marketTotal: 10.5, v18Wins: 10.52, v18Edge:  0.02, v15dEdge: -0.56, v16Edge:  0.32, avgEdge: -0.07, consensus: "Split / No bet", overOdds: -125, underOdds:  105 },
-  { team: "DEN", marketTotal: 9.5,  v18Wins:  9.36, v18Edge: -0.14, v15dEdge: -0.31, v16Edge:  0.05, avgEdge: -0.13, consensus: "Split / No bet", overOdds: -125, underOdds:  105 },
-  { team: "CLE", marketTotal: 6.5,  v18Wins:  6.37, v18Edge: -0.13, v15dEdge:  0.18, v16Edge: -0.53, avgEdge: -0.16, consensus: "Split / No bet", overOdds:  155, underOdds: -190 },
-  { team: "TB",  marketTotal: 8.5,  v18Wins:  8.30, v18Edge: -0.20, v15dEdge: -0.27, v16Edge: -0.23, avgEdge: -0.23, consensus: "Split / No bet", overOdds:  110, underOdds: -130 },
-  { team: "TEN", marketTotal: 6.5,  v18Wins:  6.15, v18Edge: -0.35, v15dEdge:  0.28, v16Edge: -0.70, avgEdge: -0.26, consensus: "Split / No bet", overOdds: -105, underOdds: -115 },
-  { team: "DET", marketTotal: 10.5, v18Wins: 10.19, v18Edge: -0.31, v15dEdge: -0.45, v16Edge: -0.07, avgEdge: -0.28, consensus: "Split / No bet", overOdds: -130, underOdds:  110 },
-  { team: "NYJ", marketTotal: 5.5,  v18Wins:  5.18, v18Edge: -0.32, v15dEdge: -0.06, v16Edge: -0.72, avgEdge: -0.37, consensus: "Split / No bet", overOdds: -110, underOdds: -110, dynasty: "negative" },
-  { team: "BUF", marketTotal: 10.5, v18Wins: 10.10, v18Edge: -0.40, v15dEdge: -0.63, v16Edge: -0.19, avgEdge: -0.41, consensus: "Split / No bet", overOdds: -145, underOdds:  120, dynasty: "positive" },
-  { team: "LAR", marketTotal: 11.5, v18Wins: 10.80, v18Edge: -0.70, v15dEdge: -0.72, v16Edge: -0.40, avgEdge: -0.61, consensus: "Split / No bet", overOdds: -140, underOdds:  115 },
-  { team: "KC",  marketTotal: 10.5, v18Wins:  9.59, v18Edge: -0.91, v15dEdge: -1.18, v16Edge: -0.72, avgEdge: -0.94, consensus: "2-model Under",  overOdds:  120, underOdds: -145, dynasty: "positive" },
-  { team: "CIN", marketTotal: 9.5,  v18Wins:  8.41, v18Edge: -1.09, v15dEdge: -1.21, v16Edge: -1.06, avgEdge: -1.12, consensus: "2-Strong Under", overOdds: -155, underOdds:  130 },
-  { team: "PHI", marketTotal: 10.5, v18Wins:  9.27, v18Edge: -1.23, v15dEdge: -1.36, v16Edge: -1.07, avgEdge: -1.22, consensus: "2-Strong Under", overOdds:  120, underOdds: -145 },
-  { team: "CHI", marketTotal: 9.5,  v18Wins:  8.30, v18Edge: -1.20, v15dEdge: -1.27, v16Edge: -1.23, avgEdge: -1.23, consensus: "2-Strong Under", overOdds:  105, underOdds: -125 },
-  { team: "SF",  marketTotal: 10.5, v18Wins:  9.37, v18Edge: -1.13, v15dEdge: -1.79, v16Edge: -0.99, avgEdge: -1.30, consensus: "2-Strong Under", overOdds:  105, underOdds: -125 },
-  { team: "DAL", marketTotal: 9.5,  v18Wins:  8.05, v18Edge: -1.45, v15dEdge: -1.49, v16Edge: -1.50, avgEdge: -1.48, consensus: "2-Strong Under", overOdds:  105, underOdds: -125 },
+  // Sorted by avgEdge desc. v18Wins = WARPS v2.3 projection. Lines: BetMGM, 2026-07-05.
+  { team: "IND", marketTotal: 7.5,  v18Wins:  9.56, v18Edge:  2.06, v15dEdge:  1.44, v16Edge:  1.71, avgEdge:  1.74, consensus: "3-model Over",   overOdds: -125, underOdds:  105 },
+  { team: "ARI", marketTotal: 4.5,  v18Wins:  6.68, v18Edge:  2.18, v15dEdge:  1.92, v16Edge:  1.02, avgEdge:  1.71, consensus: "3-model Over",   overOdds:  150, underOdds: -185 },
+  { team: "MIA", marketTotal: 4.5,  v18Wins:  6.76, v18Edge:  2.26, v15dEdge:  1.53, v16Edge:  0.99, avgEdge:  1.59, consensus: "3-model Over",   overOdds:  110, underOdds: -130 },
+  { team: "NE",  marketTotal: 9.5,  v18Wins: 10.04, v18Edge:  0.54, v15dEdge:  1.61, v16Edge:  2.34, avgEdge:  1.50, consensus: "3-model Over",   overOdds: -145, underOdds:  120 },
+  { team: "JAX", marketTotal: 9.5,  v18Wins: 10.47, v18Edge:  0.97, v15dEdge:  0.39, v16Edge:  1.19, avgEdge:  0.85, consensus: "2-model Over",   overOdds:  120, underOdds: -145 },
+  { team: "NO",  marketTotal: 7.5,  v18Wins:  7.51, v18Edge:  0.01, v15dEdge:  1.26, v16Edge:  0.75, avgEdge:  0.67, consensus: "2-model Over",   overOdds: -125, underOdds:  105 },
+  { team: "HOU", marketTotal: 9.5,  v18Wins: 10.80, v18Edge:  1.30, v15dEdge: -0.11, v16Edge:  0.75, avgEdge:  0.65, consensus: "2-model Over",   overOdds: -125, underOdds:  105 },
+  { team: "ATL", marketTotal: 7.5,  v18Wins:  7.99, v18Edge:  0.49, v15dEdge:  0.49, v16Edge:  0.06, avgEdge:  0.35, consensus: "Split / No bet", overOdds:  115, underOdds: -140 },
+  { team: "MIN", marketTotal: 8.5,  v18Wins:  9.03, v18Edge:  0.53, v15dEdge:  0.01, v16Edge:  0.27, avgEdge:  0.27, consensus: "Split / No bet", overOdds: -110, underOdds: -110 },
+  { team: "SEA", marketTotal: 10.5, v18Wins: 11.44, v18Edge:  0.94, v15dEdge: -0.56, v16Edge:  0.32, avgEdge:  0.23, consensus: "Split / No bet", overOdds: -125, underOdds:  105 },
+  { team: "WAS", marketTotal: 7.5,  v18Wins:  6.71, v18Edge: -0.79, v15dEdge:  0.94, v16Edge:  0.38, avgEdge:  0.18, consensus: "Split / No bet", overOdds: -130, underOdds:  110 },
+  { team: "PIT", marketTotal: 8.5,  v18Wins:  8.88, v18Edge:  0.38, v15dEdge:  0.02, v16Edge:  0.12, avgEdge:  0.17, consensus: "Split / No bet", overOdds:  115, underOdds: -140 },
+  { team: "LV",  marketTotal: 5.5,  v18Wins:  5.24, v18Edge: -0.26, v15dEdge:  0.99, v16Edge: -0.24, avgEdge:  0.16, consensus: "Split / No bet", overOdds: -155, underOdds:  130 },
+  { team: "NYG", marketTotal: 7.5,  v18Wins:  7.53, v18Edge:  0.03, v15dEdge:  0.12, v16Edge: -0.08, avgEdge:  0.02, consensus: "Split / No bet", overOdds: -110, underOdds: -110 },
+  { team: "CLE", marketTotal: 6.5,  v18Wins:  6.76, v18Edge:  0.26, v15dEdge:  0.18, v16Edge: -0.53, avgEdge: -0.03, consensus: "Split / No bet", overOdds:  155, underOdds: -190 },
+  { team: "DEN", marketTotal: 9.5,  v18Wins:  9.52, v18Edge:  0.02, v15dEdge: -0.31, v16Edge:  0.05, avgEdge: -0.08, consensus: "Split / No bet", overOdds: -125, underOdds:  105 },
+  { team: "CAR", marketTotal: 7.5,  v18Wins:  7.02, v18Edge: -0.48, v15dEdge:  0.34, v16Edge: -0.20, avgEdge: -0.11, consensus: "Split / No bet", overOdds:  110, underOdds: -130, dynasty: "negative" },
+  { team: "TB",  marketTotal: 8.5,  v18Wins:  8.56, v18Edge:  0.06, v15dEdge: -0.27, v16Edge: -0.23, avgEdge: -0.15, consensus: "Split / No bet", overOdds:  110, underOdds: -130 },
+  { team: "DET", marketTotal: 10.5, v18Wins: 10.45, v18Edge: -0.05, v15dEdge: -0.45, v16Edge: -0.07, avgEdge: -0.19, consensus: "Split / No bet", overOdds: -130, underOdds:  110 },
+  { team: "TEN", marketTotal: 6.5,  v18Wins:  5.97, v18Edge: -0.53, v15dEdge:  0.28, v16Edge: -0.70, avgEdge: -0.32, consensus: "Split / No bet", overOdds: -105, underOdds: -115 },
+  { team: "BUF", marketTotal: 10.5, v18Wins: 10.22, v18Edge: -0.28, v15dEdge: -0.63, v16Edge: -0.19, avgEdge: -0.37, consensus: "Split / No bet", overOdds: -145, underOdds:  120, dynasty: "positive" },
+  { team: "NYJ", marketTotal: 5.5,  v18Wins:  4.93, v18Edge: -0.57, v15dEdge: -0.06, v16Edge: -0.72, avgEdge: -0.45, consensus: "Split / No bet", overOdds: -110, underOdds: -110, dynasty: "negative" },
+  { team: "LAR", marketTotal: 11.5, v18Wins: 11.04, v18Edge: -0.46, v15dEdge: -0.72, v16Edge: -0.40, avgEdge: -0.53, consensus: "2-model Under",  overOdds: -140, underOdds:  115 },
+  { team: "KC",  marketTotal: 10.5, v18Wins:  9.32, v18Edge: -1.18, v15dEdge: -1.18, v16Edge: -0.72, avgEdge: -1.03, consensus: "2-Strong Under", overOdds:  120, underOdds: -145, dynasty: "positive" },
+  { team: "PHI", marketTotal: 10.5, v18Wins:  9.82, v18Edge: -0.68, v15dEdge: -1.36, v16Edge: -1.07, avgEdge: -1.04, consensus: "2-Strong Under", overOdds:  120, underOdds: -145 },
+  { team: "CHI", marketTotal: 9.5,  v18Wins:  8.44, v18Edge: -1.06, v15dEdge: -1.27, v16Edge: -1.23, avgEdge: -1.19, consensus: "2-Strong Under", overOdds:  105, underOdds: -125 },
+  { team: "SF",  marketTotal: 10.5, v18Wins:  9.64, v18Edge: -0.86, v15dEdge: -1.79, v16Edge: -0.99, avgEdge: -1.21, consensus: "2-Strong Under", overOdds:  105, underOdds: -125 },
+  { team: "CIN", marketTotal: 9.5,  v18Wins:  7.74, v18Edge: -1.76, v15dEdge: -1.21, v16Edge: -1.06, avgEdge: -1.34, consensus: "2-Strong Under", overOdds: -155, underOdds:  130 },
   { team: "GB",  marketTotal: 10.5, v18Wins:  8.87, v18Edge: -1.63, v15dEdge: -1.41, v16Edge: -1.55, avgEdge: -1.53, consensus: "3-model Under",  overOdds:  145, underOdds: -175 },
-  { team: "LAC", marketTotal: 10.5, v18Wins:  8.63, v18Edge: -1.87, v15dEdge: -1.69, v16Edge: -1.85, avgEdge: -1.80, consensus: "3-model Under",  overOdds:  120, underOdds: -145 },
-  { team: "BAL", marketTotal: 11.5, v18Wins:  9.67, v18Edge: -1.83, v15dEdge: -2.02, v16Edge: -1.63, avgEdge: -1.83, consensus: "3-model Under",  overOdds:  118, underOdds: -140 },
+  { team: "DAL", marketTotal: 9.5,  v18Wins:  7.09, v18Edge: -2.41, v15dEdge: -1.49, v16Edge: -1.50, avgEdge: -1.80, consensus: "3-model Under",  overOdds:  105, underOdds: -125 },
+  { team: "LAC", marketTotal: 10.5, v18Wins:  8.45, v18Edge: -2.05, v15dEdge: -1.69, v16Edge: -1.85, avgEdge: -1.86, consensus: "3-model Under",  overOdds:  120, underOdds: -145 },
+  { team: "BAL", marketTotal: 11.5, v18Wins:  9.53, v18Edge: -1.97, v15dEdge: -2.02, v16Edge: -1.63, avgEdge: -1.87, consensus: "3-model Under",  overOdds:  118, underOdds: -140 },
 ];
 
 // Profitability simulation against Vegas win totals (nflverse, 2003-2020)
