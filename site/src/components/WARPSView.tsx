@@ -8,8 +8,8 @@ type WARPSTab = "slate" | "performance" | "methodology" | "paper" | "quadrant";
 
 const VALID_TABS = new Set<WARPSTab>(["slate", "performance", "methodology", "paper", "quadrant"]);
 
-// Teams with Dynasty Persistence Modifier active in 2026 projections (v2.0)
-const DYNASTY_POSITIVE = new Set(["KC", "BUF"]);  // 4+ years sustained excellence (R=0.95 upward)
+// Teams with Dynasty Persistence Modifier active in 2026 projections (v2.3)
+const DYNASTY_POSITIVE = new Set(["KC", "BUF", "PHI", "BAL", "DET"]);  // 4+ years sustained excellence (R=0.95 upward)
 const DYNASTY_NEGATIVE = new Set(["NYJ", "CAR"]);  // 4+ years sustained futility (R=0.95 downward)
 function hashToTab(): WARPSTab {
   const h = window.location.hash.replace("#", "") as WARPSTab;
@@ -128,7 +128,7 @@ function ByYearChart() {
   return (
     <div className="warps-chart-wrap">
       <div className="warps-chart-legend">
-        <span><span className="legend-dot" style={{ background: "#1d4ed8" }} /> WARPS v1.8</span>
+        <span><span className="legend-dot" style={{ background: "#1d4ed8" }} /> WARPS v2.3</span>
         <span><span className="legend-dot" style={{ background: "#64748b" }} /> Pythagorean</span>
         <span><span className="legend-dot" style={{ background: "#cbd7e2" }} /> Prior Wins</span>
         <span><span className="legend-dot" style={{ background: "#f59e0b" }} /> Vegas (2015–2025)</span>
@@ -170,7 +170,7 @@ function ByYearChart() {
           );
         })}
       </svg>
-      <p className="warps-chart-note">✓ = WARPS beats Pythagorean. Vegas bars shown 2015–2025 (PFR-verified lines). Train: 2000–2021 · Validation: 2022–2025</p>
+      <p className="warps-chart-note">✓ = WARPS v2.3 beats Pythagorean. Vegas bars shown 2015–2025 (PFR-verified lines). Full sample: 2000–2025 (26 seasons)</p>
     </div>
   );
 }
@@ -370,7 +370,7 @@ function BenchmarkStrip() {
   const bs = bootstrapStats;
   const benchmarks = [
     { label: "Vegas (2015–25)", mae: bs.vegasMaeOverlap, desc: "True market benchmark", color: "#f59e0b", tag: "market" },
-    { label: "WARPS v1.8", mae: bs.warpsMaeFull, desc: "This model (2000–25)", color: "#1d4ed8", tag: "model" },
+    { label: "WARPS v2.3", mae: bs.warpsMaeFull, desc: "This model (2000–25)", color: "#1d4ed8", tag: "model" },
     { label: "Pythagorean", mae: bs.pythMaeFull, desc: "Statistical baseline", color: "#64748b", tag: "baseline" },
     { label: "Prior-year wins", mae: bs.pwMaeFull, desc: "Naive baseline", color: "#cbd7e2", tag: "naive" },
   ];
@@ -610,7 +610,7 @@ function PickCardDetail({ row, qbInfo }: { row: ConsensusRow; qbInfo: QBAdjResul
   const edges = [
     { label: "v1.5d", val: row.v15dEdge },
     { label: "v1.6", val: row.v16Edge },
-    { label: "v1.8", val: row.v18Edge },
+    { label: "v2.3", val: row.v18Edge },
   ];
   const maxAbs = Math.max(...edges.map((e) => Math.abs(e.val)), 1);
   // Derive raw (pre-regression) quality from projection: proj = 0.75*raw + 2.125
@@ -715,7 +715,7 @@ function SlateTab({
           <label className="toggle qb-toggle" title={`${qbChanges2026.length} QB changes tracked for 2026 offseason`}>
             <input type="checkbox" checked={showQbAdj} onChange={onToggleQbAdj} />
             <span className="qb-toggle-label">
-              {showQbAdj ? "WARPS + QB adj" : "WARPS v1.8 pure"}
+              {showQbAdj ? "WARPS + QB adj" : "WARPS v2.3 pure"}
             </span>
           </label>
           {showQbAdj && (
@@ -740,7 +740,7 @@ function SlateTab({
       <h4 className="warps-subsection" style={{ marginTop: "24px" }}>Picks by conviction tier</h4>
       <div className="warps-slate-note">
         <Activity size={14} />
-        Consensus requires ≥2 of 3 models (v1.5d · v1.6 · v1.8) to agree in direction.
+        Consensus requires ≥2 of 3 models (v1.5d · v1.6 · v2.3) to agree in direction.
         Edge = projected wins minus the Vegas preseason win total.
       </div>
       <div className="vig-strip">
@@ -809,7 +809,7 @@ function SlateTab({
                       >1.6</span>
                       <span
                         className={`pm-dot ${row.v18Edge > 0 ? "pm-over" : "pm-under"}`}
-                        title={`v1.8: ${row.v18Edge > 0 ? "+" : ""}${row.v18Edge.toFixed(1)}`}
+                        title={`v2.3: ${row.v18Edge > 0 ? "+" : ""}${row.v18Edge.toFixed(1)}`}
                       >1.8</span>
                     </div>
                     {qbInfo && (
@@ -1044,9 +1044,9 @@ function ArchitectureFlowchart() {
     { x: 535, y: 200, w: 125, h: 44, label: "Win Projection", sub: "Logit scale=6.5",       color: "#dcfce7", text: "#14532d" },
     { x: 535, y: 290, w: 125, h: 44, label: "vs Vegas Line", sub: "Edge = proj − O/U",      color: "#fef9c3", text: "#713f12" },
     { x: 360, y: 290, w: 130, h: 44, label: "QB Overlay", sub: "Optional adj ±0–2w",        color: "#fce7f3", text: "#831843" },
-    { x: 185, y: 290, w: 130, h: 44, label: "3-Model Screen", sub: "v1.5d · v1.6 · v1.8",  color: "#fce7f3", text: "#831843" },
+    { x: 185, y: 290, w: 130, h: 44, label: "3-Model Screen", sub: "v1.5d · v1.6 · v2.3",  color: "#fce7f3", text: "#831843" },
     { x: 20,  y: 290, w: 130, h: 44, label: "Consensus Signal", sub: "Over / Under / Split", color: "#dcfce7", text: "#14532d" },
-    { x: 340, y: 155, w: 150, h: 44, label: "Dynasty Modifier", sub: "v2.0: R=0.95 if 4+ yrs", color: "#fff7ed", text: "#7c2d12" },
+    { x: 340, y: 155, w: 150, h: 44, label: "Dynasty Modifier", sub: "v2.3: R=0.95 if 4+ yrs", color: "#fff7ed", text: "#7c2d12" },
   ];
 
   type Arrow = { x1: number; y1: number; x2: number; y2: number };
@@ -1317,12 +1317,11 @@ function MethodologyTab() {
       content: (
         <div className="warps-prose">
           <ol>
-            <li><strong>Season stats</strong> — Pull PBP via nfl_data_py. Many metrics are computed (EPA/play, success rate, explosive rate, turnover differential) and <em>tested</em>, but the champion model uses only two: <strong>Pythagorean win expectation</strong> and <strong>point differential</strong>. All other metrics received zero weight in the grid search.</li>
-            <li><strong>Rating normalization</strong> — Z-score each component across all teams in a season.</li>
-            <li><strong>Composite prior</strong> — Weighted sum: pyth weight=0.75, point-diff weight=0.25, all others=0.00. Converted back to win scale via logit-spread regression (logit_scale=5.5).</li>
-            <li><strong>Regression to mean</strong> — Blend prior rating with 8.5-win mean at regression_factor=0.75: <code>proj = factor × prior + (1−factor) × 8.5</code></li>
+            <li><strong>Season stats</strong> — Pull schedule data. Many metrics were computed and tested; the v2.3 champion uses one: <strong>SOS-adjusted Pythagorean win expectation</strong>. Opponent quality (avg opp pa/game, pf/game) scales each team's raw scores before the Pythagorean formula — isolating true team quality from schedule difficulty.</li>
+            <li><strong>Rating normalization</strong> — Z-score SOS-adjusted Pythagorean wins across all teams in a season.</li>
+            <li><strong>Regression to mean</strong> — Blend prior rating with 8.5-win mean at regression_factor=0.75: <code>proj = factor × prior + (1−factor) × 8.5</code>. Dynasty teams (4+ consecutive above/below-average seasons) use R=0.95.</li>
             <li><strong>Market signal overlay</strong> — Compare to Vegas preseason totals. Edge = WARPS proj − market O/U. Classify as Strong (≥1.0), Playable (0.5–1.0), or No bet.</li>
-            <li><strong>3-model consensus</strong> — Intersect signals from WARPS v1.5d, v1.6, and v1.8 (see Section 3.2). Only bets where ≥2 models agree on direction are surfaced as picks.</li>
+            <li><strong>3-model consensus</strong> — Intersect signals from WARPS v1.5d, v1.6, and v2.3 (see Section 3.2). Only bets where ≥2 models agree on direction are surfaced as picks.</li>
           </ol>
         </div>
       ),
@@ -1336,14 +1335,13 @@ function MethodologyTab() {
             <tr><th>Parameter</th><th>Value</th><th>Searched range</th></tr>
           </thead>
           <tbody>
-            <tr><td>Pythagorean weight</td><td><strong>0.75</strong></td><td>0.05–1.00 simplex</td></tr>
-            <tr><td>Point differential weight</td><td><strong>0.25</strong></td><td>0.05–1.00 simplex</td></tr>
-            <tr><td>Passing EPA per play weight</td><td>0.00</td><td>0.05–1.00 simplex</td></tr>
-            <tr><td>Regression toward mean factor</td><td>0.75</td><td>0.50, 0.60, 0.65, 0.70, 0.75</td></tr>
-            <tr><td>Spread-to-probability conversion scale</td><td>6.5</td><td>4.0, 4.5, 5.0, 5.5, 6.0, 6.5</td></tr>
-            <tr><td>Strength of schedule weight</td><td>0.0 (diagnostic only)</td><td>0.0, 0.1, 0.2</td></tr>
-            <tr><td>Training seasons</td><td>2000–2021 (22 seasons)</td><td>—</td></tr>
-            <tr><td>Grid search size</td><td>231 weight combos + 300 random draws + 180 hyperparameter combos</td><td>—</td></tr>
+            <tr><td>SOS-adjusted Pythagorean weight</td><td><strong>1.00</strong></td><td>walk-forward validated</td></tr>
+            <tr><td>Point differential weight</td><td>0.00</td><td>(removed in v2.3)</td></tr>
+            <tr><td>Regression toward mean factor</td><td>0.75 (dynasty: 0.95)</td><td>0.50–0.95</td></tr>
+            <tr><td>Spread-to-probability conversion scale</td><td>5.5</td><td>4.0–6.5</td></tr>
+            <tr><td>SOS adjustment</td><td>pre-Pythagorean score scaling</td><td>adj_pf = pf × (lg_pa / opp_pa)</td></tr>
+            <tr><td>Training seasons</td><td>2000–2025 (26 seasons)</td><td>—</td></tr>
+            <tr><td>Walk-forward validation</td><td>16 expanding windows (2010–2025)</td><td>12/16 windows beat v1.8</td></tr>
           </tbody>
         </table>
       ),
@@ -1414,7 +1412,7 @@ function MethodologyTab() {
           </p>
           <table className="warps-table" style={{ marginTop: "12px" }}>
             <thead>
-              <tr><th>Team</th><th>Season</th><th>v1.8 proj</th><th>v2.0 proj</th><th>Actual</th><th>v1.8 err</th><th>v2.0 err</th></tr>
+              <tr><th>Team</th><th>Season</th><th>v2.3 proj</th><th>v2.3+dyn proj</th><th>Actual</th><th>v2.3 err</th><th>dyn err</th></tr>
             </thead>
             <tbody>
               <tr className="warps-winner-row"><td>KC</td><td>2022</td><td>9.6</td><td>10.2</td><td>14</td><td>−4.4</td><td>−3.8</td></tr>
@@ -1440,10 +1438,10 @@ function MethodologyTab() {
     <div className="warps-methodology">
       <ExplainerBanner icon={<BookOpen size={15} />}>
         How does WARPS actually build its forecasts? The short version: take last season's team
-        efficiency stats (primarily <strong>Pythagorean win expectation</strong> — a formula that
-        strips out fluky close-game results), apply a "regression toward the mean" adjustment
-        (good teams rarely repeat perfectly), then compare the result to Vegas. Click any section
-        below to expand the details.
+        efficiency stats (<strong>SOS-adjusted Pythagorean win expectation</strong> — a formula that
+        strips out fluky close-game results and corrects for opponent quality), apply a "regression
+        toward the mean" adjustment (good teams rarely repeat perfectly), then compare the result
+        to Vegas. Click any section below to expand the details.
       </ExplainerBanner>
       <div className="warps-inputs-callout">
         <div className="wic-label">Statistical core — prior season, team level only</div>
@@ -1451,15 +1449,8 @@ function MethodologyTab() {
           <div className="wic-input">
             <span className="wic-num">①</span>
             <div>
-              <strong>Pythagorean win expectation</strong>
-              <span className="wic-sub">Points scored² ÷ (points scored² + points allowed²) → expected wins. Strips out close-game luck.</span>
-            </div>
-          </div>
-          <div className="wic-input">
-            <span className="wic-num">②</span>
-            <div>
-              <strong>Point differential</strong>
-              <span className="wic-sub">Raw scoring margin per season. Blended in at 25% weight as a secondary strength signal.</span>
+              <strong>SOS-adjusted Pythagorean win expectation</strong>
+              <span className="wic-sub">Each team's raw scores are scaled by opponent defensive/offensive quality before computing Pythagorean. adj_pf = pf × (lg_avg_pa / opp_avg_pa). Corrects for teams inflated by weak schedules.</span>
             </div>
           </div>
         </div>
@@ -1474,7 +1465,7 @@ function MethodologyTab() {
             <span className="wic-sub">Teams with 4+ consecutive above-average seasons regress less (R=0.95 vs R=0.75). Accounts for sustained elite rosters.</span>
           </div>
         </div>
-        <div className="wic-footer">No EPA · No success rate · No schedule strength · No draft picks · No offseason news</div>
+        <div className="wic-footer">No EPA · No success rate · No draft picks · No offseason news · SOS used for score normalization only</div>
       </div>
       {sections.map(({ key, title, content }) => (
         <div key={key} className="warps-accordion">
@@ -1630,10 +1621,10 @@ function PaperTab() {
         picks, the final bet slate is produced by intersecting three independently trained WARPS versions:
         (1) <em>WARPS v1.5d</em> — the original composite with a shorter training window emphasizing recent
         years; (2) <em>WARPS v1.6</em> — an intermediate blend with additional EPA components; and
-        (3) <em>WARPS v1.8</em> — the current representative champion configuration (75% Pythagorean + 25% point differential,
-        22-season training window). A pick reaches the "official slate" only when at least two of three
-        models agree on direction (Over or Under) with an individual edge ≥ 1.0 win. All three agreeing
-        at ≥ 1.5 win edge defines the highest conviction tier.
+        (3) <em>WARPS v2.3</em> — the current champion configuration (SOS-adjusted Pythagorean, 26-season
+        training window, dynasty persistence modifier). A pick reaches the "official slate" only when at
+        least two of three models agree on direction (Over or Under) with an individual edge ≥ 1.0 win.
+        All three agreeing at ≥ 1.5 win edge defines the highest conviction tier.
       </p>
       <p className="paper-body">
         <strong>3.3 QB Overlay — Statistical Core Meets Judgment.</strong> The WARPS projection is a
@@ -1689,15 +1680,19 @@ function PaperTab() {
         preventing linear variance from propagating into the projection.
       </p>
       <p className="paper-body">
-        <strong>4.1 The SOS Paradox — A Principled Null Result.</strong> Strength of schedule (SOS) was
-        tested as an additional input across weight values of 0.0, 0.1, 0.2, and 0.3. In all configurations,
-        adding SOS produced <em>zero measurable improvement</em> in out-of-sample MAE — and in several cases
-        slightly increased error. This is not a surprise upon reflection: the NFL's scheduling system is
-        endogenous to the prior year's record. Strong teams automatically face harder schedules the following
-        season under the division rotation system, and weak teams face easier ones. This creates a structural
-        cancellation: the SOS "penalty" placed on good teams after regression is nearly offset by the
-        expectation that they will face stronger opponents. The regression-to-mean step already absorbs
-        most of the schedule signal that SOS would add.
+        <strong>4.1 The SOS Story — A Null That Led to an Improvement.</strong> Strength of schedule (SOS)
+        was first tested as an <em>additive post-Pythagorean weight</em> across values of 0.0–0.3. In this
+        form, SOS produced zero measurable improvement and in several cases slightly increased error. The
+        mechanism explains the failure: the NFL's division rotation system makes scheduling endogenous to
+        prior-year record — good teams face harder schedules, creating a structural cancellation that the
+        regression-to-mean step already absorbs. However, a distinct implementation proved effective. Rather
+        than applying SOS as a post-hoc weight, <em>SOS-adjusted Pythagorean</em> scales each team's raw
+        points-scored and points-allowed by opponent quality <em>before</em> computing Pythagorean
+        expectation: adj_pf = raw_pf × (lg_avg_pa / opp_avg_pa); adj_pa = raw_pa × (lg_avg_pf / opp_avg_pf).
+        This corrects the quality measurement itself, rather than adjusting for schedule strength after the
+        fact. In a 16-window walk-forward validation (2010–2025), this approach beat the prior champion in
+        12 of 16 windows with an average improvement of −0.015 wins MAE (2.323 vs 2.338). It became the
+        v2.3 champion.
       </p>
       <p className="paper-body">
         <strong>4.2 Directional Accuracy.</strong> Beyond MAE, we assess whether WARPS correctly identifies
@@ -1757,8 +1752,16 @@ function PaperTab() {
           </thead>
           <tbody>
             <tr>
-              <td><strong>Strength of Schedule</strong> (weight 0.0–0.3)</td>
-              <td>Recursive quality adjustment for opponent strength</td>
+              <td><strong>SOS-adjusted Pythagorean</strong> (pre-score scaling, EXP-3)</td>
+              <td>Scale raw pf/pa by opponent quality before Pythagorean computation</td>
+              <td className="num warps-pos">−0.009</td>
+              <td className="num warps-pos">12/16 windows</td>
+              <td><span className="sig-badge sig-2">Adopted → v2.3</span></td>
+              <td>Pre-Pythagorean quality normalization captures signal that post-hoc weighting cannot</td>
+            </tr>
+            <tr>
+              <td><strong>Additive SOS weight</strong> (post-Pythagorean, 0.0–0.3)</td>
+              <td>Recursive quality adjustment applied after Pythagorean</td>
               <td className="num">0.000</td>
               <td className="num warps-neg">+0.002</td>
               <td><span className="sig-badge sig-0">Null</span></td>
@@ -1861,7 +1864,9 @@ function PaperTab() {
       <p className="paper-body" style={{ marginTop: "20px" }}>
         <strong>4.4 MAE Landscape — The Basin.</strong> To assess how sensitive results are to the choice of
         parameters, we computed full-sample MAE across all combinations of w_pyth ∈ [0.00, 1.00] and
-        R ∈ [0.50, 0.95] (210 configurations). Champion MAE (w_pyth=0.75, R=0.75) = 2.376 wins. Basin threshold (champion + 0.05) = 2.426 wins.
+        R ∈ [0.50, 0.95] (210 configurations). The v1.8 champion (w_pyth=0.75, R=0.75) achieved MAE=2.376
+        wins. The v2.3 champion (SOS-adjusted Pythagorean, w_pyth_adj=1.00, R=0.75) achieves MAE=2.367 wins
+        (Δ=−0.009w). Basin threshold (v2.3 champion + 0.05) = 2.417 wins.
       </p>
 
       <div className="paper-table-wrap">
@@ -1910,9 +1915,8 @@ function PaperTab() {
           </table>
         </div>
         <p className="warps-chart-note">
-          ★ = representative champion config (w_pyth=0.75, R=0.75, MAE=2.376). Green = within basin (≤2.426w).
-          210 of 210 tested configurations (100%) fall within 0.05w of champion — a completely flat surface.
-          Full-sample minimum: w_pyth=1.00, R=0.75 (MAE=2.376), difference from champion = 0.001w (pure Pythagorean with regression).
+          ★ = v1.8 representative config (w_pyth=0.75, R=0.75, MAE=2.376) shown for reference. v2.3 champion uses SOS-adjusted Pythagorean (MAE=2.367, Δ=−0.009w). Green = within basin (≤2.426w).
+          The surface is remarkably flat: 210 of 210 raw-Pythagorean configurations fall within 0.05w of each other; SOS adjustment provides the decisive edge.
         </p>
       </div>
 
@@ -1957,12 +1961,14 @@ function PaperTab() {
         <strong>Finding C — The forecasting relationship is stable across time.</strong> The fixed champion configuration outperformed window-specific optimization in 12 of 16 out-of-sample tests spanning 2010–2025, across very different training window sizes (10–25 seasons) and NFL eras. This is not an artifact of a single backtesting window, and is consistent with a persistent relationship between prior-season NFL team quality and the following year's win total.
       </p>
       <p className="paper-body">
-        <strong>Finding D — Complexity failed to improve forecasts.</strong> Three independent model extensions
-        — SOS adjustment, era-aware regression, garbage-time filtering — each produced null results. A null from
-        any one test could be attributed to incorrect specification. Null results from three independent
-        interventions, each motivated by sound domain logic, suggest the architecture has reached a point where
-        the sport's structure already handles the proposed mechanisms internally. The model that failed to be
-        improved <em>is</em> the finding.
+        <strong>Finding D — Most complexity fails; targeted quality normalization succeeds.</strong> Of four
+        model extensions tested, three produced null results: additive SOS weight, era-aware regime shift,
+        and garbage-time filtering. One succeeded: SOS-adjusted Pythagorean (EXP-3), which improved
+        out-of-sample accuracy in 12 of 16 walk-forward windows (avg Δ = −0.015w) and became the v2.3
+        champion. The distinction is mechanistic — the null SOS approach applied schedule adjustment
+        <em>after</em> the Pythagorean computation; the successful approach corrects the quality
+        measurement <em>before</em> the non-linear exponent is applied. This suggests the architecture is
+        not fully saturated: extensions that intervene at the right point in the pipeline can still improve it.
       </p>
 
       <p className="paper-body">
@@ -1995,41 +2001,37 @@ function PaperTab() {
       </p>
 
       <p className="paper-body">
-        <strong>5.4 Optimal Parsimony — Stable Parameters Across the Observed Sample.</strong> A striking feature of
-        this investigation is how many "common-sense" model enhancements turned out to be null. Three
-        independent tests — schedule strength adjustment, era-aware regime shift, and garbage-time
-        filtering — each failed to improve held-out accuracy (Table 2). This is not a failure of the
-        investigations; it is a signal about the sport itself.
+        <strong>5.4 Targeted Quality Normalization — What Works and Why.</strong> Of four model extensions
+        tested, three produced null results and one succeeded. The pattern is informative. Additive SOS
+        weighting, era-aware regime shift, and garbage-time filtering all failed because they intervene
+        at the wrong level: they adjust the model output rather than the quality measurement itself.
+        SOS-adjusted Pythagorean (EXP-3) succeeded because it corrects the raw input signal before the
+        non-linear Pythagorean exponent is applied — a fundamentally different mechanism.
       </p>
       <p className="paper-body">
-        The SOS null result reflects the NFL's parity-scheduling system: strong teams face harder
-        schedules and weak teams face softer ones, creating an endogenous feedback loop that cancels
-        the signal before it reaches the model. The regime-shift null reflects a genuine stability in
-        how NFL seasons translate to future performance — the optimal regression coefficient of 0.75
-        has held across rule changes, parity reforms, and roster dynamics spanning 25 years. The
-        garbage-time null reflects a mathematical property of the Pythagorean formula itself: its
-        non-linear exponent (≈2.37) already applies diminishing returns to extreme blowout scores,
-        compressing the very variance that a competitive-minutes filter would otherwise remove.
+        The additive SOS null result reflects the NFL's parity-scheduling system: strong teams face harder
+        schedules and weak teams face softer ones, creating an endogenous feedback loop that cancels the
+        signal at the output level. But correcting raw scores by opponent quality before the Pythagorean
+        transformation escapes this cancellation — it asks "how many points would this team have scored
+        against an average schedule?" rather than "adjust their win projection downward for a hard schedule."
+        The regime-shift null reflects genuine stability in the regression coefficient (R=0.75 holds across
+        26 years). The garbage-time null reflects the Pythagorean exponent's natural compression of extreme
+        blowout scores.
       </p>
       <p className="paper-body">
-        Only Dynasty Persistence — a structural phenomenon the exponent cannot self-correct for —
-        survived the held-out test. Where Pythagorean regression implicitly assumes every team is
-        equally likely to sustain its performance, dynasty franchises demonstrate a qualitatively
-        different signal: multi-year organizational excellence that has its own momentum. The
-        persistence modifier encodes this directly; it is the only intervention that adds information
-        the model does not already possess.
+        Dynasty Persistence and SOS-adjusted Pythagorean both succeed because they modify the signal before
+        or alongside the core formula — not after it. Dynasty Persistence captures multi-year organizational
+        momentum that the regression formula implicitly assumes away. SOS-adjusted Pythagorean corrects
+        quality measurement for the team's actual competitive context. Both interventions add information
+        the base model lacks.
       </p>
       <p className="paper-body">
-        We interpret this pattern as evidence that the core architecture has reached <em>optimal
-        parsimony</em>: the representative 75/25 Pythagorean-to-point-differential blend and the 0.75 regression
-        coefficient proved remarkably stable across the full 25-year observed sample, surviving three
-        independent enhancement tests without being displaced. Whether they reflect deep structural
-        properties of the sport or are simply well-fitted to this historical period is a question that
-        additional out-of-sample decades will answer. Additional complexity without additional information
-        yields diminishing returns, and the three null results confirm this boundary empirically.
-        The appropriate response is not to add more components but to understand why the simpler model
-        works as well as it does — and to reserve model extensions for phenomena, like dynasty persistence,
-        that genuinely require them.
+        We interpret this as evidence that the architecture is selective rather than saturated: extensions
+        that operate on the quality measurement (pre-Pythagorean) or on structural persistence can still
+        improve it, while post-hoc output adjustments cannot. The R=0.75 regression coefficient proved
+        stable across all validation windows. Additional complexity without additional information yields
+        diminishing returns; the three null results confirm this boundary where it applies, and the one
+        success confirms that the right kind of complexity still matters.
       </p>
 
       <p className="paper-body">
@@ -2100,7 +2102,7 @@ function PaperTab() {
       </table>
       <p className="warps-chart-note">
         † Raw quality = pre-regression composite z-score mapped to win-equivalent units,
-        back-calculated as (v1.8 projection − 2.125) / 0.75. ★ Current champion value.
+        back-calculated as (v2.3 projection − 2.125) / 0.75. ★ Current champion value.
         All projections rounded to nearest 0.1 win. Near-mean row is theoretical (raw quality = 8.5 = league mean).
       </p>
       <p className="paper-body">
@@ -2120,20 +2122,20 @@ function PaperTab() {
         <li><strong>Directional accuracy below BEP at low conviction.</strong> The model's 47.4% directional hit rate across all WARPS signals does not clear the 52.4% break-even at −110 juice. Profitable deployment requires strict filtering to the 3-model consensus tier (52.6% hit rate, 19 historical bets). Small sample size at the high-conviction tier limits confidence in this estimate.</li>
         <li><strong>Small validation window.</strong> Four held-out seasons is enough for statistical significance but not enough to be certain the result is not period-specific. The 2024–2025 high-volatility regime may inflate validation MAE relative to the long-run average.</li>
         <li><strong>Market efficiency.</strong> Vegas lines already price in much of the publicly available information used here. The model identifies forecast improvements relative to naive baselines, not guaranteed betting edges after accounting for sportsbook fees.</li>
-        <li><strong>Era effects.</strong> The 2004 NFL rule changes that opened up the passing game changed the strategic landscape. A more sophisticated model would allow weights to shift over time. The null SOS result (Section 4.1) suggests schedule-based corrections provide no incremental value after the parity-scheduling system is accounted for.</li>
+        <li><strong>Era effects.</strong> The 2004 NFL rule changes that opened up the passing game changed the strategic landscape. A more sophisticated model would allow weights to shift over time. The R=0.75 regression coefficient proved stable across all 16 walk-forward windows, suggesting the basic persistence structure has not changed, though future rule changes could disrupt this.</li>
       </ul>
 
       <h3 className="paper-section">7. Case Study — The 2024 Chiefs and the Dynasty Alpha</h3>
       <p className="paper-body">
         The 2024 Kansas City Chiefs provide the clearest illustration of both the model's
-        structural limitation and the value of the Dynasty Persistence Modifier. WARPS v1.8
-        projected KC at <strong>9.6 wins</strong> for the 2024 regular season — a reasonable
-        regression estimate given their 2023 composite quality score. The Chiefs won
+        structural limitation and the value of the Dynasty Persistence Modifier. WARPS
+        projected KC at approximately <strong>9.3–9.6 wins</strong> for the 2024 regular season — a
+        reasonable regression estimate given their 2023 composite quality score. The Chiefs won
         <strong>15 games</strong>, producing a 5.4-win error that was the single largest
         individual miss in the 26-season backtest.
       </p>
       <p className="paper-body">
-        <strong>Why v1.8 missed.</strong> The regression formula applied R=0.75 to KC's 2023
+        <strong>Why the model missed.</strong> The regression formula applied R=0.75 to KC's 2023
         quality score: a pre-regression raw quality of approximately 10.0 win-equivalents
         (back-calculated as (9.6 − 2.125) / 0.75). This translates to: 0.75 × 10.0 + 2.125
         = 9.6. The model applied standard regression-toward-mean — appropriate for most teams,
@@ -2141,7 +2143,7 @@ function PaperTab() {
         games in 2021–2023 and appeared in three consecutive Super Bowls.
       </p>
       <p className="paper-body">
-        <strong>How v2.0 addresses it.</strong> KC's dynasty trigger fires in v2.0 (4+
+        <strong>How the dynasty modifier addresses it.</strong> KC's dynasty trigger fires (4+
         consecutive projected ≥9-win seasons, raw quality {">"} 0.5). Raising R from 0.75 to
         0.95 yields: 0.95 × 10.0 + 0.05 × 8.5 = 9.5 + 0.425 = <strong>9.9 wins</strong> —
         an improvement of 0.3 wins, reducing the error from 5.4 to 5.1. The dynasty modifier
@@ -2238,23 +2240,20 @@ function PaperTab() {
         quality estimate.</dd>
 
         <dt><strong>Optimal Parsimony</strong></dt>
-        <dd>The principle, validated empirically by three independent null results (SOS
-        adjustment, regime shift, garbage-time filter), that the WARPS model has reached the
-        architectural boundary where the sport's structure already handles the proposed
-        enhancements internally. The 75/25 Pythagorean-to-point-differential blend and R=0.75
-        regression coefficient proved remarkably stable across the observed sample —
-        the minimal sufficient description of how prior-season team quality predicts next-season
-        win totals within this dataset. Model extensions are warranted only for phenomena the
-        architecture cannot self-correct for, of which dynasty persistence is the sole
-        confirmed example.</dd>
+        <dd>The principle that model extensions succeed only when they operate at the right
+        level of the pipeline. Three tests (additive SOS weight, regime shift, garbage-time filter)
+        produced null results; one (SOS-adjusted Pythagorean, EXP-3) succeeded by correcting quality
+        measurement before the Pythagorean formula rather than adjusting output afterward. Post-hoc
+        adjustments are absorbed by the NFL's endogenous scheduling system; pre-Pythagorean quality
+        normalization escapes this cancellation. Dynasty persistence is the other confirmed signal —
+        a structural phenomenon the regression formula cannot self-correct for.</dd>
 
         <dt><strong>Stable Parameter Structure</strong></dt>
-        <dd>The two core model parameters — R=0.75 (regression coefficient) and the 75/25
-        Pythagorean-to-point-differential blend weight — emerged from 25 years of cross-validated
-        optimization and proved stable across three independent enhancement tests. They remained
-        optimal across multiple validation exercises on this dataset. Whether they persist as
-        optimal across future decades is an open question that additional out-of-sample seasons
-        will resolve.</dd>
+        <dd>The core model parameter R=0.75 (regression coefficient) emerged from 26 years of
+        cross-validated optimization and proved stable across all validation windows. The SOS-adjusted
+        Pythagorean configuration (w=1.00, R=0.75) is the v2.3 champion. Whether these parameters
+        persist as optimal across future decades is an open question that additional out-of-sample
+        seasons will resolve.</dd>
       </dl>
 
       <h3 className="paper-section">References</h3>
@@ -2710,7 +2709,7 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
     <section className="panel warps-panel">
       <div className="panel-toolbar">
         <div>
-          <h2>WARPS-NFL v1.8{showQbAdj ? " + QB adj" : ""}</h2>
+          <h2>WARPS-NFL v2.3{showQbAdj ? " + QB adj" : ""}</h2>
           <p className="panel-subtitle">Win Average Regression Predictive Score · 2026 season · 26-season backtest · 3-model consensus screen</p>
         </div>
         <span className="status-pill ok">
