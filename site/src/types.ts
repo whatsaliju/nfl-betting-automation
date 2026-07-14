@@ -321,6 +321,19 @@ export interface WeeklyBettingCard {
   cards: WeeklyBettingCardRow[];
 }
 
+export interface CurrentContext {
+  season: number;
+  season_type: SeasonType;
+  week: number;
+  week_label: string;
+  stage?: string | null;
+  status: string;
+  mode: "live" | "dry_run" | "planning" | string;
+  has_betting_card: boolean;
+  historical_card_available?: boolean;
+  message?: string;
+}
+
 export interface TeamExpectation {
   team: string;
   conference: string;
@@ -596,6 +609,7 @@ export interface EngineFeed {
   game_count: number;
   team_cell_count: number;
   edge_board_count?: number;
+  current_context?: CurrentContext;
   model_readiness?: {
     available: boolean;
     status: string;

@@ -32,6 +32,7 @@ WEEKLY_BETTING_CARD = HISTORICAL_DIR / "weekly_betting_card.json"
 PRESEASON_DRY_RUN_REPORT = HISTORICAL_DIR / "preseason_dry_run_report.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
+ACTIVE_SEASON = 2026
 PYTHAGOREAN_EXPONENT = 2.37
 VEGAS_WIN_TOTALS_2025 = {
     "ARI": 8.5,
@@ -672,6 +673,75 @@ def weekly_betting_card_payload():
     return payload
 
 
+def season_type_rank(season_type):
+    return {"PRE": 0, "REG": 1, "POST": 2}.get(str(season_type or "").upper(), -1)
+
+
+def current_context_payload(games, card_payload, preseason_payload):
+    cards = card_payload.get("cards") or []
+    active_cards = [
+        row for row in cards
+        if row.get("season") == ACTIVE_SEASON and row.get("season_type") in ("PRE", "REG", "POST")
+    ]
+    active_games = [
+        row for row in games
+        if row.get("season") == ACTIVE_SEASON and row.get("season_type") in ("PRE", "REG", "POST")
+    ]
+
+    candidates = active_cards or active_games
+    if candidates:
+        selected = max(
+            candidates,
+            key=lambda row: (
+                season_type_rank(row.get("season_type")),
+                int(row.get("week") or 0),
+                row.get("latest", {}).get("stage") in ("lock", "final") if isinstance(row.get("latest"), dict) else False,
+            ),
+        )
+        season_type = selected.get("season_type") or "REG"
+        week = selected.get("week") or 1
+        return {
+            "season": ACTIVE_SEASON,
+            "season_type": season_type,
+            "week": week,
+            "week_label": f"{'PRE ' if season_type == 'PRE' else ''}W{week}",
+            "stage": (selected.get("latest") or {}).get("stage") if isinstance(selected.get("latest"), dict) else selected.get("stage"),
+            "status": "LIVE_CARD" if active_cards else "LIVE_GAMES_NO_CARD",
+            "mode": "live",
+            "has_betting_card": bool(active_cards),
+            "message": "Current active engine context from 2026 artifacts.",
+        }
+
+    if preseason_payload.get("available"):
+        season_type = preseason_payload.get("season_type") or "PRE"
+        week = preseason_payload.get("week") or 1
+        return {
+            "season": preseason_payload.get("season") or ACTIVE_SEASON,
+            "season_type": season_type,
+            "week": week,
+            "week_label": f"{'PRE ' if season_type == 'PRE' else ''}W{week}",
+            "stage": "dry_run",
+            "status": "PRESEASON_DRY_RUN_READY",
+            "mode": "dry_run",
+            "has_betting_card": False,
+            "message": "Preseason plumbing dry-run is available; live betting card has not published yet.",
+        }
+
+    historical_cards = bool(cards)
+    return {
+        "season": ACTIVE_SEASON,
+        "season_type": "REG",
+        "week": 1,
+        "week_label": "W1",
+        "stage": "planning",
+        "status": "PLANNING_NO_LIVE_CARD",
+        "mode": "planning",
+        "has_betting_card": False,
+        "historical_card_available": historical_cards,
+        "message": "No 2026 live card is published yet. Historical cards are retained for audit only.",
+    }
+
+
 def preseason_dry_run_payload():
     if not PRESEASON_DRY_RUN_REPORT.exists():
         return {
@@ -966,6 +1036,8 @@ def build_feed():
             row.get("matchup_key") or "",
         )
     )
+    weekly_card = weekly_betting_card_payload()
+    preseason = preseason_dry_run_payload()
 
     feed = {
         "feed_version": "2026.1",
@@ -973,11 +1045,12 @@ def build_feed():
         "game_count": len(games),
         "team_cell_count": len(team_cells),
         "edge_board_count": len(edge_board),
+        "current_context": current_context_payload(games, weekly_card, preseason),
         "model_readiness": model_readiness_payload(),
         "research_summary": research_summary_payload(),
         "team_expectations": team_expectations,
-        "weekly_betting_card": weekly_betting_card_payload(),
-        "preseason_dry_run": preseason_dry_run_payload(),
+        "weekly_betting_card": weekly_card,
+        "preseason_dry_run": preseason,
         "games": games,
         "team_cells": team_cells,
         "edge_board": edge_board,

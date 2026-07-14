@@ -1,6 +1,6 @@
 import { AlertTriangle, BadgeCheck, CircleSlash, Clock, ShieldAlert, Target } from "lucide-react";
 import { teamLogos } from "../data/nflData";
-import type { WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
+import type { CurrentContext, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
 
 function formatScore(value?: number | null) {
   return typeof value === "number" ? value.toFixed(1) : "n/a";
@@ -20,6 +20,12 @@ function snapshotLabel(cards: WeeklyBettingCardRow[]) {
   const maxWeek = Math.max(...weeks);
   const weekText = minWeek === maxWeek ? `W${minWeek}` : `W${minWeek}-W${maxWeek}`;
   return `${seasonText} ${weekText}`;
+}
+
+function contextLabel(context?: CurrentContext) {
+  if (!context) return null;
+  const stage = context.stage ? ` · ${titleCase(context.stage)}` : "";
+  return `${context.season} ${context.week_label}${stage}`;
 }
 
 function actionIcon(action: string) {
@@ -116,17 +122,19 @@ function EmptyBucket({ label }: { label: string }) {
   );
 }
 
-export function BettingCardView({ card }: { card?: WeeklyBettingCard }) {
+export function BettingCardView({ card, context }: { card?: WeeklyBettingCard; context?: CurrentContext }) {
   const cards = card?.cards || [];
   const grouped = actionGroups(cards);
   const hasActionable = grouped.plays.length > 0 || grouped.watch.length > 0;
+  const activeLabel = contextLabel(context) || snapshotLabel(cards);
+  const isLiveCard = Boolean(context?.has_betting_card);
 
   return (
     <section className="panel betting-card-panel">
       <div className="panel-toolbar">
         <div>
           <h2>Weekly Betting Card</h2>
-          <p className="panel-subtitle">Current selector card · {snapshotLabel(cards)}</p>
+          <p className="panel-subtitle">Current selector card · {activeLabel}</p>
         </div>
         <div className="edge-board-stats">
           <span><BadgeCheck size={14} />{card?.plays ?? 0} plays</span>
@@ -139,9 +147,15 @@ export function BettingCardView({ card }: { card?: WeeklyBettingCard }) {
         <div className="feed-warning">Weekly betting card is not available in the current engine feed.</div>
       )}
 
-      {card?.available && !hasActionable && (
+      {card?.available && context && !isLiveCard && (
         <div className="feed-warning">
-          No actionable plays or watchlist spots are active in this feed. The current file is a historical engine snapshot, so passes are collapsed below for audit only.
+          {context.message || "No live weekly betting card is published for this context yet."}
+        </div>
+      )}
+
+      {card?.available && isLiveCard && !hasActionable && (
+        <div className="feed-warning">
+          No actionable plays or watchlist spots are active in this feed. Passes are collapsed below for audit only.
         </div>
       )}
 

@@ -19,7 +19,7 @@ import { WeekView } from "./components/WeekView";
 import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDisplayTeamStats, getSeasonResults, getSeasonSchedule, indexEdgeBoard, indexEngineCells, loadEngineFeed, postseasonCells } from "./lib/schedule";
 import { historicalVegasLines } from "./data/nflData";
 import warpsMarketOverlay2026 from "./data/warpsMarketOverlay2026.json";
-import type { EngineFeed, Filter, TeamProfile, WarpsMarketOverlay } from "./types";
+import type { CurrentContext, EngineFeed, Filter, TeamProfile, WarpsMarketOverlay, WeeklyBettingCard } from "./types";
 
 type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
 
@@ -28,6 +28,21 @@ function percent(value?: number) {
 }
 
 const VALID_VIEWS = new Set<AppViewMode>(["command", "track", "matrix", "edges", "card", "survivor", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections"]);
+
+function cardForContext(card?: WeeklyBettingCard, context?: CurrentContext): WeeklyBettingCard | undefined {
+  if (!card || !context) return card;
+  const cards = (card.cards || []).filter(
+    (row) => row.season === context.season && row.season_type === context.season_type && row.week === context.week
+  );
+  return {
+    ...card,
+    card_count: cards.length,
+    plays: cards.filter((row) => row.action === "play").length,
+    watch: cards.filter((row) => row.action === "watch" || row.action === "lean").length,
+    passes: cards.filter((row) => row.action === "pass").length,
+    cards,
+  };
+}
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
@@ -104,6 +119,11 @@ function App() {
   const teamExpectations = hasEngineForSeason ? engineFeed?.team_expectations || {} : {};
   const hasEdges = edgeGames.length > 0;
   const hasProjections = Object.keys(teamExpectations).length > 0;
+  const currentContext = engineFeed?.current_context;
+  const currentBettingCard = useMemo(
+    () => cardForContext(engineFeed?.weekly_betting_card, currentContext),
+    [engineFeed?.weekly_betting_card, currentContext]
+  );
   const researchSummary = hasEngineForSeason ? engineFeed?.research_summary : undefined;
   const readiness = hasEngineForSeason ? engineFeed?.model_readiness : undefined;
   const metricMeta = {
@@ -232,6 +252,7 @@ function App() {
       {viewMode === "command" && (
         <CommandCenterView
           engineFeed={engineFeed}
+          bettingCard={currentBettingCard}
           edgeGames={edgeGames}
           warpsRows={warpsMarketOverlay2026 as WarpsMarketOverlay[]}
           onNavigate={setViewMode}
@@ -266,7 +287,7 @@ function App() {
 
       {viewMode === "edges" && <EdgeBoardView games={edgeGames} />}
 
-      {viewMode === "card" && <BettingCardView card={engineFeed?.weekly_betting_card} />}
+      {viewMode === "card" && <BettingCardView card={currentBettingCard} context={currentContext} />}
 
       {viewMode === "survivor" && <SurvivorView />}
 

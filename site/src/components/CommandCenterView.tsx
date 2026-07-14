@@ -1,7 +1,7 @@
 import { AlertTriangle, BadgeCheck, ClipboardList, Gauge, Route, ShieldCheck, Target } from "lucide-react";
 import { teamLogos } from "../data/nflData";
 import survivorPayload from "../data/survivorRecommendations2026.json";
-import type { EdgeBoardGame, EngineFeed, WarpsMarketOverlay, WeeklyBettingCardRow } from "../types";
+import type { EdgeBoardGame, EngineFeed, WarpsMarketOverlay, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
 
 type SurvivorCandidate = {
   week: number;
@@ -114,22 +114,28 @@ function TeamLogo({ team }: { team: string }) {
 
 export function CommandCenterView({
   engineFeed,
+  bettingCard,
   edgeGames,
   warpsRows,
   onNavigate,
 }: {
   engineFeed: EngineFeed | null;
+  bettingCard?: WeeklyBettingCard;
   edgeGames: EdgeBoardGame[];
   warpsRows: WarpsMarketOverlay[];
   onNavigate: (view: "card" | "edges" | "survivor" | "warps" | "scout") => void;
 }) {
-  const cards = currentCardRows(engineFeed);
+  const context = engineFeed?.current_context;
+  const cards = bettingCard?.cards || currentCardRows(engineFeed).filter(
+    (card) => context && card.season === context.season && card.season_type === context.season_type && card.week === context.week
+  );
   const groups = bettingGroups(cards);
-  const commandWeek = nextSurvivorWeek(cards);
+  const commandWeek = context?.week || nextSurvivorWeek(cards);
+  const commandWeekLabel = context?.week_label || `W${commandWeek}`;
   const survivorWeek = survivorForWeek(commandWeek);
   const warpsTop = strongestWarps(commandWeek, warpsRows);
   const edges = playableEdges(edgeGames);
-  const cardAvailable = Boolean(engineFeed?.weekly_betting_card?.available);
+  const cardAvailable = Boolean(context?.has_betting_card && bettingCard?.available);
   const preseason = engineFeed?.preseason_dry_run;
   const preseasonOk = preseason?.available && preseason.status === "PASS";
   const hasAction = groups.plays.length + groups.watch.length + edges.length > 0;
@@ -139,23 +145,23 @@ export function CommandCenterView({
       <div className="command-hero panel">
         <div>
           <span className="command-eyebrow">Weekly Command Center</span>
-          <h2>Week {commandWeek} Decision Board</h2>
+          <h2>{commandWeekLabel} Decision Board</h2>
           <p>
-            Betting card, survivor, WARPS priors, and engine health in one place. Detailed tabs stay available when you want to drill in.
+            Betting card, survivor, WARPS priors, and engine health in one place. {context?.message || "Detailed tabs stay available when you want to drill in."}
           </p>
         </div>
         <div className="command-status-stack">
           <span className={cardAvailable ? "status-pill ok" : "status-pill warning"}>
             <ShieldCheck size={14} />
-            {cardAvailable ? "Card feed ready" : "Card feed missing"}
+            {cardAvailable ? "Current card live" : "Current card pending"}
           </span>
           <span className="status-pill">
             <ClipboardList size={14} />
-            {cardSnapshot(cards)}
+            {context ? `${context.season} ${context.week_label} · ${titleCase(context.mode)}` : cardSnapshot(cards)}
           </span>
           <span className={hasAction ? "status-pill ok" : "status-pill warning"}>
             <Gauge size={14} />
-            {hasAction ? "Action exists" : "No betting action"}
+            {hasAction ? "Action exists" : "No current betting action"}
           </span>
           <span className={preseasonOk ? "status-pill ok" : "status-pill warning"}>
             <ShieldCheck size={14} />
@@ -190,7 +196,7 @@ export function CommandCenterView({
       {!hasAction && (
         <div className="feed-warning command-warning">
           <AlertTriangle size={16} />
-          The current betting feed has no actionable plays. That is expected while live 2026 weekly inputs are not flowing yet; use Survivor and WARPS as planning layers.
+          The current context has no actionable plays. That is expected while live 2026 weekly inputs are not flowing yet; use Survivor and WARPS as planning layers.
         </div>
       )}
 
@@ -251,7 +257,7 @@ export function CommandCenterView({
           <div className="command-panel-head">
             <div>
               <h3><BadgeCheck size={15} /> WARPS Prior Watch</h3>
-              <p>Highest Week {commandWeek} win probabilities from preseason WARPS priors.</p>
+              <p>Highest {commandWeekLabel} win probabilities from preseason WARPS priors.</p>
             </div>
             <button className="text-button" onClick={() => onNavigate("warps")}>Open</button>
           </div>
@@ -274,7 +280,7 @@ export function CommandCenterView({
             <button className="text-button" onClick={() => onNavigate("scout")}>Scout</button>
           </div>
           <div className="command-readiness-list">
-            <span className={cardAvailable ? "ok" : "warn"}>Card artifact {cardAvailable ? "available" : "missing"}</span>
+            <span className={cardAvailable ? "ok" : "warn"}>Current betting card {cardAvailable ? "available" : "pending"}</span>
             <span className={engineFeed?.model_readiness?.available ? "ok" : "warn"}>
               Model readiness {engineFeed?.model_readiness?.status ? titleCase(engineFeed.model_readiness.status) : "unavailable"}
             </span>
@@ -285,7 +291,9 @@ export function CommandCenterView({
               Preseason dry run {preseason?.status || "unavailable"}
               {preseason?.checks_total ? ` · ${preseason.checks_passed}/${preseason.checks_total} checks` : ""}
             </span>
-            <span className="warn">Live 2026 weekly feeds not active yet</span>
+            <span className={context?.mode === "live" ? "ok" : "warn"}>
+              Current context {context ? `${context.week_label} · ${titleCase(context.status)}` : "not published"}
+            </span>
           </div>
         </article>
       </div>
