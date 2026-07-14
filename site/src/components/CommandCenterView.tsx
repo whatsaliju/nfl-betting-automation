@@ -130,6 +130,8 @@ export function CommandCenterView({
   const warpsTop = strongestWarps(commandWeek, warpsRows);
   const edges = playableEdges(edgeGames);
   const cardAvailable = Boolean(engineFeed?.weekly_betting_card?.available);
+  const preseason = engineFeed?.preseason_dry_run;
+  const preseasonOk = preseason?.available && preseason.status === "PASS";
   const hasAction = groups.plays.length + groups.watch.length + edges.length > 0;
 
   return (
@@ -154,6 +156,10 @@ export function CommandCenterView({
           <span className={hasAction ? "status-pill ok" : "status-pill warning"}>
             <Gauge size={14} />
             {hasAction ? "Action exists" : "No betting action"}
+          </span>
+          <span className={preseasonOk ? "status-pill ok" : "status-pill warning"}>
+            <ShieldCheck size={14} />
+            PRE dry-run {preseason?.status || "missing"}
           </span>
         </div>
       </div>
@@ -274,6 +280,10 @@ export function CommandCenterView({
             </span>
             <span className={engineFeed?.research_summary?.source_reliability ? "ok" : "warn"}>
               Source reliability {engineFeed?.research_summary?.source_reliability?.overall_status || "not loaded"}
+            </span>
+            <span className={preseasonOk ? "ok" : "warn"}>
+              Preseason dry run {preseason?.status || "unavailable"}
+              {preseason?.checks_total ? ` · ${preseason.checks_passed}/${preseason.checks_total} checks` : ""}
             </span>
             <span className="warn">Live 2026 weekly feeds not active yet</span>
           </div>

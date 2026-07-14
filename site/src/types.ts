@@ -621,6 +621,17 @@ export interface EngineFeed {
   };
   research_summary?: ResearchSummary;
   weekly_betting_card?: WeeklyBettingCard;
+  preseason_dry_run?: {
+    available: boolean;
+    season?: number;
+    season_type?: SeasonType;
+    week?: number;
+    artifact_slug?: string;
+    status?: string;
+    checks_total?: number;
+    checks_passed?: number;
+    next_live_command?: string;
+  };
   games: EngineGame[];
   team_cells: Record<string, EngineTeamCell> | EngineTeamCell[];
   edge_board?: EdgeBoardGame[];

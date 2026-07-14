@@ -29,6 +29,7 @@ CLV_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "clv_audi
 BACKTEST_COVERAGE_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "backtest_coverage_report.json"
 PICK_EXPLANATIONS = HISTORICAL_DIR / "pick_explanations.json"
 WEEKLY_BETTING_CARD = HISTORICAL_DIR / "weekly_betting_card.json"
+PRESEASON_DRY_RUN_REPORT = HISTORICAL_DIR / "preseason_dry_run_report.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
 PYTHAGOREAN_EXPONENT = 2.37
@@ -671,6 +672,29 @@ def weekly_betting_card_payload():
     return payload
 
 
+def preseason_dry_run_payload():
+    if not PRESEASON_DRY_RUN_REPORT.exists():
+        return {
+            "available": False,
+            "status": "UNAVAILABLE",
+            "checks_total": 0,
+            "checks_passed": 0,
+        }
+    report = json.loads(PRESEASON_DRY_RUN_REPORT.read_text())
+    checks = report.get("checks") or []
+    return {
+        "available": True,
+        "season": report.get("season"),
+        "season_type": report.get("season_type"),
+        "week": report.get("week"),
+        "artifact_slug": report.get("artifact_slug"),
+        "status": report.get("status") or "UNKNOWN",
+        "checks_total": len(checks),
+        "checks_passed": sum(1 for row in checks if row.get("status") == "PASS"),
+        "next_live_command": report.get("next_live_command"),
+    }
+
+
 def model_readiness_payload():
     if not READINESS_REPORT.exists():
         return {
@@ -953,6 +977,7 @@ def build_feed():
         "research_summary": research_summary_payload(),
         "team_expectations": team_expectations,
         "weekly_betting_card": weekly_betting_card_payload(),
+        "preseason_dry_run": preseason_dry_run_payload(),
         "games": games,
         "team_cells": team_cells,
         "edge_board": edge_board,
