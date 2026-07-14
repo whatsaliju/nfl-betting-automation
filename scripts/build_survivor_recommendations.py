@@ -15,6 +15,24 @@ DEFAULT_JSON = ROOT / "data" / "historical" / "survivor_recommendations_2026.jso
 DEFAULT_CSV = ROOT / "data" / "historical" / "survivor_recommendations_2026.csv"
 DEFAULT_MD = ROOT / "data" / "historical" / "survivor_recommendations_2026.md"
 DEFAULT_SITE_JSON = ROOT / "site" / "src" / "data" / "survivorRecommendations2026.json"
+POOL_SIZES = (25, 100, 500)
+PAYOUT_STYLES = ("top_heavy", "winner_take_all")
+BRAND_CHALK = {
+    "BUF": 4.5,
+    "KC": 5.5,
+    "PHI": 5.0,
+    "DAL": 3.5,
+    "SF": 4.5,
+    "BAL": 4.0,
+    "DET": 3.5,
+    "GB": 3.0,
+    "LAR": 2.5,
+    "PIT": 2.5,
+    "CIN": 2.5,
+    "CHI": 2.0,
+    "NE": 2.0,
+    "DEN": 1.5,
+}
 
 
 def clean_opponent(value):
@@ -100,6 +118,52 @@ def recommendation_tier(row):
     return "avoid"
 
 
+def clamp(value, low, high):
+    return max(low, min(high, value))
+
+
+def public_pick_estimate(row, pool_size):
+    favorite_component = max(0.0, row["win_probability"] - 0.55) * 62
+    brand_component = BRAND_CHALK.get(row["team"], 0.0)
+    home_component = 1.2 if row["home_away"] == "home" else -0.6
+    pool_component = 1.5 if pool_size >= 100 else -1.2 if pool_size <= 15 else 0.0
+    division_discount = -1.4 if row["division_game"] else 0.0
+    return clamp(favorite_component + brand_component + home_component + pool_component + division_discount, 1.0, 38.0)
+
+
+def payout_multiplier(style):
+    if style == "winner_take_all":
+        return 1.25
+    if style == "flat":
+        return 0.65
+    return 1.0
+
+
+def pool_ev_score(row, pool_size, payout_style, leverage_weight=0.75):
+    public_pick = public_pick_estimate(row, pool_size)
+    expected_eliminated = (public_pick / 100.0) * (1.0 - row["win_probability"]) * pool_size
+    chalk_penalty = public_pick * payout_multiplier(payout_style)
+    survival = row["win_probability"] * 100
+    leverage = expected_eliminated * leverage_weight
+    return survival + leverage - chalk_penalty * 0.18 - row["future_value_cost"] * 0.7 - row["volatility_penalty"] * 0.8
+
+
+def pool_strategy_scores(row, pool_size, payout_style):
+    public_pick = public_pick_estimate(row, pool_size)
+    safe_score = row["win_probability"] * 100 - row["volatility_penalty"] * 0.8
+    balanced_score = pool_ev_score(row, pool_size, payout_style, leverage_weight=0.75)
+    leverage_score = pool_ev_score(row, pool_size, payout_style, leverage_weight=1.25)
+    return {
+        "pool_size": pool_size,
+        "payout_style": payout_style,
+        "public_pick_pct": round(public_pick, 2),
+        "expected_entries_eliminated": round((public_pick / 100.0) * (1.0 - row["win_probability"]) * pool_size, 2),
+        "safe_score": round(safe_score, 2),
+        "balanced_score": round(balanced_score, 2),
+        "leverage_score": round(leverage_score, 2),
+    }
+
+
 def reasons(row):
     out = []
     out.append(f"WARPS win probability {row['win_probability']:.1%}")
@@ -182,6 +246,11 @@ def build_candidates(schedule, warps_rows):
         row["risk_band"] = risk_band(row["win_probability"], row["division_game"], row["home_away"])
         row["tier"] = recommendation_tier(row)
         row["reasons"] = reasons(row)
+        row["public_pick_pct_25"] = round(public_pick_estimate(row, 25), 2)
+        row["public_pick_pct_100"] = round(public_pick_estimate(row, 100), 2)
+        row["pool_ev_25_top_heavy"] = round(pool_ev_score(row, 25, "top_heavy", leverage_weight=0.75), 2)
+        row["pool_ev_100_top_heavy"] = round(pool_ev_score(row, 100, "top_heavy", leverage_weight=0.75), 2)
+        row["pool_ev_500_top_heavy"] = round(pool_ev_score(row, 500, "top_heavy", leverage_weight=0.75), 2)
         candidates.append(row)
 
     return sorted(
@@ -204,6 +273,67 @@ def build_weekly(candidates):
             "avoid": [row for row in rows if row["risk_band"] == "avoid"][:6],
         })
     return weekly
+
+
+def pick_for_strategy(rows, strategy, pool_size, payout_style):
+    playable = [row for row in rows if row["tier"] != "avoid"]
+    pool = playable or rows
+    if not pool:
+        return None
+    if strategy == "safe":
+        return max(pool, key=lambda row: (row["win_probability"], -row["volatility_penalty"], -row["future_value_cost"], row["team"]))
+    if strategy == "leverage":
+        return max(pool, key=lambda row: (pool_ev_score(row, pool_size, payout_style, leverage_weight=1.25), row["win_probability"], row["team"]))
+    return max(pool, key=lambda row: (pool_ev_score(row, pool_size, payout_style, leverage_weight=0.75), row["win_probability"], row["team"]))
+
+
+def pool_pick_payload(row, strategy, pool_size, payout_style):
+    if not row:
+        return None
+    scores = pool_strategy_scores(row, pool_size, payout_style)
+    return {
+        "strategy": strategy,
+        "pool_size": pool_size,
+        "payout_style": payout_style,
+        "team": row["team"],
+        "opponent": row["opponent"],
+        "week": row["week"],
+        "matchup_key": row["matchup_key"],
+        "home_away": row["home_away"],
+        "win_probability": row["win_probability"],
+        "survivor_score": row["survivor_score"],
+        "future_value_cost": row["future_value_cost"],
+        "volatility_penalty": row["volatility_penalty"],
+        "risk_band": row["risk_band"],
+        "tier": row["tier"],
+        "division_game": row["division_game"],
+        "public_pick_pct": scores["public_pick_pct"],
+        "expected_entries_eliminated": scores["expected_entries_eliminated"],
+        "safe_score": scores["safe_score"],
+        "balanced_score": scores["balanced_score"],
+        "leverage_score": scores["leverage_score"],
+        "reasons": row.get("reasons") or [],
+    }
+
+
+def build_pool_cards(candidates):
+    cards = []
+    for week in range(1, 19):
+        rows = [row for row in candidates if row["week"] == week]
+        for pool_size in POOL_SIZES:
+            for payout_style in PAYOUT_STYLES:
+                safe = pick_for_strategy(rows, "safe", pool_size, payout_style)
+                balanced = pick_for_strategy(rows, "balanced", pool_size, payout_style)
+                leverage = pick_for_strategy(rows, "leverage", pool_size, payout_style)
+                cards.append({
+                    "week": week,
+                    "pool_size": pool_size,
+                    "payout_style": payout_style,
+                    "safe": pool_pick_payload(safe, "safe", pool_size, payout_style),
+                    "balanced": pool_pick_payload(balanced, "balanced", pool_size, payout_style),
+                    "leverage": pool_pick_payload(leverage, "leverage", pool_size, payout_style),
+                })
+    return cards
 
 
 def build_path(candidates, beam_size=4000):
@@ -281,6 +411,25 @@ def write_md(path, payload):
             f"{pick['win_probability']:.1%} | {pick['survivor_score']:.1f} | {pick['tier']} | "
             f"{'; '.join(pick.get('reasons') or [])} |"
         )
+    lines.extend([
+        "",
+        "## Pool-EV Card",
+        "",
+        "| Week | Pool | Payout | Safe | Balanced | Leverage |",
+        "|---:|---:|---|---|---|---|",
+    ])
+    for card in payload.get("pool_cards", []):
+        if card["payout_style"] != "top_heavy":
+            continue
+        safe = card.get("safe") or {}
+        balanced = card.get("balanced") or {}
+        leverage = card.get("leverage") or {}
+        lines.append(
+            f"| {card['week']} | {card['pool_size']} | {card['payout_style']} | "
+            f"{safe.get('team', 'n/a')} ({safe.get('win_probability', 0):.1%}) | "
+            f"{balanced.get('team', 'n/a')} ({balanced.get('balanced_score', 0):.1f}) | "
+            f"{leverage.get('team', 'n/a')} ({leverage.get('public_pick_pct', 0):.1f}% public) |"
+        )
     path.write_text("\n".join(lines) + "\n")
 
 
@@ -288,6 +437,7 @@ def build_payload(schedule, warps_rows):
     candidates = build_candidates(schedule, warps_rows)
     weekly = build_weekly(candidates)
     path = build_path(candidates)
+    pool_cards = build_pool_cards(candidates)
     return {
         "metadata": {
             "season": 2026,
@@ -298,6 +448,7 @@ def build_payload(schedule, warps_rows):
         },
         "weekly": weekly,
         "optimal_path": path,
+        "pool_cards": pool_cards,
         "candidates": candidates,
     }
 
@@ -306,6 +457,7 @@ def site_payload(payload):
     return {
         "metadata": payload["metadata"],
         "optimal_path": payload["optimal_path"],
+        "pool_cards": payload["pool_cards"],
         "candidates": payload["candidates"],
     }
 

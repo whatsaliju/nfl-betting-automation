@@ -51,7 +51,41 @@ type SurvivorPayload = {
     average_pick_probability: number | null;
     picks: SurvivorCandidate[];
   };
+  pool_cards?: SurvivorPoolCard[];
   candidates: SurvivorCandidate[];
+};
+
+type SurvivorPoolPick = {
+  strategy: "safe" | "balanced" | "leverage" | string;
+  pool_size: number;
+  payout_style: PayoutStyle;
+  team: string;
+  opponent: string;
+  week: number;
+  matchup_key: string;
+  home_away: "home" | "away";
+  win_probability: number;
+  survivor_score: number;
+  future_value_cost: number;
+  volatility_penalty: number;
+  risk_band: string;
+  tier: SurvivorTier;
+  division_game: boolean;
+  public_pick_pct: number;
+  expected_entries_eliminated: number;
+  safe_score: number;
+  balanced_score: number;
+  leverage_score: number;
+  reasons: string[];
+};
+
+type SurvivorPoolCard = {
+  week: number;
+  pool_size: number;
+  payout_style: PayoutStyle;
+  safe: SurvivorPoolPick | null;
+  balanced: SurvivorPoolPick | null;
+  leverage: SurvivorPoolPick | null;
 };
 
 type StrategyMode = "survive" | "balanced" | "leverage";
@@ -189,6 +223,19 @@ function CandidateCard({
   );
 }
 
+function PoolPickCell({ pick }: { pick: SurvivorPoolPick | null }) {
+  if (!pick) return <td>n/a</td>;
+  return (
+    <td>
+      <span className="table-team">
+        <img src={teamLogos[pick.team]} alt="" />
+        {pick.team}
+      </span>
+      <small>{pct(pick.win_probability)} · {pick.public_pick_pct.toFixed(1)}% public</small>
+    </td>
+  );
+}
+
 export function SurvivorView() {
   const [week, setWeek] = useState(1);
   const [usedTeams, setUsedTeams] = useState<Set<string>>(new Set());
@@ -209,6 +256,12 @@ export function SurvivorView() {
   );
   const availablePick = weekRows.find((row) => !usedTeams.has(row.team) && row.tier !== "avoid") || null;
   const pathPick = survivor.optimal_path.picks.find((row) => row.week === week) || null;
+  const poolCards = useMemo(
+    () => (survivor.pool_cards || [])
+      .filter((row) => row.week === week && row.payout_style === payoutStyle)
+      .sort((a, b) => a.pool_size - b.pool_size),
+    [week, payoutStyle]
+  );
 
   function toggleTeam(team: string) {
     setUsedTeams((current) => {
@@ -302,6 +355,38 @@ export function SurvivorView() {
         <CandidateCard candidate={availablePick} label="Available Pick" used={availablePick ? usedTeams.has(availablePick.team) : false} onToggle={toggleTeam} />
         <CandidateCard candidate={safestPick} label="Safest Pure Pick" used={safestPick ? usedTeams.has(safestPick.team) : false} onToggle={toggleTeam} />
         <CandidateCard candidate={pathPick} label="Season Path Pick" used={pathPick ? usedTeams.has(pathPick.team) : false} onToggle={toggleTeam} />
+      </div>
+
+      <div className="survivor-table-wrap">
+        <div className="survivor-section-head">
+          <h3><SlidersHorizontal size={15} /> Pool Structure Card</h3>
+          <span>{tierLabel(payoutStyle)} · safe vs balanced vs leverage</span>
+        </div>
+        <table className="data-table survivor-table survivor-pool-table">
+          <thead>
+            <tr>
+              <th>Pool</th>
+              <th>Safe</th>
+              <th>Balanced</th>
+              <th>Leverage</th>
+              <th>Signal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {poolCards.map((card) => {
+              const changed = card.safe?.team !== card.leverage?.team || card.safe?.team !== card.balanced?.team;
+              return (
+                <tr key={`${card.week}-${card.pool_size}-${card.payout_style}`}>
+                  <td>{card.pool_size}</td>
+                  <PoolPickCell pick={card.safe} />
+                  <PoolPickCell pick={card.balanced} />
+                  <PoolPickCell pick={card.leverage} />
+                  <td>{changed ? "pool edge differs" : "same pick"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
       <div className="survivor-table-wrap">
