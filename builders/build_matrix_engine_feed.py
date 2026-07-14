@@ -28,6 +28,7 @@ MARKET_ROUTER_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" /
 CLV_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "clv_audit.json"
 BACKTEST_COVERAGE_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "backtest_coverage_report.json"
 PICK_EXPLANATIONS = HISTORICAL_DIR / "pick_explanations.json"
+WEEKLY_BETTING_CARD = HISTORICAL_DIR / "weekly_betting_card.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
 PYTHAGOREAN_EXPONENT = 2.37
@@ -647,6 +648,21 @@ def load_pick_explanation_index():
     return index
 
 
+def weekly_betting_card_payload():
+    if not WEEKLY_BETTING_CARD.exists():
+        return {
+            "available": False,
+            "card_count": 0,
+            "plays": 0,
+            "watch": 0,
+            "passes": 0,
+            "cards": [],
+        }
+    payload = json.loads(WEEKLY_BETTING_CARD.read_text())
+    payload["available"] = True
+    return payload
+
+
 def model_readiness_payload():
     if not READINESS_REPORT.exists():
         return {
@@ -928,6 +944,7 @@ def build_feed():
         "model_readiness": model_readiness_payload(),
         "research_summary": research_summary_payload(),
         "team_expectations": team_expectations,
+        "weekly_betting_card": weekly_betting_card_payload(),
         "games": games,
         "team_cells": team_cells,
         "edge_board": edge_board,

@@ -836,6 +836,135 @@ select {
 .week-edge-summary.pass strong { color: #8a4e06; }
 .week-edge-summary span { color: #64748b; font-size: 11px; }
 
+.betting-card-panel .panel-toolbar { align-items: flex-start; }
+.betting-card-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.betting-card-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.betting-card-column h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+  color: #334155;
+}
+.betting-card-item {
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+.betting-card-item.play {
+  border-color: #8bc8a6;
+  background: #f2fbf6;
+}
+.betting-card-item.watch, .betting-card-item.lean {
+  border-color: #f0c37a;
+  background: #fffaf0;
+}
+.betting-card-top, .betting-card-decision, .betting-card-linebox, .risk-list span {
+  display: flex;
+  align-items: center;
+}
+.betting-card-top {
+  justify-content: space-between;
+  color: #64748b;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+.betting-card-decision {
+  justify-content: space-between;
+  gap: 9px;
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  padding: 8px;
+  background: #fff;
+}
+.betting-card-decision div {
+  flex: 1;
+  min-width: 0;
+}
+.betting-card-decision strong, .betting-card-decision span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.betting-card-decision span {
+  color: #64748b;
+  font-size: 12px;
+}
+.betting-card-decision b {
+  font-size: 18px;
+  color: #0f5132;
+}
+.betting-card-linebox {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.betting-card-linebox div {
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  background: #fff;
+  padding: 7px;
+  min-width: 0;
+}
+.betting-card-linebox span, .betting-card-linebox strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.betting-card-linebox span {
+  color: #64748b;
+  font-size: 11px;
+}
+.betting-card-linebox strong {
+  color: #0f172a;
+  font-size: 12px;
+  margin-top: 2px;
+}
+.betting-card-reasons {
+  display: grid;
+  gap: 5px;
+}
+.betting-card-reasons p {
+  margin: 0;
+  color: #334155;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.risk-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.risk-list span {
+  gap: 4px;
+  border-radius: 999px;
+  background: #fff1d6;
+  color: #8a4e06;
+  padding: 3px 6px;
+  font-size: 11px;
+}
+.compact-empty {
+  min-height: 96px;
+  padding: 16px;
+}
+
 .compare-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3744,5 +3873,6 @@ select {
 @media (max-width: 600px) {
   .warps-section-row { flex-direction: column; }
   .betting-card-hero { flex-direction: column; }
+  .betting-card-columns { grid-template-columns: 1fr; }
   .mc-meta-pill { white-space: normal; }
 }

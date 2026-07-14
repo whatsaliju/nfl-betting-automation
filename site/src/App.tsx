@@ -1,5 +1,6 @@
 import { Activity, BarChart3, Brain, CalendarDays, ClipboardList, Crosshair, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { BettingCardView } from "./components/BettingCardView";
 import { CompareView } from "./components/CompareView";
 import { EdgeBoardView } from "./components/EdgeBoardView";
 import { ExpectationsView } from "./components/ExpectationsView";
@@ -18,13 +19,13 @@ import { historicalVegasLines } from "./data/nflData";
 import warpsMarketOverlay2026 from "./data/warpsMarketOverlay2026.json";
 import type { EngineFeed, Filter, TeamProfile, WarpsMarketOverlay } from "./types";
 
-type AppViewMode = "track" | "matrix" | "edges" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
+type AppViewMode = "track" | "matrix" | "edges" | "card" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections"]);
+const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "card", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections"]);
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
@@ -198,6 +199,7 @@ function App() {
           <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")}><GitBranch size={15} />Compare</button>
           <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")}><Trophy size={15} />Results</button>
           <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges{!hasEdges && <span className="tab-soon">Soon</span>}</button>
+          <button className={viewMode === "card" ? "active" : ""} onClick={() => setViewMode("card")}><ClipboardList size={15} />Card</button>
           <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
           <button className={["projections", "audit", "expectations"].includes(viewMode) ? "active" : ""} onClick={() => setViewMode("projections")}><Gauge size={15} />Projections{!hasProjections && <span className="tab-soon">Soon</span>}</button>
           <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")}><ClipboardList size={15} />Track</button>
@@ -250,6 +252,8 @@ function App() {
       )}
 
       {viewMode === "edges" && <EdgeBoardView games={edgeGames} />}
+
+      {viewMode === "card" && <BettingCardView card={engineFeed?.weekly_betting_card} />}
 
       {viewMode === "research" && <ResearchView summary={researchSummary} />}
 

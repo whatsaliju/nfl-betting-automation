@@ -1,7 +1,7 @@
 export type Conference = "AFC" | "NFC";
 export type Filter = "All" | Conference;
 export type HomeAway = "home" | "away";
-export type SeasonType = "REG" | "POST";
+export type SeasonType = "PRE" | "REG" | "POST";
 
 export interface ScheduleRow {
   Team: string;
@@ -278,6 +278,47 @@ export interface PickExplanation {
   market_conflicts?: string[];
   market_blockers?: string[];
   reasons?: string[];
+}
+
+export interface WeeklyBettingCardRow {
+  key: string;
+  season: number;
+  season_type: SeasonType;
+  week: number;
+  matchup_key: string;
+  away_tla: string;
+  home_tla: string;
+  action: "play" | "watch" | "lean" | "pass" | string;
+  market?: "spread" | "total" | "moneyline" | null;
+  side?: string | null;
+  confidence?: string | null;
+  selector_score?: number | null;
+  classification?: string | null;
+  recommendation?: string | null;
+  required_line?: string | null;
+  current_line?: string | null;
+  warps_alignment?: string | null;
+  warps_side?: string | null;
+  source_health?: string | null;
+  data_quality?: string | null;
+  quality_gate?: string | null;
+  main_reasons?: string[];
+  risk_flags?: string[];
+  market_status?: string | null;
+  spread_status?: string | null;
+  total_status?: string | null;
+  moneyline_status?: string | null;
+}
+
+export interface WeeklyBettingCard {
+  available?: boolean;
+  feed_version?: string;
+  source?: string;
+  card_count: number;
+  plays: number;
+  watch: number;
+  passes: number;
+  cards: WeeklyBettingCardRow[];
 }
 
 export interface TeamExpectation {
@@ -579,6 +620,7 @@ export interface EngineFeed {
     };
   };
   research_summary?: ResearchSummary;
+  weekly_betting_card?: WeeklyBettingCard;
   games: EngineGame[];
   team_cells: Record<string, EngineTeamCell> | EngineTeamCell[];
   edge_board?: EdgeBoardGame[];
