@@ -334,6 +334,18 @@ export interface CurrentContext {
   message?: string;
 }
 
+export interface SurvivorBacktestSummaryRow {
+  strategy: string;
+  seasons: number;
+  full_survivals: number;
+  full_survival_rate: number | null;
+  avg_survived_weeks: number;
+  avg_loss_week_or_finish: number;
+  best_single_season_survived_weeks?: number;
+  most_common_loss_week?: number | null;
+  best_seasons?: number[];
+}
+
 export interface TeamExpectation {
   team: string;
   conference: string;
@@ -645,6 +657,16 @@ export interface EngineFeed {
     checks_total?: number;
     checks_passed?: number;
     next_live_command?: string;
+  };
+  survivor_backtest?: {
+    available: boolean;
+    status?: string;
+    model?: string | null;
+    seasons?: number[];
+    candidate_count?: number | null;
+    method?: string | null;
+    best_strategy?: SurvivorBacktestSummaryRow | null;
+    summary?: SurvivorBacktestSummaryRow[];
   };
   games: EngineGame[];
   team_cells: Record<string, EngineTeamCell> | EngineTeamCell[];

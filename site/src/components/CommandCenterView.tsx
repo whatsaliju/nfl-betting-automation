@@ -138,6 +138,8 @@ export function CommandCenterView({
   const cardAvailable = Boolean(context?.has_betting_card && bettingCard?.available);
   const preseason = engineFeed?.preseason_dry_run;
   const preseasonOk = preseason?.available && preseason.status === "PASS";
+  const survivorBacktest = engineFeed?.survivor_backtest;
+  const survivorBacktestBest = survivorBacktest?.best_strategy;
   const hasAction = groups.plays.length + groups.watch.length + edges.length > 0;
 
   return (
@@ -290,6 +292,9 @@ export function CommandCenterView({
             <span className={preseasonOk ? "ok" : "warn"}>
               Preseason dry run {preseason?.status || "unavailable"}
               {preseason?.checks_total ? ` · ${preseason.checks_passed}/${preseason.checks_total} checks` : ""}
+            </span>
+            <span className={survivorBacktest?.available ? "ok" : "warn"}>
+              Survivor backtest {survivorBacktestBest ? `${titleCase(survivorBacktestBest.strategy)} · ${survivorBacktestBest.avg_survived_weeks} avg weeks` : "unavailable"}
             </span>
             <span className={context?.mode === "live" ? "ok" : "warn"}>
               Current context {context ? `${context.week_label} · ${titleCase(context.status)}` : "not published"}
