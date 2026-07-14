@@ -11,6 +11,17 @@ function titleCase(value?: string | null) {
   return value.replace(/_/g, " ");
 }
 
+function snapshotLabel(cards: WeeklyBettingCardRow[]) {
+  if (!cards.length) return "No games loaded";
+  const seasons = Array.from(new Set(cards.map((card) => card.season))).sort();
+  const seasonText = seasons.length === 1 ? String(seasons[0]) : `${seasons[0]}-${seasons[seasons.length - 1]}`;
+  const weeks = cards.map((card) => card.week).filter((week) => typeof week === "number");
+  const minWeek = Math.min(...weeks);
+  const maxWeek = Math.max(...weeks);
+  const weekText = minWeek === maxWeek ? `W${minWeek}` : `W${minWeek}-W${maxWeek}`;
+  return `${seasonText} ${weekText}`;
+}
+
 function actionIcon(action: string) {
   if (action === "play") return <BadgeCheck size={16} />;
   if (action === "pass") return <CircleSlash size={16} />;
@@ -23,6 +34,19 @@ function actionGroups(cards: WeeklyBettingCardRow[]) {
     watch: cards.filter((card) => card.action === "watch" || card.action === "lean"),
     passes: cards.filter((card) => card.action === "pass"),
   };
+}
+
+function decisionTitle(card: WeeklyBettingCardRow) {
+  if (card.action === "pass") return "PASS";
+  if (card.action === "watch" || card.action === "lean") {
+    return card.market ? `WATCH ${card.market.toUpperCase()} ${card.side || ""}` : "WATCH";
+  }
+  return card.market ? `${card.market.toUpperCase()} ${card.side || ""}` : "PLAY";
+}
+
+function decisionSubtitle(card: WeeklyBettingCardRow) {
+  if (card.action === "pass") return "No bet from the selector";
+  return card.classification ? titleCase(card.classification) : "Selector edge candidate";
 }
 
 function CardItem({ card }: { card: WeeklyBettingCardRow }) {
@@ -42,8 +66,8 @@ function CardItem({ card }: { card: WeeklyBettingCardRow }) {
       <div className="betting-card-decision">
         {actionIcon(card.action)}
         <div>
-          <strong>{card.market ? `${card.market.toUpperCase()} ${card.side || ""}` : "PASS"}</strong>
-          <span>{card.classification || "No isolated selector edge"}</span>
+          <strong>{decisionTitle(card)}</strong>
+          <span>{decisionSubtitle(card)}</span>
         </div>
         <b>{formatScore(card.selector_score)}</b>
       </div>
@@ -95,13 +119,14 @@ function EmptyBucket({ label }: { label: string }) {
 export function BettingCardView({ card }: { card?: WeeklyBettingCard }) {
   const cards = card?.cards || [];
   const grouped = actionGroups(cards);
+  const hasActionable = grouped.plays.length > 0 || grouped.watch.length > 0;
 
   return (
     <section className="panel betting-card-panel">
       <div className="panel-toolbar">
         <div>
           <h2>Weekly Betting Card</h2>
-          <p className="panel-subtitle">Actionable plays, watchlist spots, and passes from the selector workflow</p>
+          <p className="panel-subtitle">Current selector card · {snapshotLabel(cards)}</p>
         </div>
         <div className="edge-board-stats">
           <span><BadgeCheck size={14} />{card?.plays ?? 0} plays</span>
@@ -114,7 +139,13 @@ export function BettingCardView({ card }: { card?: WeeklyBettingCard }) {
         <div className="feed-warning">Weekly betting card is not available in the current engine feed.</div>
       )}
 
-      <div className="betting-card-columns">
+      {card?.available && !hasActionable && (
+        <div className="feed-warning">
+          No actionable plays or watchlist spots are active in this feed. The current file is a historical engine snapshot, so passes are collapsed below for audit only.
+        </div>
+      )}
+
+      <div className="betting-card-active-columns">
         <div className="betting-card-column play">
           <h3><Target size={15} /> Plays</h3>
           {grouped.plays.length ? grouped.plays.map((row) => <CardItem card={row} key={row.key} />) : <EmptyBucket label="Plays" />}
@@ -123,11 +154,14 @@ export function BettingCardView({ card }: { card?: WeeklyBettingCard }) {
           <h3><Clock size={15} /> Watchlist</h3>
           {grouped.watch.length ? grouped.watch.map((row) => <CardItem card={row} key={row.key} />) : <EmptyBucket label="Watchlist" />}
         </div>
-        <div className="betting-card-column pass">
-          <h3><CircleSlash size={15} /> Passes</h3>
+      </div>
+
+      <details className="pass-drawer">
+        <summary><CircleSlash size={15} /> Review {grouped.passes.length} passes</summary>
+        <div className="betting-card-columns pass-grid">
           {grouped.passes.length ? grouped.passes.map((row) => <CardItem card={row} key={row.key} />) : <EmptyBucket label="Passes" />}
         </div>
-      </div>
+      </details>
     </section>
   );
 }

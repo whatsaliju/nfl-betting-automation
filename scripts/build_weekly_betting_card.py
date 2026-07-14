@@ -95,7 +95,9 @@ def confidence_for(action, explanation, game):
     return "none"
 
 
-def reasons_for(game, explanation):
+def reasons_for(game, explanation, action):
+    if action == "pass":
+        return ["Selector did not clear an actionable market threshold"]
     reasons = []
     if explanation:
         reasons.extend(explanation.get("reasons") or [])
@@ -116,6 +118,10 @@ def card_row(game):
     flags = risk_flags(game, explanation)
     action = action_for(game, explanation, flags)
     confidence = confidence_for(action, explanation, game)
+    if action == "pass":
+        market = None
+        market_data = {}
+        side = None
     return {
         "key": f"{game.get('season')}:{game.get('week')}:{game.get('matchup_key')}",
         "season": game.get("season"),
@@ -128,17 +134,17 @@ def card_row(game):
         "market": market,
         "side": side,
         "confidence": confidence,
-        "selector_score": best.get("score"),
-        "classification": best.get("label"),
-        "recommendation": best.get("recommendation"),
-        "required_line": line_hint(game, market, side),
+        "selector_score": None if action == "pass" else best.get("score"),
+        "classification": None if action == "pass" else best.get("label"),
+        "recommendation": None if action == "pass" else best.get("recommendation"),
+        "required_line": "No bet" if action == "pass" else line_hint(game, market, side),
         "current_line": market_data.get("line") or "",
         "warps_alignment": (game.get("warps_market_overlay") or {}).get("spread_pick_alignment"),
         "warps_side": (game.get("warps_market_overlay") or {}).get("spread_side"),
         "source_health": game.get("source_health_status"),
         "data_quality": game.get("data_quality_status"),
         "quality_gate": explanation.get("quality_gate"),
-        "main_reasons": reasons_for(game, explanation),
+        "main_reasons": reasons_for(game, explanation, action),
         "risk_flags": flags,
         "market_status": market_data.get("status"),
         "spread_status": market_payload(game, "spread").get("status"),

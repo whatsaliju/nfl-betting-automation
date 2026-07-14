@@ -842,6 +842,29 @@ select {
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.05fr) minmax(0, 1fr);
   gap: 12px;
 }
+.betting-card-active-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.pass-drawer {
+  border-top: 1px solid #dce3ea;
+  padding-top: 12px;
+}
+.pass-drawer summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  color: #475569;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+.pass-drawer .pass-grid {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  margin-top: 10px;
+}
 .betting-card-column {
   min-width: 0;
   display: flex;
@@ -3874,5 +3897,6 @@ select {
   .warps-section-row { flex-direction: column; }
   .betting-card-hero { flex-direction: column; }
   .betting-card-columns { grid-template-columns: 1fr; }
+  .betting-card-active-columns { grid-template-columns: 1fr; }
   .mc-meta-pill { white-space: normal; }
 }
