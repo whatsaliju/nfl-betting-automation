@@ -3270,3 +3270,182 @@ select {
   .scout-kpis { gap: 6px; }
   .scout-kpi { min-width: 70px; padding: 8px 10px; }
 }
+
+/* WARPS Monte Carlo distribution layer */
+.warps-section-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.warps-mc-section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.mc-meta-pill {
+  white-space: nowrap;
+  border: 1px solid #dbe4ee;
+  background: #f8fafc;
+  color: #475569;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mc-note {
+  border-left: 3px solid #f59e0b;
+  padding-left: 10px;
+}
+
+.mc-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.mc-card {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mc-card.mc-over { border-left: 4px solid #16a34a; }
+.mc-card.mc-under { border-left: 4px solid #dc2626; }
+
+.mc-card-head {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.mc-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.mc-card-head strong {
+  display: block;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.mc-card-head span {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mc-prob {
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.mc-band {
+  position: relative;
+  height: 14px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.mc-band-range,
+.mc-band-iqr,
+.mc-band-marker {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+
+.mc-band-range {
+  background: #dbeafe;
+  border-radius: 999px;
+}
+
+.mc-band-iqr {
+  background: #93c5fd;
+  border-radius: 999px;
+}
+
+.mc-band-marker {
+  width: 2px;
+  transform: translateX(-1px);
+}
+
+.mc-band-market { background: #dc2626; }
+.mc-band-median { background: #1d4ed8; }
+
+.mc-card-stats,
+.mc-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mc-tier {
+  border-radius: 4px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+
+.mc-tier-strong { background: #dcfce7; color: #15803d; }
+.mc-tier-watch { background: #fef3c7; color: #b45309; }
+.mc-tier-thin { background: #f1f5f9; color: #64748b; }
+
+.pricing-quadrant-wrap {
+  margin-top: 4px;
+}
+
+.pricing-quadrant-svg {
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  display: block;
+  margin: 12px auto 16px;
+}
+
+.pricing-table-wrap {
+  overflow-x: auto;
+}
+
+.pricing-table th,
+.pricing-table td {
+  white-space: nowrap;
+}
+
+.pricing-team-cell {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pricing-team-cell img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+@media (max-width: 600px) {
+  .warps-section-row { flex-direction: column; }
+  .mc-meta-pill { white-space: normal; }
+}

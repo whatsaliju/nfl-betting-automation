@@ -22,11 +22,13 @@ Complete map of every file in this repo and what it does.
 
 ## WARPS Model — Python Scripts
 
-Current champion model is **v1.8**. v2.0/v2.1 are experimental.
+Current champion model is **v2.3**. v1.x files remain useful historical baselines and consensus references.
 
 | File | Purpose |
 |---|---|
-| `warps_nfl_model_v1_8.py` | **Main model** — full backtest (2000–2025) + 2026 projections. Runs the 3-stage weight search, dynasty modifier, consensus screen. |
+| `warps_nfl_model_v2_3.py` | **Main model** — SOS-adjusted Pythagorean champion, full backtest (2000–2025) + 2026 projections. |
+| `warps_monte_carlo.py` | Empirical residual Monte Carlo layer for 2026 win distributions and market-side probabilities. |
+| `warps_nfl_model_v1_8.py` | Prior champion baseline — full backtest (2000–2025) + 2026 projections. |
 | `warps_nfl_model_v1_5d.py` | Earlier version — shorter training window, used as one of three consensus models |
 | `warps_nfl_model_v1_6.py` | Intermediate version with additional EPA components — used as second consensus model |
 | `warps_nfl_model_v1_7.py` | Pre-champion version (pure Pythagorean on short window) — reference only |
@@ -46,7 +48,9 @@ Current champion model is **v1.8**. v2.0/v2.1 are experimental.
 
 | File | Contents |
 |---|---|
-| `warps_2026_screen_v1_8.csv` | **Primary 2026 output** — all 32 teams, WARPS projection, Vegas O/U, edge, consensus tier |
+| `warps_2026_screen_v2_3.csv` | **Primary 2026 output** — all 32 teams, WARPS projection, Vegas O/U, edge, consensus tier |
+| `warps_2026_monte_carlo.csv` | 2026 empirical residual Monte Carlo distribution — median/P10/P90, O/U probability, risk tier |
+| `warps_2026_screen_v1_8.csv` | Prior champion 2026 output — all 32 teams, WARPS projection, Vegas O/U, edge, consensus tier |
 | `warps_2026_screen_v1_5d.csv` | 2026 projections from v1.5d model (used in consensus) |
 | `warps_2026_screen_v1_6.csv` | 2026 projections from v1.6 model (used in consensus) |
 | `warps_2026_screen_v1_7.csv` | 2026 projections from v1.7 model (reference) |
@@ -60,7 +64,8 @@ Current champion model is **v1.8**. v2.0/v2.1 are experimental.
 
 | File | Contents |
 |---|---|
-| `warps_backtest_team_results_v1_8.csv` | **Primary backtest** — per-team predictions vs actuals for all 26 seasons, all 3 models' errors |
+| `warps_backtest_team_results_v2_3.csv` | **Primary backtest** — v2.3 per-team predictions vs actuals for all 26 seasons |
+| `warps_backtest_team_results_v1_8.csv` | Prior champion backtest — per-team predictions vs actuals for all 26 seasons, all 3 models' errors |
 | `warps_backtest_by_year_v1_8.csv` | Year-level MAE summary: WARPS vs Pythagorean vs prior wins |
 | `warps_backtest_team_results_v1_5d.csv` | Same for v1.5d |
 | `warps_backtest_team_results_v1_6.csv` | Same for v1.6 |

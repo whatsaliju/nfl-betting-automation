@@ -2,11 +2,74 @@ import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, Crosshair, FileT
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { teamColors, teamLogos } from "../data/nflData";
 import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
+import monteCarloPayload from "../data/warpsMonteCarlo.json";
 import { bootstrapStats, byYearData, calibrationData, consensusData, historicalTeamData, linesMetadata, metricRanking, pnlByYear, profitabilityData, residualHistogram, trajectoryData, type ConsensusRow } from "../data/warpsData";
 
 type WARPSTab = "slate" | "performance" | "methodology" | "paper" | "quadrant";
 
 const VALID_TABS = new Set<WARPSTab>(["slate", "performance", "methodology", "paper", "quadrant"]);
+
+type MonteCarloTeam = {
+  team: string;
+  market_total: number;
+  warps_wins: number;
+  edge: number;
+  mean_wins: number;
+  median_wins: number;
+  p10_wins: number;
+  p25_wins: number;
+  p75_wins: number;
+  p90_wins: number;
+  prob_over: number;
+  prob_under: number;
+  prob_push: number;
+  prob_10_plus: number;
+  prob_12_plus: number;
+  prob_6_or_less: number;
+  direction: "OVER" | "UNDER" | "SPLIT";
+  tier: "strong" | "watch" | "thin";
+};
+
+type MonteCarloPayload = {
+  metadata: {
+    model: string;
+    simulations: number;
+    residual_count: number;
+    residual_std: number;
+    method: string;
+  };
+  teams: MonteCarloTeam[];
+};
+
+const monteCarlo = monteCarloPayload as MonteCarloPayload;
+const monteCarloByTeam = new Map(monteCarlo.teams.map((row) => [row.team, row]));
+
+function impliedProbability(odds: number): number {
+  return odds > 0 ? 100 / (odds + 100) : Math.abs(odds) / (Math.abs(odds) + 100);
+}
+
+function noVigProbabilities(over: number, under: number): { over: number; under: number } {
+  const overImp = impliedProbability(over);
+  const underImp = impliedProbability(under);
+  const total = overImp + underImp || 1;
+  return { over: overImp / total, under: underImp / total };
+}
+
+function expectedRoi(probability: number, odds: number): number {
+  const profit = odds > 0 ? odds / 100 : 100 / Math.abs(odds);
+  return probability * profit - (1 - probability);
+}
+
+function oddsLabel(odds: number): string {
+  return odds > 0 ? `+${odds}` : String(odds);
+}
+
+function fairOdds(probability: number): string {
+  if (probability <= 0 || probability >= 1) return "n/a";
+  return probability >= 0.5
+    ? `-${Math.round((probability / (1 - probability)) * 100)}`
+    : `+${Math.round(((1 - probability) / probability) * 100)}`;
+}
 
 // Teams with Dynasty Persistence Modifier active in 2026 projections (v2.3)
 const DYNASTY_POSITIVE = new Set(["KC", "BUF", "PHI", "BAL", "DET"]);  // 4+ years sustained excellence (R=0.95 upward)
@@ -681,6 +744,90 @@ function PickCardDetail({ row, qbInfo }: { row: ConsensusRow; qbInfo: QBAdjResul
   );
 }
 
+function pctLabel(value: number): string {
+  return `${Math.round(value * 100)}%`;
+}
+
+function MonteCarloMiniBand({ row }: { row: MonteCarloTeam }) {
+  const scale = (v: number) => Math.min(100, Math.max(0, (v / 17) * 100));
+  const p10 = scale(row.p10_wins);
+  const p90 = scale(row.p90_wins);
+  const p25 = scale(row.p25_wins);
+  const p75 = scale(row.p75_wins);
+  const market = scale(row.market_total);
+  const median = scale(row.median_wins);
+  return (
+    <div className="mc-band" aria-label={`${row.team} Monte Carlo win distribution`}>
+      <div className="mc-band-range" style={{ left: `${p10}%`, width: `${Math.max(1, p90 - p10)}%` }} />
+      <div className="mc-band-iqr" style={{ left: `${p25}%`, width: `${Math.max(1, p75 - p25)}%` }} />
+      <div className="mc-band-marker mc-band-market" style={{ left: `${market}%` }} title={`Market ${row.market_total}`} />
+      <div className="mc-band-marker mc-band-median" style={{ left: `${median}%` }} title={`Median ${row.median_wins}`} />
+    </div>
+  );
+}
+
+function MonteCarloSection({ rows, showQbAdj }: { rows: ConsensusRow[]; showQbAdj: boolean }) {
+  const ranked = rows
+    .map((row) => ({ row, mc: monteCarloByTeam.get(row.team) }))
+    .filter((item): item is { row: ConsensusRow; mc: MonteCarloTeam } => Boolean(item.mc))
+    .sort((a, b) => Math.max(b.mc.prob_over, b.mc.prob_under) - Math.max(a.mc.prob_over, a.mc.prob_under));
+  const leaders = ranked.slice(0, 8);
+
+  return (
+    <div className="warps-mc-section">
+      <div className="warps-section-row">
+        <div>
+          <h4 className="warps-subsection">Monte Carlo Forecast Distribution</h4>
+          <p className="warps-chart-note">
+            {monteCarlo.metadata.simulations.toLocaleString()} simulations per team using {monteCarlo.metadata.residual_count}
+            {" "}historical {monteCarlo.metadata.model} residuals. Probabilities are forecast-side only: simulated wins versus preseason market O/U.
+          </p>
+        </div>
+        <div className="mc-meta-pill">
+          Residual sigma {monteCarlo.metadata.residual_std.toFixed(2)} wins
+        </div>
+      </div>
+      {showQbAdj && (
+        <p className="warps-chart-note mc-note">
+          Monte Carlo uses the base {monteCarlo.metadata.model} outputs. The optional QB overlay changes the pick cards above but is not backtested into this distribution yet.
+        </p>
+      )}
+      <div className="mc-card-grid">
+        {leaders.map(({ row, mc }) => {
+          const prob = mc.direction === "OVER" ? mc.prob_over : mc.prob_under;
+          const isOver = mc.direction === "OVER";
+          return (
+            <div key={row.team} className={`mc-card ${isOver ? "mc-over" : "mc-under"}`}>
+              <div className="mc-card-head">
+                <img src={teamLogos[row.team]} alt={row.team} className="mc-logo" />
+                <div>
+                  <strong>{row.team}</strong>
+                  <span>{mc.direction} {mc.market_total.toFixed(1)}</span>
+                </div>
+                <div className="mc-prob">{pctLabel(prob)}</div>
+              </div>
+              <MonteCarloMiniBand row={mc} />
+              <div className="mc-card-stats">
+                <span>P10 {mc.p10_wins.toFixed(1)}</span>
+                <span>Med {mc.median_wins.toFixed(1)}</span>
+                <span>P90 {mc.p90_wins.toFixed(1)}</span>
+              </div>
+              <div className="mc-card-foot">
+                <span>WARPS {mc.warps_wins.toFixed(1)}</span>
+                <span>Edge {mc.edge > 0 ? "+" : ""}{mc.edge.toFixed(1)}</span>
+                <span className={`mc-tier mc-tier-${mc.tier}`}>{mc.tier}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="warps-chart-note">
+        Band = P10-P90 range, darker middle = P25-P75, red tick = market total, blue tick = simulated median.
+      </p>
+    </div>
+  );
+}
+
 function SlateTab({
   rows,
   qbAdjMap,
@@ -736,6 +883,8 @@ function SlateTab({
       </div>
 
       <EdgeWaterfall rows={rows} />
+
+      <MonteCarloSection rows={rows} showQbAdj={showQbAdj} />
 
       <h4 className="warps-subsection" style={{ marginTop: "24px" }}>Picks by conviction tier</h4>
       <div className="warps-slate-note">
@@ -2546,6 +2695,149 @@ function StrategicQuadrant({ rows }: { rows: ConsensusRow[] }) {
   );
 }
 
+function PricingQuadrant({ rows }: { rows: ConsensusRow[] }) {
+  const pricedRows = rows
+    .map((row) => {
+      if (row.overOdds === undefined || row.underOdds === undefined) return null;
+      const mc = monteCarloByTeam.get(row.team);
+      if (!mc) return null;
+      const noVig = noVigProbabilities(row.overOdds, row.underOdds);
+      const modelDirection = row.v18Wins >= row.marketTotal ? "OVER" : "UNDER";
+      const side = modelDirection === "OVER" ? "Over" : "Under";
+      const modelProb = modelDirection === "OVER" ? mc.prob_over : mc.prob_under;
+      const marketProb = modelDirection === "OVER" ? noVig.over : noVig.under;
+      const odds = modelDirection === "OVER" ? row.overOdds : row.underOdds;
+      const priceEdge = modelProb - marketProb;
+      const winEdge = modelDirection === "OVER" ? row.v18Wins - row.marketTotal : row.marketTotal - row.v18Wins;
+      return {
+        row,
+        side,
+        modelProb,
+        marketProb,
+        odds,
+        priceEdge,
+        winEdge,
+        roi: expectedRoi(modelProb, odds),
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+  const leaders = [...pricedRows].sort((a, b) => b.roi - a.roi).slice(0, 10);
+  const W = 620;
+  const H = 390;
+  const ML = 54;
+  const MT = 24;
+  const MR = 28;
+  const MB = 48;
+  const PW = W - ML - MR;
+  const PH = H - MT - MB;
+  const xMin = -2.5;
+  const xMax = 2.5;
+  const yMin = -0.18;
+  const yMax = 0.30;
+  const scX = (v: number) => ML + ((v - xMin) / (xMax - xMin)) * PW;
+  const scY = (v: number) => MT + PH - ((v - yMin) / (yMax - yMin)) * PH;
+  const xZero = scX(0);
+  const yZero = scY(0);
+
+  return (
+    <div className="pricing-quadrant-wrap">
+      <div className="warps-section-row">
+        <div>
+          <h3 className="warps-section-title" style={{ fontSize: 16 }}>Model vs {linesMetadata.source} Price</h3>
+          <p className="warps-section-sub">
+            X-axis is raw WARPS win edge on the model side. Y-axis is Monte Carlo probability minus no-vig market probability.
+            The upper-right quadrant is where projection and price agree.
+          </p>
+        </div>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="pricing-quadrant-svg">
+        <rect x={ML} y={MT} width={PW} height={PH} rx={4} fill="#fff" stroke="#e2e8f0" />
+        <rect x={xZero} y={MT} width={W - MR - xZero} height={yZero - MT} fill="rgba(22,163,74,0.06)" />
+        <rect x={ML} y={yZero} width={xZero - ML} height={MT + PH - yZero} fill="rgba(220,38,38,0.04)" />
+        {[-2, -1, 0, 1, 2].map((tick) => (
+          <g key={`x-${tick}`}>
+            <line x1={scX(tick)} y1={MT} x2={scX(tick)} y2={MT + PH} stroke={tick === 0 ? "#94a3b8" : "#eef2f7"} strokeWidth={tick === 0 ? 1.4 : 1} />
+            <text x={scX(tick)} y={H - 18} textAnchor="middle" fontSize={10} fill="#64748b">{tick > 0 ? `+${tick}` : tick}</text>
+          </g>
+        ))}
+        {[-0.1, 0, 0.1, 0.2, 0.3].map((tick) => (
+          <g key={`y-${tick}`}>
+            <line x1={ML} y1={scY(tick)} x2={ML + PW} y2={scY(tick)} stroke={tick === 0 ? "#94a3b8" : "#eef2f7"} strokeWidth={tick === 0 ? 1.4 : 1} />
+            <text x={ML - 7} y={scY(tick) + 4} textAnchor="end" fontSize={10} fill="#64748b">{tick > 0 ? `+${Math.round(tick * 100)}` : Math.round(tick * 100)}pp</text>
+          </g>
+        ))}
+        <text x={ML + PW - 10} y={MT + 18} textAnchor="end" fontSize={11} fill="#15803d" fontWeight={800}>MODEL + PRICE AGREE</text>
+        <text x={ML + PW / 2} y={H - 2} textAnchor="middle" fontSize={11} fill="#475569" fontWeight={700}>WARPS win edge on selected side</text>
+        <text x={13} y={MT + PH / 2} textAnchor="middle" fontSize={11} fill="#475569" fontWeight={700} transform={`rotate(-90 13 ${MT + PH / 2})`}>Model probability edge vs no-vig market</text>
+        {pricedRows.map((item) => {
+          const isOver = item.side === "Over";
+          const positive = item.priceEdge > 0 && item.winEdge > 0;
+          const x = scX(Math.max(xMin, Math.min(xMax, item.winEdge)));
+          const y = scY(Math.max(yMin, Math.min(yMax, item.priceEdge)));
+          return (
+            <g key={item.row.team}>
+              <circle
+                cx={x}
+                cy={y}
+                r={positive ? 7 : 5}
+                fill={isOver ? "#16a34a" : "#dc2626"}
+                opacity={positive ? 0.9 : 0.35}
+                stroke="#fff"
+                strokeWidth={1.5}
+              />
+              {positive && (
+                <text x={x} y={y - 10} textAnchor="middle" fontSize={8} fill="#0f172a" fontWeight={800}>
+                  {item.row.team}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+      <div className="pricing-table-wrap">
+        <table className="warps-table pricing-table">
+          <thead>
+            <tr>
+              <th>{linesMetadata.source} Target</th>
+              <th>WARPS</th>
+              <th>Line</th>
+              <th>Price</th>
+              <th>Model Prob</th>
+              <th>No-Vig Mkt</th>
+              <th>Fair</th>
+              <th>Est. ROI</th>
+            </tr>
+          </thead>
+          <tbody>
+            {leaders.map((item) => (
+              <tr key={`${item.row.team}-${item.side}`}>
+                <td>
+                  <div className="pricing-team-cell">
+                    <img src={teamLogos[item.row.team]} alt={item.row.team} />
+                    <strong>{item.row.team} {item.side}</strong>
+                  </div>
+                </td>
+                <td>{item.row.v18Wins.toFixed(2)}</td>
+                <td>{item.row.marketTotal.toFixed(1)}</td>
+                <td>{oddsLabel(item.odds)}</td>
+                <td>{(item.modelProb * 100).toFixed(1)}%</td>
+                <td>{(item.marketProb * 100).toFixed(1)}%</td>
+                <td>{fairOdds(item.modelProb)}</td>
+                <td className={item.roi > 0 ? "warps-pos" : "warps-neg"}>{item.roi > 0 ? "+" : ""}{(item.roi * 100).toFixed(1)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="warps-chart-note">
+        Prices use {linesMetadata.source} lines entered on {linesMetadata.date}. This is a model-pricing shortlist, not a guarantee;
+        use it before manual roster, injury, schedule, and news review.
+      </p>
+    </div>
+  );
+}
+
 // ──────────────────────────────────────────────────────────────
 // TrajectoryChart — "Path to the Over" season win trajectory
 // ──────────────────────────────────────────────────────────────
@@ -2772,6 +3064,8 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
             Hover any dot for the win probability density curve — how wide the model's uncertainty range is relative to where Vegas has set the line.
           </p>
           <StrategicQuadrant rows={displayData} />
+          <hr style={{ margin: "28px 0 20px", border: "none", borderTop: "1px solid #e2e8f0" }} />
+          <PricingQuadrant rows={displayData} />
           <hr style={{ margin: "28px 0 20px", border: "none", borderTop: "1px solid #e2e8f0" }} />
           <h3 className="warps-section-title" style={{ fontSize: 16 }}>Path to the Over — Schedule Win Trajectory</h3>
           <p className="warps-section-sub">
