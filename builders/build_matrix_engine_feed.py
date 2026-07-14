@@ -31,6 +31,7 @@ PICK_EXPLANATIONS = HISTORICAL_DIR / "pick_explanations.json"
 WEEKLY_BETTING_CARD = HISTORICAL_DIR / "weekly_betting_card.json"
 PRESEASON_DRY_RUN_REPORT = HISTORICAL_DIR / "preseason_dry_run_report.json"
 SURVIVOR_BACKTEST_REPORT = HISTORICAL_DIR / "survivor_backtest_report.json"
+SURVIVOR_POOL_EV_BACKTEST = HISTORICAL_DIR / "survivor_pool_ev_backtest.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
 ACTIVE_SEASON = 2026
@@ -788,6 +789,29 @@ def survivor_backtest_payload():
     }
 
 
+def survivor_pool_ev_payload():
+    if not SURVIVOR_POOL_EV_BACKTEST.exists():
+        return {
+            "available": False,
+            "status": "UNAVAILABLE",
+            "summary": [],
+        }
+    report = json.loads(SURVIVOR_POOL_EV_BACKTEST.read_text())
+    summary = report.get("summary") or []
+    best = summary[0] if summary else None
+    return {
+        "available": True,
+        "status": "BACKTESTED",
+        "model": (report.get("metadata") or {}).get("model"),
+        "seasons": (report.get("metadata") or {}).get("seasons") or [],
+        "trials_per_scenario": (report.get("metadata") or {}).get("trials_per_scenario"),
+        "max_public_entries": (report.get("metadata") or {}).get("max_public_entries"),
+        "method": (report.get("metadata") or {}).get("method"),
+        "best_strategy": best,
+        "summary": summary[:12],
+    }
+
+
 def model_readiness_payload():
     if not READINESS_REPORT.exists():
         return {
@@ -1075,6 +1099,7 @@ def build_feed():
         "weekly_betting_card": weekly_card,
         "preseason_dry_run": preseason,
         "survivor_backtest": survivor_backtest_payload(),
+        "survivor_pool_ev": survivor_pool_ev_payload(),
         "games": games,
         "team_cells": team_cells,
         "edge_board": edge_board,

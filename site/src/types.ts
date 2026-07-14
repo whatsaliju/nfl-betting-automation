@@ -346,6 +346,18 @@ export interface SurvivorBacktestSummaryRow {
   best_seasons?: number[];
 }
 
+export interface SurvivorPoolEvSummaryRow {
+  strategy: string;
+  pool_size: number;
+  simulated_public_entries?: number;
+  payout_style: string;
+  seasons: number;
+  avg_pool_win_or_split_rate: number;
+  avg_payout_share: number;
+  avg_roi_units: number;
+  avg_finish_week: number;
+}
+
 export interface TeamExpectation {
   team: string;
   conference: string;
@@ -667,6 +679,17 @@ export interface EngineFeed {
     method?: string | null;
     best_strategy?: SurvivorBacktestSummaryRow | null;
     summary?: SurvivorBacktestSummaryRow[];
+  };
+  survivor_pool_ev?: {
+    available: boolean;
+    status?: string;
+    model?: string | null;
+    seasons?: number[];
+    trials_per_scenario?: number | null;
+    max_public_entries?: number | null;
+    method?: string | null;
+    best_strategy?: SurvivorPoolEvSummaryRow | null;
+    summary?: SurvivorPoolEvSummaryRow[];
   };
   games: EngineGame[];
   team_cells: Record<string, EngineTeamCell> | EngineTeamCell[];
