@@ -33,6 +33,8 @@ Current champion model is **v2.3**. v1.x files remain useful historical baseline
 | `warps_betting_stability_audit.py` | Stress-tests betting gates with era splits, leave-one-season-out, season concentration, and current-card fragility labels. |
 | `warps_2026_game_priors.py` | Converts WARPS season-strength projections into 2026 game-level fair spread and moneyline priors. |
 | `scripts/build_historical_market_spine.py` | Builds the normalized historical spread, moneyline, and totals spine from nflverse schedules for edge backtests. |
+| `scripts/backtest_warps_game_edges.py` | Backtests WARPS-derived fair spreads and moneyline probabilities against the historical market spine. |
+| `scripts/build_2026_warps_market_overlay.py` | Builds the site-ready 2026 WARPS fair spread/ML overlay, optionally joined to supplied current odds. |
 | `warps_nfl_model_v1_8.py` | Prior champion baseline — full backtest (2000–2025) + 2026 projections. |
 | `warps_nfl_model_v1_5d.py` | Earlier version — shorter training window, used as one of three consensus models |
 | `warps_nfl_model_v1_6.py` | Intermediate version with additional EPA components — used as second consensus model |
@@ -58,6 +60,9 @@ Current champion model is **v2.3**. v1.x files remain useful historical baseline
 | `warps_2026_betting_card.csv` | Gate-applied 2026 betting card — bet/pass/watch, side, odds, model probability, no-vig price edge, and stake tier |
 | `warps_2026_game_priors.csv` | WARPS-derived game priors for spreads and moneylines: fair spread, fair ML, and home/away win probability |
 | `data/historical/nfl_market_spine.csv` | Historical per-game market spine with spread/ML/total odds, no-vig probabilities, and graded outcomes. |
+| `data/backtests/warps_game_edges/` | WARPS game-prior edge audit outputs: row-level edges, threshold picks, summary CSV/JSON, and markdown report. |
+| `data/historical/warps_2026_market_overlay.csv` | 2026 game-level WARPS fair-line overlay for spread/ML comparison against supplied book prices. |
+| `site/src/data/warpsMarketOverlay2026.json` | Static frontend copy of the 2026 WARPS fair-line spread/ML overlay. |
 | `warps_2026_screen_v1_8.csv` | Prior champion 2026 output — all 32 teams, WARPS projection, Vegas O/U, edge, consensus tier |
 | `warps_2026_screen_v1_5d.csv` | 2026 projections from v1.5d model (used in consensus) |
 | `warps_2026_screen_v1_6.csv` | 2026 projections from v1.6 model (used in consensus) |
