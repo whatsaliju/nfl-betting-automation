@@ -48,6 +48,7 @@ jobs:
           else
             python scripts/refresh_2026_warps_market_overlay.py --fetch-odds-api --preferred-book "$PREFERRED_BOOK"
           fi
+          python scripts/build_survivor_recommendations.py
 
       - name: Validate generated overlay
         run: |
@@ -68,6 +69,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/historical/warps_2026_market_overlay.csv site/src/data/warpsMarketOverlay2026.json
+          git add data/historical/survivor_recommendations_2026.csv data/historical/survivor_recommendations_2026.json data/historical/survivor_recommendations_2026.md site/src/data/survivorRecommendations2026.json
           test -f data/current_odds_api.json && git add data/current_odds_api.json
           test -f data/historical/current_market_odds.csv && git add data/historical/current_market_odds.csv
           if git diff --cached --quiet; then

@@ -10,6 +10,7 @@ import { PostseasonStrip } from "./components/PostseasonStrip";
 import { ResearchView } from "./components/ResearchView";
 import { ResultsView } from "./components/ResultsView";
 import { ScoutView } from "./components/ScoutView";
+import { SurvivorView } from "./components/SurvivorView";
 import { TrackRecordView } from "./components/TrackRecordView";
 import { WARPSView } from "./components/WARPSView";
 import { TeamModal } from "./components/TeamModal";
@@ -19,13 +20,13 @@ import { historicalVegasLines } from "./data/nflData";
 import warpsMarketOverlay2026 from "./data/warpsMarketOverlay2026.json";
 import type { EngineFeed, Filter, TeamProfile, WarpsMarketOverlay } from "./types";
 
-type AppViewMode = "track" | "matrix" | "edges" | "card" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
+type AppViewMode = "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "card", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections"]);
+const VALID_VIEWS = new Set<AppViewMode>(["track", "matrix", "edges", "card", "survivor", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections"]);
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
@@ -200,6 +201,7 @@ function App() {
           <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")}><Trophy size={15} />Results</button>
           <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges{!hasEdges && <span className="tab-soon">Soon</span>}</button>
           <button className={viewMode === "card" ? "active" : ""} onClick={() => setViewMode("card")}><ClipboardList size={15} />Card</button>
+          <button className={viewMode === "survivor" ? "active" : ""} onClick={() => setViewMode("survivor")}><ShieldCheck size={15} />Survivor</button>
           <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
           <button className={["projections", "audit", "expectations"].includes(viewMode) ? "active" : ""} onClick={() => setViewMode("projections")}><Gauge size={15} />Projections{!hasProjections && <span className="tab-soon">Soon</span>}</button>
           <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")}><ClipboardList size={15} />Track</button>
@@ -254,6 +256,8 @@ function App() {
       {viewMode === "edges" && <EdgeBoardView games={edgeGames} />}
 
       {viewMode === "card" && <BettingCardView card={engineFeed?.weekly_betting_card} />}
+
+      {viewMode === "survivor" && <SurvivorView />}
 
       {viewMode === "research" && <ResearchView summary={researchSummary} />}
 

@@ -1249,6 +1249,200 @@ select {
   margin-bottom: 6px;
 }
 
+.survivor-panel .panel-toolbar { align-items: flex-start; }
+.survivor-controls {
+  display: grid;
+  gap: 10px;
+}
+.survivor-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+}
+.survivor-controls select {
+  border: 1px solid #cbd7e2;
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: #fff;
+}
+.used-team-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.used-team-strip button {
+  border: 1px solid #dce3ea;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #475569;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.used-team-strip button.used {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+.survivor-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.survivor-card {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 10px;
+}
+.survivor-card.primary {
+  border-color: #8bc8a6;
+  background: #f2fbf6;
+}
+.survivor-card.secondary {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+.survivor-card.deep_pool {
+  border-color: #f0c37a;
+  background: #fffaf0;
+}
+.survivor-card.used {
+  opacity: 0.55;
+}
+.survivor-card-top, .survivor-pick-team, .survivor-used-btn, .table-team {
+  display: flex;
+  align-items: center;
+}
+.survivor-card-top {
+  justify-content: space-between;
+  color: #64748b;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+.survivor-pick-team {
+  gap: 9px;
+}
+.survivor-pick-team img, .table-team img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+.survivor-pick-team div {
+  flex: 1;
+  min-width: 0;
+}
+.survivor-pick-team strong, .survivor-pick-team span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.survivor-pick-team strong { color: #0f172a; font-size: 20px; }
+.survivor-pick-team span { color: #64748b; font-size: 12px; }
+.survivor-pick-team b {
+  color: #0f5132;
+  font-size: 22px;
+}
+.survivor-score-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.survivor-score-grid div {
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  background: #fff;
+  padding: 7px;
+}
+.survivor-score-grid span, .survivor-score-grid strong {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.survivor-score-grid span { color: #64748b; font-size: 11px; }
+.survivor-score-grid strong { color: #0f172a; font-size: 13px; }
+.survivor-reasons {
+  margin: 0;
+  padding-left: 16px;
+  color: #334155;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.survivor-used-btn {
+  gap: 6px;
+  justify-content: center;
+}
+.survivor-table-wrap {
+  overflow: auto;
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+}
+.survivor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.survivor-table th, .survivor-table td {
+  border-bottom: 1px solid #dce3ea;
+  padding: 8px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+.survivor-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+}
+.survivor-table tbody tr:hover td { background: #f8fafc; }
+.survivor-table .row-used td {
+  color: #94a3b8;
+  background: #f8fafc;
+}
+.table-team {
+  gap: 7px;
+  font-weight: 800;
+}
+.survivor-path h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  color: #334155;
+  font-size: 14px;
+}
+.survivor-path-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+  gap: 6px;
+}
+.survivor-path-grid button {
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  background: #fff;
+  padding: 7px;
+  cursor: pointer;
+}
+.survivor-path-grid button.active {
+  border-color: #8bc8a6;
+  background: #f2fbf6;
+}
+.survivor-path-grid span, .survivor-path-grid strong, .survivor-path-grid b {
+  display: block;
+}
+.survivor-path-grid span { color: #64748b; font-size: 11px; }
+.survivor-path-grid strong { color: #0f172a; font-size: 14px; }
+.survivor-path-grid b { color: #0f5132; font-size: 11px; }
+
 @media (max-width: 760px) {
   .app-shell { padding: 10px 12px; }
   .topbar { align-items: flex-start; flex-direction: column; }
@@ -1267,6 +1461,7 @@ select {
   .warps-table { font-size: 11px; }
   .warps-table th, .warps-table td { padding: 5px 6px; }
   .edge-bar-wrap, .mae-bar-wrap { width: 48px; }
+  .survivor-hero-grid { grid-template-columns: 1fr; }
 }
 
 /* ── WARPS Lab ─────────────────────────────────────────── */
