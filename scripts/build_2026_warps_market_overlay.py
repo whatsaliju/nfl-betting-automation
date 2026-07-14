@@ -187,7 +187,7 @@ def build_overlay(priors: list[dict], current_odds: dict[str, dict]) -> list[dic
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build 2026 WARPS market overlay")
     parser.add_argument("--priors", type=Path, default=DEFAULT_PRIORS)
-    parser.add_argument("--current-odds", type=Path, default=None, help="Optional CSV keyed by matchup_key")
+    parser.add_argument("--current-odds", type=Path, default=None, help="Optional normalized CSV keyed by matchup_key. Generate with scripts/normalize_current_market_odds.py.")
     parser.add_argument("--csv-output", type=Path, default=DEFAULT_CSV)
     parser.add_argument("--json-output", type=Path, default=DEFAULT_JSON)
     args = parser.parse_args()
