@@ -17,6 +17,19 @@ DEFAULT_MD = ROOT / "data" / "historical" / "survivor_recommendations_2026.md"
 DEFAULT_SITE_JSON = ROOT / "site" / "src" / "data" / "survivorRecommendations2026.json"
 POOL_SIZES = (25, 100, 500)
 PAYOUT_STYLES = ("top_heavy", "winner_take_all")
+PUBLIC_PICK_SOURCE_CONTRACT = {
+    "status": "estimated",
+    "provider": "internal heuristic",
+    "real_data_available": False,
+    "method": "Derived from WARPS win probability, team brand chalk, home/road context, division volatility, and pool size.",
+    "fields": ["public_pick_pct_25", "public_pick_pct_100", "public_pick_pct"],
+}
+LIVE_WIN_PROBABILITY_CONTRACT = {
+    "status": "prior_only",
+    "active_components": ["warps_prior", "schedule_context"],
+    "missing_live_components": ["market_moneyline", "injury_qb_status", "weather", "public_survivor_pick_pct"],
+    "policy": "Use WARPS priors for offseason planning; blend live market, injury, weather, and real public-pick inputs once weekly feeds publish.",
+}
 BRAND_CHALK = {
     "BUF": 4.5,
     "KC": 5.5,
@@ -246,6 +259,10 @@ def build_candidates(schedule, warps_rows):
         row["risk_band"] = risk_band(row["win_probability"], row["division_game"], row["home_away"])
         row["tier"] = recommendation_tier(row)
         row["reasons"] = reasons(row)
+        row["win_probability_source_status"] = "warps_prior_only"
+        row["live_win_probability"] = None
+        row["live_win_probability_source_status"] = "missing"
+        row["public_pick_source_status"] = "estimated"
         row["public_pick_pct_25"] = round(public_pick_estimate(row, 25), 2)
         row["public_pick_pct_100"] = round(public_pick_estimate(row, 100), 2)
         row["pool_ev_25_top_heavy"] = round(pool_ev_score(row, 25, "top_heavy", leverage_weight=0.75), 2)
@@ -308,7 +325,10 @@ def pool_pick_payload(row, strategy, pool_size, payout_style):
         "tier": row["tier"],
         "division_game": row["division_game"],
         "public_pick_pct": scores["public_pick_pct"],
+        "public_pick_source_status": "estimated",
         "expected_entries_eliminated": scores["expected_entries_eliminated"],
+        "live_win_probability": row.get("live_win_probability"),
+        "live_win_probability_source_status": row.get("live_win_probability_source_status"),
         "safe_score": scores["safe_score"],
         "balanced_score": scores["balanced_score"],
         "leverage_score": scores["leverage_score"],
@@ -398,6 +418,10 @@ def write_md(path, payload):
         "",
         f"- Model: {payload['metadata']['model']}",
         f"- Games scored: {payload['metadata']['candidate_count']}",
+        f"- Win probability source: {payload['metadata']['live_win_probability_model']['status']} "
+        f"({', '.join(payload['metadata']['live_win_probability_model']['active_components'])})",
+        f"- Public pick source: {payload['metadata']['public_pick_source']['status']} "
+        f"({payload['metadata']['public_pick_source']['provider']})",
         "",
         "| Week | Pick | Game | Win Prob | Survivor Score | Tier | Reasons |",
         "|---:|---|---|---:|---:|---|---|",
@@ -445,6 +469,8 @@ def build_payload(schedule, warps_rows):
             "source": "WARPS game priors + schedule matrix context",
             "policy": "Maximize win probability while penalizing future opportunity cost and volatility.",
             "candidate_count": len(candidates),
+            "public_pick_source": PUBLIC_PICK_SOURCE_CONTRACT,
+            "live_win_probability_model": LIVE_WIN_PROBABILITY_CONTRACT,
         },
         "weekly": weekly,
         "optimal_path": path,

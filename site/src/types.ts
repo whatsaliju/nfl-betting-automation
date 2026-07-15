@@ -308,12 +308,14 @@ export interface WeeklyBettingCardRow {
   spread_status?: string | null;
   total_status?: string | null;
   moneyline_status?: string | null;
+  moneyline_promotion_status?: string | null;
   route_selected_market?: string | null;
   route_reason?: string | null;
   market_options?: Array<{
     market: string;
     side?: string | null;
     status?: string | null;
+    promotion_status?: string | null;
     score?: number | null;
     threshold?: number | null;
     blockers?: string[];

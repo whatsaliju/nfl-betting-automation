@@ -524,9 +524,34 @@ def write_source_health_text(path, source_health):
             f.write("\n")
 
 
+SOURCE_BLOCKING_STATUSES = {"UNSAFE", "MISSING", "CRITICAL", "FAILED"}
+
+
+def source_gate_for_quality(data_quality):
+    status = str(data_quality.get("status") or "UNKNOWN").upper()
+    critical_warnings = data_quality.get("critical_warnings", []) or []
+    unsafe_sources = data_quality.get("unsafe_sources", []) or []
+    blocked = (
+        status in SOURCE_BLOCKING_STATUSES
+        or bool(critical_warnings)
+        or bool(unsafe_sources)
+    )
+    return {
+        "status": status,
+        "blocked": blocked,
+        "unsafe_sources": unsafe_sources,
+        "critical_warnings": critical_warnings,
+    }
+
+
 def apply_source_safety_policy(game_analysis, data_quality):
+    gate = source_gate_for_quality(data_quality)
+    trace = game_analysis.get("recommendation_trace") or {}
+    trace["source_policy"] = gate
+    game_analysis["recommendation_trace"] = trace
+
     if (
-        data_quality.get("status") == "UNSAFE"
+        gate["blocked"]
         and SOURCE_QUALITY_CONFIG.get("block_picks_on_unsafe", True)
         and game_analysis.get("pick_metadata", {}).get("market") != "none"
     ):
@@ -535,25 +560,18 @@ def apply_source_safety_policy(game_analysis, data_quality):
         game_analysis["classification"] = "⚠️ PASS"
         game_analysis["classification_label"] = "PASS"
         game_analysis["tier_score"] = 3
-        game_analysis["recommendation"] = "⚠️ PASS: Unsafe source quality blocked recommendation"
+        game_analysis["recommendation"] = "⚠️ PASS: Source quality blocked recommendation"
         game_analysis["pick_metadata"] = {
             "market": "none",
-            "reason": "unsafe source quality",
+            "reason": "source quality blocked",
             "blocked_market": game_analysis["source_blocked_pick_metadata"].get("market"),
             "blocked_side": game_analysis["source_blocked_pick_metadata"].get("side"),
             "blocked_score": game_analysis["source_blocked_pick_metadata"].get("score"),
         }
-        trace = game_analysis.get("recommendation_trace") or {}
-        trace["source_policy"] = {
-            "status": data_quality.get("status"),
-            "blocked": True,
-            "unsafe_sources": data_quality.get("unsafe_sources", []),
-            "critical_warnings": data_quality.get("critical_warnings", []),
-        }
         trace["final_decision"] = {
             "market": "none",
             "side": None,
-            "reason": "unsafe source quality",
+            "reason": "source quality blocked",
             "blocked_previous_market": game_analysis["source_blocked_pick_metadata"].get("market"),
             "blocked_previous_side": game_analysis["source_blocked_pick_metadata"].get("side"),
         }

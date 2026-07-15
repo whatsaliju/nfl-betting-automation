@@ -2,6 +2,8 @@
 
 - Model: WARPS survivor intelligence v0.1
 - Games scored: 544
+- Win probability source: prior_only (warps_prior, schedule_context)
+- Public pick source: estimated (internal heuristic)
 
 | Week | Pick | Game | Win Prob | Survivor Score | Tier | Reasons |
 |---:|---|---|---:|---:|---|---|
