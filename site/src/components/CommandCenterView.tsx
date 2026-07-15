@@ -153,10 +153,15 @@ export function CommandCenterView({
           <span className="command-eyebrow">Weekly Command Center</span>
           <h2>{commandWeekLabel} Decision Board</h2>
           <p>
-            Betting card, survivor, WARPS priors, and engine health in one place. {command?.warnings?.[0] || context?.message || "Detailed tabs stay available when you want to drill in."}
+            Betting card, survivor, WARPS priors, and engine health in one place. {command?.action_reason || command?.warnings?.[0] || context?.message || "Detailed tabs stay available when you want to drill in."}
           </p>
         </div>
         <div className="command-status-stack">
+          <span className={command?.recommended_action?.startsWith("NO BET") ? "status-pill warning" : "status-pill ok"}>
+            <Gauge size={14} />
+            {command?.recommended_action || "Action pending"}
+            {command?.confidence_tier && <strong> · {command.confidence_tier}</strong>}
+          </span>
           <span className={cardAvailable ? "status-pill ok" : "status-pill warning"}>
             <ShieldCheck size={14} />
             {cardAvailable ? "Current card live" : "Current card pending"}
@@ -311,6 +316,11 @@ export function CommandCenterView({
             <span className={context?.mode === "live" ? "ok" : "warn"}>
               Current context {context ? `${context.week_label} · ${titleCase(context.status)}` : "not published"}
             </span>
+            {command?.source_gates && Object.entries(command.source_gates).map(([gate, status]) => (
+              <span className={status === "PASS" ? "ok" : "warn"} key={gate}>
+                {titleCase(gate)} {status}
+              </span>
+            ))}
           </div>
         </article>
       </div>

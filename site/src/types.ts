@@ -363,6 +363,10 @@ export interface WeeklyCommandCenter {
   generated_from?: string;
   current_context: CurrentContext;
   decision_mode?: string;
+  recommended_action?: "PLAY" | "LEAN" | "WATCH" | "PASS" | "NO BET - DATA INCOMPLETE" | string;
+  confidence_tier?: "A" | "B" | "C" | "X" | string;
+  action_reason?: string;
+  source_gates?: Record<string, "PASS" | "WARN" | "BLOCKED" | "MISSING" | string>;
   do_nothing_warning: boolean;
   warnings: string[];
   betting_card: {

@@ -17,6 +17,7 @@ HISTORICAL_DIR = ROOT / "data" / "historical"
 OUTPUT_JSON = HISTORICAL_DIR / "matrix_engine_feed.json"
 OUTPUT_CSV = HISTORICAL_DIR / "matrix_engine_feed.csv"
 WEEKLY_COMMAND_CENTER = HISTORICAL_DIR / "weekly_command_center.json"
+WEEKLY_COMMAND_CENTER_MD = HISTORICAL_DIR / "weekly_command_center.md"
 READINESS_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "model_readiness_report.json"
 FEATURE_RESEARCH_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "feature_research_report.json"
 FEATURE_POLICY_SIMULATION = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "feature_policy_simulation.json"
@@ -898,11 +899,38 @@ def weekly_command_center_payload(context, weekly_card, edge_board, preseason, w
         warnings.append("No actionable betting plays or watchlist spots are active.")
     if preseason.get("available") and preseason.get("status") != "PASS":
         warnings.append("Preseason dry-run checks are not fully passing.")
+    source_gates = {
+        "live_betting_card": "PASS" if context.get("has_betting_card") else "BLOCKED",
+        "preseason_dry_run": "PASS" if preseason.get("status") == "PASS" else "WARN" if preseason.get("available") else "MISSING",
+        "warps_priors": "PASS" if warps_index else "MISSING",
+        "survivor_recommendations": "PASS" if load_survivor_recommendations() else "MISSING",
+    }
+    action = "NO BET - DATA INCOMPLETE" if source_gates["live_betting_card"] == "BLOCKED" else "PLAY" if plays else "WATCH" if watch else "PASS"
+    confidence_tier = (
+        "X" if action == "NO BET - DATA INCOMPLETE"
+        else "A" if plays and all(value == "PASS" for value in source_gates.values())
+        else "B" if plays
+        else "C" if watch
+        else "X"
+    )
+    action_reason = (
+        "Live betting inputs are not published for this context."
+        if action == "NO BET - DATA INCOMPLETE"
+        else "At least one selector play cleared the current command gate."
+        if action == "PLAY"
+        else "No plays cleared, but watchlist spots exist."
+        if action == "WATCH"
+        else "No playable or watchlist edges are active."
+    )
     return {
         "available": True,
         "generated_from": "matrix_engine_feed_builder",
         "current_context": context,
         "decision_mode": context.get("mode"),
+        "recommended_action": action,
+        "confidence_tier": confidence_tier,
+        "action_reason": action_reason,
+        "source_gates": source_gates,
         "do_nothing_warning": bool(warnings),
         "warnings": warnings,
         "betting_card": {
@@ -920,6 +948,79 @@ def weekly_command_center_payload(context, weekly_card, edge_board, preseason, w
             "card_available": bool(context.get("has_betting_card")),
         },
     }
+
+
+def pick_label(pick):
+    if not pick:
+        return "n/a"
+    team = pick.get("team") or "n/a"
+    opponent = pick.get("opponent") or "n/a"
+    prob = pick.get("win_probability")
+    prob_text = f"{prob:.1%}" if isinstance(prob, (int, float)) else "n/a"
+    return f"{team} vs {opponent} ({prob_text})"
+
+
+def write_weekly_command_center_md(path, command):
+    context = command.get("current_context") or {}
+    survivor = command.get("survivor") or {}
+    lines = [
+        "# Weekly Command Center",
+        "",
+        f"- Context: {context.get('season')} {context.get('week_label')} · {context.get('mode')}",
+        f"- Recommended action: **{command.get('recommended_action')}**",
+        f"- Confidence tier: **{command.get('confidence_tier')}**",
+        f"- Reason: {command.get('action_reason')}",
+        "",
+        "## Source Gates",
+        "",
+        "| Gate | Status |",
+        "|---|---|",
+    ]
+    for gate, status in (command.get("source_gates") or {}).items():
+        lines.append(f"| {gate.replace('_', ' ')} | {status} |")
+    lines.extend([
+        "",
+        "## Betting Card",
+        "",
+        f"- Plays: {command.get('betting_card', {}).get('plays', 0)}",
+        f"- Watch: {command.get('betting_card', {}).get('watch', 0)}",
+        f"- Passes: {command.get('betting_card', {}).get('passes', 0)}",
+    ])
+    top_cards = command.get("betting_card", {}).get("top_cards") or []
+    if top_cards:
+        lines.extend(["", "| Game | Action | Market | Side | Score |", "|---|---|---|---|---:|"])
+        for row in top_cards:
+            lines.append(
+                f"| {row.get('away_tla')}@{row.get('home_tla')} | {row.get('action')} | "
+                f"{row.get('market') or 'n/a'} | {row.get('side') or 'n/a'} | {row.get('selector_score') or 'n/a'} |"
+            )
+    lines.extend([
+        "",
+        "## Survivor",
+        "",
+        f"- Primary: {pick_label(survivor.get('primary'))}",
+        f"- Safest: {pick_label(survivor.get('safest'))}",
+        f"- Path pick: {pick_label(survivor.get('path_pick'))}",
+        "",
+        "| Pool | Safe | Balanced | Leverage |",
+        "|---:|---|---|---|",
+    ])
+    for card in survivor.get("pool_cards") or []:
+        lines.append(
+            f"| {card.get('pool_size')} | {pick_label(card.get('safe'))} | "
+            f"{pick_label(card.get('balanced'))} | {pick_label(card.get('leverage'))} |"
+        )
+    lines.extend(["", "## WARPS Watch", "", "| Team | Game | Win Prob | Fair ML |", "|---|---|---:|---|"])
+    for row in command.get("warps_watch") or []:
+        prob = row.get("win_probability")
+        prob_text = f"{prob:.1%}" if isinstance(prob, (int, float)) else "n/a"
+        prefix = "vs" if row.get("home_away") == "home" else "@"
+        lines.append(f"| {row.get('team')} | {prefix} {row.get('opponent')} | {prob_text} | {row.get('fair_moneyline') or 'n/a'} |")
+    if command.get("warnings"):
+        lines.extend(["", "## Warnings", ""])
+        for warning in command.get("warnings"):
+            lines.append(f"- {warning}")
+    path.write_text("\n".join(lines) + "\n")
 
 
 def model_readiness_payload():
@@ -1256,9 +1357,11 @@ def main():
     OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_JSON.write_text(json.dumps(feed, indent=2, default=str))
     WEEKLY_COMMAND_CENTER.write_text(json.dumps(feed["weekly_command_center"], indent=2, default=str))
+    write_weekly_command_center_md(WEEKLY_COMMAND_CENTER_MD, feed["weekly_command_center"])
     write_csv(feed["team_cells"])
     print(f"Wrote {OUTPUT_JSON}")
     print(f"Wrote {WEEKLY_COMMAND_CENTER}")
+    print(f"Wrote {WEEKLY_COMMAND_CENTER_MD}")
     print(f"Wrote {OUTPUT_CSV}")
     print(f"Games: {feed['game_count']} | Team cells: {feed['team_cell_count']}")
 
