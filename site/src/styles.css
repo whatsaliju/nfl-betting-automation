@@ -96,6 +96,67 @@ button { cursor: pointer; }
   flex-shrink: 0;
 }
 
+.model-status-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.model-status-card {
+  text-align: left;
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px 12px;
+  min-width: 0;
+}
+.model-status-card:hover {
+  border-color: #adc1d6;
+  background: #f8fafc;
+}
+.model-status-card span,
+.model-status-card strong,
+.model-status-card small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.model-status-card span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.model-status-card strong {
+  margin-top: 3px;
+  color: #0f172a;
+  font-size: 18px;
+}
+.model-status-card small {
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 11px;
+}
+.model-status-card.ready {
+  border-color: #98d5b1;
+  background: #f2fbf6;
+}
+.model-status-card.ready strong { color: #17623a; }
+.model-status-card.watch {
+  border-color: #f0c37a;
+  background: #fffaf0;
+}
+.model-status-card.watch strong { color: #8a4e06; }
+.model-status-card.research {
+  border-color: #bfd0e3;
+  background: #f5f9fc;
+}
+.model-status-card.research strong { color: #1e4f79; }
+.model-status-card.hold {
+  background: #fbfdff;
+}
+
 .segmented {
   display: inline-flex;
   align-items: center;
@@ -914,6 +975,59 @@ select {
   align-items: center;
   gap: 8px;
 }
+.command-lane-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.command-lane {
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+  min-width: 0;
+}
+.command-lane.ready {
+  border-color: #98d5b1;
+  background: #f2fbf6;
+}
+.command-lane.watch,
+.command-lane.hold {
+  border-color: #f0c37a;
+  background: #fffaf0;
+}
+.command-lane.research {
+  border-color: #bfd0e3;
+  background: #f5f9fc;
+}
+.command-lane div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.command-lane strong {
+  display: block;
+  margin-top: 6px;
+  color: #0f172a;
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.command-lane.ready strong { color: #17623a; }
+.command-lane.watch strong,
+.command-lane.hold strong { color: #8a4e06; }
+.command-lane.research strong { color: #1e4f79; }
+.command-lane p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.35;
+}
 .command-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1705,12 +1819,13 @@ select {
   .team-col { min-width: 76px; }
   .game-cell { min-width: 58px; }
   .game-chip { min-height: 56px; }
+  .model-status-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .compare-grid, .metric-grid, .research-kpis { grid-template-columns: repeat(2, 1fr); }
   .market-row { grid-template-columns: 1fr; }
   .expectation-mini { grid-template-columns: 1fr; }
   .postseason-strip { flex-direction: column; }
   .command-hero { flex-direction: column; }
-  .command-kpi-grid, .command-grid { grid-template-columns: 1fr; }
+  .command-lane-grid, .command-kpi-grid, .command-grid { grid-template-columns: 1fr; }
   .command-status-stack { justify-content: flex-start; }
   .warps-hero-kpis { grid-template-columns: repeat(2, 1fr); }
   .warps-kpi-grid { grid-template-columns: repeat(2, 1fr); }

@@ -1,4 +1,4 @@
-import { Activity, BarChart3, Brain, CalendarDays, ClipboardList, Crosshair, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
+import { Activity, BarChart3, CalendarDays, ClipboardList, Crosshair, Flame, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { BettingCardView } from "./components/BettingCardView";
 import { CommandCenterView } from "./components/CommandCenterView";
@@ -126,6 +126,32 @@ function App() {
   );
   const researchSummary = hasEngineForSeason ? engineFeed?.research_summary : undefined;
   const readiness = hasEngineForSeason ? engineFeed?.model_readiness : undefined;
+  const modelStages = [
+    {
+      label: "Betting Edge",
+      value: currentBettingCard?.plays ? `${currentBettingCard.plays} live` : "No play",
+      detail: currentContext?.has_betting_card ? "Weekly selector card" : "Waiting for weekly feed",
+      status: currentBettingCard?.plays ? "ready" : "hold",
+    },
+    {
+      label: "Watchlist",
+      value: currentBettingCard?.watch ? `${currentBettingCard.watch} watch` : "Empty",
+      detail: "Review only until gates clear",
+      status: currentBettingCard?.watch ? "watch" : "hold",
+    },
+    {
+      label: "WARPS Prior",
+      value: selectedSeason === 2026 ? "Active" : "Historical",
+      detail: "Forecast layer, not a weekly bet by itself",
+      status: "research",
+    },
+    {
+      label: "ML + Survivor",
+      value: "Research",
+      detail: "ML not promoted; survivor uses prior-only inputs",
+      status: "research",
+    },
+  ];
   const metricMeta = {
     label: "Vegas O/U",
     title: "Preseason Vegas regular-season win total",
@@ -225,12 +251,13 @@ function App() {
           <button className={viewMode === "card" ? "active" : ""} onClick={() => setViewMode("card")}><ClipboardList size={15} />Card</button>
           <button className={viewMode === "survivor" ? "active" : ""} onClick={() => setViewMode("survivor")}><ShieldCheck size={15} />Survivor</button>
           <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
+          <button className={viewMode === "research" ? "active" : ""} onClick={() => setViewMode("research")}><FlaskConical size={15} />Research</button>
           <button className={["projections", "audit", "expectations"].includes(viewMode) ? "active" : ""} onClick={() => setViewMode("projections")}><Gauge size={15} />Projections{!hasProjections && <span className="tab-soon">Soon</span>}</button>
           <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")}><ClipboardList size={15} />Track</button>
         </div>
         <label className="toggle">
           <input type="checkbox" checked={showHeatmap} onChange={(event) => setShowHeatmap(event.target.checked)} />
-          🔥 Heatmap
+          <Flame size={14} /> Heatmap
         </label>
         <label className="toggle">
           <input type="checkbox" checked={showResults} onChange={(event) => setShowResults(event.target.checked)} />
@@ -248,6 +275,24 @@ function App() {
           Engine overlay feed could not be loaded. The schedule, filters, modals, and ESPN result views still work.
         </div>
       )}
+
+      <section className="model-status-strip" aria-label="Model status">
+        {modelStages.map((stage) => (
+          <button
+            key={stage.label}
+            className={`model-status-card ${stage.status}`}
+            onClick={() => {
+              if (stage.label === "Betting Edge" || stage.label === "Watchlist") setViewMode("card");
+              else if (stage.label === "WARPS Prior") setViewMode("warps");
+              else setViewMode("research");
+            }}
+          >
+            <span>{stage.label}</span>
+            <strong>{stage.value}</strong>
+            <small>{stage.detail}</small>
+          </button>
+        ))}
+      </section>
 
       {viewMode === "command" && (
         <CommandCenterView

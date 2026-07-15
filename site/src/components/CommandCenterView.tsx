@@ -1,4 +1,4 @@
-import { AlertTriangle, BadgeCheck, ClipboardList, Gauge, Route, ShieldCheck, Target } from "lucide-react";
+import { AlertTriangle, BadgeCheck, Brain, ClipboardList, FlaskConical, Gauge, Route, ShieldCheck, Target } from "lucide-react";
 import { teamLogos } from "../data/nflData";
 import survivorPayload from "../data/survivorRecommendations2026.json";
 import type { EdgeBoardGame, EngineFeed, WarpsMarketOverlay, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
@@ -145,6 +145,36 @@ export function CommandCenterView({
   const survivorPoolBest = survivorPoolEv?.best_strategy;
   const commandCard = command?.betting_card;
   const hasAction = command ? !command.do_nothing_warning : groups.plays.length + groups.watch.length + edges.length > 0;
+  const laneCards = [
+    {
+      icon: <Target size={15} />,
+      label: "Live Betting",
+      value: command?.recommended_action || "Pending",
+      detail: cardAvailable ? "Selector card is available for the current context." : "No current betting card is published yet.",
+      state: command?.recommended_action?.startsWith("NO BET") || !cardAvailable ? "hold" : "ready",
+    },
+    {
+      icon: <Brain size={15} />,
+      label: "WARPS",
+      value: "Forecast prior",
+      detail: "Useful for fair spread, fair ML, and season-strength context.",
+      state: "research",
+    },
+    {
+      icon: <ShieldCheck size={15} />,
+      label: "Survivor",
+      value: survivorWeek.primary?.team || "n/a",
+      detail: "Offseason board uses WARPS priors, future value, and estimated public pick data.",
+      state: "watch",
+    },
+    {
+      icon: <FlaskConical size={15} />,
+      label: "Research",
+      value: "Monitor",
+      detail: "ML, market router, and factor promotion remain gated by historical validation.",
+      state: "research",
+    },
+  ];
 
   return (
     <section className="command-center">
@@ -179,6 +209,19 @@ export function CommandCenterView({
             PRE dry-run {preseason?.status || "missing"}
           </span>
         </div>
+      </div>
+
+      <div className="command-lane-grid">
+        {laneCards.map((lane) => (
+          <article className={`command-lane ${lane.state}`} key={lane.label}>
+            <div>
+              {lane.icon}
+              <span>{lane.label}</span>
+            </div>
+            <strong>{lane.value}</strong>
+            <p>{lane.detail}</p>
+          </article>
+        ))}
       </div>
 
       <div className="command-kpi-grid">
