@@ -90,6 +90,7 @@ function CardItem({ card }: { card: WeeklyBettingCardRow }) {
       </div>
 
       <div className="betting-card-reasons">
+        {card.route_reason && <p>{card.route_reason}</p>}
         {(card.main_reasons || []).slice(0, 3).map((reason) => (
           <p key={reason}>{reason}</p>
         ))}

@@ -308,6 +308,22 @@ export interface WeeklyBettingCardRow {
   spread_status?: string | null;
   total_status?: string | null;
   moneyline_status?: string | null;
+  route_selected_market?: string | null;
+  route_reason?: string | null;
+  market_options?: Array<{
+    market: string;
+    side?: string | null;
+    status?: string | null;
+    score?: number | null;
+    threshold?: number | null;
+    blockers?: string[];
+    signals?: unknown[];
+    conflicts?: unknown[];
+    warps_alignment?: string | null;
+    warps_side?: string | null;
+    warps_team?: string | null;
+    edge_value?: number | null;
+  }>;
 }
 
 export interface WeeklyBettingCard {

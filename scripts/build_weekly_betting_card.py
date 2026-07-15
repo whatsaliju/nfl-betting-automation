@@ -38,6 +38,78 @@ def selected_market(game):
     return {}
 
 
+def title_market(market):
+    return "moneyline" if market == "moneyline" else market
+
+
+def market_option(game, market):
+    payload = market_payload(game, market)
+    if market == "moneyline":
+        warps = game.get("warps_market_overlay") or {}
+        return {
+            "market": market,
+            "side": warps.get("ml_side"),
+            "status": payload.get("status") or "research_only",
+            "score": payload.get("score"),
+            "threshold": payload.get("threshold"),
+            "blockers": payload.get("blockers") or ["moneyline selector not promoted"],
+            "signals": payload.get("signals") or [],
+            "conflicts": payload.get("conflicts") or [],
+            "warps_alignment": warps.get("ml_pick_alignment"),
+            "warps_side": warps.get("ml_side"),
+            "warps_team": warps.get("ml_team"),
+            "edge_value": warps.get("ml_ev"),
+        }
+    warps = game.get("warps_market_overlay") or {}
+    return {
+        "market": market,
+        "side": payload.get("side"),
+        "status": payload.get("status") or "unavailable",
+        "score": payload.get("score"),
+        "threshold": payload.get("threshold"),
+        "blockers": payload.get("blockers") or [],
+        "signals": payload.get("signals") or [],
+        "conflicts": payload.get("conflicts") or [],
+        "warps_alignment": warps.get("spread_pick_alignment") if market == "spread" else None,
+        "warps_side": warps.get("spread_side") if market == "spread" else None,
+        "warps_team": warps.get("spread_team") if market == "spread" else None,
+        "edge_value": warps.get("spread_edge_points") if market == "spread" else None,
+    }
+
+
+def market_options(game):
+    return [market_option(game, market) for market in ("spread", "total", "moneyline")]
+
+
+def route_summary(game, action, market, flags):
+    options = market_options(game)
+    playable = [row for row in options if row.get("status") in {"playable", "lean"} and row.get("side")]
+    if action == "pass":
+        if flags:
+            reason = f"Blocked by risk/source flags: {', '.join(flags[:3])}"
+        elif playable:
+            reason = "Candidate markets did not clear the quality gate."
+        else:
+            reason = "No market cleared selector thresholds."
+    elif market:
+        selected = next((row for row in options if row["market"] == market), {})
+        reason = (
+            f"{title_market(market)} routed as best available market"
+            f" with status {selected.get('status') or 'unknown'}"
+        )
+        if selected.get("warps_alignment") == "aligned":
+            reason += "; WARPS agrees"
+        elif selected.get("warps_alignment") == "conflict":
+            reason += "; WARPS conflict keeps risk elevated"
+    else:
+        reason = "Watchlist only; no final market selected."
+    return {
+        "selected_market": market,
+        "selected_reason": reason,
+        "market_options": options,
+    }
+
+
 def line_hint(game, market, side):
     if market == "spread":
         warps = game.get("warps_market_overlay") or {}
@@ -122,6 +194,7 @@ def card_row(game):
         market = None
         market_data = {}
         side = None
+    route = route_summary(game, action, market, flags)
     return {
         "key": f"{game.get('season')}:{game.get('week')}:{game.get('matchup_key')}",
         "season": game.get("season"),
@@ -150,6 +223,9 @@ def card_row(game):
         "spread_status": market_payload(game, "spread").get("status"),
         "total_status": market_payload(game, "total").get("status"),
         "moneyline_status": market_payload(game, "moneyline").get("status"),
+        "route_selected_market": route["selected_market"],
+        "route_reason": route["selected_reason"],
+        "market_options": route["market_options"],
     }
 
 
@@ -184,6 +260,7 @@ def flatten(row):
     output = dict(row)
     output["main_reasons"] = "; ".join(row.get("main_reasons") or [])
     output["risk_flags"] = "; ".join(row.get("risk_flags") or [])
+    output["market_options"] = json.dumps(row.get("market_options") or [], separators=(",", ":"))
     return output
 
 
@@ -208,13 +285,14 @@ def write_md(path, payload):
         f"- Watch: {payload['watch']}",
         f"- Passes: {payload['passes']}",
         "",
-        "| Week | Game | Action | Market | Side | Confidence | Reasons | Risk |",
-        "|---:|---|---|---|---|---|---|---|",
+        "| Week | Game | Action | Market | Side | Confidence | Route | Reasons | Risk |",
+        "|---:|---|---|---|---|---|---|---|---|",
     ]
     for row in payload["cards"]:
         lines.append(
             f"| {row['week']} | {row['matchup_key']} | {row['action']} | {row.get('market') or ''} | "
-            f"{row.get('side') or ''} | {row['confidence']} | {'; '.join(row.get('main_reasons') or [])} | "
+            f"{row.get('side') or ''} | {row['confidence']} | {row.get('route_reason') or ''} | "
+            f"{'; '.join(row.get('main_reasons') or [])} | "
             f"{'; '.join(row.get('risk_flags') or [])} |"
         )
     path.write_text("\n".join(lines))
