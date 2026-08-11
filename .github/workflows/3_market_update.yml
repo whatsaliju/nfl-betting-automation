@@ -2,16 +2,16 @@ name: 3. Market Update (with Line-Flip Detection)
 
 on:
   schedule:
-    # Friday 12:00 AM UTC - Only Sept thru Feb
-    - cron: '0 0 * 9-12,1-2 5'   
-    # Sunday 1:00 AM UTC - Only Sept thru Feb
-    - cron: '0 1 * 9-12,1-2 0'   
-    # Sunday 5:00 PM UTC - Only Sept thru Feb
-    - cron: '30 16 * 9-12,1-2 0'
+    # Friday 12:00 AM UTC - Aug thru Feb (covers preseason + regular season)
+    - cron: '0 0 * 8-12,1-2 5'
+    # Sunday 1:00 AM UTC - Aug thru Feb
+    - cron: '0 1 * 8-12,1-2 0'
+    # Sunday 5:00 PM UTC - Aug thru Feb
+    - cron: '30 16 * 8-12,1-2 0'
   workflow_dispatch:
     inputs:
       week:
-        description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB)'
+        description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB, PRE1, PRE2, PRE3)'
         required: true
         type: string
       season:
@@ -80,6 +80,12 @@ jobs:
               WEEK="CONF"  # Next week after DIV
             elif [ -f "data/weekWC/weekWC_referees.csv" ]; then
               WEEK="DIV"  # Next week after WC
+            elif [ -f "data/weekPRE3/weekPRE3_referees.csv" ]; then
+              WEEK="PRE3"
+            elif [ -f "data/weekPRE2/weekPRE2_referees.csv" ]; then
+              WEEK="PRE2"
+            elif [ -f "data/weekPRE1/weekPRE1_referees.csv" ]; then
+              WEEK="PRE1"
             else
               # Fall back to numeric weeks (regular season)
               WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
@@ -90,7 +96,7 @@ jobs:
             fi
           fi
 
-          # Normalize a possible decimal-looking manual value while preserving playoff labels.
+          # Normalize a possible decimal-looking manual value while preserving labels.
           WEEK="${WEEK%.*}"
 
           echo "week=$WEEK" >> $GITHUB_OUTPUT
