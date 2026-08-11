@@ -94,11 +94,12 @@ else:
           import sys
           sys.path.append('scrapers')
           from football_zebras_scraper import save_referees
-          week = int("${{ steps.clean_week.outputs.week }}")
+          week_str = "${{ steps.clean_week.outputs.week }}"
+          week = int(week_str) if week_str.isdigit() else week_str
           df = save_referees(week)
           if df is None or len(df) == 0:
-              print("❌ No referee assignments found")
-              exit(1)
+              print(f"⚠️ No referee assignments found for week {week} (may not be posted yet for preseason)")
+              exit(0)
           print(f"✅ Got {len(df)} games")
           PYTHON_EOF
       
