@@ -248,16 +248,13 @@ if __name__ == "__main__":
         print("Usage: python query_generator.py <week_number>")
         sys.exit(1)
         
-    try:
-        # Get the week number passed from the GitHub Actions run
-        week = int(sys.argv[1])
-    except ValueError:
-        print(f"Error: Invalid week number provided: {sys.argv[1]}. Must be an integer.")
-        sys.exit(1)
+    # Get the week number/label passed from the GitHub Actions run
+    week_arg = sys.argv[1]
+    week = int(week_arg) if week_arg.isdigit() else week_arg
 
     # 1. Construct the input file path based on the correct week number
     referees_csv = f'data/week{week}/week{week}_referees.csv'
-    
+
     # 2. Construct the output base name
     output_file = f'week{week}_queries.txt' 
     
