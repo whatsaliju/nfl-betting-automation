@@ -39,39 +39,41 @@ WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
 ACTIVE_SEASON = 2026
 PYTHAGOREAN_EXPONENT = 2.37
-VEGAS_WIN_TOTALS_2025 = {
-    "ARI": 8.5,
+CURRENT_SEASON = 2026
+# BetMGM 2026 season win totals (July 2026)
+VEGAS_WIN_TOTALS_2026 = {
+    "ARI": 4.5,
     "ATL": 7.5,
     "BAL": 11.5,
-    "BUF": 11.5,
-    "CAR": 6.5,
-    "CHI": 8.5,
+    "BUF": 10.5,
+    "CAR": 7.5,
+    "CHI": 9.5,
     "CIN": 9.5,
-    "CLE": 5.5,
-    "DAL": 7.5,
+    "CLE": 6.5,
+    "DAL": 9.5,
     "DEN": 9.5,
     "DET": 10.5,
-    "GB": 9.5,
+    "GB": 10.5,
     "HOU": 9.5,
     "IND": 7.5,
-    "JAX": 7.5,
-    "KC": 11.5,
-    "LAC": 9.5,
-    "LAR": 9.5,
-    "LV": 6.5,
-    "MIA": 8.5,
+    "JAX": 9.5,
+    "KC": 10.5,
+    "LAC": 10.5,
+    "LAR": 11.5,
+    "LV": 5.5,
+    "MIA": 4.5,
     "MIN": 8.5,
-    "NE": 7.5,
-    "NO": 6.5,
-    "NYG": 5.5,
+    "NE": 9.5,
+    "NO": 7.5,
+    "NYG": 7.5,
     "NYJ": 5.5,
-    "PHI": 11.5,
+    "PHI": 10.5,
     "PIT": 8.5,
-    "SEA": 7.5,
+    "SEA": 10.5,
     "SF": 10.5,
-    "TB": 9.5,
-    "TEN": 5.5,
-    "WAS": 9.5,
+    "TB": 8.5,
+    "TEN": 6.5,
+    "WAS": 7.5,
 }
 DIVISIONS = {
     "AFC East": {"BUF", "MIA", "NE", "NYJ"},
@@ -213,7 +215,7 @@ def expectation_band(actual_vs_pythag):
 
 def build_team_expectations(games):
     teams = {}
-    for team in VEGAS_WIN_TOTALS_2025:
+    for team in VEGAS_WIN_TOTALS_2026:
         teams[team] = {
             "team": team,
             "conference": team_conference(team),
@@ -223,11 +225,13 @@ def build_team_expectations(games):
             "actual_losses": 0,
             "points_for": 0,
             "points_against": 0,
-            "vegas_win_total": VEGAS_WIN_TOTALS_2025.get(team),
+            "vegas_win_total": VEGAS_WIN_TOTALS_2026.get(team),
         }
 
     for game in games:
         if game.get("season_type") != "REG":
+            continue
+        if game.get("season") and int(game.get("season")) != CURRENT_SEASON:
             continue
         away = canonical_tla(game.get("away_tla"))
         home = canonical_tla(game.get("home_tla"))
@@ -247,7 +251,7 @@ def build_team_expectations(games):
                     "actual_losses": 0,
                     "points_for": 0,
                     "points_against": 0,
-                    "vegas_win_total": VEGAS_WIN_TOTALS_2025.get(team),
+                    "vegas_win_total": VEGAS_WIN_TOTALS_2026.get(team),
                 }
 
         away_won = away_score > home_score
