@@ -277,17 +277,24 @@ except:
 
 def get_action_network_week_value(week):
     """Map internal week codes to Action Network dropdown values"""
+    week_upper = str(week).strip().upper()
     playoff_mapping = {
         'WC': 'Wild Card',
-        'DIV': 'Divisional Round', 
+        'DIV': 'Divisional Round',
         'CONF': 'Conf Champ',
-        'SB': 'Super Bowl'
+        'SB': 'Super Bowl',
     }
-    
-    if week in playoff_mapping:
-        return playoff_mapping[week]
-    else:
-        return f"Week {week}"
+    preseason_mapping = {
+        'PRE1': 'Preseason Week 1',
+        'PRE2': 'Preseason Week 2',
+        'PRE3': 'Preseason Week 3',
+        'PRE4': 'Preseason Week 4',
+    }
+    if week_upper in playoff_mapping:
+        return playoff_mapping[week_upper]
+    if week_upper in preseason_mapping:
+        return preseason_mapping[week_upper]
+    return f"Week {week}"
 # --- Find dropdowns ---
 print("🔍 Looking for dropdowns...")
 all_selects = driver.find_elements(By.TAG_NAME, "select")

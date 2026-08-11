@@ -2,11 +2,11 @@ name: 1. Referee Data Collection
 
 on:
   schedule:
-    - cron: '0 2 * 9-12,1 3'
+    - cron: '0 2 * 8-12,1 3'  # Every Wednesday Aug-Jan (covers preseason + regular season)
   workflow_dispatch:
     inputs:
       week:
-        description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB)'
+        description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB, PRE1, PRE2, PRE3)'
         required: false
         type: string
       season:
@@ -50,10 +50,27 @@ jobs:
           [ -z "$SEASON" ] && SEASON="2026"
           START_DATE="${{ vars.NFL_SEASON_START_DATE }}"
           [ -z "$START_DATE" ] && START_DATE="${SEASON}-09-10"
+          PRE_START_DATE="${{ vars.NFL_PRESEASON_START_DATE }}"
+          [ -z "$PRE_START_DATE" ] && PRE_START_DATE="${SEASON}-08-07"
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK="${{ github.event.inputs.week }}"
           else
-            WEEK=$(python3 -c "from datetime import datetime; start=datetime.strptime('$START_DATE','%Y-%m-%d'); days=(datetime.now()-start).days; week=max(1,min((days//7)+1+(1 if datetime.now().weekday()>=1 else 0),18)); print(week)")
+            WEEK=$(python3 -c "
+from datetime import datetime
+now = datetime.now()
+reg_start = datetime.strptime('$START_DATE', '%Y-%m-%d')
+pre_start = datetime.strptime('$PRE_START_DATE', '%Y-%m-%d')
+if now < reg_start:
+    # Preseason: compute PRE week from preseason start
+    days = (now - pre_start).days
+    pre_week = max(1, min((days // 7) + 1, 4))
+    print(f'PRE{pre_week}')
+else:
+    # Regular season
+    days = (now - reg_start).days
+    week = max(1, min((days // 7) + 1 + (1 if now.weekday() >= 1 else 0), 18))
+    print(week)
+")
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "season=$SEASON" >> $GITHUB_OUTPUT

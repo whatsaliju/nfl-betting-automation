@@ -32,6 +32,14 @@ PLAYOFF_LABEL_TO_ESPN_WEEK = {
     "SB": 4,
 }
 
+# PRESEASON WEEK HANDLING (PRE1/PRE2/PRE3 → ESPN seasontype=1)
+PRESEASON_LABEL_TO_ESPN_WEEK = {
+    "PRE1": 1,
+    "PRE2": 2,
+    "PRE3": 3,
+    "PRE4": 4,
+}
+
 
 def week_key(week) -> str:
     return str(week).strip().upper()
@@ -49,6 +57,8 @@ def builder_season_type(season_type, week) -> str:
     key = week_key(week)
     if key in PLAYOFF_LABEL_TO_ESPN_WEEK:
         return "POST"
+    if key in PRESEASON_LABEL_TO_ESPN_WEEK:
+        return "PRE"
     return normalize_season_type(season_type, int(key))
 
 
@@ -59,6 +69,12 @@ def espn_params_for(season: int, week, season_type: str = None):
             "dates": season,
             "seasontype": 3,
             "week": PLAYOFF_LABEL_TO_ESPN_WEEK[key],
+        }
+    if key in PRESEASON_LABEL_TO_ESPN_WEEK:
+        return {
+            "dates": season,
+            "seasontype": 1,
+            "week": PRESEASON_LABEL_TO_ESPN_WEEK[key],
         }
 
     week_num = int(key)
