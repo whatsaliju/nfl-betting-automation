@@ -55,22 +55,15 @@ jobs:
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK="${{ github.event.inputs.week }}"
           else
-            WEEK=$(python3 -c "
-from datetime import datetime
-now = datetime.now()
-reg_start = datetime.strptime('$START_DATE', '%Y-%m-%d')
-pre_start = datetime.strptime('$PRE_START_DATE', '%Y-%m-%d')
-if now < reg_start:
-    # Preseason: compute PRE week from preseason start
-    days = (now - pre_start).days
-    pre_week = max(1, min((days // 7) + 1, 4))
-    print(f'PRE{pre_week}')
-else:
-    # Regular season
-    days = (now - reg_start).days
-    week = max(1, min((days // 7) + 1 + (1 if now.weekday() >= 1 else 0), 18))
-    print(week)
-")
+            IS_PRESEASON=$(python3 -c "from datetime import datetime; print('yes' if datetime.now() < datetime.strptime('$START_DATE','%Y-%m-%d') else 'no')")
+            if [ "$IS_PRESEASON" = "yes" ]; then
+              PRE_DAYS=$(python3 -c "from datetime import datetime; print(max(0,(datetime.now()-datetime.strptime('$PRE_START_DATE','%Y-%m-%d')).days))")
+              PRE_WEEK=$(( (PRE_DAYS / 7) + 1 ))
+              [ "$PRE_WEEK" -gt 4 ] && PRE_WEEK=4
+              WEEK="PRE${PRE_WEEK}"
+            else
+              WEEK=$(python3 -c "from datetime import datetime; s=datetime.strptime('$START_DATE','%Y-%m-%d'); d=(datetime.now()-s).days; print(max(1,min(d//7+1+(1 if datetime.now().weekday()>=1 else 0),18)))")
+            fi
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "season=$SEASON" >> $GITHUB_OUTPUT
