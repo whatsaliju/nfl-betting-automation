@@ -199,9 +199,15 @@ def get_week_number(week):
             'SB': 22       # Super Bowl = Week 22
         }
     
-        if isinstance(week, str) and week in playoff_weeks:
-            return playoff_weeks[week]
-        return int(week)
+        if isinstance(week, str) and week.upper() in playoff_weeks:
+            return playoff_weeks[week.upper()]
+        week_str = str(week).strip().upper()
+        if week_str.startswith("PRE"):
+            return 0
+        try:
+            return int(week_str)
+        except (ValueError, TypeError):
+            return 0
 # ================================================================
 # UTILITY FUNCTIONS
 # ================================================================
