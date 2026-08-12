@@ -263,10 +263,10 @@ if __name__ == "__main__":
         print("❌ Error: ODDS_API_KEY not found in environment variables. Cannot fetch spreads.")
         sys.exit(1)
 
-    # 4. Check for input file presence (it should have been created by the previous step)
+    # 4. Check for input file presence — missing means no data posted yet (normal for early preseason)
     if not os.path.exists(referees_csv):
-        print(f"❌ Critical Error: Input referee CSV not found: {referees_csv}. Ensure the scraping step succeeded.")
-        sys.exit(1)
+        print(f"⚠️ No referee CSV found at {referees_csv}. Skipping query generation (assignments not posted yet).")
+        sys.exit(0)
 
     # Now run the generation logic with the correct week-specific paths and API key
     generate_queries(

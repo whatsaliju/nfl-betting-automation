@@ -159,17 +159,22 @@ def neutral_summary(note: str) -> dict:
 
 
 def build_referee_trends(
-    week: int,
+    week,
     since: int = 2018,
     output: str = DEFAULT_OUTPUT,
     min_sample: int = 5,
     write_week_copy: bool = True,
     season_type: str = None,
 ) -> pd.DataFrame:
-    season_type = normalize_season_type(season_type, week)
+    week_str = str(week)
+    if week_str.isdigit():
+        season_type = normalize_season_type(season_type, int(week_str))
+    else:
+        season_type = season_type or "REG"
     queries_path = f"data/week{week}/week{week}_queries.csv"
     if not os.path.exists(queries_path):
-        raise FileNotFoundError(f"Missing query file: {queries_path}")
+        print(f"⚠️ No queries file at {queries_path}. Skipping referee trends (no data posted yet).")
+        return pd.DataFrame()
 
     queries = pd.read_csv(queries_path)
     game_types = tuple(nflverse_game_types(season_type))
@@ -224,7 +229,7 @@ def build_referee_trends(
 
 def main():
     parser = argparse.ArgumentParser(description="Build referee trends from nflverse schedules")
-    parser.add_argument("week", type=int)
+    parser.add_argument("week", type=str)
     parser.add_argument("--since", type=int, default=2018)
     parser.add_argument("--output", default=DEFAULT_OUTPUT)
     parser.add_argument("--min-sample", type=int, default=5)
