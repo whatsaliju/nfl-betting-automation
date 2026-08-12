@@ -260,6 +260,29 @@ def sort_key(row):
 
 
 def build(feed):
+    context = feed.get("current_context") or {}
+    season_type = context.get("season_type", "REG")
+    status = context.get("status", "")
+    is_preseason = season_type == "PRE" or "PRESEASON" in status.upper()
+
+    if is_preseason:
+        week_label = context.get("week_label") or f"PRE W{context.get('week', '?')}"
+        return {
+            "feed_version": feed.get("feed_version"),
+            "source": "preseason_dry_run",
+            "card_count": 0,
+            "plays": 0,
+            "watch": 0,
+            "passes": 0,
+            "preseason": True,
+            "preseason_note": (
+                f"No betting card for {week_label}. Preseason markets are thin, "
+                "referee history is regular-season only, and RotoWire lineups are unavailable. "
+                "Use the Survivor and WARPS views for preseason context."
+            ),
+            "cards": [],
+        }
+
     rows = [card_row(game) for game in feed.get("edge_board", [])]
     rows.sort(key=sort_key)
     summary = {

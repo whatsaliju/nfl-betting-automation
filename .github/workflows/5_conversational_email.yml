@@ -33,37 +33,46 @@ jobs:
         id: file_vars
         run: |
           # The GITHUB_SHA is the commit that triggered this. We need to find the specific file path.
-          CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E 'data/week[0-9]+/week[0-9]+_executive_summary.txt' | head -n 1)
-          
+          CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E 'data/week[A-Za-z0-9]+/week[A-Za-z0-9]+_executive_summary.txt' | head -n 1)
+
           if [ -z "$CHANGED_FILE" ]; then
-            echo "::error::No executive summary file found in this push."
-            # Fallback or exit strategy required if triggered by mistake
-            exit 1
+            echo "::warning::No executive summary file found in this push. Skipping."
+            exit 0
           fi
 
-          # Extract week number
-          WEEK_NUM=$(echo "$CHANGED_FILE" | grep -oP 'week\K[0-9]+' | head -n 1)
+          # Extract week label (handles PRE1, WC, DIV, 1-18, etc.)
+          WEEK_NUM=$(echo "$CHANGED_FILE" | grep -oP 'week\K[A-Za-z0-9]+' | head -n 1)
           
           # Determine the day of the week and set context (1=Mon, 3=Wed, 5=Fri)
           DAY_OF_WEEK=$(date +%u) 
           
-          case $DAY_OF_WEEK in
-            3) # Wednesday - Referee day
-              ANALYSIS_TYPE="MIDWEEK ANALYSIS"
-              SUBJECT_PREFIX="MIDWEEK (REFS LOCKED)" 
-              INTRO_TEXT="Good news! We have fully integrated the official referee assignments and their historical trends into the model. This run provides the first comprehensive look at the week's value, combining all static factors (Stats, Refs, Situational) with sharp money."
-              ;;
-            5) # Friday - Final Injury/Lineup day
-              ANALYSIS_TYPE="FINAL ANALYSIS"
-              SUBJECT_PREFIX="FINAL LINEUPS" 
-              INTRO_TEXT="This is the final report for the weekend. All major injury reports are processed, and we've accounted for late-week line movement. Use these plays for your final lineup decisions."
-              ;;
-            *) # Other days (Market Update or catch-all)
-              ANALYSIS_TYPE="MARKET UPDATE"
-              SUBJECT_PREFIX="MARKET UPDATE" 
-              INTRO_TEXT="Here is your quick summary of the week's sharp money and model plays. Focus on the Blue Chip and Targeted Plays, and be cautious with the Fades. Full data is attached to the Professional Analysis email."
-              ;;
-          esac
+          # Detect preseason weeks (PRE1, PRE2, etc.)
+          IS_PRESEASON=false
+          echo "$WEEK_NUM" | grep -qiP '^PRE' && IS_PRESEASON=true
+
+          if [ "$IS_PRESEASON" = "true" ]; then
+            ANALYSIS_TYPE="PRESEASON DRY RUN"
+            SUBJECT_PREFIX="PRE WEEK"
+            INTRO_TEXT="⚠️ PRESEASON — This is a dry run. Markets are thin, referee history is from the regular season and not directly applicable to preseason games, and RotoWire lineups are unavailable. Treat all picks as informational only. No bet recommended until regular season."
+          else
+            case $DAY_OF_WEEK in
+              3) # Wednesday - Referee day
+                ANALYSIS_TYPE="MIDWEEK ANALYSIS"
+                SUBJECT_PREFIX="MIDWEEK (REFS LOCKED)"
+                INTRO_TEXT="Good news! We have fully integrated the official referee assignments and their historical trends into the model. This run provides the first comprehensive look at the week's value, combining all static factors (Stats, Refs, Situational) with sharp money."
+                ;;
+              5) # Friday - Final Injury/Lineup day
+                ANALYSIS_TYPE="FINAL ANALYSIS"
+                SUBJECT_PREFIX="FINAL LINEUPS"
+                INTRO_TEXT="This is the final report for the weekend. All major injury reports are processed, and we've accounted for late-week line movement. Use these plays for your final lineup decisions."
+                ;;
+              *) # Other days (Market Update or catch-all)
+                ANALYSIS_TYPE="MARKET UPDATE"
+                SUBJECT_PREFIX="MARKET UPDATE"
+                INTRO_TEXT="Here is your quick summary of the week's sharp money and model plays. Focus on the Blue Chip and Targeted Plays, and be cautious with the Fades. Full data is attached to the Professional Analysis email."
+                ;;
+            esac
+          fi
           
           FLIP_ALERT="" # You can manually update this if a line flip occurs
           
@@ -292,7 +301,7 @@ jobs:
                   <div style="margin: 15px 0; padding: 15px; border-left: 4px solid #28a745; background: #e9f7ef; border-radius: 5px;">
                       <h4 style="color: #28a745; margin: 0 0 8px 0; font-size: 16px;">🟢 {play['matchup']}</h4>
                       <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Recommendation:</strong> {play['recommendation']}</p>
-                      <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Confidence:</strong> {play['confidence']}/10 (for the play)</p>
+                      <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Confidence:</strong> {play['confidence']}/20 (for the play)</p>
                       <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Why:</strong> <em>{play['reason']}</em></p>
                       <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;"><strong>Situational Context:</strong> <em>{play['situational_story']}</em></p>
                       <p style="margin: 0; font-size: 13px; color: #666;">
@@ -310,7 +319,7 @@ jobs:
                   <div style="margin: 15px 0; padding: 15px; border-left: 4px solid #dc3545; background: #fdf3f4; border-radius: 5px;">
                       <h4 style="color: #dc3545; margin: 0 0 8px 0; font-size: 16px;">🔴 {fade['matchup']}</h4>
                       <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Recommendation:</strong> {fade['recommendation']}</p>
-                      <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Confidence:</strong> {fade['confidence']}/10 (for the fade)</p>
+                      <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Confidence:</strong> {fade['confidence']}/20 (for the fade)</p>
                       <p style="margin: 0 0 5px 0; font-size: 14px;"><strong>Why:</strong> <em>{fade['reason']}</em></p>
                       <p style="margin: 0 0 5px 0; font-size: 14px; color: #555;"><strong>Situational Context:</strong> <em>{fade['situational_story']}</em></p>
                       <p style="margin: 0; font-size: 13px; color: #666;">
@@ -386,7 +395,14 @@ jobs:
             
           # --- EMAIL ASSEMBLY ---
           msg_conv = MIMEMultipart()
-          msg_conv['Subject'] = f"Quick Hit: {subject_prefix} Week {week} NFL Plays & Fades" 
+          play_count = len(plays)
+          fade_count = len(fades)
+          top_play_label = plays[0]['matchup'] if plays else None
+          if top_play_label:
+              subject_detail = f"{top_play_label} + {play_count} play{'s' if play_count != 1 else ''}, {fade_count} fade{'s' if fade_count != 1 else ''}"
+          else:
+              subject_detail = f"No plays | {fade_count} fade{'s' if fade_count != 1 else ''}"
+          msg_conv['Subject'] = f"NFL Wk {week} {subject_prefix}: {subject_detail}"
           msg_conv['From'] = os.getenv('GMAIL_USER')
           msg_conv['To'] = "lvarughese@gmail.com" 
           
