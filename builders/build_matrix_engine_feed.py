@@ -893,9 +893,20 @@ def current_card_rows(card_payload, context):
     ]
 
 
+def planning_week_for(context):
+    """During preseason, survivor/WARPS look ahead to REG W1 for planning."""
+    raw = context.get("week") or 1
+    if context.get("season_type") == "PRE":
+        return 1
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return week_to_int(raw) or 1
+
+
 def survivor_command_payload(context):
     payload = load_survivor_recommendations()
-    week = context.get("week") or 1
+    week = planning_week_for(context)
     pool_cards = [
         row for row in payload.get("pool_cards", [])
         if row.get("week") == week and row.get("payout_style") == "top_heavy"
@@ -905,6 +916,7 @@ def survivor_command_payload(context):
     return {
         "available": bool(payload),
         "week": week,
+        "planning_context": "preseason" if context.get("season_type") == "PRE" else "current",
         "primary": weekly.get("primary"),
         "safest": weekly.get("safest"),
         "pool_cards": pool_cards,
@@ -916,7 +928,7 @@ def survivor_command_payload(context):
 
 
 def warps_command_payload(context, warps_index):
-    week = context.get("week") or 1
+    week = planning_week_for(context)
     rows = []
     for row in warps_index.values():
         if week_to_int(row.get("week")) != week_to_int(week):

@@ -46,9 +46,13 @@ function currentCardRows(feed?: EngineFeed | null) {
 function cardSnapshot(cards: WeeklyBettingCardRow[]) {
   if (!cards.length) return "No card loaded";
   const seasons = Array.from(new Set(cards.map((card) => card.season))).sort();
-  const weeks = cards.map((card) => card.week);
-  const minWeek = Math.min(...weeks);
-  const maxWeek = Math.max(...weeks);
+  const numWeeks = cards.map((card) => card.week).filter((w) => typeof w === "number") as number[];
+  if (!numWeeks.length) {
+    const strWeeks = Array.from(new Set(cards.map((card) => String(card.week ?? "")))).filter(Boolean);
+    return strWeeks.length === 1 ? `${seasons.join("-")} ${strWeeks[0]}` : `${seasons.join("-")}`;
+  }
+  const minWeek = Math.min(...numWeeks);
+  const maxWeek = Math.max(...numWeeks);
   return `${seasons.join("-")} W${minWeek === maxWeek ? minWeek : `${minWeek}-${maxWeek}`}`;
 }
 
@@ -160,9 +164,9 @@ export function CommandCenterView({
     },
     {
       icon: <Brain size={15} />,
-      label: "WARPS",
-      value: "Forecast prior",
-      detail: "Useful for fair spread, fair ML, and season-strength context.",
+      label: "Win Prob Model",
+      value: "Active",
+      detail: "Pre-game win probabilities for every matchup — good for spreads and moneylines.",
       state: "research",
     },
     {
@@ -175,8 +179,8 @@ export function CommandCenterView({
     {
       icon: <FlaskConical size={15} />,
       label: "Research",
-      value: "Monitor",
-      detail: "ML, market router, and factor promotion remain gated by historical validation.",
+      value: "In progress",
+      detail: "Advanced model layers under testing — not yet used for live picks.",
       state: "research",
     },
   ];
@@ -188,7 +192,7 @@ export function CommandCenterView({
           <span className="command-eyebrow">Weekly Command Center</span>
           <h2>{commandWeekLabel} Decision Board</h2>
           <p>
-            Betting card, survivor, WARPS priors, and engine health in one place. {command?.action_reason || command?.warnings?.[0] || context?.message || "Detailed tabs stay available when you want to drill in."}
+            Your weekly picks, survivor pool recommendation, and win probabilities — all in one place. {command?.action_reason || command?.warnings?.[0] || context?.message || "Use the tabs above to dig into any area."}
           </p>
         </div>
         <div className="command-status-stack">
@@ -199,19 +203,11 @@ export function CommandCenterView({
           </span>
           <span className={cardAvailable ? "status-pill ok" : "status-pill warning"}>
             <ShieldCheck size={14} />
-            {cardAvailable ? "Current card live" : "Current card pending"}
+            {cardAvailable ? "Card live" : "Card pending"}
           </span>
           <span className="status-pill">
             <ClipboardList size={14} />
             {context ? `${context.season} ${context.week_label} · ${titleCase(context.mode)}` : cardSnapshot(cards)}
-          </span>
-          <span className={hasAction ? "status-pill ok" : "status-pill warning"}>
-            <Gauge size={14} />
-            {hasAction ? "Action exists" : "No current betting action"}
-          </span>
-          <span className={preseasonOk ? "status-pill ok" : "status-pill warning"}>
-            <ShieldCheck size={14} />
-            PRE dry-run {preseason?.status || "missing"}
           </span>
         </div>
       </div>
@@ -229,6 +225,12 @@ export function CommandCenterView({
         ))}
       </div>
 
+      {isPreseason && (
+        <div className="command-preseason-banner">
+          <strong>Preseason mode:</strong> The 2026 regular season hasn't started yet. Survivor and WARPS data is showing Reg W{planningWeek} projections so you can start planning. Betting card data will populate once weekly feeds begin.
+        </div>
+      )}
+
       <div className="command-kpi-grid">
         <button className="command-kpi" onClick={() => onNavigate("card")}>
           <span>Betting Plays</span>
@@ -241,14 +243,14 @@ export function CommandCenterView({
           <small>{pct(survivorWeek.primary?.win_probability)} vs {survivorWeek.primary?.opponent || "n/a"}</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("warps")}>
-          <span>Top WARPS ML{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
+          <span>Top Win Prob Pick{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
           <strong>{warpsTop[0]?.team || "n/a"}</strong>
-          <small>{pct(warpsTop[0]?.winProb)} · {warpsTop[0]?.fairMl || "n/a"}</small>
+          <small>{pct(warpsTop[0]?.winProb)} win prob · {warpsTop[0]?.fairMl || "n/a"} fair line</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("edges")}>
-          <span>Engine Edges</span>
+          <span>Active Picks</span>
           <strong>{edges.length}</strong>
-          <small>{edgeGames.length || 0} games in board</small>
+          <small>{edgeGames.length || 0} games analyzed</small>
         </button>
       </div>
 
@@ -260,7 +262,9 @@ export function CommandCenterView({
       ) : !hasAction && (
         <div className="feed-warning command-warning">
           <AlertTriangle size={16} />
-          The current context has no actionable plays. That is expected while live 2026 weekly inputs are not flowing yet; use Survivor and WARPS as planning layers.
+          {isPreseason
+            ? "No bets recommended yet — it's preseason. Your survivor pick is ready below. Betting picks will appear once regular season weekly data starts flowing."
+            : "No bets to recommend this week. Check back as new data comes in."}
         </div>
       )}
 
@@ -325,8 +329,8 @@ export function CommandCenterView({
         <article className="panel command-panel">
           <div className="command-panel-head">
             <div>
-              <h3><BadgeCheck size={15} /> WARPS Prior Watch</h3>
-              <p>Highest {planningWeekLabel} win probabilities from WARPS priors.{isPreseason ? " Planning ahead for regular season." : ""}</p>
+              <h3><BadgeCheck size={15} /> Win Probability Watch</h3>
+              <p>Teams with the highest modeled win probability for {planningWeekLabel}.{isPreseason ? " Planning ahead for regular season." : ""}</p>
             </div>
             <button className="text-button" onClick={() => onNavigate("warps")}>Open</button>
           </div>
@@ -338,7 +342,7 @@ export function CommandCenterView({
               <b>{pct(row.winProb)}</b>
             </div>
           )) : (
-            <div className="compact-empty">No WARPS priors loaded for {planningWeekLabel}.</div>
+            <div className="compact-empty">No win probability data loaded for {planningWeekLabel}.</div>
           )}
         </article>
 

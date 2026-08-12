@@ -15,9 +15,13 @@ function snapshotLabel(cards: WeeklyBettingCardRow[]) {
   if (!cards.length) return "No games loaded";
   const seasons = Array.from(new Set(cards.map((card) => card.season))).sort();
   const seasonText = seasons.length === 1 ? String(seasons[0]) : `${seasons[0]}-${seasons[seasons.length - 1]}`;
-  const weeks = cards.map((card) => card.week).filter((week) => typeof week === "number");
-  const minWeek = Math.min(...weeks);
-  const maxWeek = Math.max(...weeks);
+  const numWeeks = cards.map((card) => card.week).filter((w) => typeof w === "number") as number[];
+  if (!numWeeks.length) {
+    const strWeeks = Array.from(new Set(cards.map((card) => String(card.week ?? "")))).filter(Boolean);
+    return strWeeks.length === 1 ? `${seasonText} ${strWeeks[0]}` : `${seasonText}`;
+  }
+  const minWeek = Math.min(...numWeeks);
+  const maxWeek = Math.max(...numWeeks);
   const weekText = minWeek === maxWeek ? `W${minWeek}` : `W${minWeek}-W${maxWeek}`;
   return `${seasonText} ${weekText}`;
 }
@@ -42,24 +46,34 @@ function actionGroups(cards: WeeklyBettingCardRow[]) {
   };
 }
 
+function weekDisplay(week: string | number | undefined | null) {
+  const wk = String(week ?? "");
+  return /^\d+$/.test(wk) ? `W${wk}` : wk;
+}
+
 function decisionTitle(card: WeeklyBettingCardRow) {
   if (card.action === "pass") return "PASS";
+  const label = card.pick_label;
   if (card.action === "watch" || card.action === "lean") {
-    return card.market ? `WATCH ${card.market.toUpperCase()} ${card.side || ""}` : "WATCH";
+    return label ? `WATCH · ${label}` : card.market ? `WATCH ${card.market.toUpperCase()} ${card.side || ""}` : "WATCH";
   }
-  return card.market ? `${card.market.toUpperCase()} ${card.side || ""}` : "PLAY";
+  return label || (card.market ? `${card.market.toUpperCase()} ${card.side || ""}` : "PLAY");
+}
+
+function stripLeadingEmoji(text: string) {
+  return text.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{27FF}\u{2300}-\u{23FF}\u{1F000}-\u{1FFFF}]+\s*/gu, "");
 }
 
 function decisionSubtitle(card: WeeklyBettingCardRow) {
   if (card.action === "pass") return "No bet from the selector";
-  return card.classification ? titleCase(card.classification) : "Selector edge candidate";
+  return card.classification ? stripLeadingEmoji(titleCase(card.classification)) : "Engine recommendation";
 }
 
 function CardItem({ card }: { card: WeeklyBettingCardRow }) {
   return (
     <article className={`betting-card-item ${card.action}`}>
       <div className="betting-card-top">
-        <span>W{card.week}</span>
+        <span>{weekDisplay(card.week)}</span>
         <span>{titleCase(card.confidence)}</span>
       </div>
       <div className="edge-matchup">
@@ -135,7 +149,7 @@ export function BettingCardView({ card, context }: { card?: WeeklyBettingCard; c
       <div className="panel-toolbar">
         <div>
           <h2>Weekly Betting Card</h2>
-          <p className="panel-subtitle">Current selector card · {activeLabel}</p>
+          <p className="panel-subtitle">This week's picks · {activeLabel}</p>
         </div>
         <div className="edge-board-stats">
           <span><BadgeCheck size={14} />{card?.plays ?? 0} plays</span>
@@ -145,18 +159,18 @@ export function BettingCardView({ card, context }: { card?: WeeklyBettingCard; c
       </div>
 
       {!card?.available && (
-        <div className="feed-warning">Weekly betting card is not available in the current engine feed.</div>
+        <div className="feed-warning">Picks aren't published yet for this week — check back soon.</div>
       )}
 
       {card?.available && context && !isLiveCard && (
         <div className="feed-warning">
-          {context.message || "No live weekly betting card is published for this context yet."}
+          {context.message || "No picks published for this week yet. They'll appear once the weekly engine runs."}
         </div>
       )}
 
       {card?.available && isLiveCard && !hasActionable && (
         <div className="feed-warning">
-          No actionable plays or watchlist spots are active in this feed. Passes are collapsed below for audit only.
+          No bets or watchlist spots this week. Passes (games we're skipping) are shown below for reference.
         </div>
       )}
 
