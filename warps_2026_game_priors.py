@@ -52,6 +52,23 @@ def load_warps_wins() -> dict[str, float]:
     return {row.team: float(row.v23_wins) for row in rows.itertuples(index=False)}
 
 
+def _week_sort_key(week) -> int:
+    """Convert any week label to a sortable integer for schedule ordering."""
+    w = str(week).strip().upper()
+    playoff_map = {"WC": 19, "DIV": 20, "CON": 21, "CONF": 21, "SB": 22}
+    if w in playoff_map:
+        return playoff_map[w]
+    if w.startswith("PRE"):
+        try:
+            return -(int(w[3:]) if w[3:] else 1)
+        except ValueError:
+            return -1
+    try:
+        return int(w)
+    except (ValueError, TypeError):
+        return 0
+
+
 def load_2026_games() -> list[dict]:
     payload = json.loads(SCHEDULES.read_text())
     season = payload["2026"]
@@ -64,10 +81,11 @@ def load_2026_games() -> list[dict]:
                 continue
             away = team
             home = clean_opponent(opponent)
-            key = f"{int(week):02d}:{away}@{home}"
+            sort_prefix = f"{_week_sort_key(week) + 100:03d}"
+            key = f"{sort_prefix}:{away}@{home}"
             games[key] = {
                 "season": 2026,
-                "week": int(week),
+                "week": week,
                 "away_tla": away,
                 "home_tla": home,
                 "matchup_key": f"{away}@{home}",

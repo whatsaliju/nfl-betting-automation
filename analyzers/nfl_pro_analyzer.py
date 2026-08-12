@@ -1876,10 +1876,14 @@ class StatisticalAnalyzer:
             away_score = float(game['away_score'])
             home_score = float(game['home_score'])
 
+            try:
+                game_week = int(game['week'])
+            except (ValueError, TypeError):
+                game_week = 0
             rows.append({
                 'team': away,
                 'opponent': home,
-                'week': int(game['week']),
+                'week': game_week,
                 'margin': away_score - home_score,
                 'points_for': away_score,
                 'points_against': home_score,
@@ -1887,7 +1891,7 @@ class StatisticalAnalyzer:
             rows.append({
                 'team': home,
                 'opponent': away,
-                'week': int(game['week']),
+                'week': game_week,
                 'margin': home_score - away_score,
                 'points_for': home_score,
                 'points_against': away_score,
