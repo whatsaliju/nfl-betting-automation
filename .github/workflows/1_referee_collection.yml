@@ -116,7 +116,8 @@ jobs:
           import sys
           sys.path.append('analyzers')
           from referee_trend_generator import generate_referee_digest
-          generate_referee_digest(int("${{ steps.clean_week.outputs.week }}"))
+          week_str = "${{ steps.clean_week.outputs.week }}"
+          generate_referee_digest(int(week_str) if week_str.isdigit() else week_str)
           PYTHON_EOF
       
       - name: Commit Referee Data
