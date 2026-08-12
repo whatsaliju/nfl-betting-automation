@@ -11,13 +11,13 @@
 
 ## Full 2025 Replay Attempt
 
-- Requested weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
-- Completed weeks: [10, 11, 12, 13, 14, 15, 16, 17, 18]
-- Skipped weeks: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+- Requested weeks: []
+- Completed weeks: []
+- Skipped weeks: []
 - Failed weeks: []
-- Graded selected bets: 7
-- Record: 5-2-0
-- Win rate: 0.7143
+- Graded selected bets: None
+- Record: None-None-None
+- Win rate: None
 
 ## Verdict
 
@@ -26,7 +26,6 @@
 
 ## Blockers
 
-- Weeks 1-9 are missing weekly query/referee input files.
 
 ## Next Steps
 

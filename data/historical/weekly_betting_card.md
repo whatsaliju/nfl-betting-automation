@@ -2,10 +2,11 @@
 
 - Plays: 0
 - Watch: 0
-- Passes: 22
+- Passes: 23
 
 | Week | Game | Action | Market | Side | Confidence | Route | Reasons | Risk |
 |---:|---|---|---|---|---|---|---|---|
+| PRE1 | CAR@ARI | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
 | 18 | ARI@LAR | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
 | 18 | BAL@PIT | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
 | 18 | CAR@TB | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |

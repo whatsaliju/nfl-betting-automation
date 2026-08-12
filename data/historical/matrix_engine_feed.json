@@ -1,19 +1,19 @@
 {
   "feed_version": "2026.1",
   "source": "nfl-betting-automation weekly master files",
-  "game_count": 22,
-  "team_cell_count": 44,
-  "edge_board_count": 22,
+  "game_count": 23,
+  "team_cell_count": 46,
+  "edge_board_count": 23,
   "current_context": {
     "season": 2026,
     "season_type": "PRE",
-    "week": 1,
-    "week_label": "PRE W1",
-    "stage": "dry_run",
-    "status": "PRESEASON_DRY_RUN_READY",
-    "mode": "dry_run",
-    "has_betting_card": false,
-    "message": "Preseason plumbing dry-run is available; live betting card has not published yet."
+    "week": "PRE1",
+    "week_label": "PRE WPRE1",
+    "stage": null,
+    "status": "LIVE_CARD",
+    "mode": "live",
+    "has_betting_card": true,
+    "message": "Current active engine context from 2026 artifacts."
   },
   "weekly_command_center": {
     "available": true,
@@ -21,513 +21,45 @@
     "current_context": {
       "season": 2026,
       "season_type": "PRE",
-      "week": 1,
-      "week_label": "PRE W1",
-      "stage": "dry_run",
-      "status": "PRESEASON_DRY_RUN_READY",
-      "mode": "dry_run",
-      "has_betting_card": false,
-      "message": "Preseason plumbing dry-run is available; live betting card has not published yet."
+      "week": "PRE1",
+      "week_label": "PRE WPRE1",
+      "stage": null,
+      "status": "LIVE_CARD",
+      "mode": "live",
+      "has_betting_card": true,
+      "message": "Current active engine context from 2026 artifacts."
     },
-    "decision_mode": "dry_run",
-    "recommended_action": "NO BET - DATA INCOMPLETE",
+    "decision_mode": "live",
+    "recommended_action": "PASS",
     "confidence_tier": "X",
-    "action_reason": "Live betting inputs are not published for this context.",
+    "action_reason": "No playable or watchlist edges are active.",
     "source_gates": {
-      "live_betting_card": "BLOCKED",
+      "live_betting_card": "PASS",
       "preseason_dry_run": "PASS",
       "warps_priors": "PASS",
       "survivor_recommendations": "PASS"
     },
     "do_nothing_warning": true,
     "warnings": [
-      "No live betting card is published for the current context.",
       "No actionable betting plays or watchlist spots are active."
     ],
     "betting_card": {
-      "available": false,
+      "available": true,
       "plays": 0,
       "watch": 0,
-      "passes": 0,
+      "passes": 1,
       "top_cards": []
     },
     "best_edges": [],
     "survivor": {
       "available": true,
-      "week": 1,
-      "primary": {
-        "season": 2026,
-        "week": 1,
-        "team": "JAX",
-        "opponent": "CLE",
-        "matchup_key": "CLE@JAX",
-        "game_key": "1:CLE@JAX",
-        "home_away": "home",
-        "day": "Sun",
-        "win_probability": 0.6892,
-        "fair_moneyline": "-222",
-        "warps_wins": 10.47,
-        "opponent_warps_wins": 6.76,
-        "division_game": false,
-        "opponent_sos_rank": 32,
-        "team_has_bye_before": false,
-        "opponent_has_bye_before": false,
-        "future_safe_spots": 2,
-        "future_elite_spots": 1,
-        "best_future_win_probability": 0.714,
-        "future_value_cost": 5.35,
-        "volatility_penalty": 0.0,
-        "safety_score": 68.92,
-        "survivor_score": 63.57,
-        "risk_band": "strong",
-        "tier": "secondary",
-        "reasons": [
-          "WARPS win probability 68.9%",
-          "Home-field survivor spot",
-          "Save risk: 1 future elite spot(s)"
-        ],
-        "win_probability_source_status": "warps_prior_only",
-        "live_win_probability": null,
-        "live_win_probability_source_status": "missing",
-        "public_pick_source_status": "estimated",
-        "public_pick_pct_25": 9.83,
-        "public_pick_pct_100": 11.33,
-        "pool_ev_25_top_heavy": 63.98,
-        "pool_ev_100_top_heavy": 65.78,
-        "pool_ev_500_top_heavy": 76.34
-      },
-      "safest": {
-        "season": 2026,
-        "week": 1,
-        "team": "JAX",
-        "opponent": "CLE",
-        "matchup_key": "CLE@JAX",
-        "game_key": "1:CLE@JAX",
-        "home_away": "home",
-        "day": "Sun",
-        "win_probability": 0.6892,
-        "fair_moneyline": "-222",
-        "warps_wins": 10.47,
-        "opponent_warps_wins": 6.76,
-        "division_game": false,
-        "opponent_sos_rank": 32,
-        "team_has_bye_before": false,
-        "opponent_has_bye_before": false,
-        "future_safe_spots": 2,
-        "future_elite_spots": 1,
-        "best_future_win_probability": 0.714,
-        "future_value_cost": 5.35,
-        "volatility_penalty": 0.0,
-        "safety_score": 68.92,
-        "survivor_score": 63.57,
-        "risk_band": "strong",
-        "tier": "secondary",
-        "reasons": [
-          "WARPS win probability 68.9%",
-          "Home-field survivor spot",
-          "Save risk: 1 future elite spot(s)"
-        ],
-        "win_probability_source_status": "warps_prior_only",
-        "live_win_probability": null,
-        "live_win_probability_source_status": "missing",
-        "public_pick_source_status": "estimated",
-        "public_pick_pct_25": 9.83,
-        "public_pick_pct_100": 11.33,
-        "pool_ev_25_top_heavy": 63.98,
-        "pool_ev_100_top_heavy": 65.78,
-        "pool_ev_500_top_heavy": 76.34
-      },
-      "pool_cards": [
-        {
-          "week": 1,
-          "pool_size": 25,
-          "payout_style": "top_heavy",
-          "safe": {
-            "strategy": "safe",
-            "pool_size": 25,
-            "payout_style": "top_heavy",
-            "team": "JAX",
-            "opponent": "CLE",
-            "week": 1,
-            "matchup_key": "CLE@JAX",
-            "home_away": "home",
-            "win_probability": 0.6892,
-            "survivor_score": 63.57,
-            "future_value_cost": 5.35,
-            "volatility_penalty": 0.0,
-            "risk_band": "strong",
-            "tier": "secondary",
-            "division_game": false,
-            "public_pick_pct": 9.83,
-            "public_pick_source_status": "estimated",
-            "expected_entries_eliminated": 0.76,
-            "live_win_probability": null,
-            "live_win_probability_source_status": "missing",
-            "safe_score": 68.92,
-            "balanced_score": 63.98,
-            "leverage_score": 64.36,
-            "reasons": [
-              "WARPS win probability 68.9%",
-              "Home-field survivor spot",
-              "Save risk: 1 future elite spot(s)"
-            ]
-          },
-          "balanced": {
-            "strategy": "balanced",
-            "pool_size": 25,
-            "payout_style": "top_heavy",
-            "team": "JAX",
-            "opponent": "CLE",
-            "week": 1,
-            "matchup_key": "CLE@JAX",
-            "home_away": "home",
-            "win_probability": 0.6892,
-            "survivor_score": 63.57,
-            "future_value_cost": 5.35,
-            "volatility_penalty": 0.0,
-            "risk_band": "strong",
-            "tier": "secondary",
-            "division_game": false,
-            "public_pick_pct": 9.83,
-            "public_pick_source_status": "estimated",
-            "expected_entries_eliminated": 0.76,
-            "live_win_probability": null,
-            "live_win_probability_source_status": "missing",
-            "safe_score": 68.92,
-            "balanced_score": 63.98,
-            "leverage_score": 64.36,
-            "reasons": [
-              "WARPS win probability 68.9%",
-              "Home-field survivor spot",
-              "Save risk: 1 future elite spot(s)"
-            ]
-          },
-          "leverage": {
-            "strategy": "leverage",
-            "pool_size": 25,
-            "payout_style": "top_heavy",
-            "team": "JAX",
-            "opponent": "CLE",
-            "week": 1,
-            "matchup_key": "CLE@JAX",
-            "home_away": "home",
-            "win_probability": 0.6892,
-            "survivor_score": 63.57,
-            "future_value_cost": 5.35,
-            "volatility_penalty": 0.0,
-            "risk_band": "strong",
-            "tier": "secondary",
-            "division_game": false,
-            "public_pick_pct": 9.83,
-            "public_pick_source_status": "estimated",
-            "expected_entries_eliminated": 0.76,
-            "live_win_probability": null,
-            "live_win_probability_source_status": "missing",
-            "safe_score": 68.92,
-            "balanced_score": 63.98,
-            "leverage_score": 64.36,
-            "reasons": [
-              "WARPS win probability 68.9%",
-              "Home-field survivor spot",
-              "Save risk: 1 future elite spot(s)"
-            ]
-          }
-        },
-        {
-          "week": 1,
-          "pool_size": 100,
-          "payout_style": "top_heavy",
-          "safe": {
-            "strategy": "safe",
-            "pool_size": 100,
-            "payout_style": "top_heavy",
-            "team": "JAX",
-            "opponent": "CLE",
-            "week": 1,
-            "matchup_key": "CLE@JAX",
-            "home_away": "home",
-            "win_probability": 0.6892,
-            "survivor_score": 63.57,
-            "future_value_cost": 5.35,
-            "volatility_penalty": 0.0,
-            "risk_band": "strong",
-            "tier": "secondary",
-            "division_game": false,
-            "public_pick_pct": 11.33,
-            "public_pick_source_status": "estimated",
-            "expected_entries_eliminated": 3.52,
-            "live_win_probability": null,
-            "live_win_probability_source_status": "missing",
-            "safe_score": 68.92,
-            "balanced_score": 65.78,
-            "leverage_score": 67.54,
-            "reasons": [
-              "WARPS win probability 68.9%",
-              "Home-field survivor spot",
-              "Save risk: 1 future elite spot(s)"
-            ]
-          },
-          "balanced": {
-            "strategy": "balanced",
-            "pool_size": 100,
-            "payout_style": "top_heavy",
-            "team": "JAX",
-            "opponent": "CLE",
-            "week": 1,
-            "matchup_key": "CLE@JAX",
-            "home_away": "home",
-            "win_probability": 0.6892,
-            "survivor_score": 63.57,
-            "future_value_cost": 5.35,
-            "volatility_penalty": 0.0,
-            "risk_band": "strong",
-            "tier": "secondary",
-            "division_game": false,
-            "public_pick_pct": 11.33,
-            "public_pick_source_status": "estimated",
-            "expected_entries_eliminated": 3.52,
-            "live_win_probability": null,
-            "live_win_probability_source_status": "missing",
-            "safe_score": 68.92,
-            "balanced_score": 65.78,
-            "leverage_score": 67.54,
-            "reasons": [
-              "WARPS win probability 68.9%",
-              "Home-field survivor spot",
-              "Save risk: 1 future elite spot(s)"
-            ]
-          },
-          "leverage": {
-            "strategy": "leverage",
-            "pool_size": 100,
-            "payout_style": "top_heavy",
-            "team": "JAX",
-            "opponent": "CLE",
-            "week": 1,
-            "matchup_key": "CLE@JAX",
-            "home_away": "home",
-            "win_probability": 0.6892,
-            "survivor_score": 63.57,
-            "future_value_cost": 5.35,
-            "volatility_penalty": 0.0,
-            "risk_band": "strong",
-            "tier": "secondary",
-            "division_game": false,
-            "public_pick_pct": 11.33,
-            "public_pick_source_status": "estimated",
-            "expected_entries_eliminated": 3.52,
-            "live_win_probability": null,
-            "live_win_probability_source_status": "missing",
-            "safe_score": 68.92,
-            "balanced_score": 65.78,
-            "leverage_score": 67.54,
-            "reasons": [
-              "WARPS win probability 68.9%",
-              "Home-field survivor spot",
-              "Save risk: 1 future elite spot(s)"
-            ]
-          }
-        },
-        {
-          "week": 1,
-          "pool_size": 500,
-          "payout_style": "top_heavy",
-          "safe": {
-            "strategy": "safe",
-            "pool_size": 500,
-            "payout_style": "top_heavy",
-            "team": "JAX",
-            "opponent": "CLE",
-            "week": 1,
-            "matchup_key": "CLE@JAX",
-            "home_away": "home",
-            "win_probability": 0.6892,
-            "survivor_score": 63.57,
-            "future_value_cost": 5.35,
-            "volatility_penalty": 0.0,
-            "risk_band": "strong",
-            "tier": "secondary",
-            "division_game": false,
-            "public_pick_pct": 11.33,
-            "public_pick_source_status": "estimated",
-            "expected_entries_eliminated": 17.61,
-            "live_win_probability": null,
-            "live_win_probability_source_status": "missing",
-            "safe_score": 68.92,
-            "balanced_score": 76.34,
-            "leverage_score": 85.14,
-            "reasons": [
-              "WARPS win probability 68.9%",
-              "Home-field survivor spot",
-              "Save risk: 1 future elite spot(s)"
-            ]
-          },
-          "balanced": {
-            "strategy": "balanced",
-            "pool_size": 500,
-            "payout_style": "top_heavy",
-            "team": "PHI",
-            "opponent": "WAS",
-            "week": 1,
-            "matchup_key": "WAS@PHI",
-            "home_away": "home",
-            "win_probability": 0.6696,
-            "survivor_score": 60.36,
-            "future_value_cost": 3.6,
-            "volatility_penalty": 3.0,
-            "risk_band": "strong",
-            "tier": "secondary",
-            "division_game": true,
-            "public_pick_pct": 13.72,
-            "public_pick_source_status": "estimated",
-            "expected_entries_eliminated": 22.66,
-            "live_win_probability": null,
-            "live_win_probability_source_status": "missing",
-            "safe_score": 64.56,
-            "balanced_score": 76.56,
-            "leverage_score": 87.89,
-            "reasons": [
-              "WARPS win probability 67.0%",
-              "Home-field survivor spot",
-              "Division game raises upset volatility"
-            ]
-          },
-          "leverage": {
-            "strategy": "leverage",
-            "pool_size": 500,
-            "payout_style": "top_heavy",
-            "team": "PHI",
-            "opponent": "WAS",
-            "week": 1,
-            "matchup_key": "WAS@PHI",
-            "home_away": "home",
-            "win_probability": 0.6696,
-            "survivor_score": 60.36,
-            "future_value_cost": 3.6,
-            "volatility_penalty": 3.0,
-            "risk_band": "strong",
-            "tier": "secondary",
-            "division_game": true,
-            "public_pick_pct": 13.72,
-            "public_pick_source_status": "estimated",
-            "expected_entries_eliminated": 22.66,
-            "live_win_probability": null,
-            "live_win_probability_source_status": "missing",
-            "safe_score": 64.56,
-            "balanced_score": 76.56,
-            "leverage_score": 87.89,
-            "reasons": [
-              "WARPS win probability 67.0%",
-              "Home-field survivor spot",
-              "Division game raises upset volatility"
-            ]
-          }
-        }
-      ],
-      "path_pick": {
-        "season": 2026,
-        "week": 1,
-        "team": "PHI",
-        "opponent": "WAS",
-        "matchup_key": "WAS@PHI",
-        "game_key": "1:WAS@PHI",
-        "home_away": "home",
-        "day": "Sun",
-        "win_probability": 0.6696,
-        "fair_moneyline": "-203",
-        "warps_wins": 9.82,
-        "opponent_warps_wins": 6.71,
-        "division_game": true,
-        "opponent_sos_rank": 16,
-        "team_has_bye_before": false,
-        "opponent_has_bye_before": false,
-        "future_safe_spots": 3,
-        "future_elite_spots": 0,
-        "best_future_win_probability": 0.6593,
-        "future_value_cost": 3.6,
-        "volatility_penalty": 3.0,
-        "safety_score": 66.96,
-        "survivor_score": 60.36,
-        "risk_band": "strong",
-        "tier": "secondary",
-        "reasons": [
-          "WARPS win probability 67.0%",
-          "Home-field survivor spot",
-          "Division game raises upset volatility"
-        ],
-        "win_probability_source_status": "warps_prior_only",
-        "live_win_probability": null,
-        "live_win_probability_source_status": "missing",
-        "public_pick_source_status": "estimated",
-        "public_pick_pct_25": 12.22,
-        "public_pick_pct_100": 13.72,
-        "pool_ev_25_top_heavy": 60.6,
-        "pool_ev_100_top_heavy": 62.97,
-        "pool_ev_500_top_heavy": 76.56
-      }
+      "week": "PRE1",
+      "primary": null,
+      "safest": null,
+      "pool_cards": [],
+      "path_pick": null
     },
-    "warps_watch": [
-      {
-        "team": "JAX",
-        "opponent": "CLE",
-        "home_away": "home",
-        "matchup_key": "CLE@JAX",
-        "win_probability": 0.6892,
-        "fair_moneyline": "-222",
-        "fair_spread": -6.6,
-        "status": "priced"
-      },
-      {
-        "team": "PHI",
-        "opponent": "WAS",
-        "home_away": "home",
-        "matchup_key": "WAS@PHI",
-        "win_probability": 0.6696,
-        "fair_moneyline": "-203",
-        "fair_spread": -5.9,
-        "status": "priced"
-      },
-      {
-        "team": "DET",
-        "opponent": "NO",
-        "home_away": "home",
-        "matchup_key": "NO@DET",
-        "win_probability": 0.664,
-        "fair_moneyline": "-198",
-        "fair_spread": -5.7,
-        "status": "priced"
-      },
-      {
-        "team": "LAC",
-        "opponent": "ARI",
-        "home_away": "home",
-        "matchup_key": "ARI@LAC",
-        "win_probability": 0.6238,
-        "fair_moneyline": "-166",
-        "fair_spread": -4.2,
-        "status": "priced"
-      },
-      {
-        "team": "SEA",
-        "opponent": "NE",
-        "home_away": "home",
-        "matchup_key": "NE@SEA",
-        "win_probability": 0.6106,
-        "fair_moneyline": "-157",
-        "fair_spread": -3.8,
-        "status": "priced"
-      },
-      {
-        "team": "LAR",
-        "opponent": "SF",
-        "home_away": "home",
-        "matchup_key": "SF@LAR",
-        "win_probability": 0.6106,
-        "fair_moneyline": "-157",
-        "fair_spread": -3.8,
-        "status": "priced"
-      }
-    ],
+    "warps_watch": [],
     "source_health": {
       "preseason_dry_run": {
         "available": true,
@@ -540,7 +72,7 @@
         "checks_passed": 14,
         "next_live_command": "python3 builders/build_week_master_table.py --season 2026 --week 1 --season-type PRE"
       },
-      "card_available": false
+      "card_available": true
     }
   },
   "model_readiness": {
@@ -954,89 +486,15 @@
       }
     ],
     "source_reliability": {
-      "overall_status": "DEGRADED",
-      "overall_score": 97.6,
-      "weeks_audited": 8,
+      "overall_status": "OK",
+      "overall_score": 0,
+      "weeks_audited": 0,
       "recommendations": [
-        "Monitor lower-scoring source groups: rotowire.",
         "Keep degraded source status visible; current sample is too small for a hard veto.",
         "Do not promote factor overlays to production when critical sources are unsafe or missing.",
         "For live 2026 runs, require action markets, queries, and referee trends before final recommendations."
       ],
-      "by_source": [
-        {
-          "source": "rotowire",
-          "weeks": 8,
-          "avg_score": 87.5,
-          "min_score": 0,
-          "ok_weeks": 7,
-          "degraded_weeks": 1,
-          "unsafe_weeks": 0,
-          "missing_weeks": 1,
-          "total_warnings": 1,
-          "total_critical_warnings": 0
-        },
-        {
-          "source": "action_injuries",
-          "weeks": 8,
-          "avg_score": 99.4,
-          "min_score": 95,
-          "ok_weeks": 8,
-          "degraded_weeks": 0,
-          "unsafe_weeks": 0,
-          "missing_weeks": 0,
-          "total_warnings": 0,
-          "total_critical_warnings": 0
-        },
-        {
-          "source": "action_markets",
-          "weeks": 8,
-          "avg_score": 99.4,
-          "min_score": 95,
-          "ok_weeks": 8,
-          "degraded_weeks": 0,
-          "unsafe_weeks": 0,
-          "missing_weeks": 0,
-          "total_warnings": 0,
-          "total_critical_warnings": 0
-        },
-        {
-          "source": "action_weather",
-          "weeks": 8,
-          "avg_score": 99.4,
-          "min_score": 95,
-          "ok_weeks": 8,
-          "degraded_weeks": 0,
-          "unsafe_weeks": 0,
-          "missing_weeks": 0,
-          "total_warnings": 0,
-          "total_critical_warnings": 0
-        },
-        {
-          "source": "queries",
-          "weeks": 8,
-          "avg_score": 100.0,
-          "min_score": 100,
-          "ok_weeks": 8,
-          "degraded_weeks": 0,
-          "unsafe_weeks": 0,
-          "missing_weeks": 0,
-          "total_warnings": 0,
-          "total_critical_warnings": 0
-        },
-        {
-          "source": "referee_trends",
-          "weeks": 8,
-          "avg_score": 100.0,
-          "min_score": 100,
-          "ok_weeks": 8,
-          "degraded_weeks": 0,
-          "unsafe_weeks": 0,
-          "missing_weeks": 0,
-          "total_warnings": 0,
-          "total_critical_warnings": 0
-        }
-      ],
+      "by_source": [],
       "feature_status_buckets": [
         {
           "bucket": "DEGRADED",
@@ -1506,7 +964,7 @@
     },
     "backtest_coverage": {
       "configured_replay": {
-        "root": "/Users/lijuv/nfl-betting-automation/data/backtests/engine_2026_1_configured",
+        "root": "/home/runner/work/nfl-betting-automation/nfl-betting-automation/data/backtests/engine_2026_1_configured",
         "weeks": [
           11,
           12,
@@ -1547,105 +1005,22 @@
         ]
       },
       "full_2025_attempt": {
-        "root": "/Users/lijuv/nfl-betting-automation/data/backtests/engine_2026_1_full2025_attempt",
-        "weeks_requested": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17,
-          18
-        ],
-        "completed_weeks": [
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17,
-          18
-        ],
-        "skipped_weeks": [
-          {
-            "week": 1,
-            "reason": "Missing query file: data/week1/week1_queries.csv"
-          },
-          {
-            "week": 2,
-            "reason": "Missing query file: data/week2/week2_queries.csv"
-          },
-          {
-            "week": 3,
-            "reason": "Missing query file: data/week3/week3_queries.csv"
-          },
-          {
-            "week": 4,
-            "reason": "Missing query file: data/week4/week4_queries.csv"
-          },
-          {
-            "week": 5,
-            "reason": "Missing query file: data/week5/week5_queries.csv"
-          },
-          {
-            "week": 6,
-            "reason": "Missing query file: data/week6/week6_queries.csv"
-          },
-          {
-            "week": 7,
-            "reason": "Missing query file: data/week7/week7_queries.csv"
-          },
-          {
-            "week": 8,
-            "reason": "Missing query file: data/week8/week8_queries.csv"
-          },
-          {
-            "week": 9,
-            "reason": "Missing query file: data/week9/week9_queries.csv"
-          }
-        ],
+        "root": "/home/runner/work/nfl-betting-automation/nfl-betting-automation/data/backtests/engine_2026_1_full2025_attempt",
+        "weeks_requested": [],
+        "completed_weeks": [],
+        "skipped_weeks": [],
         "failed_weeks": [],
-        "graded": 7,
-        "wins": 5,
-        "losses": 2,
-        "pushes": 0,
-        "win_rate": 0.7143,
-        "by_market": {
-          "spread": {
-            "graded": 2,
-            "wins": 1,
-            "losses": 1,
-            "pushes": 0,
-            "win_rate": 0.5
-          },
-          "total": {
-            "graded": 5,
-            "wins": 4,
-            "losses": 1,
-            "pushes": 0,
-            "win_rate": 0.8
-          }
-        }
+        "graded": null,
+        "wins": null,
+        "losses": null,
+        "pushes": null,
+        "win_rate": null,
+        "by_market": {}
       },
       "verdict": {
         "status": "WEEKLY_PIPELINE_READY_MONITOR",
         "recommendation": "Current weekly workflows are close to operational for 2026, but full-season historical selector validation remains blocked until earlier weekly query/referee files are restored or regenerated.",
-        "blockers": [
-          "Weeks 1-9 are missing weekly query/referee input files."
-        ]
+        "blockers": []
       },
       "next_steps": [
         "Restore or regenerate week1-week9 query/referee files before rerunning full 2025 selector replay.",
@@ -2411,11 +1786,98 @@
   "weekly_betting_card": {
     "feed_version": "2026.1",
     "source": "matrix_engine_feed edge_board",
-    "card_count": 22,
+    "card_count": 23,
     "plays": 0,
     "watch": 0,
-    "passes": 22,
+    "passes": 23,
     "cards": [
+      {
+        "key": "2026:PRE1:CAR@ARI",
+        "season": 2026,
+        "season_type": "PRE",
+        "week": "PRE1",
+        "matchup_key": "CAR@ARI",
+        "away_tla": "CAR",
+        "home_tla": "ARI",
+        "action": "pass",
+        "market": null,
+        "side": null,
+        "confidence": "none",
+        "selector_score": null,
+        "classification": null,
+        "recommendation": null,
+        "required_line": "No bet",
+        "current_line": "",
+        "warps_alignment": null,
+        "warps_side": null,
+        "source_health": null,
+        "data_quality": null,
+        "quality_gate": null,
+        "main_reasons": [
+          "Selector did not clear an actionable market threshold"
+        ],
+        "risk_flags": [
+          "thin expectation sample"
+        ],
+        "market_status": null,
+        "spread_status": "blocked",
+        "total_status": "blocked",
+        "moneyline_status": "research_only",
+        "moneyline_promotion_status": "not_promoted",
+        "route_selected_market": null,
+        "route_reason": "Blocked by risk/source flags: thin expectation sample",
+        "market_options": [
+          {
+            "market": "spread",
+            "side": null,
+            "status": "blocked",
+            "score": null,
+            "threshold": null,
+            "blockers": [
+              "candidate unavailable"
+            ],
+            "signals": [],
+            "conflicts": [],
+            "warps_alignment": null,
+            "warps_side": null,
+            "warps_team": null,
+            "edge_value": null
+          },
+          {
+            "market": "total",
+            "side": null,
+            "status": "blocked",
+            "score": null,
+            "threshold": null,
+            "blockers": [
+              "candidate unavailable"
+            ],
+            "signals": [],
+            "conflicts": [],
+            "warps_alignment": null,
+            "warps_side": null,
+            "warps_team": null,
+            "edge_value": null
+          },
+          {
+            "market": "moneyline",
+            "side": null,
+            "status": "research_only",
+            "promotion_status": "not_promoted",
+            "score": null,
+            "threshold": null,
+            "blockers": [
+              "moneyline selector not promoted"
+            ],
+            "signals": [],
+            "conflicts": [],
+            "warps_alignment": null,
+            "warps_side": null,
+            "warps_team": null,
+            "edge_value": null
+          }
+        ]
+      },
       {
         "key": "2025:18:ARI@LAR",
         "season": 2025,
@@ -6561,6 +6023,87 @@
           "source_health_reference_time": null
         }
       }
+    },
+    {
+      "season": 2026,
+      "season_type": "PRE",
+      "week": "PRE1",
+      "matchup_key": "CAR@ARI",
+      "game": "Carolina Panthers @ Arizona Cardinals",
+      "away_team": "Carolina Panthers",
+      "home_team": "Arizona Cardinals",
+      "away_tla": "CAR",
+      "home_tla": "ARI",
+      "away_score": 33,
+      "home_score": 30,
+      "final_margin": 3,
+      "final_total": 63,
+      "latest": {
+        "stage": null,
+        "available": false
+      },
+      "stages": {
+        "initial": {
+          "available": false,
+          "classification": null,
+          "signal_classification": null,
+          "recommendation": null,
+          "pick_market": null,
+          "pick_side": null,
+          "selector_score": null,
+          "pick_reasons": null,
+          "recommendation_trace": {},
+          "data_quality_status": null,
+          "source_health_status": null,
+          "source_health_warnings": "",
+          "source_health_reference_time": null
+        },
+        "update": {
+          "available": false,
+          "classification": null,
+          "signal_classification": null,
+          "recommendation": null,
+          "pick_market": null,
+          "pick_side": null,
+          "selector_score": null,
+          "pick_reasons": null,
+          "recommendation_trace": {},
+          "data_quality_status": null,
+          "source_health_status": null,
+          "source_health_warnings": "",
+          "source_health_reference_time": null
+        },
+        "lock": {
+          "available": false,
+          "classification": null,
+          "signal_classification": null,
+          "recommendation": null,
+          "pick_market": null,
+          "pick_side": null,
+          "selector_score": null,
+          "pick_reasons": null,
+          "recommendation_trace": {},
+          "data_quality_status": null,
+          "source_health_status": null,
+          "source_health_warnings": "",
+          "source_health_reference_time": null
+        },
+        "final": {
+          "available": false,
+          "classification": null,
+          "signal_classification": null,
+          "recommendation": null,
+          "pick_market": null,
+          "pick_side": null,
+          "selector_score": null,
+          "pick_reasons": null,
+          "recommendation_trace": {},
+          "data_quality_status": null,
+          "source_health_status": null,
+          "source_health_warnings": "",
+          "source_health_reference_time": null
+        }
+      }
     }
   ],
   "team_cells": {
@@ -7487,9 +7030,233 @@
       "selector_score": null,
       "data_quality_status": null,
       "source_health_status": null
+    },
+    "CAR:PREWPRE1": {
+      "key": "CAR:PREWPRE1",
+      "team": "CAR",
+      "week": "PRE1",
+      "season": 2026,
+      "season_type": "PRE",
+      "opponent": "@ARI",
+      "home_away": "away",
+      "matchup_key": "CAR@ARI",
+      "score_for": 33,
+      "score_against": 30,
+      "latest_stage": null,
+      "analysis_available": false,
+      "classification": null,
+      "pick_market": null,
+      "pick_side": null,
+      "pick_on_team": false,
+      "selector_score": null,
+      "data_quality_status": null,
+      "source_health_status": null
+    },
+    "ARI:PREWPRE1": {
+      "key": "ARI:PREWPRE1",
+      "team": "ARI",
+      "week": "PRE1",
+      "season": 2026,
+      "season_type": "PRE",
+      "opponent": "CAR",
+      "home_away": "home",
+      "matchup_key": "CAR@ARI",
+      "score_for": 30,
+      "score_against": 33,
+      "latest_stage": null,
+      "analysis_available": false,
+      "classification": null,
+      "pick_market": null,
+      "pick_side": null,
+      "pick_on_team": false,
+      "selector_score": null,
+      "data_quality_status": null,
+      "source_health_status": null
     }
   },
   "edge_board": [
+    {
+      "season": 2026,
+      "season_type": "PRE",
+      "week": "PRE1",
+      "matchup_key": "CAR@ARI",
+      "game": "Carolina Panthers @ Arizona Cardinals",
+      "away_team": "Carolina Panthers",
+      "home_team": "Arizona Cardinals",
+      "away_tla": "CAR",
+      "home_tla": "ARI",
+      "stage": null,
+      "analysis_available": false,
+      "best_edge": {
+        "market": null,
+        "side": null,
+        "score": null,
+        "label": null,
+        "recommendation": null,
+        "status": "pass"
+      },
+      "markets": {
+        "spread": {
+          "market": "spread",
+          "side": null,
+          "score": null,
+          "threshold": null,
+          "cleared_threshold": false,
+          "blocked": true,
+          "blockers": [
+            "candidate unavailable"
+          ],
+          "signals": [],
+          "conflicts": [],
+          "reasons": [],
+          "status": "blocked"
+        },
+        "total": {
+          "market": "total",
+          "side": null,
+          "score": null,
+          "threshold": null,
+          "cleared_threshold": false,
+          "blocked": true,
+          "blockers": [
+            "candidate unavailable"
+          ],
+          "signals": [],
+          "conflicts": [],
+          "reasons": [],
+          "status": "blocked"
+        },
+        "moneyline": {
+          "market": "moneyline",
+          "side": null,
+          "score": null,
+          "threshold": null,
+          "status": "research_only",
+          "promotion_status": "not_promoted",
+          "blockers": [
+            "moneyline selector not promoted"
+          ],
+          "reason": "moneyline edge model remains research-only until historical validation clears promotion"
+        }
+      },
+      "factor_summary": [],
+      "warps_market_overlay": {
+        "available": false,
+        "status": "unavailable",
+        "recommendation_policy": "forecast_context_only",
+        "reason": "WARPS market overlay not available for this matchup"
+      },
+      "schedule_context": {
+        "division_game": false,
+        "conference_game": true,
+        "away_division": "NFC South",
+        "home_division": "NFC West"
+      },
+      "expectation_context": {
+        "away_team": "CAR",
+        "home_team": "ARI",
+        "away": {
+          "team": "CAR",
+          "conference": "NFC",
+          "division": "NFC South",
+          "games_tracked": 0,
+          "actual_wins": 0,
+          "actual_losses": 0,
+          "points_for": 0,
+          "points_against": 0,
+          "vegas_win_total": 7.5,
+          "actual_win_pct": null,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": null,
+          "pythagorean_wins_tracked": null,
+          "pythagorean_wins_17_game_pace": null,
+          "actual_vs_pythagorean": null,
+          "pythagorean_pace_vs_vegas": null,
+          "actual_pace_vs_vegas": null,
+          "expectation_band": "unknown"
+        },
+        "home": {
+          "team": "ARI",
+          "conference": "NFC",
+          "division": "NFC West",
+          "games_tracked": 0,
+          "actual_wins": 0,
+          "actual_losses": 0,
+          "points_for": 0,
+          "points_against": 0,
+          "vegas_win_total": 4.5,
+          "actual_win_pct": null,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": null,
+          "pythagorean_wins_tracked": null,
+          "pythagorean_wins_17_game_pace": null,
+          "actual_vs_pythagorean": null,
+          "pythagorean_pace_vs_vegas": null,
+          "actual_pace_vs_vegas": null,
+          "expectation_band": "unknown"
+        },
+        "games_tracked_min": 0,
+        "pythagorean_wins_delta": null,
+        "vegas_win_total_delta": 3.0,
+        "pythagorean_vs_vegas_delta": null,
+        "actual_vs_pythagorean_delta": null,
+        "pythagorean_side": null,
+        "market_expectation_side": "AWAY",
+        "value_gap_side": null,
+        "overperformance_side": null,
+        "sample_warning": true
+      },
+      "source_health_status": null,
+      "data_quality_status": null,
+      "result": {
+        "away_score": 33,
+        "home_score": 30,
+        "final_margin": 3,
+        "final_total": 63
+      },
+      "explanation": {
+        "key": "CAR@ARI:final",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE1",
+        "matchup_key": "CAR@ARI",
+        "away_tla": "CAR",
+        "home_tla": "ARI",
+        "stage": "",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "clear",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "",
+        "recommendation": "",
+        "source_health_status": "",
+        "data_quality_status": "",
+        "promoted_matches": [],
+        "source_blockers": [],
+        "source_warnings": [],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "No isolated selector edge"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
+    },
     {
       "season": 2025,
       "season_type": "REG",
@@ -7660,13 +7427,13 @@
             "lift": 0.2222
           },
           {
-            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
+            "factor": "vegas_win_total_delta_bin=abs>=4",
             "status": "monitor",
             "allowed": false,
-            "plays": 5,
+            "plays": 4,
             "wins": 4,
-            "losses": 1,
-            "lift": 0.0222
+            "losses": 0,
+            "lift": 0.2222
           }
         ],
         "source_blockers": [],
@@ -7850,17 +7617,7 @@
         "recommendation": "\ud83d\udc40 LEAN: Baltimore Ravens -3.5 (proceed with caution)",
         "source_health_status": "",
         "data_quality_status": "",
-        "promoted_matches": [
-          {
-            "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 11,
-            "wins": 9,
-            "losses": 2,
-            "lift": 0.0404
-          }
-        ],
+        "promoted_matches": [],
         "source_blockers": [],
         "source_warnings": [],
         "market_signals": [],
@@ -7877,7 +7634,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 1"
+          "No isolated selector edge"
         ],
         "result": "",
         "margin_to_line": ""
@@ -8053,22 +7810,13 @@
             "lift": 0.2222
           },
           {
-            "factor": "pythagorean_wins_delta_bin=abs2_to_4",
+            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
             "status": "monitor",
             "allowed": false,
-            "plays": 7,
-            "wins": 6,
+            "plays": 5,
+            "wins": 4,
             "losses": 1,
-            "lift": 0.0793
-          },
-          {
-            "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 11,
-            "wins": 9,
-            "losses": 2,
-            "lift": 0.0404
+            "lift": 0.0222
           }
         ],
         "source_blockers": [],
@@ -8087,7 +7835,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 3"
+          "Promoted factors matched: 2"
         ],
         "result": "",
         "margin_to_line": ""
@@ -8261,60 +8009,6 @@
             "wins": 6,
             "losses": 0,
             "lift": 0.2222
-          },
-          {
-            "factor": "vegas_win_total_delta_bin=abs>=4",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 4,
-            "wins": 4,
-            "losses": 0,
-            "lift": 0.2222
-          },
-          {
-            "factor": "overperformance_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 7,
-            "wins": 6,
-            "losses": 1,
-            "lift": 0.0793
-          },
-          {
-            "factor": "pythagorean_wins_delta_bin=abs2_to_4",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 7,
-            "wins": 6,
-            "losses": 1,
-            "lift": 0.0793
-          },
-          {
-            "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 11,
-            "wins": 9,
-            "losses": 2,
-            "lift": 0.0404
-          },
-          {
-            "factor": "pythagorean_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
-          },
-          {
-            "factor": "value_gap_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
           }
         ],
         "source_blockers": [],
@@ -8333,7 +8027,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 7"
+          "Promoted factors matched: 1"
         ],
         "result": "",
         "margin_to_line": ""
@@ -8682,48 +8376,12 @@
         "data_quality_status": "",
         "promoted_matches": [
           {
-            "factor": "overperformance_side=AWAY",
+            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
             "status": "monitor",
             "allowed": false,
-            "plays": 7,
-            "wins": 6,
+            "plays": 5,
+            "wins": 4,
             "losses": 1,
-            "lift": 0.0793
-          },
-          {
-            "factor": "pythagorean_wins_delta_bin=abs2_to_4",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 7,
-            "wins": 6,
-            "losses": 1,
-            "lift": 0.0793
-          },
-          {
-            "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 11,
-            "wins": 9,
-            "losses": 2,
-            "lift": 0.0404
-          },
-          {
-            "factor": "pythagorean_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
-          },
-          {
-            "factor": "value_gap_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
             "lift": 0.0222
           }
         ],
@@ -8743,7 +8401,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 5"
+          "Promoted factors matched: 1"
         ],
         "result": "",
         "margin_to_line": ""
@@ -8908,17 +8566,7 @@
         "recommendation": "\u274c AVOID: Multiple negative factors align",
         "source_health_status": "",
         "data_quality_status": "",
-        "promoted_matches": [
-          {
-            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 5,
-            "wins": 4,
-            "losses": 1,
-            "lift": 0.0222
-          }
-        ],
+        "promoted_matches": [],
         "source_blockers": [],
         "source_warnings": [],
         "market_signals": [],
@@ -8935,7 +8583,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 1"
+          "No isolated selector edge"
         ],
         "result": "",
         "margin_to_line": ""
@@ -9109,15 +8757,6 @@
             "wins": 6,
             "losses": 0,
             "lift": 0.2222
-          },
-          {
-            "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 11,
-            "wins": 9,
-            "losses": 2,
-            "lift": 0.0404
           }
         ],
         "source_blockers": [],
@@ -9136,7 +8775,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 2"
+          "Promoted factors matched: 1"
         ],
         "result": "",
         "margin_to_line": ""
@@ -9310,24 +8949,6 @@
             "wins": 4,
             "losses": 0,
             "lift": 0.2222
-          },
-          {
-            "factor": "pythagorean_wins_delta_bin=abs2_to_4",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 7,
-            "wins": 6,
-            "losses": 1,
-            "lift": 0.0793
-          },
-          {
-            "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 11,
-            "wins": 9,
-            "losses": 2,
-            "lift": 0.0404
           }
         ],
         "source_blockers": [],
@@ -9346,7 +8967,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 3"
+          "Promoted factors matched: 1"
         ],
         "result": "",
         "margin_to_line": ""
@@ -9511,7 +9132,17 @@
         "recommendation": "\u274c AVOID: Multiple negative factors align",
         "source_health_status": "",
         "data_quality_status": "",
-        "promoted_matches": [],
+        "promoted_matches": [
+          {
+            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 5,
+            "wins": 4,
+            "losses": 1,
+            "lift": 0.0222
+          }
+        ],
         "source_blockers": [],
         "source_warnings": [],
         "market_signals": [],
@@ -9528,7 +9159,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "No isolated selector edge"
+          "Promoted factors matched: 1"
         ],
         "result": "",
         "margin_to_line": ""
@@ -9695,13 +9326,22 @@
         "data_quality_status": "",
         "promoted_matches": [
           {
-            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
+            "factor": "market_expectation_side=HOME",
             "status": "monitor",
             "allowed": false,
-            "plays": 5,
+            "plays": 6,
+            "wins": 6,
+            "losses": 0,
+            "lift": 0.2222
+          },
+          {
+            "factor": "vegas_win_total_delta_bin=abs>=4",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 4,
             "wins": 4,
-            "losses": 1,
-            "lift": 0.0222
+            "losses": 0,
+            "lift": 0.2222
           }
         ],
         "source_blockers": [],
@@ -9720,7 +9360,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 1"
+          "Promoted factors matched: 2"
         ],
         "result": "",
         "margin_to_line": ""
@@ -9885,44 +9525,7 @@
         "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
         "source_health_status": "",
         "data_quality_status": "",
-        "promoted_matches": [
-          {
-            "factor": "market_expectation_side=HOME",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 6,
-            "wins": 6,
-            "losses": 0,
-            "lift": 0.2222
-          },
-          {
-            "factor": "pythagorean_wins_delta_bin=abs2_to_4",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 7,
-            "wins": 6,
-            "losses": 1,
-            "lift": 0.0793
-          },
-          {
-            "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 11,
-            "wins": 9,
-            "losses": 2,
-            "lift": 0.0404
-          },
-          {
-            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 5,
-            "wins": 4,
-            "losses": 1,
-            "lift": 0.0222
-          }
-        ],
+        "promoted_matches": [],
         "source_blockers": [],
         "source_warnings": [],
         "market_signals": [],
@@ -9939,7 +9542,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 4"
+          "No isolated selector edge"
         ],
         "result": "",
         "margin_to_line": ""
@@ -10305,35 +9908,7 @@
         "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
         "source_health_status": "",
         "data_quality_status": "",
-        "promoted_matches": [
-          {
-            "factor": "market_expectation_side=HOME",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 6,
-            "wins": 6,
-            "losses": 0,
-            "lift": 0.2222
-          },
-          {
-            "factor": "pythagorean_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
-          },
-          {
-            "factor": "value_gap_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
-          }
-        ],
+        "promoted_matches": [],
         "source_blockers": [],
         "source_warnings": [],
         "market_signals": [],
@@ -10350,7 +9925,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 3"
+          "No isolated selector edge"
         ],
         "result": "",
         "margin_to_line": ""
@@ -10716,42 +10291,6 @@
             "wins": 6,
             "losses": 0,
             "lift": 0.2222
-          },
-          {
-            "factor": "overperformance_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 7,
-            "wins": 6,
-            "losses": 1,
-            "lift": 0.0793
-          },
-          {
-            "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 11,
-            "wins": 9,
-            "losses": 2,
-            "lift": 0.0404
-          },
-          {
-            "factor": "pythagorean_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
-          },
-          {
-            "factor": "value_gap_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
           }
         ],
         "source_blockers": [],
@@ -10770,7 +10309,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 5"
+          "Promoted factors matched: 1"
         ],
         "result": "",
         "margin_to_line": ""
@@ -10937,13 +10476,13 @@
         "data_quality_status": "",
         "promoted_matches": [
           {
-            "factor": "vegas_win_total_delta_bin=abs>=4",
+            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
             "status": "monitor",
             "allowed": false,
-            "plays": 4,
+            "plays": 5,
             "wins": 4,
-            "losses": 0,
-            "lift": 0.2222
+            "losses": 1,
+            "lift": 0.0222
           }
         ],
         "source_blockers": [],
@@ -11321,24 +10860,6 @@
         "data_quality_status": "",
         "promoted_matches": [
           {
-            "factor": "pythagorean_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
-          },
-          {
-            "factor": "value_gap_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
-          },
-          {
             "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
             "status": "monitor",
             "allowed": false,
@@ -11364,7 +10885,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 3"
+          "Promoted factors matched: 1"
         ],
         "result": "",
         "margin_to_line": ""
@@ -11529,7 +11050,17 @@
         "recommendation": "",
         "source_health_status": "",
         "data_quality_status": "",
-        "promoted_matches": [],
+        "promoted_matches": [
+          {
+            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 5,
+            "wins": 4,
+            "losses": 1,
+            "lift": 0.0222
+          }
+        ],
         "source_blockers": [],
         "source_warnings": [],
         "market_signals": [],
@@ -11546,7 +11077,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "No isolated selector edge"
+          "Promoted factors matched: 1"
         ],
         "result": "",
         "margin_to_line": ""
@@ -11713,40 +11244,13 @@
         "data_quality_status": "",
         "promoted_matches": [
           {
-            "factor": "overperformance_side=AWAY",
+            "factor": "vegas_win_total_delta_bin=abs>=4",
             "status": "monitor",
             "allowed": false,
-            "plays": 7,
-            "wins": 6,
-            "losses": 1,
-            "lift": 0.0793
-          },
-          {
-            "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 11,
-            "wins": 9,
-            "losses": 2,
-            "lift": 0.0404
-          },
-          {
-            "factor": "pythagorean_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
-          },
-          {
-            "factor": "value_gap_side=AWAY",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 10,
-            "wins": 8,
-            "losses": 2,
-            "lift": 0.0222
+            "plays": 4,
+            "wins": 4,
+            "losses": 0,
+            "lift": 0.2222
           }
         ],
         "source_blockers": [],
@@ -11765,7 +11269,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 4"
+          "Promoted factors matched: 1"
         ],
         "result": "",
         "margin_to_line": ""
@@ -11930,26 +11434,7 @@
         "recommendation": "",
         "source_health_status": "",
         "data_quality_status": "",
-        "promoted_matches": [
-          {
-            "factor": "market_expectation_side=HOME",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 6,
-            "wins": 6,
-            "losses": 0,
-            "lift": 0.2222
-          },
-          {
-            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 5,
-            "wins": 4,
-            "losses": 1,
-            "lift": 0.0222
-          }
-        ],
+        "promoted_matches": [],
         "source_blockers": [],
         "source_warnings": [],
         "market_signals": [],
@@ -11966,7 +11451,7 @@
           "warps_moneyline": ""
         },
         "reasons": [
-          "Promoted factors matched: 2"
+          "No isolated selector edge"
         ],
         "result": "",
         "margin_to_line": ""

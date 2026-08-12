@@ -1,12 +1,11 @@
 # Source Reliability Report
 
-- Overall status: DEGRADED
-- Overall score: 97.6
-- Weeks audited: 8
+- Overall status: OK
+- Overall score: 0
+- Weeks audited: 0
 
 ## Recommendations
 
-- Monitor lower-scoring source groups: rotowire.
 - Keep degraded source status visible; current sample is too small for a hard veto.
 - Do not promote factor overlays to production when critical sources are unsafe or missing.
 - For live 2026 runs, require action markets, queries, and referee trends before final recommendations.
@@ -15,12 +14,6 @@
 
 | Source | Weeks | Avg | Min | OK | Degraded | Unsafe | Missing |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| rotowire | 8 | 87.5 | 0 | 7 | 1 | 0 | 1 |
-| action_injuries | 8 | 99.4 | 95 | 8 | 0 | 0 | 0 |
-| action_markets | 8 | 99.4 | 95 | 8 | 0 | 0 | 0 |
-| action_weather | 8 | 99.4 | 95 | 8 | 0 | 0 | 0 |
-| queries | 8 | 100.0 | 100 | 8 | 0 | 0 | 0 |
-| referee_trends | 8 | 100.0 | 100 | 8 | 0 | 0 | 0 |
 
 ## Performance By Quality Status
 
