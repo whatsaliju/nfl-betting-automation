@@ -4,6 +4,7 @@
 import argparse
 import csv
 import json
+import re
 from pathlib import Path
 
 
@@ -46,6 +47,29 @@ def number_or_none(value):
 
 def market_payload(game, market):
     return (game.get("markets") or {}).get(market) or {}
+
+
+def format_pick_label(market, side, away_tla, home_tla, recommendation, current_line):
+    """Format a human-readable pick label like 'DEN -4.5' or 'OVER 47.5'."""
+    # Try to extract the line number from the recommendation string first,
+    # then fall back to current_line.
+    line = ""
+    if recommendation:
+        m = re.search(r"([-+]?\d+(?:\.\d+)?)\s*(?:\([-+]?\d+\))?", recommendation)
+        if m:
+            line = m.group(1)
+    if not line and current_line:
+        m = re.search(r"([-+]?\d+(?:\.\d+)?)", str(current_line))
+        if m:
+            line = m.group(1)
+
+    if market == "spread":
+        team = away_tla if side == "AWAY" else home_tla
+        return f"{team} {line}" if line else f"{team} spread"
+    if market == "total":
+        direction = "OVER" if side and side.upper() == "OVER" else "UNDER" if side and side.upper() == "UNDER" else (side or "total")
+        return f"{direction} {line}" if line else direction
+    return f"{market} {side or ''}".strip()
 
 
 def selected_market(game):
@@ -214,6 +238,19 @@ def card_row(game):
         market_data = {}
         side = None
     route = route_summary(game, action, market, flags)
+    recommendation = None if action == "pass" else best.get("recommendation")
+    current_line = market_data.get("line") or ""
+    pick_label = (
+        format_pick_label(
+            market, side,
+            game.get("away_tla") or "",
+            game.get("home_tla") or "",
+            recommendation,
+            current_line,
+        )
+        if market
+        else None
+    )
     return {
         "key": f"{game.get('season')}:{game.get('week')}:{game.get('matchup_key')}",
         "season": game.get("season"),
@@ -225,12 +262,13 @@ def card_row(game):
         "action": action,
         "market": market,
         "side": side,
+        "pick_label": pick_label,
         "confidence": confidence,
         "selector_score": None if action == "pass" else best.get("score"),
         "classification": None if action == "pass" else best.get("label"),
-        "recommendation": None if action == "pass" else best.get("recommendation"),
+        "recommendation": recommendation,
         "required_line": "No bet" if action == "pass" else line_hint(game, market, side),
-        "current_line": market_data.get("line") or "",
+        "current_line": current_line,
         "warps_alignment": (game.get("warps_market_overlay") or {}).get("spread_pick_alignment"),
         "warps_side": (game.get("warps_market_overlay") or {}).get("spread_side"),
         "source_health": game.get("source_health_status"),

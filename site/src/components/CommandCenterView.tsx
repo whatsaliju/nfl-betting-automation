@@ -300,13 +300,18 @@ export function CommandCenterView({
             </div>
             <button className="text-button" onClick={() => onNavigate("card")}>Open</button>
           </div>
-          {[...groups.plays, ...groups.watch].slice(0, 4).map((card) => (
-            <div className={`command-bet-row ${card.action}`} key={card.key}>
-              <span>W{card.week}</span>
-              <strong>{card.away_tla}@{card.home_tla}</strong>
-              <b>{card.market ? `${card.market} ${card.side || ""}` : titleCase(card.action)}</b>
-            </div>
-          ))}
+          {[...groups.plays, ...groups.watch].slice(0, 4).map((card) => {
+            const wk = String(card.week ?? "");
+            const weekDisplay = /^\d+$/.test(wk) ? `W${wk}` : wk;
+            const betDisplay = card.pick_label || (card.market ? `${card.market} ${card.side || ""}` : titleCase(card.action));
+            return (
+              <div className={`command-bet-row ${card.action}`} key={card.key}>
+                <span>{weekDisplay}</span>
+                <strong>{card.away_tla}@{card.home_tla}</strong>
+                <b>{betDisplay}</b>
+              </div>
+            );
+          })}
           {!groups.plays.length && !groups.watch.length && (
             <div className="compact-empty">No plays or watchlist spots in the current card.</div>
           )}
