@@ -10,8 +10,10 @@ from selenium.common.exceptions import TimeoutException, StaleElementReferenceEx
 import pandas as pd
 import time
 import json
+import random
 from datetime import datetime
 import os, sys
+from selenium.webdriver.common.action_chains import ActionChains
 
 # --- Dynamic Week Number Extraction ---
 if len(sys.argv) < 2:
@@ -81,28 +83,54 @@ def _load_cookies():
         return False
 
 
+def _human_type(element, text, min_delay=0.05, max_delay=0.18):
+    """Type text character by character with random delays to mimic human input."""
+    actions = ActionChains(driver)
+    actions.move_to_element(element).click().perform()
+    time.sleep(random.uniform(0.3, 0.7))
+    for char in text:
+        element.send_keys(char)
+        time.sleep(random.uniform(min_delay, max_delay))
+
+
 def _login_with_credentials(email, password):
-    """Log in via the Action Network login form. Returns True on success."""
+    """Log in via the Action Network login form with human-like behaviour."""
     print(f"🔑 Attempting credential login for {email}...")
     try:
         driver.get("https://www.actionnetwork.com/login")
-        wait = WebDriverWait(driver, 20)
-        email_input = wait.until(EC.presence_of_element_located(
+        # Pause as a real user would while the page loads
+        time.sleep(random.uniform(2.5, 4.5))
+
+        wait = WebDriverWait(driver, 25)
+        email_input = wait.until(EC.element_to_be_clickable(
             (By.CSS_SELECTOR, "input[type='email'], input[name='email'], input[placeholder*='email' i]")
         ))
-        email_input.clear()
-        email_input.send_keys(email)
+
+        # Scroll the element into view before interacting
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", email_input)
+        time.sleep(random.uniform(0.4, 0.9))
+
+        _human_type(email_input, email)
+        time.sleep(random.uniform(0.5, 1.2))
+
         password_input = driver.find_element(
             By.CSS_SELECTOR, "input[type='password'], input[name='password']"
         )
-        password_input.clear()
-        password_input.send_keys(password)
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", password_input)
+        time.sleep(random.uniform(0.3, 0.7))
+
+        _human_type(password_input, password)
+        time.sleep(random.uniform(0.8, 1.5))
+
+        # Move mouse to submit button then click
         submit = driver.find_element(
             By.CSS_SELECTOR, "button[type='submit'], input[type='submit']"
         )
-        submit.click()
-        time.sleep(4)
-        # Confirm we're no longer on the login page
+        ActionChains(driver).move_to_element(submit).pause(random.uniform(0.3, 0.6)).click().perform()
+
+        # Wait for navigation away from login page
+        time.sleep(random.uniform(4.0, 6.0))
+
         if "login" not in driver.current_url.lower():
             print("✅ Credential login succeeded")
             return True
