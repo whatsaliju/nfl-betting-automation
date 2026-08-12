@@ -11,11 +11,11 @@ on:
         default: ''
         type: string
       analysis_type:
-        description: 'Analysis stage (final = standard game-day run)'
+        description: 'final = game-day picks (default); initial = early-week first look'
         required: false
         default: 'final'
         type: choice
-        options: [final, initial, update, lock]
+        options: [final, initial]
       season_type:
         description: 'Season type — "auto" infers from week label'
         required: false
