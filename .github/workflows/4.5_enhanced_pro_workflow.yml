@@ -58,7 +58,7 @@ jobs:
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
             WEEK="${{ github.event.client_payload.week }}"
           else
-            WEEK=$(python3 -c "import glob,os,re; files=glob.glob('data/week*/week*_referees.csv'); files.sort(key=os.path.getmtime,reverse=True); m=files and re.search(r'week([A-Za-z0-9]+)_referees',files[0]); print(m.group(1)) if m else None")
+            WEEK=$(git log --pretty=format: --name-only --diff-filter=A -- 'data/week*/week*_referees.csv' | grep -m1 -oP 'week\K[A-Za-z0-9]+(?=_referees)')
           fi
 
           # Infer season type from week label; respect explicit override
