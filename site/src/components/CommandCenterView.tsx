@@ -133,8 +133,13 @@ export function CommandCenterView({
   const groups = bettingGroups(cards);
   const commandWeek = context?.week || nextSurvivorWeek(cards);
   const commandWeekLabel = context?.week_label || `W${commandWeek}`;
-  const survivorWeek = survivorForWeek(commandWeek);
-  const warpsTop = strongestWarps(commandWeek, warpsRows);
+  const isPreseason = context?.season_type === "PRE";
+  // WARPS priors and survivor use regular-season week numbers; during preseason
+  // point them at the first upcoming regular season week.
+  const planningWeek = isPreseason ? nextSurvivorWeek(cards) : (typeof commandWeek === "number" ? commandWeek : parseInt(String(commandWeek), 10) || 1);
+  const planningWeekLabel = isPreseason ? `Reg W${planningWeek}` : commandWeekLabel;
+  const survivorWeek = survivorForWeek(planningWeek);
+  const warpsTop = strongestWarps(planningWeek, warpsRows);
   const edges = playableEdges(edgeGames);
   const cardAvailable = Boolean(context?.has_betting_card && bettingCard?.available);
   const preseason = engineFeed?.preseason_dry_run;
@@ -231,12 +236,12 @@ export function CommandCenterView({
           <small>{commandCard?.watch ?? groups.watch.length} watch · {commandCard?.passes ?? groups.passes.length} pass</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("survivor")}>
-          <span>Survivor Pick</span>
+          <span>Survivor Pick{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
           <strong>{survivorWeek.primary?.team || "n/a"}</strong>
           <small>{pct(survivorWeek.primary?.win_probability)} vs {survivorWeek.primary?.opponent || "n/a"}</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("warps")}>
-          <span>Top WARPS ML</span>
+          <span>Top WARPS ML{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
           <strong>{warpsTop[0]?.team || "n/a"}</strong>
           <small>{pct(warpsTop[0]?.winProb)} · {warpsTop[0]?.fairMl || "n/a"}</small>
         </button>
@@ -321,18 +326,20 @@ export function CommandCenterView({
           <div className="command-panel-head">
             <div>
               <h3><BadgeCheck size={15} /> WARPS Prior Watch</h3>
-              <p>Highest {commandWeekLabel} win probabilities from preseason WARPS priors.</p>
+              <p>Highest {planningWeekLabel} win probabilities from WARPS priors.{isPreseason ? " Planning ahead for regular season." : ""}</p>
             </div>
             <button className="text-button" onClick={() => onNavigate("warps")}>Open</button>
           </div>
-          {warpsTop.map((row) => (
+          {warpsTop.length ? warpsTop.map((row) => (
             <div className="command-warps-row" key={`${row.matchup}-${row.team}`}>
               <TeamLogo team={row.team} />
               <strong>{row.team}</strong>
               <span>{row.homeAway === "home" ? "vs" : "@"} {row.opponent}</span>
               <b>{pct(row.winProb)}</b>
             </div>
-          ))}
+          )) : (
+            <div className="compact-empty">No WARPS priors loaded for {planningWeekLabel}.</div>
+          )}
         </article>
 
         <article className="panel command-panel">
