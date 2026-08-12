@@ -291,6 +291,7 @@ export interface WeeklyBettingCardRow {
   action: "play" | "watch" | "lean" | "pass" | string;
   market?: "spread" | "total" | "moneyline" | null;
   side?: string | null;
+  pick_label?: string | null;
   confidence?: string | null;
   selector_score?: number | null;
   classification?: string | null;
