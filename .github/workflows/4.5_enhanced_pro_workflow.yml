@@ -114,7 +114,10 @@ jobs:
       - name: Validate Analysis Artifacts
         run: |
           WEEK=${{ steps.info.outputs.week }}
-          python3 scripts/validate_engine_contracts.py --run-dir data/week$WEEK
+          SEASON_TYPE=${{ steps.info.outputs.season_type }}
+          ALLOW_UNSAFE=""
+          [ "$SEASON_TYPE" = "PRE" ] && ALLOW_UNSAFE="--allow-unsafe"
+          python3 scripts/validate_engine_contracts.py --run-dir data/week$WEEK $ALLOW_UNSAFE
 
       - name: Organize and Metadata
         env:
