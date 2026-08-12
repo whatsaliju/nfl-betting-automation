@@ -3600,6 +3600,10 @@ def analyze_week(week):
     action_file_path = exact_file_or_latest("ACTION_MARKETS_FILE", "action_all_markets_")
     action = safe_load_csv(action_file_path) if action_file_path else pd.DataFrame()
     action_raw = action.copy()
+    if not action.empty and "Matchup" in action.columns:
+        action["normalized_matchup"] = action["Matchup"].apply(normalize_matchup).str.strip()
+    elif not action.empty:
+        action = pd.DataFrame()  # malformed markets file — treat as missing
     # Load Action Network injuries
     action_injuries_path = exact_file_or_latest("ACTION_INJURIES_FILE", "action_injuries_")
     action_injuries = safe_load_csv(action_injuries_path) if action_injuries_path else pd.DataFrame()
