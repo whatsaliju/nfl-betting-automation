@@ -1,18 +1,26 @@
 import smtplib, os, json
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 def generate_report():
     week = os.getenv('WEEK')
     timestamp = os.getenv('TIMESTAMP')
     gmail_user = os.getenv('GMAIL_USER')
     gmail_password = os.getenv('GMAIL_APP_PASSWORD')
+    season_type = os.getenv('NFL_SEASON_TYPE', 'REG').strip().upper()
 
 
     
     # 1. Load the JSON Data (The reliable source)
-    # Fixed (uses your organized structure)
     stage = os.getenv('ANALYSIS_TYPE', 'final')  # Gets 'initial', 'update', or 'final'
+
+    # Skip update/lock emails for preseason — markets too thin to warrant mid-week updates
+    if season_type == 'PRE' and stage in ('update', 'lock'):
+        print(f"SKIP: Preseason {stage} email suppressed (only initial/final sent for PRE weeks)")
+        return
+
     json_path = f"data/week{week}/{stage}.json"
     try:
         with open(json_path, "r") as f:
@@ -93,6 +101,7 @@ def generate_report():
                     <p style="color:#666; margin:5px 0; font-size:14px;">📋 {recommendation}</p>
                 </div>
                 <div style="text-align:right;">
+                    <p style="margin:0; font-size:12px; color:#666;">🕐 {game.get('game_time', '') or 'TBD'}</p>
                     <p style="margin:0; font-size:12px; color:#666;">Spread: {spread_line}</p>
                     <p style="margin:0; font-size:12px; color:#666;">Total: {total_line}</p>
                     <p style="margin:0; font-size:12px; font-weight:bold; color:{color};">Score: {total_score:.1f}</p>
@@ -115,30 +124,50 @@ def generate_report():
     blue_chips = [g for g in games_data if 'BLUE CHIP' in g.get('classification', '').upper()]
     targeted = [g for g in games_data if 'TARGETED' in g.get('classification', '').upper()]
     landmines = [g for g in games_data if 'LANDMINE' in g.get('classification', '').upper()]
-    
-    # Find best edge game  
-    best_edge_game = max(games_data, key=lambda x: x.get('total_score', -999))
-    
+    leans = [g for g in games_data if 'LEAN' in g.get('classification', '').upper()]
+    actionable = blue_chips + targeted + leans
+
+    # Find top play by score
+    best_edge_game = max(games_data, key=lambda x: x.get('total_score', -999)) if games_data else {}
+    top_matchup = best_edge_game.get('matchup', 'N/A')
+    top_score = best_edge_game.get('confidence', 0)
+
+    preseason_banner = ""
+    if season_type == 'PRE':
+        preseason_banner = """
+    <div style="background:#fff3cd; padding:12px 15px; border-left:4px solid #ffc107; border-radius:4px; margin:15px 0;">
+        <strong>⚠️ PRESEASON DRY RUN</strong> — Referee history is regular-season data only and not applicable to preseason games.
+        RotoWire lineups unavailable. Markets are thin. <strong>No bets recommended until regular season.</strong>
+    </div>"""
+
     summary_html = f"""
     <div style="background:#f8f9fa; padding:15px; border-radius:8px; margin:20px 0; border-left:4px solid #007bff;">
         <h3 style="margin:0 0 10px 0; color:#007bff;">📊 Week {week} Summary</h3>
+        {preseason_banner}
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
             <div>
-                <p style="margin:5px 0;"><strong>🔵 Blue Chips:</strong> {len(blue_chips)} plays{f" (avg: {sum(g.get('confidence',0) for g in blue_chips)/len(blue_chips):.1f})" if blue_chips else ""}</p>
-                <p style="margin:5px 0;"><strong>🎯 Targeted:</strong> {len(targeted)} plays{f" (avg: {sum(g.get('confidence',0) for g in targeted)/len(targeted):.1f})" if targeted else ""}</p>
+                <p style="margin:5px 0;"><strong>🔵 Blue Chips:</strong> {len(blue_chips)} plays{f" (avg: {sum(g.get('confidence',0) for g in blue_chips)/len(blue_chips):.1f}/20)" if blue_chips else ""}</p>
+                <p style="margin:5px 0;"><strong>🎯 Targeted:</strong> {len(targeted)} plays{f" (avg: {sum(g.get('confidence',0) for g in targeted)/len(targeted):.1f}/20)" if targeted else ""}</p>
+                <p style="margin:5px 0;"><strong>📊 Lean:</strong> {len(leans)} plays</p>
             </div>
             <div>
                 <p style="margin:5px 0;"><strong>❌ Avoid:</strong> {len(landmines)} landmines</p>
-                <p style="margin:5px 0;"><strong>💰 Best Edge:</strong> {best_edge_game.get('matchup', 'N/A')} ({best_edge_game.get('confidence', 0):.1f})</p>
+                <p style="margin:5px 0;"><strong>🏆 Top Play:</strong> {top_matchup} ({top_score:.1f}/20)</p>
             </div>
         </div>
     </div>
     """
 
-    # Rest of email assembly stays the same, but add summary_html
-    msg = MIMEMultipart()
+    # Build subject line with top play info
     subject_prefix = os.getenv('SUBJECT_PREFIX', '🏈')
-    msg['Subject'] = f"{subject_prefix} Week {week} NFL Analysis"
+    if actionable:
+        top_action = actionable[0]
+        subject_detail = f"{top_action.get('matchup','?')} | {len(actionable)} play{'s' if len(actionable)!=1 else ''}, {len(landmines)} fade{'s' if len(landmines)!=1 else ''}"
+    else:
+        subject_detail = f"No plays | {len(landmines)} fade{'s' if len(landmines)!=1 else ''}"
+
+    msg = MIMEMultipart()
+    msg['Subject'] = f"{subject_prefix} Wk {week}: {subject_detail}"
     msg['From'] = gmail_user
     msg['To'] = "lvarughese@gmail.com"
 
@@ -159,6 +188,29 @@ def generate_report():
     """
     msg.attach(MIMEText(full_html, 'html'))
 
+    # Attach analysis files to the same email (no separate attachment email needed)
+    def _attach(filepath, filename):
+        if os.path.exists(filepath):
+            with open(filepath, "rb") as f:
+                part = MIMEBase('application', 'octet-stream')
+                part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', f'attachment; filename={filename}')
+            msg.attach(part)
+            return True
+        return False
+
+    attached = []
+    for ext, label in [('.json', 'JSON'), ('.csv', 'CSV'), ('_pro_analysis.txt', 'TXT'),
+                       ('_selector_audit.csv', 'Selector Audit'), ('_run_manifest.json', 'Run Manifest'),
+                       ('_source_health.json', 'Source Health JSON'), ('_source_health.txt', 'Source Health TXT')]:
+        src = f"data/week{week}/{stage}{ext}" if not ext.startswith('_') else f"data/week{week}/{stage}{ext}"
+        fname = f"week{week}_{stage}{ext}"
+        if _attach(src, fname):
+            attached.append(label)
+    if attached:
+        print(f"Attached: {', '.join(attached)}")
+
     # Send
     try:
         s = smtplib.SMTP('smtp.gmail.com', 587)
@@ -166,7 +218,7 @@ def generate_report():
         s.login(gmail_user, gmail_password)
         s.send_message(msg)
         s.quit()
-        print("SUCCESS: Email sent from JSON source!")
+        print("SUCCESS: Email sent with attachments!")
     except Exception as e:
         print(f"FATAL ERROR: {e}")
 
