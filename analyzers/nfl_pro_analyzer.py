@@ -3553,6 +3553,13 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
     classification, recommendation_label, tier_score = RecommendationSelector.classification_for_pick(pick_metadata)
     recommendation_trace = pick_metadata.get('trace', {})
 
+    # Extract kickoff time from Action Network (best source) or referees CSV fallback
+    game_time = ""
+    if action_row is not None and not action_row.empty:
+        game_time = str(action_row.iloc[0].get("Game Time") or action_row.iloc[0].get("game_time") or "").strip()
+    if not game_time:
+        game_time = str(getattr(row, "time", "") or "").strip()
+
     return {
         'matchup': f"{away_full} @ {home_full}",
         'matchup_key': matchup_key,
@@ -3560,6 +3567,7 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
         'home': home_full,
         'away_tla': away_tla,
         'home_tla': home_tla,
+        'game_time': game_time,
         'classification': classification,
         'classification_label': recommendation_label,
         'signal_classification': signal_classification,

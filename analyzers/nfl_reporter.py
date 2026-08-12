@@ -101,6 +101,7 @@ def generate_report():
                     <p style="color:#666; margin:5px 0; font-size:14px;">📋 {recommendation}</p>
                 </div>
                 <div style="text-align:right;">
+                    <p style="margin:0; font-size:12px; color:#666;">🕐 {game.get('game_time', '') or 'TBD'}</p>
                     <p style="margin:0; font-size:12px; color:#666;">Spread: {spread_line}</p>
                     <p style="margin:0; font-size:12px; color:#666;">Total: {total_line}</p>
                     <p style="margin:0; font-size:12px; font-weight:bold; color:{color};">Score: {total_score:.1f}</p>
