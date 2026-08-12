@@ -713,6 +713,16 @@ def season_type_rank(season_type):
     return {"PRE": 0, "REG": 1, "POST": 2}.get(str(season_type or "").upper(), -1)
 
 
+def make_week_label(season_type, week):
+    w = str(week).strip().upper()
+    if season_type == "PRE":
+        num = w[3:] if w.startswith("PRE") else w
+        return f"PRE W{num or '1'}"
+    if w in ("WC", "DIV", "CONF", "CON", "SB"):
+        return w
+    return f"W{week}"
+
+
 def current_context_payload(games, card_payload, preseason_payload):
     cards = card_payload.get("cards") or []
     active_cards = [
@@ -740,7 +750,7 @@ def current_context_payload(games, card_payload, preseason_payload):
             "season": ACTIVE_SEASON,
             "season_type": season_type,
             "week": week,
-            "week_label": f"{'PRE ' if season_type == 'PRE' else ''}W{week}",
+            "week_label": make_week_label(season_type, week),
             "stage": (selected.get("latest") or {}).get("stage") if isinstance(selected.get("latest"), dict) else selected.get("stage"),
             "status": "LIVE_CARD" if active_cards else "LIVE_GAMES_NO_CARD",
             "mode": "live",
@@ -760,7 +770,7 @@ def current_context_payload(games, card_payload, preseason_payload):
             "season": preseason_payload.get("season") or ACTIVE_SEASON,
             "season_type": season_type,
             "week": week,
-            "week_label": f"{'PRE ' if season_type == 'PRE' else ''}W{week}",
+            "week_label": make_week_label(season_type, week),
             "stage": "final" if has_card else "dry_run",
             "status": "PRESEASON_CARD_LIVE" if has_card else "PRESEASON_DRY_RUN_READY",
             "mode": "live" if has_card else "dry_run",
