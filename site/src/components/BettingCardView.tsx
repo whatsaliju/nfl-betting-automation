@@ -15,9 +15,13 @@ function snapshotLabel(cards: WeeklyBettingCardRow[]) {
   if (!cards.length) return "No games loaded";
   const seasons = Array.from(new Set(cards.map((card) => card.season))).sort();
   const seasonText = seasons.length === 1 ? String(seasons[0]) : `${seasons[0]}-${seasons[seasons.length - 1]}`;
-  const weeks = cards.map((card) => card.week).filter((week) => typeof week === "number");
-  const minWeek = Math.min(...weeks);
-  const maxWeek = Math.max(...weeks);
+  const numWeeks = cards.map((card) => card.week).filter((w) => typeof w === "number") as number[];
+  if (!numWeeks.length) {
+    const strWeeks = Array.from(new Set(cards.map((card) => String(card.week ?? "")))).filter(Boolean);
+    return strWeeks.length === 1 ? `${seasonText} ${strWeeks[0]}` : `${seasonText}`;
+  }
+  const minWeek = Math.min(...numWeeks);
+  const maxWeek = Math.max(...numWeeks);
   const weekText = minWeek === maxWeek ? `W${minWeek}` : `W${minWeek}-W${maxWeek}`;
   return `${seasonText} ${weekText}`;
 }
@@ -42,12 +46,18 @@ function actionGroups(cards: WeeklyBettingCardRow[]) {
   };
 }
 
+function weekDisplay(week: string | number | undefined | null) {
+  const wk = String(week ?? "");
+  return /^\d+$/.test(wk) ? `W${wk}` : wk;
+}
+
 function decisionTitle(card: WeeklyBettingCardRow) {
   if (card.action === "pass") return "PASS";
+  const label = card.pick_label;
   if (card.action === "watch" || card.action === "lean") {
-    return card.market ? `WATCH ${card.market.toUpperCase()} ${card.side || ""}` : "WATCH";
+    return label ? `WATCH · ${label}` : card.market ? `WATCH ${card.market.toUpperCase()} ${card.side || ""}` : "WATCH";
   }
-  return card.market ? `${card.market.toUpperCase()} ${card.side || ""}` : "PLAY";
+  return label || (card.market ? `${card.market.toUpperCase()} ${card.side || ""}` : "PLAY");
 }
 
 function decisionSubtitle(card: WeeklyBettingCardRow) {
@@ -59,7 +69,7 @@ function CardItem({ card }: { card: WeeklyBettingCardRow }) {
   return (
     <article className={`betting-card-item ${card.action}`}>
       <div className="betting-card-top">
-        <span>W{card.week}</span>
+        <span>{weekDisplay(card.week)}</span>
         <span>{titleCase(card.confidence)}</span>
       </div>
       <div className="edge-matchup">
