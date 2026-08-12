@@ -98,12 +98,35 @@ jobs:
           echo "prefix=$PREFIX" >> $GITHUB_OUTPUT
           echo "time=$(date '+%Y-%m-%d %I:%M %p ET')" >> $GITHUB_OUTPUT
 
+      - name: Resolve Data Files
+        id: files
+        run: |
+          latest_file() {
+            python3 -c 'import glob, os, sys; files=[]; [files.extend(glob.glob(p)) for p in sys.argv[1:]]; files.sort(key=os.path.getmtime, reverse=True); print(files[0] if files else "")' "$@"
+          }
+          # Prefer explicitly passed paths (repository_dispatch), fall back to latest on disk
+          MARKETS="${{ github.event.client_payload.action_markets_file }}"
+          INJURIES="${{ github.event.client_payload.action_injuries_file }}"
+          WEATHER="${{ github.event.client_payload.action_weather_file }}"
+          ROTOWIRE="${{ github.event.client_payload.rotowire_file }}"
+          [ -z "$MARKETS" ]  && MARKETS=$(latest_file "data/action_all_markets_*.csv")
+          [ -z "$INJURIES" ] && INJURIES=$(latest_file "data/action_injuries_*.csv")
+          [ -z "$WEATHER" ]  && WEATHER=$(latest_file "data/action_weather_*.csv")
+          echo "markets=$MARKETS"
+          echo "injuries=$INJURIES"
+          echo "weather=$WEATHER"
+          echo "rotowire=$ROTOWIRE"
+          echo "markets=$MARKETS"   >> $GITHUB_OUTPUT
+          echo "injuries=$INJURIES" >> $GITHUB_OUTPUT
+          echo "weather=$WEATHER"   >> $GITHUB_OUTPUT
+          echo "rotowire=$ROTOWIRE" >> $GITHUB_OUTPUT
+
       - name: Run Pro Analyzer
         env:
-          ACTION_MARKETS_FILE: ${{ github.event.client_payload.action_markets_file }}
-          ACTION_INJURIES_FILE: ${{ github.event.client_payload.action_injuries_file }}
-          ACTION_WEATHER_FILE: ${{ github.event.client_payload.action_weather_file }}
-          ROTOWIRE_FILE: ${{ github.event.client_payload.rotowire_file }}
+          ACTION_MARKETS_FILE: ${{ steps.files.outputs.markets }}
+          ACTION_INJURIES_FILE: ${{ steps.files.outputs.injuries }}
+          ACTION_WEATHER_FILE: ${{ steps.files.outputs.weather }}
+          ROTOWIRE_FILE: ${{ steps.files.outputs.rotowire }}
           REFEREE_TRENDS_FILE: data/historical/sdql_results.csv
           NFL_SEASON: ${{ steps.info.outputs.season }}
           NFL_SEASON_TYPE: ${{ steps.info.outputs.season_type }}
