@@ -189,6 +189,29 @@ button { cursor: pointer; }
 .view-tabs button:first-child { border-radius: 7px 0 0 7px; }
 .view-tabs button:last-child  { border-radius: 0 7px 7px 0; }
 
+/* Tab group separator inside .view-tabs */
+.view-tab-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 5px 3px;
+  background: #cbd7e2;
+  flex-shrink: 0;
+}
+
+/* Preseason context banner */
+.command-preseason-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #bfd0e3;
+  background: #edf6ff;
+  color: #1e4f79;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 /* Tooltip */
 [data-tooltip] { position: relative; }
 [data-tooltip]::after {
@@ -1187,6 +1210,7 @@ select {
 }
 .command-readiness-list {
   display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 7px;
 }
 .command-readiness-list span {
@@ -1871,7 +1895,7 @@ select {
   .expectation-mini { grid-template-columns: 1fr; }
   .postseason-strip { flex-direction: column; }
   .command-hero { flex-direction: column; }
-  .command-lane-grid, .command-kpi-grid, .command-grid { grid-template-columns: 1fr; }
+  .command-lane-grid, .command-kpi-grid, .command-grid, .command-readiness-list { grid-template-columns: 1fr; }
   .command-status-stack { justify-content: flex-start; }
   .warps-hero-kpis { grid-template-columns: repeat(2, 1fr); }
   .warps-kpi-grid { grid-template-columns: repeat(2, 1fr); }

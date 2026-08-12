@@ -46,9 +46,13 @@ function currentCardRows(feed?: EngineFeed | null) {
 function cardSnapshot(cards: WeeklyBettingCardRow[]) {
   if (!cards.length) return "No card loaded";
   const seasons = Array.from(new Set(cards.map((card) => card.season))).sort();
-  const weeks = cards.map((card) => card.week);
-  const minWeek = Math.min(...weeks);
-  const maxWeek = Math.max(...weeks);
+  const numWeeks = cards.map((card) => card.week).filter((w) => typeof w === "number") as number[];
+  if (!numWeeks.length) {
+    const strWeeks = Array.from(new Set(cards.map((card) => String(card.week ?? "")))).filter(Boolean);
+    return strWeeks.length === 1 ? `${seasons.join("-")} ${strWeeks[0]}` : `${seasons.join("-")}`;
+  }
+  const minWeek = Math.min(...numWeeks);
+  const maxWeek = Math.max(...numWeeks);
   return `${seasons.join("-")} W${minWeek === maxWeek ? minWeek : `${minWeek}-${maxWeek}`}`;
 }
 
@@ -199,19 +203,11 @@ export function CommandCenterView({
           </span>
           <span className={cardAvailable ? "status-pill ok" : "status-pill warning"}>
             <ShieldCheck size={14} />
-            {cardAvailable ? "Current card live" : "Current card pending"}
+            {cardAvailable ? "Card live" : "Card pending"}
           </span>
           <span className="status-pill">
             <ClipboardList size={14} />
             {context ? `${context.season} ${context.week_label} · ${titleCase(context.mode)}` : cardSnapshot(cards)}
-          </span>
-          <span className={hasAction ? "status-pill ok" : "status-pill warning"}>
-            <Gauge size={14} />
-            {hasAction ? "Action exists" : "No current betting action"}
-          </span>
-          <span className={preseasonOk ? "status-pill ok" : "status-pill warning"}>
-            <ShieldCheck size={14} />
-            PRE dry-run {preseason?.status || "missing"}
           </span>
         </div>
       </div>
@@ -228,6 +224,12 @@ export function CommandCenterView({
           </article>
         ))}
       </div>
+
+      {isPreseason && (
+        <div className="command-preseason-banner">
+          <strong>Preseason mode:</strong> The 2026 regular season hasn't started yet. Survivor and WARPS data is showing Reg W{planningWeek} projections so you can start planning. Betting card data will populate once weekly feeds begin.
+        </div>
+      )}
 
       <div className="command-kpi-grid">
         <button className="command-kpi" onClick={() => onNavigate("card")}>

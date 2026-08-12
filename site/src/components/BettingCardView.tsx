@@ -60,9 +60,13 @@ function decisionTitle(card: WeeklyBettingCardRow) {
   return label || (card.market ? `${card.market.toUpperCase()} ${card.side || ""}` : "PLAY");
 }
 
+function stripLeadingEmoji(text: string) {
+  return text.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{27FF}\u{2300}-\u{23FF}\u{1F000}-\u{1FFFF}]+\s*/gu, "");
+}
+
 function decisionSubtitle(card: WeeklyBettingCardRow) {
   if (card.action === "pass") return "No bet from the selector";
-  return card.classification ? titleCase(card.classification) : "Selector edge candidate";
+  return card.classification ? stripLeadingEmoji(titleCase(card.classification)) : "Selector edge candidate";
 }
 
 function CardItem({ card }: { card: WeeklyBettingCardRow }) {
