@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       week:
-        description: 'NFL Week — leave blank to auto-detect (e.g. PRE1, 1, 18, WC, DIV, SB)'
+        description: 'NFL Week (PRE1, 1-18, WC, DIV, SB) — leave as "auto" to detect from data'
         required: false
-        default: ''
+        default: 'auto'
         type: string
       analysis_type:
         description: 'final = game-day picks (default); initial = early-week first look'
@@ -51,9 +51,10 @@ jobs:
           [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
           [ -z "$SEASON" ] && SEASON="2026"
 
-          # Resolve week: explicit input > repository_dispatch payload > auto-detect from data files
-          if [ -n "${{ github.event.inputs.week }}" ]; then
-            WEEK="${{ github.event.inputs.week }}"
+          # Resolve week: explicit input (non-auto) > repository_dispatch payload > auto-detect from data files
+          INPUT_WEEK="${{ github.event.inputs.week }}"
+          if [ -n "$INPUT_WEEK" ] && [ "$INPUT_WEEK" != "auto" ]; then
+            WEEK="$INPUT_WEEK"
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
             WEEK="${{ github.event.client_payload.week }}"
           else
