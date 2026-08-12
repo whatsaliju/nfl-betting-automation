@@ -1,15 +1,15 @@
 # Weekly Command Center
 
 - Context: 2026 PRE WPRE1 · live
-- Recommended action: **NO BET - DATA INCOMPLETE**
+- Recommended action: **PASS**
 - Confidence tier: **X**
-- Reason: Live betting inputs are not published for this context.
+- Reason: No playable or watchlist edges are active.
 
 ## Source Gates
 
 | Gate | Status |
 |---|---|
-| live betting card | BLOCKED |
+| live betting card | PASS |
 | preseason dry run | PASS |
 | warps priors | PASS |
 | survivor recommendations | PASS |
@@ -18,7 +18,7 @@
 
 - Plays: 0
 - Watch: 0
-- Passes: 0
+- Passes: 1
 
 ## Survivor
 
@@ -36,5 +36,4 @@
 
 ## Warnings
 
-- No live betting card is published for the current context.
 - No actionable betting plays or watchlist spots are active.

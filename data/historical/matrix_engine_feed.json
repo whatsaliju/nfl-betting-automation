@@ -10,9 +10,9 @@
     "week": "PRE1",
     "week_label": "PRE WPRE1",
     "stage": null,
-    "status": "LIVE_GAMES_NO_CARD",
+    "status": "LIVE_CARD",
     "mode": "live",
-    "has_betting_card": false,
+    "has_betting_card": true,
     "message": "Current active engine context from 2026 artifacts."
   },
   "weekly_command_center": {
@@ -24,31 +24,30 @@
       "week": "PRE1",
       "week_label": "PRE WPRE1",
       "stage": null,
-      "status": "LIVE_GAMES_NO_CARD",
+      "status": "LIVE_CARD",
       "mode": "live",
-      "has_betting_card": false,
+      "has_betting_card": true,
       "message": "Current active engine context from 2026 artifacts."
     },
     "decision_mode": "live",
-    "recommended_action": "NO BET - DATA INCOMPLETE",
+    "recommended_action": "PASS",
     "confidence_tier": "X",
-    "action_reason": "Live betting inputs are not published for this context.",
+    "action_reason": "No playable or watchlist edges are active.",
     "source_gates": {
-      "live_betting_card": "BLOCKED",
+      "live_betting_card": "PASS",
       "preseason_dry_run": "PASS",
       "warps_priors": "PASS",
       "survivor_recommendations": "PASS"
     },
     "do_nothing_warning": true,
     "warnings": [
-      "No live betting card is published for the current context.",
       "No actionable betting plays or watchlist spots are active."
     ],
     "betting_card": {
-      "available": false,
+      "available": true,
       "plays": 0,
       "watch": 0,
-      "passes": 0,
+      "passes": 1,
       "top_cards": []
     },
     "best_edges": [],
@@ -73,7 +72,7 @@
         "checks_passed": 14,
         "next_live_command": "python3 builders/build_week_master_table.py --season 2026 --week 1 --season-type PRE"
       },
-      "card_available": false
+      "card_available": true
     }
   },
   "model_readiness": {
@@ -1786,14 +1785,102 @@
   },
   "weekly_betting_card": {
     "feed_version": "2026.1",
-    "source": "preseason_dry_run",
-    "card_count": 0,
+    "source": "matrix_engine_feed edge_board",
+    "card_count": 1,
     "plays": 0,
     "watch": 0,
-    "passes": 0,
+    "passes": 1,
     "preseason": true,
-    "preseason_note": "No betting card for PRE WPRE1. Preseason markets are thin, referee history is regular-season only, and RotoWire lineups are unavailable. Use the Survivor and WARPS views for preseason context.",
-    "cards": [],
+    "preseason_note": "Preseason context: referee history is regular-season data only. RotoWire lineups unavailable. Markets are thin. Picks shown for research only \u2014 no bets recommended until regular season.",
+    "cards": [
+      {
+        "key": "2026:PRE1:CAR@ARI",
+        "season": 2026,
+        "season_type": "PRE",
+        "week": "PRE1",
+        "matchup_key": "CAR@ARI",
+        "away_tla": "CAR",
+        "home_tla": "ARI",
+        "action": "pass",
+        "market": null,
+        "side": null,
+        "confidence": "none",
+        "selector_score": null,
+        "classification": null,
+        "recommendation": null,
+        "required_line": "No bet",
+        "current_line": "",
+        "warps_alignment": null,
+        "warps_side": null,
+        "source_health": null,
+        "data_quality": null,
+        "quality_gate": "clear",
+        "main_reasons": [
+          "Selector did not clear an actionable market threshold"
+        ],
+        "risk_flags": [
+          "thin expectation sample"
+        ],
+        "market_status": null,
+        "spread_status": "blocked",
+        "total_status": "blocked",
+        "moneyline_status": "research_only",
+        "moneyline_promotion_status": "not_promoted",
+        "route_selected_market": null,
+        "route_reason": "Blocked by risk/source flags: thin expectation sample",
+        "market_options": [
+          {
+            "market": "spread",
+            "side": null,
+            "status": "blocked",
+            "score": null,
+            "threshold": null,
+            "blockers": [
+              "candidate unavailable"
+            ],
+            "signals": [],
+            "conflicts": [],
+            "warps_alignment": null,
+            "warps_side": null,
+            "warps_team": null,
+            "edge_value": null
+          },
+          {
+            "market": "total",
+            "side": null,
+            "status": "blocked",
+            "score": null,
+            "threshold": null,
+            "blockers": [
+              "candidate unavailable"
+            ],
+            "signals": [],
+            "conflicts": [],
+            "warps_alignment": null,
+            "warps_side": null,
+            "warps_team": null,
+            "edge_value": null
+          },
+          {
+            "market": "moneyline",
+            "side": null,
+            "status": "research_only",
+            "promotion_status": "not_promoted",
+            "score": null,
+            "threshold": null,
+            "blockers": [
+              "moneyline selector not promoted"
+            ],
+            "signals": [],
+            "conflicts": [],
+            "warps_alignment": null,
+            "warps_side": null,
+            "warps_team": null,
+            "edge_value": null
+          }
+        ]
+      }
+    ],
     "available": true
   },
   "preseason_dry_run": {
