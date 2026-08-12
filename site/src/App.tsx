@@ -242,24 +242,25 @@ function App() {
           ))}
         </div>
         <div className="segmented view-tabs">
-          <button className={viewMode === "command" ? "active" : ""} onClick={() => setViewMode("command")}><Activity size={15} />Command</button>
-          <button className={viewMode === "matrix" ? "active" : ""} onClick={() => setViewMode("matrix")}><Grid3X3 size={15} />Matrix</button>
-          <button className={viewMode === "week" ? "active" : ""} onClick={() => setViewMode("week")}><CalendarDays size={15} />Week</button>
-          <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")}><GitBranch size={15} />Compare</button>
-          <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")}><Trophy size={15} />Results</button>
-          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")}><Target size={15} />Edges{!hasEdges && <span className="tab-soon">Soon</span>}</button>
-          <button className={viewMode === "card" ? "active" : ""} onClick={() => setViewMode("card")}><ClipboardList size={15} />Card</button>
-          <button className={viewMode === "survivor" ? "active" : ""} onClick={() => setViewMode("survivor")}><ShieldCheck size={15} />Survivor</button>
-          <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")}><Crosshair size={15} />Scout</button>
-          <button className={viewMode === "research" ? "active" : ""} onClick={() => setViewMode("research")}><FlaskConical size={15} />Research</button>
-          <button className={["projections", "audit", "expectations"].includes(viewMode) ? "active" : ""} onClick={() => setViewMode("projections")}><Gauge size={15} />Projections{!hasProjections && <span className="tab-soon">Soon</span>}</button>
-          <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")}><ClipboardList size={15} />Track</button>
+          <button className={viewMode === "command" ? "active" : ""} onClick={() => setViewMode("command")} data-tooltip="Weekly decision hub: action recommendation, WARPS watch, survivor pick"><Activity size={15} />Command</button>
+          <button className={viewMode === "card" ? "active" : ""} onClick={() => setViewMode("card")} data-tooltip="Current selector picks with required lines, confidence, and risk flags"><ClipboardList size={15} />Bet Card</button>
+          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")} data-tooltip="All games ranked by selector edge strength, market scores, and confidence">{!hasEdges && <span className="tab-soon">Soon</span>}<Target size={15} />Edge Board</button>
+          <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")} data-tooltip="Schedule spots: rest edges, travel disadvantages, division traps, and upset watch"><Crosshair size={15} />Scout</button>
+          <button className={viewMode === "survivor" ? "active" : ""} onClick={() => setViewMode("survivor")} data-tooltip="Optimal survivor pool picks — week-by-week team selections with win probability"><ShieldCheck size={15} />Survivor</button>
+          <button className={viewMode === "warps" ? "active" : ""} onClick={() => setViewMode("warps")} data-tooltip="WARPS model: win probability rankings, betting card, Monte Carlo simulations, and historical validation"><BarChart3 size={15} />WARPS</button>
+          <button className={viewMode === "matrix" ? "active" : ""} onClick={() => setViewMode("matrix")} data-tooltip="Full season analysis grid: every team-week cell with engine ratings and overlays"><Grid3X3 size={15} />Matrix</button>
+          <button className={viewMode === "week" ? "active" : ""} onClick={() => setViewMode("week")} data-tooltip="Schedule view for any week with analysis overlay and matchup data"><CalendarDays size={15} />Week</button>
+          <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")} data-tooltip="Head-to-head comparison of two teams' WARPS projections, schedule, and win totals"><GitBranch size={15} />Compare</button>
+          <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")} data-tooltip="Final scores and ATS/OU outcomes — populated after games are played"><Trophy size={15} />Results</button>
+          <button className={["projections", "audit", "expectations"].includes(viewMode) ? "active" : ""} onClick={() => setViewMode("projections")} data-tooltip="Team win-total tracking vs Vegas lines and Pythagorean pace throughout the season">{!hasProjections && <span className="tab-soon">Soon</span>}<Gauge size={15} />Projections</button>
+          <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")} data-tooltip="WARPS historical accuracy vs Vegas win totals across 26 seasons (2000–2025)"><ClipboardList size={15} />Track Record</button>
+          <button className={viewMode === "research" ? "active" : ""} onClick={() => setViewMode("research")} data-tooltip="Model lab: factor leaderboard, policy simulations, replay record, and promotion rules"><FlaskConical size={15} />Research</button>
         </div>
-        <label className="toggle">
+        <label className="toggle" data-tooltip="Color-code the Matrix grid by engine score — red = strong edge, blue = weak">
           <input type="checkbox" checked={showHeatmap} onChange={(event) => setShowHeatmap(event.target.checked)} />
           <Flame size={14} /> Heatmap
         </label>
-        <label className="toggle">
+        <label className="toggle" data-tooltip="Overlay actual W/L results on the Matrix for completed seasons">
           <input type="checkbox" checked={showResults} onChange={(event) => setShowResults(event.target.checked)} />
           W/L results
         </label>
