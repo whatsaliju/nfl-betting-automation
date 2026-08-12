@@ -357,8 +357,13 @@ def load_pick_result_index(replay_root):
         return {}
     with path.open() as f:
         rows = list(csv.DictReader(f))
+    def _safe_week_int(w):
+        try:
+            return int(w)
+        except (ValueError, TypeError):
+            return 0
     return {
-        (int(row["week"]), row["matchup"]): row
+        (_safe_week_int(row["week"]), row["matchup"]): row
         for row in rows
         if row.get("week") and row.get("matchup")
     }

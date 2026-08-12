@@ -137,8 +137,12 @@ def normalize_season_type(season_type=None, week=None):
         return value
     if value in POSTSEASON_GAME_TYPES:
         return "POST"
-    if week is not None and int(week) > 18:
-        return "POST"
+    if week is not None:
+        try:
+            if int(week) > 18:
+                return "POST"
+        except (ValueError, TypeError):
+            pass
     return "REG"
 
 
@@ -160,7 +164,10 @@ def espn_week(season_type=None, week=None):
     """Translate nflverse season week into ESPN scoreboard week."""
     if week is None:
         return None
-    week = int(week)
+    try:
+        week = int(week)
+    except (ValueError, TypeError):
+        return None
     if normalize_season_type(season_type, week) in {"PRE", "REG"}:
         return week
     if week == 22:
@@ -180,7 +187,11 @@ def week_anchor_date(season, week, season_type=None):
     if season_type == "PRE":
         # Approximate first preseason Sunday. Exact dry-run dates should come
         # from schedule data once preseason markets are available.
-        return date(season, 8, 3) + timedelta(days=(int(week) - 1) * 7)
+        try:
+            week_num = int(week)
+        except (ValueError, TypeError):
+            week_num = 1
+        return date(season, 8, 3) + timedelta(days=(week_num - 1) * 7)
     if season == 2025 and season_type == "POST":
         anchors = {
             19: date(2026, 1, 11),
@@ -188,8 +199,12 @@ def week_anchor_date(season, week, season_type=None):
             21: date(2026, 1, 25),
             22: date(2026, 2, 8),
         }
-        if int(week) in anchors:
-            return anchors[int(week)]
+        try:
+            week_int = int(week)
+            if week_int in anchors:
+                return anchors[week_int]
+        except (ValueError, TypeError):
+            pass
     return regular_season_sunday(season, week)
 
 

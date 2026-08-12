@@ -13,6 +13,27 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def week_to_int(week):
+    """Convert any week label (1-18, PRE1-PRE4, WC, DIV, CON, SB) to an int for sorting."""
+    if week is None:
+        return 0
+    w = str(week).strip().upper()
+    playoff_map = {"WC": 19, "DIV": 20, "CON": 21, "CONF": 21, "SB": 22}
+    if w in playoff_map:
+        return playoff_map[w]
+    if w.startswith("PRE"):
+        try:
+            return -(int(w[3:]) if w[3:] else 1)
+        except ValueError:
+            return -1
+    try:
+        return int(w)
+    except (ValueError, TypeError):
+        return 0
+
+
 HISTORICAL_DIR = ROOT / "data" / "historical"
 OUTPUT_JSON = HISTORICAL_DIR / "matrix_engine_feed.json"
 OUTPUT_CSV = HISTORICAL_DIR / "matrix_engine_feed.csv"
@@ -705,7 +726,7 @@ def current_context_payload(games, card_payload, preseason_payload):
             candidates,
             key=lambda row: (
                 season_type_rank(row.get("season_type")),
-                int(row.get("week") or 0),
+                week_to_int(row.get("week")),
                 row.get("latest", {}).get("stage") in ("lock", "final") if isinstance(row.get("latest"), dict) else False,
             ),
         )
@@ -863,7 +884,7 @@ def warps_command_payload(context, warps_index):
     week = context.get("week") or 1
     rows = []
     for row in warps_index.values():
-        if int(number_or_none(row.get("week")) or 0) != int(week):
+        if week_to_int(row.get("week")) != week_to_int(week):
             continue
         for side in ("home", "away"):
             team = row.get(f"{side}_tla")
@@ -1296,7 +1317,7 @@ def build_feed():
         key=lambda row: (
             row["best_edge"]["status"] != "play",
             -(row["best_edge"]["score"] or 0),
-            int(row.get("week") or 0),
+            week_to_int(row.get("week")),
             row.get("matchup_key") or "",
         )
     )
