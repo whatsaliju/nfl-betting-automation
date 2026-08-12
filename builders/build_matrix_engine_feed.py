@@ -751,16 +751,25 @@ def current_context_payload(games, card_payload, preseason_payload):
     if preseason_payload.get("available"):
         season_type = preseason_payload.get("season_type") or "PRE"
         week = preseason_payload.get("week") or 1
+        pre_cards = [
+            row for row in (card_payload.get("cards") or [])
+            if row.get("season_type") == "PRE"
+        ]
+        has_card = bool(pre_cards)
         return {
             "season": preseason_payload.get("season") or ACTIVE_SEASON,
             "season_type": season_type,
             "week": week,
             "week_label": f"{'PRE ' if season_type == 'PRE' else ''}W{week}",
-            "stage": "dry_run",
-            "status": "PRESEASON_DRY_RUN_READY",
-            "mode": "dry_run",
-            "has_betting_card": False,
-            "message": "Preseason plumbing dry-run is available; live betting card has not published yet.",
+            "stage": "final" if has_card else "dry_run",
+            "status": "PRESEASON_CARD_LIVE" if has_card else "PRESEASON_DRY_RUN_READY",
+            "mode": "live" if has_card else "dry_run",
+            "has_betting_card": has_card,
+            "message": (
+                "Preseason picks available (research only — no bets recommended)."
+                if has_card else
+                "Preseason plumbing dry-run is available; live betting card has not published yet."
+            ),
         }
 
     historical_cards = bool(cards)

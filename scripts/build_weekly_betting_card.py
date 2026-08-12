@@ -265,25 +265,20 @@ def build(feed):
     status = context.get("status", "")
     is_preseason = season_type == "PRE" or "PRESEASON" in status.upper()
 
-    if is_preseason:
-        week_label = context.get("week_label") or f"PRE W{context.get('week', '?')}"
-        return {
-            "feed_version": feed.get("feed_version"),
-            "source": "preseason_dry_run",
-            "card_count": 0,
-            "plays": 0,
-            "watch": 0,
-            "passes": 0,
-            "preseason": True,
-            "preseason_note": (
-                f"No betting card for {week_label}. Preseason markets are thin, "
-                "referee history is regular-season only, and RotoWire lineups are unavailable. "
-                "Use the Survivor and WARPS views for preseason context."
-            ),
-            "cards": [],
-        }
+    edge_board = feed.get("edge_board", [])
 
-    rows = [card_row(game) for game in feed.get("edge_board", [])]
+    # For preseason: filter to PRE games only so stale REG data doesn't bleed through
+    if is_preseason:
+        current_season = context.get("season")
+        games_to_process = [
+            g for g in edge_board
+            if g.get("season_type") == "PRE"
+            and (current_season is None or g.get("season") == current_season)
+        ]
+    else:
+        games_to_process = edge_board
+
+    rows = [card_row(game) for game in games_to_process]
     rows.sort(key=sort_key)
     summary = {
         "feed_version": feed.get("feed_version"),
@@ -293,6 +288,13 @@ def build(feed):
         "watch": sum(1 for row in rows if row["action"] in {"watch", "lean"}),
         "passes": sum(1 for row in rows if row["action"] == "pass"),
     }
+    if is_preseason:
+        summary["preseason"] = True
+        summary["preseason_note"] = (
+            "Preseason context: referee history is regular-season data only. "
+            "RotoWire lineups unavailable. Markets are thin. "
+            "Picks shown for research only — no bets recommended until regular season."
+        )
     return {
         **summary,
         "cards": rows,
