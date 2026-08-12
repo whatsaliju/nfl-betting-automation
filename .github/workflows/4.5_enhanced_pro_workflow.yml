@@ -6,31 +6,27 @@ on:
   workflow_dispatch:
     inputs:
       week:
-        description: 'NFL Week/Round (PRE1-PRE4, 1-18, WC, DIV, CONF, SB)'
-        required: true
+        description: 'NFL Week — leave blank to auto-detect (e.g. PRE1, 1, 18, WC, DIV, SB)'
+        required: false
+        default: ''
         type: string
+      analysis_type:
+        description: 'Analysis stage (final = standard game-day run)'
+        required: false
+        default: 'final'
+        type: choice
+        options: [final, initial, update, lock]
+      season_type:
+        description: 'Season type — "auto" infers from week label'
+        required: false
+        default: 'auto'
+        type: choice
+        options: [auto, PRE, REG, POST]
       season:
-        description: 'NFL season'
+        description: 'Season year'
         required: false
         default: '2026'
         type: string
-      season_type:
-        description: 'Season type'
-        required: false
-        default: 'REG'
-        type: choice
-        options: [PRE, REG, POST]
-      analysis_type:
-        description: 'Type of analysis'
-        required: false
-        default: 'default'
-        type: choice
-        options: [initial, update, lock, final_lineups, default]
-      organized_output:
-        description: 'Use organized file structure'
-        required: false
-        default: true
-        type: boolean
 
 jobs:
   generate_analysis:
@@ -54,23 +50,52 @@ jobs:
           [ -z "$SEASON" ] && SEASON="${{ github.event.client_payload.season }}"
           [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
           [ -z "$SEASON" ] && SEASON="2026"
-          SEASON_TYPE="${{ github.event.inputs.season_type }}"
-          [ -z "$SEASON_TYPE" ] && SEASON_TYPE="${{ github.event.client_payload.season_type }}"
-          [ -z "$SEASON_TYPE" ] && SEASON_TYPE="REG"
+
+          # Resolve week: explicit input > repository_dispatch payload > auto-detect from data files
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK="${{ github.event.inputs.week }}"
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
             WEEK="${{ github.event.client_payload.week }}"
           else
-            WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
+            WEEK=$(python3 - <<'PYEOF'
+import glob, re
+files = glob.glob('data/week*/week*_referees.csv')
+def sort_key(w):
+    u = w.upper()
+    if u.startswith('PRE'):
+        try: return (-2, int(u[3:]) if u[3:] else 1)
+        except: return (-2, 1)
+    for label, rank in [('WC',19),('DIV',20),('CONF',21),('CON',21),('SB',22)]:
+        if u == label: return (2, rank)
+    try: return (1, int(w))
+    except: return (0, 0)
+weeks = [m.group(1) for f in files for m in [re.search(r'week([A-Za-z0-9]+)_referees', f)] if m]
+if weeks:
+    weeks.sort(key=sort_key)
+    print(weeks[-1])
+PYEOF
+)
           fi
-          
+
+          # Infer season type from week label; respect explicit override
+          SEASON_TYPE="${{ github.event.inputs.season_type }}"
+          [ -z "$SEASON_TYPE" ] || [ "$SEASON_TYPE" = "auto" ] && SEASON_TYPE=""
+          [ -z "$SEASON_TYPE" ] && SEASON_TYPE="${{ github.event.client_payload.season_type }}"
+          if [ -z "$SEASON_TYPE" ]; then
+            if echo "$WEEK" | grep -qiE '^PRE'; then
+              SEASON_TYPE="PRE"
+            elif echo "$WEEK" | grep -qiE '^(WC|DIV|CONF|CON|SB)$'; then
+              SEASON_TYPE="POST"
+            else
+              SEASON_TYPE="REG"
+            fi
+          fi
+
+          # Resolve analysis stage
           TYPE="${{ github.event.inputs.analysis_type }}"
-          if [ -z "$TYPE" ] || [ "$TYPE" == "default" ]; then
-            TYPE="${{ github.event.client_payload.analysis_type }}"
-          fi
+          [ -z "$TYPE" ] && TYPE="${{ github.event.client_payload.analysis_type }}"
           [ -z "$TYPE" ] && TYPE="final"
-          
+
           case "$TYPE" in
             "initial")
               STAGE="initial"
@@ -90,7 +115,6 @@ jobs:
               ;;
           esac
 
-          
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "season=$SEASON" >> $GITHUB_OUTPUT
           echo "season_type=$SEASON_TYPE" >> $GITHUB_OUTPUT
