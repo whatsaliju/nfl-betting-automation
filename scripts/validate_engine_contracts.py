@@ -257,7 +257,7 @@ def validate_replay_outputs(replay_root, stage, failures, expected=None):
                 check(source_health.get("sources"), f"{source_health_path} missing sources", failures)
 
 
-def validate_run_directory(run_dir, failures):
+def validate_run_directory(run_dir, failures, allow_unsafe=False):
     run_dir = Path(run_dir)
     check(run_dir.exists(), f"run directory missing: {run_dir}", failures)
     if not run_dir.exists():
@@ -313,11 +313,12 @@ def validate_run_directory(run_dir, failures):
             check(manifest.get("model_version"), f"{manifest_path} missing model_version", failures)
             check(manifest.get("analysis_reference_time"), f"{manifest_path} missing analysis_reference_time", failures)
             check(manifest.get("game_count") == len(games), f"{manifest_path} game_count does not match analytics", failures)
-            check(
-                (manifest.get("data_quality") or {}).get("status") != "UNSAFE",
-                f"{manifest_path} has UNSAFE data quality",
-                failures,
-            )
+            if not allow_unsafe:
+                check(
+                    (manifest.get("data_quality") or {}).get("status") != "UNSAFE",
+                    f"{manifest_path} has UNSAFE data quality",
+                    failures,
+                )
             input_files = manifest.get("input_files", {})
             check(input_files, f"{manifest_path} missing input file fingerprints", failures)
             for source, fingerprint in input_files.items():
@@ -382,6 +383,11 @@ def main():
     parser.add_argument("--expected-wins", type=int)
     parser.add_argument("--expected-losses", type=int)
     parser.add_argument("--matrix-feed", default=str(ROOT / "data" / "historical" / "matrix_engine_feed.json"))
+    parser.add_argument(
+        "--allow-unsafe",
+        action="store_true",
+        help="Skip UNSAFE data quality check (used for preseason runs where market data is unavailable)",
+    )
     args = parser.parse_args()
 
     failures = []
@@ -389,7 +395,7 @@ def main():
     validate_model_config(Path(args.config), failures)
     validate_replay_stage_times(failures)
     if args.run_dir:
-        validate_run_directory(Path(args.run_dir), failures)
+        validate_run_directory(Path(args.run_dir), failures, allow_unsafe=args.allow_unsafe)
     else:
         validate_replay_outputs(
             Path(args.replay_root),
