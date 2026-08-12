@@ -188,120 +188,156 @@ def _article_date_from_url(url: str) -> datetime | None:
     return None
 
 
-def _discover_crew_articles(year: int, months: list[str], target_date: datetime,
-                             window_days: int = 10) -> list[str]:
+_CATEGORY_URL = "https://www.footballzebras.com/category/assignments/"
+
+
+def _discover_assignment_articles(year: int, target_date: datetime,
+                                   window_days: int = 10) -> list[str]:
     """
-    Scrape Football Zebras monthly archive pages and return URLs of crew articles
-    published within `window_days` of `target_date`.
+    Scrape the Football Zebras /category/assignments/ page to find assignment
+    article URLs published within `window_days` of `target_date`.
+
+    This is more reliable than monthly archive scraping because the category
+    page is specifically curated for referee/crew assignment posts.
     """
     found = []
     cutoff_early = target_date - timedelta(days=window_days)
-    cutoff_late  = target_date + timedelta(days=window_days)
+    # Allow up to +31 days so month-level URL dates don't get filtered out
+    cutoff_late  = target_date + timedelta(days=window_days + 31)
 
-    for month in months:
-        archive_url = f"https://www.footballzebras.com/{year}/{month}/"
-        try:
-            r = requests.get(archive_url, headers=HEADERS, timeout=10)
-            if r.status_code != 200:
-                continue
-        except requests.exceptions.RequestException as e:
-            print(f"  ❌ Archive fetch error: {e}")
+    try:
+        r = requests.get(_CATEGORY_URL, headers=HEADERS, timeout=10)
+        if r.status_code != 200:
+            print(f"  ⚠️  Category page returned {r.status_code}")
+            return []
+    except requests.exceptions.RequestException as e:
+        print(f"  ❌ Category page fetch error: {e}")
+        return []
+
+    soup = BeautifulSoup(r.content, "html.parser")
+
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if f"footballzebras.com/{year}" not in href:
             continue
 
-        soup = BeautifulSoup(r.content, "html.parser")
+        slug = href.rstrip("/").split("/")[-1].lower()
+        if not any(kw in slug for kw in ["assignment", "crew", "official"]):
+            continue
 
-        # Collect article links — Football Zebras archive lists articles
-        # Each article <h2> or <article> contains the permalink
-        for a in soup.find_all("a", href=True):
-            href = a["href"]
-            if not (f"footballzebras.com/{year}" in href):
-                continue
+        pub_date = _article_date_from_url(href)
+        if pub_date and not (cutoff_early <= pub_date <= cutoff_late):
+            continue
 
-            # Only articles about game crews / referee assignments
-            slug = href.rstrip("/").split("/")[-1].lower()
-            if not any(kw in slug for kw in ["crew", "assignment", "official"]):
-                continue
-
-            # Date filter via URL
-            pub_date = _article_date_from_url(href)
-            if pub_date:
-                # Use month-level precision: if month is within range, include
-                if not (cutoff_early <= pub_date <= cutoff_late + timedelta(days=31)):
-                    continue
-
-            if href not in found:
-                found.append(href)
+        if href not in found:
+            found.append(href)
 
     return found
 
 
-def _scrape_preseason_via_archive(week, year: int) -> pd.DataFrame:
+def _scrape_via_category_discovery(week, year: int) -> pd.DataFrame:
     """
-    Discover and parse individual crew articles from the Football Zebras archive.
-    Used when the predictable multi-game assignment URL doesn't exist.
+    Fallback: discover assignment articles from /category/assignments/, then parse each one.
+    Used when the predictable multi-game URL doesn't match.
     """
-    pre_num = _preseason_num(week)
-    # Estimate game dates: PRE1=Aug 13, PRE2=Aug 20, PRE3=Aug 27 (approximate)
-    # Use Aug 7 as base + (pre_num - 1) * 7 days
-    base = datetime(year, 8, 7)
-    target_date = base + timedelta(weeks=pre_num - 1)
+    wk = _week_str(week)
 
-    print(f"  Discovering crew articles around {target_date.strftime('%b %d')}...")
-    urls = _discover_crew_articles(year, PRESEASON_MONTHS, target_date, window_days=8)
+    if _is_preseason(week):
+        pre_num = _preseason_num(week)
+        # PRE1 ≈ Aug 13, PRE2 ≈ Aug 20, PRE3 ≈ Aug 27
+        base = datetime(year, 8, 7)
+        target_date = base + timedelta(weeks=pre_num - 1)
+    elif _is_playoff(week):
+        # Playoffs in January/February — rough date estimate
+        post_week = {"WC": 1, "DIV": 2, "CONF": 3, "SB": 5}.get(wk, 1)
+        target_date = datetime(year + 1, 1, 7) + timedelta(weeks=post_week - 1)
+    else:
+        # Regular season: week 1 = ~Sep 9
+        target_date = datetime(year, 9, 4) + timedelta(weeks=int(week) - 1)
+
+    print(f"  Checking /category/assignments/ for articles near {target_date.strftime('%b %d, %Y')}...")
+    urls = _discover_assignment_articles(year, target_date, window_days=8)
 
     if not urls:
-        print("  ⚠️  No crew articles found in archive")
+        print("  ⚠️  No assignment articles found via category page")
         return pd.DataFrame()
 
-    print(f"  Found {len(urls)} candidate article(s): {urls}")
-
+    print(f"  Found {len(urls)} candidate article(s)")
     all_games = []
     for url in urls:
+        print(f"    Fetching: {url}")
         try:
             r = requests.get(url, headers=HEADERS, timeout=10)
             if r.status_code != 200:
                 continue
-            games = _parse_crew_article(r.content, url)
+            # Try multi-game list first, then single-game crew article
+            games = _parse_assignment_list(r.content)
+            if not games:
+                games = _parse_crew_article(r.content, url)
             all_games.extend(games)
         except requests.exceptions.RequestException as e:
-            print(f"  ❌ Article fetch error ({url}): {e}")
+            print(f"    ❌ {e}")
 
     if not all_games:
         return pd.DataFrame()
 
     df = pd.DataFrame(all_games)
     df["week"] = week
-    print(f"  ✅ Archive discovery: {len(df)} game(s) found")
+    print(f"  ✅ Category discovery: {len(df)} game(s) found")
     return df
 
 
 # ── Primary Football Zebras scraper ───────────────────────────────────────────
 
 def _build_url_candidates(week, year: int) -> list[str]:
-    """Build ordered list of candidate Football Zebras URLs (predictable format)."""
+    """
+    Build ordered list of candidate Football Zebras URLs (predictable format).
+
+    Known URL patterns (confirmed 2026):
+      Preseason:  referee-assignments-for-preseason-week-N-YYYY
+      Regular:    referee-assignments-for-week-N-YYYY
+                  week-N-referee-assignments-YYYY            (older format)
+      Playoffs:   referee-assignments-for-{round}-YYYY
+                  {round}-referee-assignments-YYYY           (older format)
+    """
     wk = _week_str(week)
 
     if _is_preseason(week):
         n = _preseason_num(week)
-        return [
-            f"https://www.footballzebras.com/{year}/{m}/preseason-week-{n}-referee-assignments-{year}/"
-            for m in PRESEASON_MONTHS
-        ]
+        candidates = []
+        for m in PRESEASON_MONTHS:
+            # Confirmed 2026 format
+            candidates.append(
+                f"https://www.footballzebras.com/{year}/{m}/referee-assignments-for-preseason-week-{n}-{year}/"
+            )
+            # Legacy format (kept as fallback)
+            candidates.append(
+                f"https://www.footballzebras.com/{year}/{m}/preseason-week-{n}-referee-assignments-{year}/"
+            )
+        return candidates
 
     if _is_playoff(week):
         candidates = []
         for slug in PLAYOFF_SLUGS[wk]:
             for m in POSTSEASON_MONTHS:
                 candidates.append(
+                    f"https://www.footballzebras.com/{year}/{m}/referee-assignments-for-{slug}-{year}/"
+                )
+                candidates.append(
                     f"https://www.footballzebras.com/{year}/{m}/{slug}-referee-assignments-{year}/"
                 )
         return candidates
 
     # Regular season
-    return [
-        f"https://www.footballzebras.com/{year}/{m}/week-{week}-referee-assignments-{year}/"
-        for m in REGULAR_MONTHS
-    ]
+    candidates = []
+    for m in REGULAR_MONTHS:
+        candidates.append(
+            f"https://www.footballzebras.com/{year}/{m}/referee-assignments-for-week-{week}-{year}/"
+        )
+        candidates.append(
+            f"https://www.footballzebras.com/{year}/{m}/week-{week}-referee-assignments-{year}/"
+        )
+    return candidates
 
 
 def scrape_week_referees(week, year=None) -> pd.DataFrame:
@@ -330,12 +366,11 @@ def scrape_week_referees(week, year=None) -> pd.DataFrame:
         except requests.exceptions.RequestException as e:
             print(f"  ❌ {e}")
 
-    # ── Step 2: For preseason, try archive discovery (individual crew articles) ─
-    if _is_preseason(week):
-        print("  Falling back to archive discovery for individual crew articles...")
-        df = _scrape_preseason_via_archive(week, year)
-        if not df.empty:
-            return df
+    # ── Step 2: Try category page discovery (covers any week type) ──────────────
+    print("  Falling back to /category/assignments/ discovery...")
+    df = _scrape_via_category_discovery(week, year)
+    if not df.empty:
+        return df
 
     print(f"⚠️  No Football Zebras data found for week {week} {year}")
     return pd.DataFrame()
