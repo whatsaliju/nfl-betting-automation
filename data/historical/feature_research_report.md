@@ -1,6 +1,6 @@
 # Feature Research Report
 
-- Feature rows: 23
+- Feature rows: 35
 - Graded bets: 0
 - Result: 0-0 (None)
 

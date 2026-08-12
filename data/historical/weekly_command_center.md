@@ -1,6 +1,6 @@
 # Weekly Command Center
 
-- Context: 2026 PRE WPRE1 · live
+- Context: 2026 PRE W1 · live
 - Recommended action: **PASS**
 - Confidence tier: **X**
 - Reason: No playable or watchlist edges are active.
