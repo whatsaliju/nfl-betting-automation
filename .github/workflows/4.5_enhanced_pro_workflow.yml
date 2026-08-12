@@ -162,12 +162,18 @@ jobs:
           import json, os, datetime
           week, stage = os.environ['WEEK'], os.environ['STAGE']
           
-          # Handle playoff weeks
+          # Handle all week label types
           def get_week_number(week_str):
-              playoff_weeks = {'WC': 19, 'DIV': 20, 'CONF': 21, 'SB': 22}
-              if week_str in playoff_weeks:
-                  return playoff_weeks[week_str]
-              return int(week_str)
+              playoff_weeks = {'WC': 19, 'DIV': 20, 'CONF': 21, 'CON': 21, 'SB': 22}
+              w = str(week_str).strip().upper()
+              if w in playoff_weeks:
+                  return playoff_weeks[w]
+              if w.startswith('PRE'):
+                  return 0
+              try:
+                  return int(w)
+              except (ValueError, TypeError):
+                  return 0
           
           path = f'data/week{week}/metadata.json'
           if os.path.exists(path):
