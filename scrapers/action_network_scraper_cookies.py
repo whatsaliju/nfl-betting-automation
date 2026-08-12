@@ -10,8 +10,10 @@ from selenium.common.exceptions import TimeoutException, StaleElementReferenceEx
 import pandas as pd
 import time
 import json
+import random
 from datetime import datetime
 import os, sys
+from selenium.webdriver.common.action_chains import ActionChains
 
 # --- Dynamic Week Number Extraction ---
 if len(sys.argv) < 2:
@@ -22,6 +24,8 @@ WEEK_NUMBER = sys.argv[1]
 print(f"✅ Target Week set to: {WEEK_NUMBER}")
 
 COOKIES_FILE = os.environ.get("ACTION_NETWORK_COOKIES", "config/action_network_cookies.json")
+AN_EMAIL = os.environ.get("ACTION_NETWORK_EMAIL", "")
+AN_PASSWORD = os.environ.get("ACTION_NETWORK_PASSWORD", "")
 
 # --- Browser setup ---
 options = Options()
@@ -49,44 +53,131 @@ else:
 driver = webdriver.Chrome(service=service, options=options)
 driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
-print("🍪 Cookie-based authentication approach")
-
-# Load cookies if they exist
-if os.path.exists(COOKIES_FILE):
-    print(f"✅ Found cookies file: {COOKIES_FILE}")
-    driver.get("https://www.actionnetwork.com")
-    time.sleep(2) # <-- Essential sleep after initial navigation
+def _load_cookies():
+    """Try to inject stored cookies. Returns True if file existed and loaded."""
+    if not os.path.exists(COOKIES_FILE):
+        return False
     try:
         with open(COOKIES_FILE, 'r') as f:
             cookies = json.load(f)
-        
+        driver.get("https://www.actionnetwork.com")
+        time.sleep(2)
         for cookie in cookies:
-            # --- START FIX: ESSENTIAL ROBUSTNESS ---
             if 'expiry' in cookie:
                 try:
                     cookie['expiry'] = int(cookie['expiry'])
                 except (ValueError, TypeError):
-                    cookie.pop('expiry', None) 
-            if 'domain' not in cookie:
-                cookie['domain'] = '.actionnetwork.com'
-            if 'path' not in cookie:
-                cookie['path'] = '/'
-            # --- END FIX ---
+                    cookie.pop('expiry', None)
+            cookie.setdefault('domain', '.actionnetwork.com')
+            cookie.setdefault('path', '/')
             cookie.pop('sameSite', None)
             cookie.pop('httpOnly', None)
             try:
                 driver.add_cookie(cookie)
             except Exception as e:
-                print(f"  ⚠️ Could not add cookie {cookie.get('name')}: {e}")
+                print(f"  ⚠️ Cookie {cookie.get('name')}: {e}")
         print(f"✅ Loaded {len(cookies)} cookies")
+        return True
     except Exception as e:
-        print(f"❌ Error loading cookies: {e}")
-        driver.quit()
-        sys.exit(1)
-else:
-    print(f"❌ Cookies file not found: {COOKIES_FILE}")
-    driver.quit()
-    sys.exit(1)
+        print(f"⚠️ Could not load cookies: {e}")
+        return False
+
+
+def _human_type(element, text, min_delay=0.05, max_delay=0.18):
+    """Type text character by character with random delays to mimic human input."""
+    actions = ActionChains(driver)
+    actions.move_to_element(element).click().perform()
+    time.sleep(random.uniform(0.3, 0.7))
+    for char in text:
+        element.send_keys(char)
+        time.sleep(random.uniform(min_delay, max_delay))
+
+
+def _login_with_credentials(email, password):
+    """Log in via the Action Network login form with human-like behaviour."""
+    print(f"🔑 Attempting credential login for {email}...")
+    try:
+        driver.get("https://www.actionnetwork.com/login")
+        # Pause as a real user would while the page loads
+        time.sleep(random.uniform(2.5, 4.5))
+
+        wait = WebDriverWait(driver, 25)
+        email_input = wait.until(EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, "input[type='email'], input[name='email'], input[placeholder*='email' i]")
+        ))
+
+        # Scroll the element into view before interacting
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", email_input)
+        time.sleep(random.uniform(0.4, 0.9))
+
+        _human_type(email_input, email)
+        time.sleep(random.uniform(0.5, 1.2))
+
+        password_input = driver.find_element(
+            By.CSS_SELECTOR, "input[type='password'], input[name='password']"
+        )
+        driver.execute_script("arguments[0].scrollIntoView({block:'center'});", password_input)
+        time.sleep(random.uniform(0.3, 0.7))
+
+        _human_type(password_input, password)
+        time.sleep(random.uniform(0.8, 1.5))
+
+        # Move mouse to submit button then click
+        submit = driver.find_element(
+            By.CSS_SELECTOR, "button[type='submit'], input[type='submit']"
+        )
+        ActionChains(driver).move_to_element(submit).pause(random.uniform(0.3, 0.6)).click().perform()
+
+        # Wait for navigation away from login page
+        time.sleep(random.uniform(4.0, 6.0))
+
+        if "login" not in driver.current_url.lower():
+            print("✅ Credential login succeeded")
+            return True
+        print("❌ Credential login failed — still on login page")
+        return False
+    except Exception as e:
+        print(f"❌ Credential login error: {e}")
+        return False
+
+
+def _is_authenticated():
+    """Return True if we appear to be logged in."""
+    login_xpaths = [
+        "//*[contains(text(), 'Log In')]",
+        "//*[contains(text(), 'Sign Up')]",
+        "//button[contains(@class, 'login')]",
+    ]
+    for xpath in login_xpaths:
+        if driver.find_elements(By.XPATH, xpath):
+            return False
+    return True
+
+
+# ── Authentication ──────────────────────────────────────────────────────────
+print("🔐 Authenticating with Action Network...")
+
+authenticated = False
+
+# 1) Try stored cookies first
+if _load_cookies():
+    driver.get("https://www.actionnetwork.com/nfl/public-betting")
+    time.sleep(5)
+    if _is_authenticated():
+        print("✅ Cookie auth succeeded")
+        authenticated = True
+    else:
+        print("⚠️ Cookies are expired or invalid")
+
+# 2) Fall back to email/password credentials
+if not authenticated:
+    if AN_EMAIL and AN_PASSWORD:
+        if _login_with_credentials(AN_EMAIL, AN_PASSWORD):
+            driver.get("https://www.actionnetwork.com/nfl/public-betting")
+            time.sleep(5)
+            authenticated = _is_authenticated()
+    else:
+        print("⚠️ No ACTION_NETWORK_EMAIL/PASSWORD set — credential fallback unavailable")
 
 def extract_percentage_pairs(container):
     """Extract both percentages from a container (away | home)"""
@@ -221,59 +312,22 @@ def scrape_current_market(market_name):
     print(f"✅ Extracted {len(rows)} valid games from {market_name}")
     return rows
 
-# --- Navigate with cookies ---
-driver.get("https://www.actionnetwork.com/nfl/public-betting")
-print("⏳ Waiting for page to load with cookies...")
-
-# 1. Wait for page to settle
-time.sleep(5) 
-
-# 2. Check for "Log In" or "Sign Up" text to verify if cookies worked
-login_indicators = [
-    "//*[contains(text(), 'Log In')]",
-    "//*[contains(text(), 'Sign Up')]",
-    "//button[contains(@class, 'login')]"
-]
-
-is_logged_in = True
-for xpath in login_indicators:
-    if len(driver.find_elements(By.XPATH, xpath)) > 0:
-        is_logged_in = False
-        break
-
-if not is_logged_in:
-    print("❌ AUTHENTICATION FAILED!")
-    print("   Your ACTION_NETWORK_COOKIES secret has likely expired.")
-    print("   Please run the local 'save_cookies_for_secret.py' and update GitHub Secrets.")
-    driver.save_screenshot("auth_failed_debug.png")
+if not authenticated:
+    print("❌ AUTHENTICATION FAILED — no valid cookies or credentials. Exiting.")
     driver.quit()
     sys.exit(1)
 
-print("✅ Successfully authenticated with cookies!")
-
-# 3. Wait for the actual data table to appear
+# Wait for the betting table to appear
+print("⏳ Waiting for betting table to load...")
 try:
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "table tbody"))
     )
     print("✅ Table data detected.")
 except TimeoutException:
-    print("❌ Timeout: Logged in, but the betting table didn't load.")
+    print("❌ Timeout: authenticated but betting table didn't load.")
     driver.quit()
     sys.exit(1)
-
-
-# Check authentication (your existing logic is good)
-try:
-    login_buttons = driver.find_elements(By.XPATH, "//*[contains(text(), 'Log In') or contains(text(), 'Sign Up')]")
-    if login_buttons:
-        print("❌ Still not authenticated - cookies may be expired")
-        driver.quit()
-        sys.exit(1)
-    else:
-        print("✅ Successfully authenticated with cookies!")
-except:
-    pass
 
 def get_action_network_week_value(week):
     """Map internal week codes to Action Network dropdown values"""
