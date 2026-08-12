@@ -113,6 +113,9 @@ jobs:
         run: echo "$COOKIES" > config/action_network_cookies.json
       
       - name: Scrape Action Network (All Markets)
+        env:
+          ACTION_NETWORK_EMAIL: ${{ secrets.ACTION_NETWORK_EMAIL }}
+          ACTION_NETWORK_PASSWORD: ${{ secrets.ACTION_NETWORK_PASSWORD }}
         run: |
           echo "📊 Scraping Action Network..."
           python3 scrapers/action_network_scraper_cookies.py ${{ steps.get_week.outputs.week }}
