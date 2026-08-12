@@ -66,7 +66,7 @@ function stripLeadingEmoji(text: string) {
 
 function decisionSubtitle(card: WeeklyBettingCardRow) {
   if (card.action === "pass") return "No bet from the selector";
-  return card.classification ? stripLeadingEmoji(titleCase(card.classification)) : "Selector edge candidate";
+  return card.classification ? stripLeadingEmoji(titleCase(card.classification)) : "Engine recommendation";
 }
 
 function CardItem({ card }: { card: WeeklyBettingCardRow }) {
@@ -149,7 +149,7 @@ export function BettingCardView({ card, context }: { card?: WeeklyBettingCard; c
       <div className="panel-toolbar">
         <div>
           <h2>Weekly Betting Card</h2>
-          <p className="panel-subtitle">Current selector card · {activeLabel}</p>
+          <p className="panel-subtitle">This week's picks · {activeLabel}</p>
         </div>
         <div className="edge-board-stats">
           <span><BadgeCheck size={14} />{card?.plays ?? 0} plays</span>
@@ -159,18 +159,18 @@ export function BettingCardView({ card, context }: { card?: WeeklyBettingCard; c
       </div>
 
       {!card?.available && (
-        <div className="feed-warning">Weekly betting card is not available in the current engine feed.</div>
+        <div className="feed-warning">Picks aren't published yet for this week — check back soon.</div>
       )}
 
       {card?.available && context && !isLiveCard && (
         <div className="feed-warning">
-          {context.message || "No live weekly betting card is published for this context yet."}
+          {context.message || "No picks published for this week yet. They'll appear once the weekly engine runs."}
         </div>
       )}
 
       {card?.available && isLiveCard && !hasActionable && (
         <div className="feed-warning">
-          No actionable plays or watchlist spots are active in this feed. Passes are collapsed below for audit only.
+          No bets or watchlist spots this week. Passes (games we're skipping) are shown below for reference.
         </div>
       )}
 

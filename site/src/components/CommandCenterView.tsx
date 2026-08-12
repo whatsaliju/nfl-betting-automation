@@ -164,9 +164,9 @@ export function CommandCenterView({
     },
     {
       icon: <Brain size={15} />,
-      label: "WARPS",
-      value: "Forecast prior",
-      detail: "Useful for fair spread, fair ML, and season-strength context.",
+      label: "Win Prob Model",
+      value: "Active",
+      detail: "Pre-game win probabilities for every matchup — good for spreads and moneylines.",
       state: "research",
     },
     {
@@ -179,8 +179,8 @@ export function CommandCenterView({
     {
       icon: <FlaskConical size={15} />,
       label: "Research",
-      value: "Monitor",
-      detail: "ML, market router, and factor promotion remain gated by historical validation.",
+      value: "In progress",
+      detail: "Advanced model layers under testing — not yet used for live picks.",
       state: "research",
     },
   ];
@@ -192,7 +192,7 @@ export function CommandCenterView({
           <span className="command-eyebrow">Weekly Command Center</span>
           <h2>{commandWeekLabel} Decision Board</h2>
           <p>
-            Betting card, survivor, WARPS priors, and engine health in one place. {command?.action_reason || command?.warnings?.[0] || context?.message || "Detailed tabs stay available when you want to drill in."}
+            Your weekly picks, survivor pool recommendation, and win probabilities — all in one place. {command?.action_reason || command?.warnings?.[0] || context?.message || "Use the tabs above to dig into any area."}
           </p>
         </div>
         <div className="command-status-stack">
@@ -243,14 +243,14 @@ export function CommandCenterView({
           <small>{pct(survivorWeek.primary?.win_probability)} vs {survivorWeek.primary?.opponent || "n/a"}</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("warps")}>
-          <span>Top WARPS ML{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
+          <span>Top Win Prob Pick{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
           <strong>{warpsTop[0]?.team || "n/a"}</strong>
-          <small>{pct(warpsTop[0]?.winProb)} · {warpsTop[0]?.fairMl || "n/a"}</small>
+          <small>{pct(warpsTop[0]?.winProb)} win prob · {warpsTop[0]?.fairMl || "n/a"} fair line</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("edges")}>
-          <span>Engine Edges</span>
+          <span>Active Picks</span>
           <strong>{edges.length}</strong>
-          <small>{edgeGames.length || 0} games in board</small>
+          <small>{edgeGames.length || 0} games analyzed</small>
         </button>
       </div>
 
@@ -262,7 +262,9 @@ export function CommandCenterView({
       ) : !hasAction && (
         <div className="feed-warning command-warning">
           <AlertTriangle size={16} />
-          The current context has no actionable plays. That is expected while live 2026 weekly inputs are not flowing yet; use Survivor and WARPS as planning layers.
+          {isPreseason
+            ? "No bets recommended yet — it's preseason. Your survivor pick is ready below. Betting picks will appear once regular season weekly data starts flowing."
+            : "No bets to recommend this week. Check back as new data comes in."}
         </div>
       )}
 
@@ -327,8 +329,8 @@ export function CommandCenterView({
         <article className="panel command-panel">
           <div className="command-panel-head">
             <div>
-              <h3><BadgeCheck size={15} /> WARPS Prior Watch</h3>
-              <p>Highest {planningWeekLabel} win probabilities from WARPS priors.{isPreseason ? " Planning ahead for regular season." : ""}</p>
+              <h3><BadgeCheck size={15} /> Win Probability Watch</h3>
+              <p>Teams with the highest modeled win probability for {planningWeekLabel}.{isPreseason ? " Planning ahead for regular season." : ""}</p>
             </div>
             <button className="text-button" onClick={() => onNavigate("warps")}>Open</button>
           </div>
@@ -340,7 +342,7 @@ export function CommandCenterView({
               <b>{pct(row.winProb)}</b>
             </div>
           )) : (
-            <div className="compact-empty">No WARPS priors loaded for {planningWeekLabel}.</div>
+            <div className="compact-empty">No win probability data loaded for {planningWeekLabel}.</div>
           )}
         </article>
 

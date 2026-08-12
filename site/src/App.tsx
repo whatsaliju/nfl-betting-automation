@@ -128,27 +128,27 @@ function App() {
   const readiness = hasEngineForSeason ? engineFeed?.model_readiness : undefined;
   const modelStages = [
     {
-      label: "Betting Edge",
-      value: currentBettingCard?.plays ? `${currentBettingCard.plays} live` : "No play",
-      detail: currentContext?.has_betting_card ? "Weekly selector card" : "Waiting for weekly feed",
+      label: "This Week's Pick",
+      value: currentBettingCard?.plays ? `${currentBettingCard.plays} live` : "None yet",
+      detail: currentContext?.has_betting_card ? "Weekly betting card is live" : "Waiting for weekly data",
       status: currentBettingCard?.plays ? "ready" : "hold",
     },
     {
-      label: "Watchlist",
-      value: currentBettingCard?.watch ? `${currentBettingCard.watch} watch` : "Empty",
-      detail: "Review only until gates clear",
+      label: "Watch List",
+      value: currentBettingCard?.watch ? `${currentBettingCard.watch} games` : "Empty",
+      detail: "Games to monitor — not quite a bet yet",
       status: currentBettingCard?.watch ? "watch" : "hold",
     },
     {
-      label: "WARPS Prior",
+      label: "Win Prob Model",
       value: selectedSeason === 2026 ? "Active" : "Historical",
-      detail: "Forecast layer, not a weekly bet by itself",
+      detail: "Pre-game win probabilities for every matchup",
       status: "research",
     },
     {
-      label: "ML + Survivor",
-      value: "Research",
-      detail: "ML not promoted; survivor uses prior-only inputs",
+      label: "Survivor Pool",
+      value: "Planning",
+      detail: "Weekly pool pick based on win probability",
       status: "research",
     },
   ];
@@ -201,7 +201,7 @@ function App() {
           <Grid3X3 size={26} />
           <div>
             <h1>NFL Edge Hub</h1>
-            <p>Schedule matrix, win projections &amp; model record · 2015–2026</p>
+            <p>NFL picks, win probabilities &amp; schedule analysis · 2015–2026</p>
           </div>
         </div>
         <div className="status-row">
@@ -216,11 +216,11 @@ function App() {
           {readiness?.available && (
             <span
               className={`status-pill ${readiness.status === "READY_FOR_MONITORING" ? "ok" : "warning"}`}
-              title={readiness.reason}
+              title={readiness.reason || "Historical accuracy of the win-probability model"}
             >
-              {readiness.status === "READY_FOR_MONITORING" ? "Model active" : "Model warming up"}
+              {readiness.status === "READY_FOR_MONITORING" ? "Model ready" : "Model warming up"}
               {readiness.active_walk_forward?.win_rate !== undefined && (
-                <strong> · {percent(readiness.active_walk_forward.win_rate)} WF</strong>
+                <strong> · {percent(readiness.active_walk_forward.win_rate)} accuracy</strong>
               )}
             </span>
           )}
