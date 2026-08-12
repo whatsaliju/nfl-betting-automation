@@ -202,7 +202,10 @@ def build_candidates(schedule, warps_rows):
     for game in warps_rows:
         if game.get("season") != 2026:
             continue
-        week = int(game["week"])
+        try:
+            week = int(game["week"])
+        except (ValueError, TypeError):
+            continue
         away = game["away_tla"]
         home = game["home_tla"]
         for team, opponent, prob_key, side in (

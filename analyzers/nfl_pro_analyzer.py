@@ -1873,8 +1873,11 @@ class StatisticalAnalyzer:
         for _, game in games.iterrows():
             away = game['away_team']
             home = game['home_team']
-            away_score = float(game['away_score'])
-            home_score = float(game['home_score'])
+            try:
+                away_score = float(game['away_score'])
+                home_score = float(game['home_score'])
+            except (ValueError, TypeError):
+                continue
 
             try:
                 game_week = int(game['week'])

@@ -78,7 +78,8 @@ def generate_final_report(week):
                     f.write(f"OU: {row['ou_record']} ({row['ou_pct']})\n")
                     
                     # Simple recommendation logic
-                    ats_pct = float(row['ats_pct'].replace('%', ''))
+                    ats_pct_raw = row.get('ats_pct') or ''
+                    ats_pct = float(str(ats_pct_raw).replace('%', '')) if ats_pct_raw else 0.0
                     if ats_pct >= 60:
                         f.write(f"✅ STRONG PLAY - {ats_pct}% ATS\n")
                     elif ats_pct >= 55:

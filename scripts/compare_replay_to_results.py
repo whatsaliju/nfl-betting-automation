@@ -126,8 +126,12 @@ def grade_total(side, line, away_score, home_score):
 def iter_pick_rows(replay_root, season, stage):
     pattern = f"week*/{stage}/week*_analytics.json"
     for path in sorted(Path(replay_root).glob(pattern)):
-        week_match = re.search(r"week(\d+)_analytics", path.name)
-        week = int(week_match.group(1)) if week_match else int(path.parts[-3].replace("week", ""))
+        week_match = re.search(r"week([^/_]+)_analytics", path.name)
+        week_label = week_match.group(1) if week_match else path.parts[-3].replace("week", "")
+        try:
+            week = int(week_label)
+        except (ValueError, TypeError):
+            week = week_label
         games = json.loads(path.read_text())
         for game in games:
             meta = game.get("pick_metadata") or {}

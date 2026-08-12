@@ -182,15 +182,29 @@ def regular_season_sunday(season, week):
     return date(2025, 9, 7) + timedelta(days=(week - 1) * 7)
 
 
+def _week_num(week) -> int:
+    """Coerce any week label to a sortable integer for calendar math."""
+    playoff_map = {"WC": 19, "DIV": 20, "CON": 21, "CONF": 21, "SB": 22}
+    w = str(week).strip().upper()
+    if w in playoff_map:
+        return playoff_map[w]
+    if w.startswith("PRE"):
+        try:
+            return int(w[3:]) if w[3:] else 1
+        except ValueError:
+            return 1
+    try:
+        return int(w)
+    except (ValueError, TypeError):
+        return 0
+
+
 def week_anchor_date(season, week, season_type=None):
     season_type = normalize_season_type(season_type, week)
+    week_num = _week_num(week)
     if season_type == "PRE":
         # Approximate first preseason Sunday. Exact dry-run dates should come
         # from schedule data once preseason markets are available.
-        try:
-            week_num = int(week)
-        except (ValueError, TypeError):
-            week_num = 1
         return date(season, 8, 3) + timedelta(days=(week_num - 1) * 7)
     if season == 2025 and season_type == "POST":
         anchors = {
@@ -199,13 +213,9 @@ def week_anchor_date(season, week, season_type=None):
             21: date(2026, 1, 25),
             22: date(2026, 2, 8),
         }
-        try:
-            week_int = int(week)
-            if week_int in anchors:
-                return anchors[week_int]
-        except (ValueError, TypeError):
-            pass
-    return regular_season_sunday(season, week)
+        if week_num in anchors:
+            return anchors[week_num]
+    return regular_season_sunday(season, week_num)
 
 
 def target_date_for_stage(season, week, stage, season_type=None):

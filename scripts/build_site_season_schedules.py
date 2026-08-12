@@ -104,7 +104,12 @@ def build_season(rows, season):
         row for row in rows
         if row["season"] == str(season) and row["game_type"] == "REG"
     ]
-    max_week = max((int(row["week"]) for row in season_games), default=18)
+    def _safe_week(w):
+        try:
+            return int(w)
+        except (ValueError, TypeError):
+            return None
+    max_week = max((w for row in season_games for w in [_safe_week(row["week"])] if w is not None), default=18)
     schedule_rows = {team: {"Team": team} for team in TEAMS}
     game_days = {str(week): {} for week in range(1, max_week + 1)}
     game_dates = {str(week): {} for week in range(1, max_week + 1)}
@@ -115,7 +120,10 @@ def build_season(rows, season):
             schedule_rows[team][f"W{week}"] = "BYE"
 
     for row in season_games:
-        week = int(row["week"])
+        try:
+            week = int(row["week"])
+        except (ValueError, TypeError):
+            continue
         away = canonical(row["away_team"])
         home = canonical(row["home_team"])
         if away not in schedule_rows or home not in schedule_rows:
