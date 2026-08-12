@@ -7,30 +7,31 @@
     "week": "PRE1",
     "week_label": "PRE WPRE1",
     "stage": null,
-    "status": "LIVE_CARD",
+    "status": "LIVE_GAMES_NO_CARD",
     "mode": "live",
-    "has_betting_card": true,
+    "has_betting_card": false,
     "message": "Current active engine context from 2026 artifacts."
   },
   "decision_mode": "live",
-  "recommended_action": "PASS",
+  "recommended_action": "NO BET - DATA INCOMPLETE",
   "confidence_tier": "X",
-  "action_reason": "No playable or watchlist edges are active.",
+  "action_reason": "Live betting inputs are not published for this context.",
   "source_gates": {
-    "live_betting_card": "PASS",
+    "live_betting_card": "BLOCKED",
     "preseason_dry_run": "PASS",
     "warps_priors": "PASS",
     "survivor_recommendations": "PASS"
   },
   "do_nothing_warning": true,
   "warnings": [
+    "No live betting card is published for the current context.",
     "No actionable betting plays or watchlist spots are active."
   ],
   "betting_card": {
-    "available": true,
+    "available": false,
     "plays": 0,
     "watch": 0,
-    "passes": 1,
+    "passes": 0,
     "top_cards": []
   },
   "best_edges": [],
@@ -55,6 +56,6 @@
       "checks_passed": 14,
       "next_live_command": "python3 builders/build_week_master_table.py --season 2026 --week 1 --season-type PRE"
     },
-    "card_available": true
+    "card_available": false
   }
 }
