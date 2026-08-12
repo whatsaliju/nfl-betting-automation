@@ -336,10 +336,22 @@ def stage_available(row, stage):
     return str(value).lower() == "true"
 
 
+def stage_has_pick(row, stage):
+    """Return True if this stage produced an actionable market pick (not 'none')."""
+    pick_market = str(row.get(f"{stage}_pick_market") or "").strip().lower()
+    return pick_market in ("spread", "total", "moneyline")
+
+
 def latest_stage(row):
+    season_type = str(row.get("season_type") or "").upper()
     for stage in reversed(STAGES):
-        if stage_available(row, stage):
-            return stage
+        if not stage_available(row, stage):
+            continue
+        # For preseason: if the final stage produced no market pick, fall back to the
+        # most recent earlier stage that does have a pick (typically initial).
+        if season_type == "PRE" and stage == "final" and not stage_has_pick(row, stage):
+            continue
+        return stage
     return None
 
 

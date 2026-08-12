@@ -48,7 +48,7 @@ def week_key(week) -> str:
 def week_slug(week, season_type: str = None) -> str:
     key = week_key(week)
     normalized_type = builder_season_type(season_type, week)
-    if normalized_type == "PRE":
+    if normalized_type == "PRE" and not key.startswith("PRE"):
         return f"PRE{key}"
     return key
 
@@ -302,6 +302,34 @@ def attach_results(df, season, week, season_type: str = None):
 # -----------------------------
 # MAIN BUILDER
 # -----------------------------
+def augment_from_snapshots(df, week_dir, season, season_type, week_key_str):
+    """Add games found in analytics snapshots that ESPN's scoreboard didn't return."""
+    known_keys = set(df["matchup_key"].values)
+    new_rows = []
+    for stage in STAGES:
+        snap = normalize_snapshot_keys(load_snapshot(os.path.join(week_dir, f"{stage}.json")))
+        for mk, game_data in snap.items():
+            if mk in known_keys:
+                continue
+            parts = mk.split("@") if "@" in mk else [mk, mk]
+            new_rows.append({
+                "season": season,
+                "season_type": season_type,
+                "week": week_key_str,
+                "matchup_key": mk,
+                "away_team": game_data.get("away") or parts[0],
+                "home_team": game_data.get("home") or (parts[1] if len(parts) > 1 else ""),
+                "away_tla": parts[0],
+                "home_tla": parts[1] if len(parts) > 1 else "",
+                "game": game_data.get("matchup") or mk,
+            })
+            known_keys.add(mk)
+    if new_rows:
+        print(f"  ℹ️  Augmenting schedule with {len(new_rows)} games found in analytics (not in ESPN).")
+        df = pd.concat([df, pd.DataFrame(new_rows)], ignore_index=True)
+    return df
+
+
 def build_week_master(season: int, week, season_type: str = None):
     season_type = builder_season_type(season_type, week)
     key = week_key(week)
@@ -310,6 +338,9 @@ def build_week_master(season: int, week, season_type: str = None):
     df = fetch_week_schedule(season, week, season_type)
 
     week_dir = os.path.join(DATA_DIR, "week" + slug)
+
+    # Augment ESPN schedule with any games present in analytics but missing from ESPN
+    df = augment_from_snapshots(df, week_dir, season, season_type, key)
 
     print("📥 Loading snapshots...")
     print("🧩 Attaching snapshots...")
