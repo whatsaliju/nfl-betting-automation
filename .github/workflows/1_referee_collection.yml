@@ -89,7 +89,8 @@ jobs:
           from football_zebras_scraper import save_referees
           week_str = "${{ steps.clean_week.outputs.week }}"
           week = int(week_str) if week_str.isdigit() else week_str
-          df = save_referees(week)
+          year = int("${{ steps.get_week.outputs.season }}")
+          df = save_referees(week, year=year)
           if df is None or len(df) == 0:
               print(f"⚠️ No referee assignments found for week {week} (may not be posted yet for preseason)")
               exit(0)
