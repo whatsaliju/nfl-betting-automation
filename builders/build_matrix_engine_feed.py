@@ -252,7 +252,11 @@ def build_team_expectations(games):
     for game in games:
         if game.get("season_type") != "REG":
             continue
-        if game.get("season") and int(game.get("season")) != CURRENT_SEASON:
+        try:
+            game_season = int(game.get("season") or 0)
+        except (ValueError, TypeError):
+            game_season = 0
+        if game_season and game_season != CURRENT_SEASON:
             continue
         away = canonical_tla(game.get("away_tla"))
         home = canonical_tla(game.get("home_tla"))

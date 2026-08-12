@@ -59,7 +59,7 @@ def builder_season_type(season_type, week) -> str:
         return "POST"
     if key in PRESEASON_LABEL_TO_ESPN_WEEK:
         return "PRE"
-    return normalize_season_type(season_type, int(key))
+    return normalize_season_type(season_type, key)
 
 
 def espn_params_for(season: int, week, season_type: str = None):
@@ -77,7 +77,10 @@ def espn_params_for(season: int, week, season_type: str = None):
             "week": PRESEASON_LABEL_TO_ESPN_WEEK[key],
         }
 
-    week_num = int(key)
+    try:
+        week_num = int(key)
+    except (ValueError, TypeError):
+        week_num = 1
     normalized_type = normalize_season_type(season_type, week_num)
     return {
         "dates": season,

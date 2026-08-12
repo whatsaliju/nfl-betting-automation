@@ -404,7 +404,10 @@ def scrape_nflverse_referees(week, year=None) -> pd.DataFrame:
         pw = _POST_WEEK_MAP.get(wk, 0)
         mask = (df["season"] == year) & (df["game_type"] == "POST") & (df["week"] == pw)
     else:
-        mask = (df["season"] == year) & (df["game_type"] == "REG") & (df["week"] == int(week))
+        try:
+            mask = (df["season"] == year) & (df["game_type"] == "REG") & (df["week"] == int(week))
+        except (ValueError, TypeError):
+            return pd.DataFrame()
 
     subset = df[mask].copy()
     if subset.empty:
