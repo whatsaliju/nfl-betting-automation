@@ -148,25 +148,27 @@ export function CommandCenterView({
   const cardAvailable = Boolean(context?.has_betting_card && bettingCard?.available);
   const commandCard = command?.betting_card;
   const hasAction = command ? !command.do_nothing_warning : groups.plays.length + groups.watch.length + edges.length > 0;
+  const playCount = commandCard?.plays ?? groups.plays.length;
+  const watchCount = commandCard?.watch ?? groups.watch.length;
   const laneCards = [
     {
       icon: <Target size={15} />,
       label: "Live Betting",
-      value: command?.recommended_action || "Pending",
+      value: !cardAvailable ? "No card" : playCount ? `${playCount} play${playCount !== 1 ? "s" : ""} · ${watchCount} watch` : watchCount ? `${watchCount} watch` : "No plays",
       detail: cardAvailable ? "Selector card is available for the current context." : "No current betting card is published yet.",
       state: command?.recommended_action?.startsWith("NO BET") || !cardAvailable ? "hold" : "ready",
     },
     {
       icon: <Brain size={15} />,
       label: "Win Prob Model",
-      value: "Active",
+      value: warpsTop[0] ? pct(warpsTop[0].winProb) : "n/a",
       detail: "Pre-game win probabilities for every matchup — good for spreads and moneylines.",
       state: "research",
     },
     {
       icon: <ShieldCheck size={15} />,
       label: "Survivor",
-      value: survivorWeek.primary?.team || "n/a",
+      value: survivorWeek.primary ? pct(survivorWeek.primary.win_probability) : "n/a",
       detail: "Offseason board uses WARPS priors, future value, and estimated public pick data.",
       state: "watch",
     },
@@ -228,8 +230,8 @@ export function CommandCenterView({
       <div className="command-kpi-grid">
         <button className="command-kpi" onClick={() => onNavigate("card")}>
           <span>Betting Plays</span>
-          <strong>{commandCard?.plays ?? groups.plays.length}</strong>
-          <small>{commandCard?.watch ?? groups.watch.length} watch · {commandCard?.passes ?? groups.passes.length} pass</small>
+          <strong>{playCount}</strong>
+          <small>{watchCount} watch · {commandCard?.passes ?? groups.passes.length} pass</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("survivor")}>
           <span>Survivor Score{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
@@ -238,11 +240,11 @@ export function CommandCenterView({
         </button>
         <button className="command-kpi" onClick={() => onNavigate("warps")}>
           <span>WARPS · Top Win Prob{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
-          <strong>{warpsTop[0]?.team || "n/a"}</strong>
-          <small>{pct(warpsTop[0]?.winProb)} win prob · {warpsTop[0]?.fairMl || "n/a"} fair line</small>
+          <strong>{pct(warpsTop[0]?.winProb)}</strong>
+          <small>{warpsTop[0]?.team || "n/a"} · {warpsTop[0]?.fairMl || "n/a"} fair line</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("edges")}>
-          <span>Active Picks</span>
+          <span>Edge Plays</span>
           <strong>{edges.length}</strong>
           <small>{edgeGames.length || 0} games analyzed</small>
         </button>
