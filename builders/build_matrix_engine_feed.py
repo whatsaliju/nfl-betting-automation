@@ -750,7 +750,7 @@ def load_pick_explanation_index():
     return index
 
 
-def weekly_betting_card_payload():
+def weekly_betting_card_payload(referee_index=None):
     if not WEEKLY_BETTING_CARD.exists():
         return {
             "available": False,
@@ -762,6 +762,14 @@ def weekly_betting_card_payload():
         }
     payload = json.loads(WEEKLY_BETTING_CARD.read_text())
     payload["available"] = True
+    if referee_index:
+        for card in payload.get("cards") or []:
+            week_label = game_week_dir_label(card)
+            away = (card.get("away_tla") or "").strip().upper()
+            home = (card.get("home_tla") or "").strip().upper()
+            card["referee"] = (
+                referee_index.get((week_label, away, home)) if week_label else None
+            )
     return payload
 
 
@@ -1414,7 +1422,7 @@ def build_feed():
             row.get("matchup_key") or "",
         )
     )
-    weekly_card = weekly_betting_card_payload()
+    weekly_card = weekly_betting_card_payload(referee_index)
     preseason = preseason_dry_run_payload()
     current_context = current_context_payload(games, weekly_card, preseason)
     command_center = weekly_command_center_payload(current_context, weekly_card, edge_board, preseason, warps_index)

@@ -328,6 +328,7 @@ export interface WeeklyBettingCardRow {
     warps_team?: string | null;
     edge_value?: number | null;
   }>;
+  referee?: string | null;
 }
 
 export interface WeeklyBettingCard {

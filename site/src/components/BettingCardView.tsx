@@ -119,6 +119,7 @@ function CardItem({ card, isFocused, onViewAnalysis }: { card: WeeklyBettingCard
         {card.quality_gate && <span>Gate {titleCase(card.quality_gate)}</span>}
         {card.source_health && card.source_health !== "OK" && <span>Source {card.source_health}</span>}
         {card.data_quality && card.data_quality !== "OK" && <span>Data {card.data_quality}</span>}
+        {card.referee && <span className="referee-tag">🦓 {card.referee}</span>}
       </div>
 
       {(card.risk_flags || []).length > 0 && (
