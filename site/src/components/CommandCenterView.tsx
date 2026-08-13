@@ -1,4 +1,4 @@
-import { AlertTriangle, BadgeCheck, Brain, ClipboardList, FlaskConical, Gauge, Route, ShieldCheck, Target } from "lucide-react";
+import { AlertTriangle, BadgeCheck, Brain, ClipboardList, Gauge, Route, ShieldCheck, Target } from "lucide-react";
 import { teamLogos } from "../data/nflData";
 import survivorPayload from "../data/survivorRecommendations2026.json";
 import type { EdgeBoardGame, EngineFeed, WarpsMarketOverlay, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
@@ -116,18 +116,25 @@ function TeamLogo({ team }: { team: string }) {
   return <img src={teamLogos[team]} alt="" />;
 }
 
+function weekDisplay(week: string | number | undefined | null) {
+  const wk = String(week ?? "");
+  return /^\d+$/.test(wk) ? `W${wk}` : wk;
+}
+
 export function CommandCenterView({
   engineFeed,
   bettingCard,
   edgeGames,
   warpsRows,
   onNavigate,
+  onFocusCard,
 }: {
   engineFeed: EngineFeed | null;
   bettingCard?: WeeklyBettingCard;
   edgeGames: EdgeBoardGame[];
   warpsRows: WarpsMarketOverlay[];
   onNavigate: (view: "card" | "edges" | "survivor" | "warps" | "scout") => void;
+  onFocusCard?: (matchupKey: string) => void;
 }) {
   const command = engineFeed?.weekly_command_center;
   const context = command?.current_context || engineFeed?.current_context;
@@ -138,8 +145,6 @@ export function CommandCenterView({
   const commandWeek = context?.week || nextSurvivorWeek(cards);
   const commandWeekLabel = context?.week_label || `W${commandWeek}`;
   const isPreseason = context?.season_type === "PRE";
-  // WARPS priors and survivor use regular-season week numbers; during preseason
-  // point them at the first upcoming regular season week.
   const planningWeek = isPreseason ? nextSurvivorWeek(cards) : (typeof commandWeek === "number" ? commandWeek : parseInt(String(commandWeek), 10) || 1);
   const planningWeekLabel = isPreseason ? `Reg W${planningWeek}` : commandWeekLabel;
   const survivorWeek = survivorForWeek(planningWeek);
@@ -150,34 +155,54 @@ export function CommandCenterView({
   const hasAction = command ? !command.do_nothing_warning : groups.plays.length + groups.watch.length + edges.length > 0;
   const playCount = commandCard?.plays ?? groups.plays.length;
   const watchCount = commandCard?.watch ?? groups.watch.length;
-  const laneCards = [
+  const regularEdgeCount = edgeGames.filter((g) => g.season_type === "REG").length;
+
+  const kpiCards = [
     {
-      icon: <Target size={15} />,
+      icon: <Target size={14} />,
       label: "Live Betting",
-      value: !cardAvailable ? "No card" : playCount ? `${playCount} play${playCount !== 1 ? "s" : ""} · ${watchCount} watch` : watchCount ? `${watchCount} watch` : "No plays",
-      detail: cardAvailable ? "Selector card is available for the current context." : "No current betting card is published yet.",
-      state: command?.recommended_action?.startsWith("NO BET") || !cardAvailable ? "hold" : "ready",
+      value: !cardAvailable ? "—" : String(playCount || 0),
+      detail: !cardAvailable
+        ? "Picks pending for this week"
+        : playCount
+        ? `${playCount} play${playCount !== 1 ? "s" : ""} · ${watchCount} watch`
+        : watchCount
+        ? `${watchCount} on watch · no plays`
+        : "No plays this week",
+      state: command?.recommended_action?.startsWith("NO BET") || !cardAvailable ? "hold" : playCount ? "ready" : "watch",
+      onClick: () => onNavigate("card"),
     },
     {
-      icon: <Brain size={15} />,
-      label: "Win Prob Model",
-      value: warpsTop[0] ? pct(warpsTop[0].winProb) : "n/a",
-      detail: "Pre-game win probabilities for every matchup — good for spreads and moneylines.",
-      state: "research",
-    },
-    {
-      icon: <ShieldCheck size={15} />,
-      label: "Survivor",
+      icon: <ShieldCheck size={14} />,
+      label: isPreseason ? `Survivor (${planningWeekLabel})` : "Survivor",
       value: survivorWeek.primary ? pct(survivorWeek.primary.win_probability) : "n/a",
-      detail: "Offseason board uses WARPS priors, future value, and estimated public pick data.",
+      detail: survivorWeek.primary
+        ? `${survivorWeek.primary.team} · score ${score(survivorWeek.primary.survivor_score)}`
+        : "No survivor data loaded",
       state: "watch",
+      onClick: () => onNavigate("survivor"),
     },
     {
-      icon: <FlaskConical size={15} />,
-      label: "Research",
-      value: "In progress",
-      detail: "Advanced model layers under testing — not yet used for live picks.",
+      icon: <Brain size={14} />,
+      label: isPreseason ? `WARPS (${planningWeekLabel})` : "WARPS · Win Prob",
+      value: warpsTop[0] ? pct(warpsTop[0].winProb) : "n/a",
+      detail: warpsTop[0]
+        ? `${warpsTop[0].team} · ${warpsTop[0].fairMl || "n/a"} fair line`
+        : "No model data loaded",
       state: "research",
+      onClick: () => onNavigate("warps"),
+    },
+    {
+      icon: <Gauge size={14} />,
+      label: "Edge Board",
+      value: String(edges.length),
+      detail: edges.length
+        ? `of ${regularEdgeCount} game${regularEdgeCount !== 1 ? "s" : ""} analyzed`
+        : isPreseason
+        ? "Populates once regular season begins"
+        : "No edge plays this week",
+      state: edges.length > 0 ? "ready" : "hold",
+      onClick: () => onNavigate("edges"),
     },
   ];
 
@@ -188,7 +213,7 @@ export function CommandCenterView({
           <span className="command-eyebrow">Weekly Command Center</span>
           <h2>{commandWeekLabel} Decision Board</h2>
           <p>
-            Your weekly picks, survivor pool recommendation, and win probabilities — all in one place. {command?.action_reason || command?.warnings?.[0] || context?.message || "Use the tabs above to dig into any area."}
+            {command?.action_reason || command?.warnings?.[0] || context?.message || "Your weekly picks, survivor pool recommendation, and win probabilities — all in one place."}
           </p>
         </div>
         <div className="command-status-stack">
@@ -208,46 +233,23 @@ export function CommandCenterView({
         </div>
       </div>
 
-      <div className="command-lane-grid">
-        {laneCards.map((lane) => (
-          <article className={`command-lane ${lane.state}`} key={lane.label}>
-            <div>
-              {lane.icon}
-              <span>{lane.label}</span>
-            </div>
-            <strong>{lane.value}</strong>
-            <p>{lane.detail}</p>
-          </article>
-        ))}
-      </div>
-
       {isPreseason && (
         <div className="command-preseason-banner">
-          <strong>Preseason mode:</strong> The 2026 regular season hasn't started yet. Survivor and WARPS data is showing Reg W{planningWeek} projections so you can start planning. Betting card data will populate once weekly feeds begin.
+          <strong>Preseason mode:</strong> The 2026 regular season hasn't started yet. Survivor and WARPS data shows Reg W{planningWeek} projections for early planning. Betting picks populate once weekly feeds begin.
         </div>
       )}
 
       <div className="command-kpi-grid">
-        <button className="command-kpi" onClick={() => onNavigate("card")}>
-          <span>Betting Plays</span>
-          <strong>{playCount}</strong>
-          <small>{watchCount} watch · {commandCard?.passes ?? groups.passes.length} pass</small>
-        </button>
-        <button className="command-kpi" onClick={() => onNavigate("survivor")}>
-          <span>Survivor Score{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
-          <strong>{score(survivorWeek.primary?.survivor_score)}</strong>
-          <small>{survivorWeek.primary?.team || "n/a"} · {pct(survivorWeek.primary?.win_probability)} win prob</small>
-        </button>
-        <button className="command-kpi" onClick={() => onNavigate("warps")}>
-          <span>WARPS · Top Win Prob{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
-          <strong>{pct(warpsTop[0]?.winProb)}</strong>
-          <small>{warpsTop[0]?.team || "n/a"} · {warpsTop[0]?.fairMl || "n/a"} fair line</small>
-        </button>
-        <button className="command-kpi" onClick={() => onNavigate("edges")}>
-          <span>Edge Plays</span>
-          <strong>{edges.length}</strong>
-          <small>{edgeGames.length || 0} games analyzed</small>
-        </button>
+        {kpiCards.map((kpi) => (
+          <button key={kpi.label} className={`command-kpi ${kpi.state}`} onClick={kpi.onClick}>
+            <div className="command-kpi-head">
+              {kpi.icon}
+              <span>{kpi.label}</span>
+            </div>
+            <strong>{kpi.value}</strong>
+            <small>{kpi.detail}</small>
+          </button>
+        ))}
       </div>
 
       {command?.do_nothing_warning ? (
@@ -271,7 +273,7 @@ export function CommandCenterView({
               <h3><Route size={15} /> Survivor</h3>
               <p>Best pool pick after future-value and volatility penalties.</p>
             </div>
-            <button className="text-button" onClick={() => onNavigate("survivor")}>Open</button>
+            <button className="text-button" onClick={() => onNavigate("survivor")}>Open →</button>
           </div>
           {survivorWeek.primary ? (
             <div className="command-feature-pick">
@@ -301,17 +303,22 @@ export function CommandCenterView({
           <div className="command-panel-head">
             <div>
               <h3><Target size={15} /> Betting Card</h3>
-              <p>Selector plays and watchlist spots from the weekly engine.</p>
+              <p>Plays and watchlist from the weekly engine — click any row to open.</p>
             </div>
-            <button className="text-button" onClick={() => onNavigate("card")}>Open</button>
+            <button className="text-button" onClick={() => onNavigate("card")}>Open →</button>
           </div>
           {[...groups.plays, ...groups.watch].slice(0, 4).map((card) => {
-            const wk = String(card.week ?? "");
-            const weekDisplay = /^\d+$/.test(wk) ? `W${wk}` : wk;
             const betDisplay = card.pick_label || (card.market ? `${card.market} ${card.side || ""}` : titleCase(card.action));
             return (
-              <div className={`command-bet-row ${card.action}`} key={card.key}>
-                <span>{weekDisplay}</span>
+              <div
+                className={`command-bet-row ${card.action}`}
+                key={card.key}
+                onClick={() => { onNavigate("card"); onFocusCard?.(card.matchup_key); }}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter") { onNavigate("card"); onFocusCard?.(card.matchup_key); } }}
+              >
+                <span>{weekDisplay(card.week)}</span>
                 <strong>{card.away_tla}@{card.home_tla}</strong>
                 <b>{betDisplay}</b>
               </div>
@@ -326,12 +333,19 @@ export function CommandCenterView({
           <div className="command-panel-head">
             <div>
               <h3><BadgeCheck size={15} /> Win Probability Watch</h3>
-              <p>Teams with the highest modeled win probability for {planningWeekLabel}.{isPreseason ? " Planning ahead for regular season." : ""}</p>
+              <p>Highest modeled win prob for {planningWeekLabel} — click any row to open.</p>
             </div>
-            <button className="text-button" onClick={() => onNavigate("warps")}>Open</button>
+            <button className="text-button" onClick={() => onNavigate("warps")}>Open →</button>
           </div>
           {warpsTop.length ? warpsTop.map((row) => (
-            <div className="command-warps-row" key={`${row.matchup}-${row.team}`}>
+            <div
+              className="command-warps-row"
+              key={`${row.matchup}-${row.team}`}
+              onClick={() => onNavigate("warps")}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && onNavigate("warps")}
+            >
               <TeamLogo team={row.team} />
               <strong>{row.team}</strong>
               <span>{row.homeAway === "home" ? "vs" : "@"} {row.opponent}</span>
@@ -346,14 +360,21 @@ export function CommandCenterView({
           <div className="command-panel-head">
             <div>
               <h3><Target size={15} /> Edge Board</h3>
-              <p>Top-rated plays from the weekly engine, ranked by edge score.</p>
+              <p>Top-rated plays ranked by edge score — click any row to open.</p>
             </div>
-            <button className="text-button" onClick={() => onNavigate("edges")}>Open</button>
+            <button className="text-button" onClick={() => onNavigate("edges")}>Open →</button>
           </div>
           {edges.length ? edges.map((game) => {
             const betDisplay = game.best_edge.label || game.best_edge.recommendation || `${game.best_edge.market || ""} ${game.best_edge.side || ""}`.trim() || "pick";
             return (
-              <div className="command-bet-row play" key={game.matchup_key}>
+              <div
+                className="command-bet-row play"
+                key={game.matchup_key}
+                onClick={() => onNavigate("edges")}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && onNavigate("edges")}
+              >
                 <span>W{game.week}</span>
                 <strong>{game.away_tla}@{game.home_tla}</strong>
                 <b>{betDisplay}</b>
@@ -362,7 +383,7 @@ export function CommandCenterView({
           }) : (
             <div className="compact-empty">
               {isPreseason
-                ? "No active edge picks yet · Plays populate once regular season games begin."
+                ? "No edge picks yet · Plays populate once regular season begins."
                 : "No playable edge games this week."}
             </div>
           )}
