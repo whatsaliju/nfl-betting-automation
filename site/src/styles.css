@@ -89,8 +89,7 @@ button { cursor: pointer; }
   flex-wrap: wrap;
   padding: 10px;
   margin-bottom: 12px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible;
 }
 .controls .view-tabs {
   flex-shrink: 0;
@@ -233,7 +232,7 @@ button { cursor: pointer; }
   text-align: center;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease 0.4s;
   z-index: 200;
   box-shadow: 0 4px 12px rgba(0,0,0,0.18);
 }
@@ -247,7 +246,7 @@ button { cursor: pointer; }
   border-top-color: #1f2937;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease 0.4s;
   z-index: 200;
 }
 [data-tooltip]:hover::after,
