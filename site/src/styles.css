@@ -192,10 +192,11 @@ button { cursor: pointer; }
 /* Tab group separator inside .view-tabs */
 .view-tab-sep {
   display: block;
-  width: 1px;
-  height: 20px;
-  margin: 0 4px;
-  background: #94a3b8;
+  width: 2px;
+  height: 22px;
+  margin: 0 6px;
+  background: #64748b;
+  border-radius: 2px;
   flex-shrink: 0;
 }
 
@@ -1427,6 +1428,12 @@ select {
   color: #94a3b8;
   font-size: 14px;
   padding-bottom: 8px;
+}
+.compare-select {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  font-weight: 700;
 }
 .compare-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
 .compare-table th, .compare-table td { border: 1px solid #dce3ea; padding: 8px; text-align: left; }
@@ -4167,6 +4174,31 @@ select {
 .scout-delta { font-size: 12px; font-weight: 700; }
 .scout-delta-pos { color: #16a34a; }
 .scout-delta-neg { color: #dc2626; }
+
+.scout-lean {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  margin-bottom: 2px;
+}
+.scout-lean strong {
+  color: #15803d;
+  font-size: 13px;
+}
+.scout-card-trap .scout-lean {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+.scout-card-trap .scout-lean strong { color: #c2410c; }
+.scout-card-upset .scout-lean {
+  background: #fdf4ff;
+  border-color: #e9d5ff;
+}
+.scout-card-upset .scout-lean strong { color: #7e22ce; }
 
 .scout-matchup {
   display: flex;
