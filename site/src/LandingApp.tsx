@@ -21,10 +21,11 @@ export default function LandingApp() {
         </nav>
         <div className="landing-hero">
           <div className="landing-hero-copy">
-            <p className="landing-kicker">Project Lab · 2026 Season</p>
-            <h1 className="landing-name">NFL picks and schedule analysis, built to keep score.</h1>
+            <p className="landing-kicker">2026 NFL Season</p>
+            <h1 className="landing-name">NFL picks, win probabilities, and schedule analysis.</h1>
             <p className="landing-tagline">
-              Win-probability model validated across 26 NFL seasons. Weekly picks, schedule intelligence, and model research — all tracked against results.
+              Weekly picks and schedule intelligence for the 2026 NFL season.
+              Win-probability model built on 26 seasons of data.
             </p>
             <div className="landing-actions">
               <a href="matrix.html" className="landing-button primary">Open NFL Edge Hub</a>
@@ -50,7 +51,7 @@ export default function LandingApp() {
               <TrendingUp size={19} />
               <div>
                 <strong>YTTS Screener</strong>
-                <span>Equity research screens, long-hold tracking, and live trading desk.</span>
+                <span>Model-driven equity screener with research overlays and position monitoring.</span>
               </div>
             </a>
           </div>
@@ -58,14 +59,6 @@ export default function LandingApp() {
       </header>
 
       <main className="landing-main">
-        <section className="landing-about">
-          <h2>Small systems for testing ideas.</h2>
-          <p>
-            Each project starts with a question, turns it into a model or dashboard, and then keeps score.
-            The goal is not to make every answer automatic; it is to make the logic visible enough to improve.
-          </p>
-        </section>
-
         <section className="landing-projects" id="projects">
 
           <div className="landing-project">
@@ -105,9 +98,8 @@ export default function LandingApp() {
               <h2 className="landing-project-title">YTTS Financials</h2>
             </div>
             <p className="landing-project-desc">
-              Equity research and position tracking dashboard — systematic screening,
-              long-hold monitoring, and a live trading desk. Built to replace
-              spreadsheets with a purpose-built interface that's actually fast to navigate.
+              Equity screener and position tracker — research screens, long-hold monitoring,
+              and a live trading desk.
             </p>
             <div className="landing-ytts-links">
               <a href="https://lijuvarughese.com/ytts/internal_research_dashboard_app.html" target="_blank" rel="noreferrer" className="landing-link">
