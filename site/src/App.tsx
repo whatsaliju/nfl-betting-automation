@@ -109,8 +109,7 @@ function App() {
     return map;
   }, [selectedSeason]);
   const playoffCells = useMemo(() => postseasonCells(engineFeed, selectedSeason), [engineFeed, selectedSeason]);
-  const overlayCount = engineCells.size + playoffCells.length;
-  const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSchedule]);
+const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSchedule]);
   const engineSeason = engineFeed?.games?.find((game) => game.season)?.season || DEFAULT_SEASON;
   // Don't use engine expectations for seasons that are already complete — those have stale
   // partial-season actual_wins from whenever the feed was last generated.  For finished
@@ -224,7 +223,6 @@ function App() {
               )}
             </span>
           )}
-          {engineFeed && overlayCount > 0 && <span className="status-pill">{overlayCount} overlays</span>}
         </div>
       </header>
 
@@ -285,8 +283,9 @@ function App() {
             key={stage.label}
             className={`model-status-card ${stage.status}`}
             onClick={() => {
-              if (stage.label === "Betting Edge" || stage.label === "Watchlist") setViewMode("card");
-              else if (stage.label === "WARPS Prior") setViewMode("warps");
+              if (stage.label === "This Week's Pick" || stage.label === "Watch List") setViewMode("card");
+              else if (stage.label === "Win Prob Model") setViewMode("warps");
+              else if (stage.label === "Survivor Pool") setViewMode("survivor");
               else setViewMode("research");
             }}
           >
@@ -379,7 +378,7 @@ function App() {
 
       <footer className="footer-note">
         <BarChart3 size={15} />
-        Public feed · raw GitHub engine artifacts · static &amp; embeddable
+        NFL picks &amp; schedule analysis · data updates weekly during the season
         <span className="footer-links">
           <button className="footer-link-btn" onClick={() => setViewMode("warps")}>WARPS model</button>
           {researchSummary && <button className="footer-link-btn" onClick={() => setViewMode("research")}>Research notes</button>}
