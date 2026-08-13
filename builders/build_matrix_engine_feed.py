@@ -444,6 +444,47 @@ def fair_spread_side(overlay):
     return "NEUTRAL"
 
 
+def week_label_from_path(queries_path):
+    """Extract week label from a path like data/weekPRE1/weekPRE1_queries.csv → 'PRE1'."""
+    match = re.search(r"week(PRE\d+|\d+|[A-Z]+)_queries\.csv$", queries_path.name)
+    return match.group(1) if match else None
+
+
+def game_week_dir_label(game):
+    """Map game fields to the week directory label used in queries CSVs."""
+    season_type = str(game.get("season_type") or "").upper()
+    week = game.get("week")
+    if season_type == "PRE":
+        w = str(week or "1").strip().upper()
+        num = w[3:] if w.startswith("PRE") else w
+        return f"PRE{num or '1'}"
+    w = str(week or "").strip().upper()
+    if w in ("WC", "DIV", "CONF", "CON", "SB"):
+        return "CONF" if w == "CON" else w
+    return str(week) if week else None
+
+
+def load_referee_index():
+    """Build a lookup of (week_label, away_tla, home_tla) → referee name."""
+    index = {}
+    data_dir = ROOT / "data"
+    for queries_path in sorted(data_dir.glob("week*/week*_queries.csv")):
+        week_label = week_label_from_path(queries_path)
+        if not week_label:
+            continue
+        try:
+            with queries_path.open() as f:
+                for row in csv.DictReader(f):
+                    away = (row.get("away") or "").strip().upper()
+                    home = (row.get("home") or "").strip().upper()
+                    referee = (row.get("referee") or "").strip()
+                    if away and home and referee:
+                        index[(week_label, away, home)] = referee
+        except Exception:
+            pass
+    return index
+
+
 def load_warps_market_overlay():
     if not WARPS_MARKET_OVERLAY.exists():
         return {}
@@ -556,7 +597,7 @@ def expectation_matchup_payload(away, home, expectations):
     }
 
 
-def edge_board_payload(game, expectations, warps_index):
+def edge_board_payload(game, expectations, warps_index, referee_index=None):
     latest = game["latest"]
     trace = normalize_trace(latest.get("recommendation_trace"))
     final_decision = trace.get("final_decision") or {}
@@ -571,6 +612,8 @@ def edge_board_payload(game, expectations, warps_index):
 
     away = canonical_tla(game.get("away_tla"))
     home = canonical_tla(game.get("home_tla"))
+    week_label = game_week_dir_label(game)
+    referee = (referee_index or {}).get((week_label, away, home)) if week_label else None
     schedule_context = {
         "division_game": team_division(away) == team_division(home),
         "conference_game": team_conference(away) == team_conference(home),
@@ -641,6 +684,7 @@ def edge_board_payload(game, expectations, warps_index):
                 "reason": "moneyline edge model remains research-only until historical validation clears promotion",
             },
         },
+        "referee": referee,
         "factor_summary": factors,
         "warps_market_overlay": warps_overlay,
         "schedule_context": schedule_context,
@@ -1353,8 +1397,9 @@ def build_feed():
     team_expectations = build_team_expectations(games)
     explanation_index = load_pick_explanation_index()
     warps_index = load_warps_market_overlay()
+    referee_index = load_referee_index()
     analyzed_games = [g for g in games if (g.get("latest") or {}).get("available")]
-    edge_board = [edge_board_payload(game, team_expectations, warps_index) for game in analyzed_games]
+    edge_board = [edge_board_payload(game, team_expectations, warps_index, referee_index) for game in analyzed_games]
     for row in edge_board:
         stage = row.get("stage") or "final"
         row["explanation"] = (
