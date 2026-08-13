@@ -1,6 +1,7 @@
 import { Activity, BarChart3, CalendarDays, ClipboardList, Crosshair, Flame, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { BettingCardView } from "./components/BettingCardView";
+import { buildScoutGames } from "./components/ScoutView";
 import { CommandCenterView } from "./components/CommandCenterView";
 import { CompareView } from "./components/CompareView";
 import { EdgeBoardView } from "./components/EdgeBoardView";
@@ -173,6 +174,17 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
     return {};
   }, [selectedSeason, hasEngineForSeason, teamExpectations]);
 
+  const scoutAlerts = useMemo(() => {
+    const games = buildScoutGames(allTeams, seasonVegasLines);
+    const flagged = games.filter(g => g.category !== null);
+    return {
+      spots: flagged.filter(g => g.category === "spot").length,
+      traps: flagged.filter(g => g.category === "trap").length,
+      upsets: flagged.filter(g => g.category === "upset").length,
+      total: flagged.length,
+    };
+  }, [allTeams, seasonVegasLines]);
+
   useEffect(() => {
     loadEngineFeed()
       .then((feed) => {
@@ -305,6 +317,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
           edgeGames={edgeGames}
           warpsRows={warpsMarketOverlay2026 as WarpsMarketOverlay[]}
           onNavigate={setViewMode}
+          scoutAlerts={scoutAlerts}
           onFocusCard={(key) => { setFocusedCard(key); setViewMode("card"); }}
         />
       )}

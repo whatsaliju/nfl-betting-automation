@@ -1,4 +1,4 @@
-import { AlertTriangle, BadgeCheck, Brain, ClipboardList, Gauge, Route, ShieldCheck, Target } from "lucide-react";
+import { AlertTriangle, BadgeCheck, Brain, ClipboardList, Crosshair, Gauge, Route, ShieldCheck, Target } from "lucide-react";
 import { teamLogos } from "../data/nflData";
 import survivorPayload from "../data/survivorRecommendations2026.json";
 import type { EdgeBoardGame, EngineFeed, WarpsMarketOverlay, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
@@ -107,7 +107,7 @@ function bettingGroups(cards: WeeklyBettingCardRow[]) {
 
 function playableEdges(games: EdgeBoardGame[]) {
   return games
-    .filter((game) => game.season_type === "REG" && game.best_edge.status === "play")
+    .filter((game) => game.best_edge.status === "play")
     .sort((a, b) => (b.best_edge.score || 0) - (a.best_edge.score || 0))
     .slice(0, 4);
 }
@@ -126,6 +126,7 @@ export function CommandCenterView({
   bettingCard,
   edgeGames,
   warpsRows,
+  scoutAlerts,
   onNavigate,
   onFocusCard,
 }: {
@@ -133,6 +134,7 @@ export function CommandCenterView({
   bettingCard?: WeeklyBettingCard;
   edgeGames: EdgeBoardGame[];
   warpsRows: WarpsMarketOverlay[];
+  scoutAlerts?: { spots: number; traps: number; upsets: number; total: number };
   onNavigate: (view: "card" | "edges" | "survivor" | "warps" | "scout") => void;
   onFocusCard?: (matchupKey: string) => void;
 }) {
@@ -155,7 +157,7 @@ export function CommandCenterView({
   const hasAction = command ? !command.do_nothing_warning : groups.plays.length + groups.watch.length + edges.length > 0;
   const playCount = commandCard?.plays ?? groups.plays.length;
   const watchCount = commandCard?.watch ?? groups.watch.length;
-  const regularEdgeCount = edgeGames.filter((g) => g.season_type === "REG").length;
+  const regularEdgeCount = edgeGames.length;
 
   const kpiCards = [
     {
@@ -173,14 +175,14 @@ export function CommandCenterView({
       onClick: () => onNavigate("card"),
     },
     {
-      icon: <ShieldCheck size={14} />,
-      label: isPreseason ? `Survivor (${planningWeekLabel})` : "Survivor",
-      value: survivorWeek.primary ? pct(survivorWeek.primary.win_probability) : "n/a",
-      detail: survivorWeek.primary
-        ? `${survivorWeek.primary.team} · score ${score(survivorWeek.primary.survivor_score)}`
-        : "No survivor data loaded",
-      state: "watch",
-      onClick: () => onNavigate("survivor"),
+      icon: <Crosshair size={14} />,
+      label: "Scout",
+      value: scoutAlerts ? String(scoutAlerts.total) : "—",
+      detail: scoutAlerts?.total
+        ? `${scoutAlerts.spots} spot · ${scoutAlerts.traps} trap · ${scoutAlerts.upsets} upset`
+        : "Rest, travel & trap game alerts",
+      state: (scoutAlerts?.traps ?? 0) > 0 ? "watch" : "research",
+      onClick: () => onNavigate("scout"),
     },
     {
       icon: <Brain size={14} />,

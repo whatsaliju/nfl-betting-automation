@@ -35,7 +35,7 @@ interface SpotGame {
   category: Category | null;
 }
 
-function buildGames(teams: TeamProfile[], vegasLines: Record<string, number | null>): SpotGame[] {
+export function buildScoutGames(teams: TeamProfile[], vegasLines: Record<string, number | null>): SpotGame[] {
   const seen = new Set<string>();
   const games: SpotGame[] = [];
 
@@ -200,7 +200,7 @@ export function ScoutView({ teams, weeks, vegasLines }: Props) {
   const [filter, setFilter] = useState<"all" | Category>("all");
   const [weekFilter, setWeekFilter] = useState<number | "all">("all");
 
-  const allGames = useMemo(() => buildGames(teams, vegasLines), [teams, vegasLines]);
+  const allGames = useMemo(() => buildScoutGames(teams, vegasLines), [teams, vegasLines]);
   const flagged = useMemo(() => allGames.filter(g => g.category !== null), [allGames]);
 
   const spots  = useMemo(() => flagged.filter(g => g.category === "spot").length, [flagged]);
