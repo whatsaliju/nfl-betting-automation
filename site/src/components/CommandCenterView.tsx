@@ -237,7 +237,7 @@ export function CommandCenterView({
           <small>{pct(survivorWeek.primary?.win_probability)} vs {survivorWeek.primary?.opponent || "n/a"}</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("warps")}>
-          <span>Top Win Prob Pick{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
+          <span>WARPS · Top Win Prob{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
           <strong>{warpsTop[0]?.team || "n/a"}</strong>
           <small>{pct(warpsTop[0]?.winProb)} win prob · {warpsTop[0]?.fairMl || "n/a"} fair line</small>
         </button>
