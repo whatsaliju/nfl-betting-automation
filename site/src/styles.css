@@ -745,6 +745,20 @@ select {
   border-color: #9bd2b8;
   background: #f3fbf6;
 }
+.edge-card.focused {
+  box-shadow: 0 0 0 3px #3b82f6;
+  animation: edge-focus-fade 2s ease-out forwards;
+}
+@keyframes edge-focus-fade {
+  0% { box-shadow: 0 0 0 3px #3b82f6; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.card-analysis-link {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #3b82f6;
+  padding: 0;
+}
 .edge-card-top, .edge-matchup, .edge-decision, .market-mini, .context-tags, .factor-list span, .week-edge-summary {
   display: flex;
   align-items: center;

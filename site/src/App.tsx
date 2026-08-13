@@ -68,6 +68,7 @@ function App() {
   const [engineFeed, setEngineFeed] = useState<EngineFeed | null>(null);
   const [engineError, setEngineError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [focusedEdgeGame, setFocusedEdgeGame] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -332,9 +333,9 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
         </>
       )}
 
-      {viewMode === "edges" && <EdgeBoardView games={edgeGames} />}
+      {viewMode === "edges" && <EdgeBoardView games={edgeGames} focusGame={focusedEdgeGame} onFocusClear={() => setFocusedEdgeGame(null)} />}
 
-      {viewMode === "card" && <BettingCardView card={currentBettingCard} context={currentContext} />}
+      {viewMode === "card" && <BettingCardView card={currentBettingCard} context={currentContext} onViewAnalysis={(key) => { setFocusedEdgeGame(key); setViewMode("edges"); }} />}
 
       {viewMode === "survivor" && <SurvivorView />}
 

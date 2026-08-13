@@ -232,9 +232,9 @@ export function CommandCenterView({
           <small>{commandCard?.watch ?? groups.watch.length} watch · {commandCard?.passes ?? groups.passes.length} pass</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("survivor")}>
-          <span>Survivor Pick{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
-          <strong>{survivorWeek.primary?.team || "n/a"}</strong>
-          <small>{pct(survivorWeek.primary?.win_probability)} vs {survivorWeek.primary?.opponent || "n/a"}</small>
+          <span>Survivor Score{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
+          <strong>{score(survivorWeek.primary?.survivor_score)}</strong>
+          <small>{survivorWeek.primary?.team || "n/a"} · {pct(survivorWeek.primary?.win_probability)} win prob</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("warps")}>
           <span>WARPS · Top Win Prob{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
