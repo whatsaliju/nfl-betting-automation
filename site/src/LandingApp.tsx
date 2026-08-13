@@ -50,7 +50,7 @@ export default function LandingApp() {
               <TrendingUp size={19} />
               <div>
                 <strong>YTTS Screener</strong>
-                <span>Equity research screens, long-hold tracking, and live trading desk.</span>
+                <span>Model-driven equity screener with research overlays and position monitoring.</span>
               </div>
             </a>
           </div>
@@ -105,9 +105,9 @@ export default function LandingApp() {
               <h2 className="landing-project-title">YTTS Financials</h2>
             </div>
             <p className="landing-project-desc">
-              Equity research and position tracking dashboard — systematic screening,
-              long-hold monitoring, and a live trading desk. Built to replace
-              spreadsheets with a purpose-built interface that's actually fast to navigate.
+              Model-driven equity screener — systematic research screens, long-hold position
+              monitoring, and a live trading desk. Filters and surfaces positions based on
+              model signals rather than manual spreadsheet work.
             </p>
             <div className="landing-ytts-links">
               <a href="https://lijuvarughese.com/ytts/internal_research_dashboard_app.html" target="_blank" rel="noreferrer" className="landing-link">
