@@ -131,6 +131,16 @@ function CategoryPill({ cat }: { cat: Category }) {
   return <span className={`cat-pill ${map[cat].cls}`}>{map[cat].label}</span>;
 }
 
+function leanTeam(game: SpotGame): string {
+  return game.category === "trap" ? game.awayTeam : game.homeTeam;
+}
+
+function leanLabel(game: SpotGame): string {
+  if (game.category === "trap") return `Fade ${game.homeTeam} · Take ${game.awayTeam}`;
+  if (game.category === "upset") return `Upset watch: ${game.homeTeam}`;
+  return `Lean: ${game.homeTeam}`;
+}
+
 function GameCard({ game }: { game: SpotGame }) {
   return (
     <article className={`scout-card scout-card-${game.category}`}>
@@ -145,6 +155,11 @@ function GameCard({ game }: { game: SpotGame }) {
             Δ{game.warpsDelta > 0 ? "+" : ""}{game.warpsDelta.toFixed(1)}w
           </span>
         )}
+      </div>
+
+      <div className="scout-lean">
+        <img src={teamLogos[leanTeam(game)]} alt="" className="scout-logo" />
+        <strong>{leanLabel(game)}</strong>
       </div>
 
       <div className="scout-matchup">
