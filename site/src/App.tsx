@@ -365,6 +365,11 @@ function App() {
 
       {(viewMode === "projections" || viewMode === "audit" || viewMode === "expectations") && (
         <>
+          {currentContext?.season_type === "PRE" && Object.keys(teamExpectations).length > 0 && (
+            <div className="feed-warning">
+              Preseason mode — projections below are based on early preseason data only and will stabilize once regular season games are played. Numbers will shift significantly after Week 1.
+            </div>
+          )}
           <LiveAuditView expectations={teamExpectations} vegasLines={seasonVegasLines} season={selectedSeason} />
           {Object.keys(teamExpectations).length > 0 && <ExpectationsView expectations={teamExpectations} />}
         </>
