@@ -120,6 +120,11 @@ function CardItem({ card, isFocused, onViewAnalysis }: { card: WeeklyBettingCard
         {card.source_health && card.source_health !== "OK" && <span>Source {card.source_health}</span>}
         {card.data_quality && card.data_quality !== "OK" && <span>Data {card.data_quality}</span>}
         {card.referee && <span className="referee-tag">🦓 {card.referee}</span>}
+        {card.referee_stats && (
+          <span className={`referee-stat-tag ${(card.referee_stats.ou_pct ?? 50) >= 55 ? "ou-over" : (card.referee_stats.ou_pct ?? 50) <= 45 ? "ou-under" : ""}`}>
+            OU {card.referee_stats.ou_pct?.toFixed(0)}% · ATS {card.referee_stats.ats_pct?.toFixed(0)}% {card.referee_stats.favorite} · n={card.referee_stats.sample_size}
+          </span>
+        )}
       </div>
 
       {(card.risk_flags || []).length > 0 && (

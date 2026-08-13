@@ -154,6 +154,11 @@ export function EdgeBoardView({ games, focusGame, onFocusClear }: { games: EdgeB
                 {game.source_health_status && game.source_health_status !== "OK" && <span>Source risk</span>}
                 {game.data_quality_status && game.data_quality_status !== "OK" && <span>Data quality</span>}
                 {game.referee && <span className="referee-tag">🦓 {game.referee}</span>}
+              {game.referee_stats && (
+                <span className={`referee-stat-tag ${(game.referee_stats.ou_pct ?? 50) >= 55 ? "ou-over" : (game.referee_stats.ou_pct ?? 50) <= 45 ? "ou-under" : ""}`}>
+                  OU {game.referee_stats.ou_pct?.toFixed(0)}% · ATS {game.referee_stats.ats_pct?.toFixed(0)}% {game.referee_stats.favorite} · n={game.referee_stats.sample_size}
+                </span>
+              )}
               </div>
 
               {game.expectation_context && (
