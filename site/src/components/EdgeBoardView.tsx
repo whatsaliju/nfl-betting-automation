@@ -55,7 +55,9 @@ function alignmentLabel(value?: string | null) {
 }
 
 export function EdgeBoardView({ games }: { games: EdgeBoardGame[] }) {
-  const regularGames = games.filter((game) => game.season_type === "REG");
+  const regularGames = games
+    .filter((game) => game.season_type === "REG")
+    .sort((a, b) => a.week !== b.week ? a.week - b.week : (b.best_edge.score ?? 0) - (a.best_edge.score ?? 0));
   const playable = regularGames.filter((game) => game.best_edge.status === "play");
   const passes = regularGames.length - playable.length;
 

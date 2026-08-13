@@ -24,8 +24,17 @@ export function CompareView({ teams, expectations, teamA, teamB, metricLabel, on
     <section className="panel">
       <div className="panel-toolbar">
         <h2>Compare Teams</h2>
-        <select value={first.name} onChange={(event) => onTeamA(event.target.value)}>{options}</select>
-        <select value={second.name} onChange={(event) => onTeamB(event.target.value)}>{options}</select>
+        <div className="compare-selector-row">
+          <label className="compare-selector-label">
+            <span>Team 1</span>
+            <select value={first.name} onChange={(event) => onTeamA(event.target.value)}>{options}</select>
+          </label>
+          <span className="compare-vs">vs</span>
+          <label className="compare-selector-label">
+            <span>Team 2</span>
+            <select value={second.name} onChange={(event) => onTeamB(event.target.value)}>{options}</select>
+          </label>
+        </div>
       </div>
       <div className="compare-grid">
         {[first, second].map((team) => (

@@ -193,11 +193,13 @@ export function ScoutView({ teams, weeks, vegasLines }: Props) {
   const upsets = useMemo(() => flagged.filter(g => g.category === "upset").length, [flagged]);
 
   const visible = useMemo(() => {
-    return flagged.filter(g => {
-      if (weekFilter !== "all" && g.week !== weekFilter) return false;
-      if (filter !== "all" && g.category !== filter) return false;
-      return true;
-    });
+    return flagged
+      .filter(g => {
+        if (weekFilter !== "all" && g.week !== weekFilter) return false;
+        if (filter !== "all" && g.category !== filter) return false;
+        return true;
+      })
+      .sort((a, b) => a.week !== b.week ? a.week - b.week : Math.abs(b.score) - Math.abs(a.score));
   }, [flagged, filter, weekFilter]);
 
   return (
