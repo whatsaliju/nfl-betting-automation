@@ -217,6 +217,17 @@ export interface EdgeBoardGame {
     status?: string;
   }>;
   referee?: string | null;
+  referee_stats?: {
+    su_record: string;
+    su_pct: number | null;
+    ats_record: string;
+    ats_pct: number | null;
+    ou_record: string;
+    ou_pct: number | null;
+    sample_size: number;
+    game_type: string;
+    favorite: string;
+  } | null;
   warps_market_overlay?: EdgeWarpsMarketOverlay;
   schedule_context: {
     division_game: boolean;
@@ -329,6 +340,17 @@ export interface WeeklyBettingCardRow {
     edge_value?: number | null;
   }>;
   referee?: string | null;
+  referee_stats?: {
+    su_record: string;
+    su_pct: number | null;
+    ats_record: string;
+    ats_pct: number | null;
+    ou_record: string;
+    ou_pct: number | null;
+    sample_size: number;
+    game_type: string;
+    favorite: string;
+  } | null;
 }
 
 export interface WeeklyBettingCard {

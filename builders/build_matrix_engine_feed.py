@@ -485,6 +485,53 @@ def load_referee_index():
     return index
 
 
+def load_referee_stats():
+    """Load SDQL referee trend data keyed by (referee, game_type)."""
+    sdql_path = HISTORICAL_DIR / "sdql_results.csv"
+    if not sdql_path.exists():
+        return {}
+    index = {}
+    try:
+        with sdql_path.open() as f:
+            for row in csv.DictReader(f):
+                referee = (row.get("referee") or "").strip()
+                game_type = (row.get("game_type") or "").strip().upper()
+                if not referee:
+                    continue
+                def _parse_pct(s):
+                    try:
+                        return float((s or "").strip().rstrip("%"))
+                    except Exception:
+                        return None
+                stats = {
+                    "su_record": row.get("su_record", ""),
+                    "su_pct": _parse_pct(row.get("su_pct")),
+                    "ats_record": row.get("ats_record", ""),
+                    "ats_pct": _parse_pct(row.get("ats_pct")),
+                    "ou_record": row.get("ou_record", ""),
+                    "ou_pct": _parse_pct(row.get("ou_pct")),
+                    "sample_size": int(row.get("sample_size") or 0),
+                    "game_type": game_type,
+                    "favorite": (row.get("favorite") or "").strip(),
+                }
+                index[(referee, game_type)] = stats
+    except Exception:
+        pass
+    return index
+
+
+def referee_stats_for_game(referee, is_division, referee_stats_index):
+    """Return the best-matching SDQL stats for a referee given game context."""
+    if not referee or not referee_stats_index:
+        return None
+    preferred = "C" if is_division else "NDIV"
+    fallback = "NDIV" if is_division else "C"
+    return (
+        referee_stats_index.get((referee, preferred))
+        or referee_stats_index.get((referee, fallback))
+    )
+
+
 def load_warps_market_overlay():
     if not WARPS_MARKET_OVERLAY.exists():
         return {}
@@ -597,7 +644,7 @@ def expectation_matchup_payload(away, home, expectations):
     }
 
 
-def edge_board_payload(game, expectations, warps_index, referee_index=None):
+def edge_board_payload(game, expectations, warps_index, referee_index=None, referee_stats_index=None):
     latest = game["latest"]
     trace = normalize_trace(latest.get("recommendation_trace"))
     final_decision = trace.get("final_decision") or {}
@@ -614,12 +661,14 @@ def edge_board_payload(game, expectations, warps_index, referee_index=None):
     home = canonical_tla(game.get("home_tla"))
     week_label = game_week_dir_label(game)
     referee = (referee_index or {}).get((week_label, away, home)) if week_label else None
+    is_division = team_division(away) == team_division(home)
     schedule_context = {
-        "division_game": team_division(away) == team_division(home),
+        "division_game": is_division,
         "conference_game": team_conference(away) == team_conference(home),
         "away_division": team_division(away),
         "home_division": team_division(home),
     }
+    ref_stats = referee_stats_for_game(referee, is_division, referee_stats_index)
 
     best_market = pick_market if pick_market in ("spread", "total") else None
     best_edge = {
@@ -685,6 +734,7 @@ def edge_board_payload(game, expectations, warps_index, referee_index=None):
             },
         },
         "referee": referee,
+        "referee_stats": ref_stats,
         "factor_summary": factors,
         "warps_market_overlay": warps_overlay,
         "schedule_context": schedule_context,
@@ -750,7 +800,7 @@ def load_pick_explanation_index():
     return index
 
 
-def weekly_betting_card_payload(referee_index=None):
+def weekly_betting_card_payload(referee_index=None, referee_stats_index=None):
     if not WEEKLY_BETTING_CARD.exists():
         return {
             "available": False,
@@ -767,9 +817,10 @@ def weekly_betting_card_payload(referee_index=None):
             week_label = game_week_dir_label(card)
             away = (card.get("away_tla") or "").strip().upper()
             home = (card.get("home_tla") or "").strip().upper()
-            card["referee"] = (
-                referee_index.get((week_label, away, home)) if week_label else None
-            )
+            referee = referee_index.get((week_label, away, home)) if week_label else None
+            card["referee"] = referee
+            is_division = team_division(away) == team_division(home)
+            card["referee_stats"] = referee_stats_for_game(referee, is_division, referee_stats_index)
     return payload
 
 
@@ -1406,8 +1457,9 @@ def build_feed():
     explanation_index = load_pick_explanation_index()
     warps_index = load_warps_market_overlay()
     referee_index = load_referee_index()
+    referee_stats_index = load_referee_stats()
     analyzed_games = [g for g in games if (g.get("latest") or {}).get("available")]
-    edge_board = [edge_board_payload(game, team_expectations, warps_index, referee_index) for game in analyzed_games]
+    edge_board = [edge_board_payload(game, team_expectations, warps_index, referee_index, referee_stats_index) for game in analyzed_games]
     for row in edge_board:
         stage = row.get("stage") or "final"
         row["explanation"] = (
@@ -1422,7 +1474,7 @@ def build_feed():
             row.get("matchup_key") or "",
         )
     )
-    weekly_card = weekly_betting_card_payload(referee_index)
+    weekly_card = weekly_betting_card_payload(referee_index, referee_stats_index)
     preseason = preseason_dry_run_payload()
     current_context = current_context_payload(games, weekly_card, preseason)
     command_center = weekly_command_center_payload(current_context, weekly_card, edge_board, preseason, warps_index)
