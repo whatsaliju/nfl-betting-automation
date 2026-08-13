@@ -65,8 +65,7 @@ export function EdgeBoardView({ games, focusGame, onFocusClear }: { games: EdgeB
   }, [focusGame, onFocusClear]);
 
   const regularGames = games
-    .filter((game) => game.season_type === "REG")
-    .sort((a, b) => a.week !== b.week ? a.week - b.week : (b.best_edge.score ?? 0) - (a.best_edge.score ?? 0));
+    .sort((a, b) => a.week !== b.week ? String(a.week).localeCompare(String(b.week)) : (b.best_edge.score ?? 0) - (a.best_edge.score ?? 0));
   const playable = regularGames.filter((game) => game.best_edge.status === "play");
   const passes = regularGames.length - playable.length;
 
@@ -87,8 +86,8 @@ export function EdgeBoardView({ games, focusGame, onFocusClear }: { games: EdgeB
       {!regularGames.length && (
         <div className="coming-soon-empty">
           <div className="coming-soon-icon">📡</div>
-          <h3>Edge board goes live with the season</h3>
-          <p>Once Week 1 kicks off (September 2026), this view will show spread, total, and moneyline recommendations for every game — updated weekly as the engine runs.</p>
+          <h3>No edge board data loaded</h3>
+          <p>Spread, total, and moneyline recommendations populate here each week as the engine runs. Check back after the next weekly run.</p>
         </div>
       )}
 
