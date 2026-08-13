@@ -147,7 +147,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
     {
       label: "Survivor Pool",
       value: "Planning",
-      detail: "Weekly pool pick based on win probability",
+      detail: "Starts Week 1 · regular season only",
       status: "research",
     },
   ];
