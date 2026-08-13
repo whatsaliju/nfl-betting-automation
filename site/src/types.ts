@@ -216,6 +216,7 @@ export interface EdgeBoardGame {
     impact?: number;
     status?: string;
   }>;
+  referee?: string | null;
   warps_market_overlay?: EdgeWarpsMarketOverlay;
   schedule_context: {
     division_game: boolean;

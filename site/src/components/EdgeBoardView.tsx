@@ -154,6 +154,7 @@ export function EdgeBoardView({ games, focusGame, onFocusClear }: { games: EdgeB
                 {game.expectation_context?.sample_warning && <span>Thin expectation sample</span>}
                 {game.source_health_status && game.source_health_status !== "OK" && <span>Source risk</span>}
                 {game.data_quality_status && game.data_quality_status !== "OK" && <span>Data quality</span>}
+                {game.referee && <span className="referee-tag">🦓 {game.referee}</span>}
               </div>
 
               {game.expectation_context && (
