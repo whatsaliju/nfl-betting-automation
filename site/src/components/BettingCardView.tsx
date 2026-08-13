@@ -69,7 +69,7 @@ function decisionSubtitle(card: WeeklyBettingCardRow) {
   return card.classification ? stripLeadingEmoji(titleCase(card.classification)) : "Engine recommendation";
 }
 
-function CardItem({ card }: { card: WeeklyBettingCardRow }) {
+function CardItem({ card, onViewAnalysis }: { card: WeeklyBettingCardRow; onViewAnalysis?: (matchupKey: string) => void }) {
   return (
     <article className={`betting-card-item ${card.action}`}>
       <div className="betting-card-top">
@@ -124,6 +124,11 @@ function CardItem({ card }: { card: WeeklyBettingCardRow }) {
           ))}
         </div>
       )}
+      {onViewAnalysis && (
+        <button className="text-button card-analysis-link" onClick={() => onViewAnalysis(card.matchup_key)}>
+          Edge analysis →
+        </button>
+      )}
     </article>
   );
 }
@@ -137,7 +142,7 @@ function EmptyBucket({ label }: { label: string }) {
   );
 }
 
-export function BettingCardView({ card, context }: { card?: WeeklyBettingCard; context?: CurrentContext }) {
+export function BettingCardView({ card, context, onViewAnalysis }: { card?: WeeklyBettingCard; context?: CurrentContext; onViewAnalysis?: (matchupKey: string) => void }) {
   const cards = card?.cards || [];
   const grouped = actionGroups(cards);
   const hasActionable = grouped.plays.length > 0 || grouped.watch.length > 0;
@@ -177,11 +182,11 @@ export function BettingCardView({ card, context }: { card?: WeeklyBettingCard; c
       <div className="betting-card-active-columns">
         <div className="betting-card-column play">
           <h3><Target size={15} /> Plays</h3>
-          {grouped.plays.length ? grouped.plays.map((row) => <CardItem card={row} key={row.key} />) : <EmptyBucket label="Plays" />}
+          {grouped.plays.length ? grouped.plays.map((row) => <CardItem card={row} key={row.key} onViewAnalysis={onViewAnalysis} />) : <EmptyBucket label="Plays" />}
         </div>
         <div className="betting-card-column watch">
           <h3><Clock size={15} /> Watchlist</h3>
-          {grouped.watch.length ? grouped.watch.map((row) => <CardItem card={row} key={row.key} />) : <EmptyBucket label="Watchlist" />}
+          {grouped.watch.length ? grouped.watch.map((row) => <CardItem card={row} key={row.key} onViewAnalysis={onViewAnalysis} />) : <EmptyBucket label="Watchlist" />}
         </div>
       </div>
 

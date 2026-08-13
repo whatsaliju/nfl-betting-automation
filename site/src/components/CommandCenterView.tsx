@@ -146,12 +146,6 @@ export function CommandCenterView({
   const warpsTop = strongestWarps(planningWeek, warpsRows);
   const edges = playableEdges(edgeGames);
   const cardAvailable = Boolean(context?.has_betting_card && bettingCard?.available);
-  const preseason = engineFeed?.preseason_dry_run;
-  const preseasonOk = preseason?.available && preseason.status === "PASS";
-  const survivorBacktest = engineFeed?.survivor_backtest;
-  const survivorBacktestBest = survivorBacktest?.best_strategy;
-  const survivorPoolEv = engineFeed?.survivor_pool_ev;
-  const survivorPoolBest = survivorPoolEv?.best_strategy;
   const commandCard = command?.betting_card;
   const hasAction = command ? !command.do_nothing_warning : groups.plays.length + groups.watch.length + edges.length > 0;
   const laneCards = [
@@ -238,12 +232,12 @@ export function CommandCenterView({
           <small>{commandCard?.watch ?? groups.watch.length} watch · {commandCard?.passes ?? groups.passes.length} pass</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("survivor")}>
-          <span>Survivor Pick{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
-          <strong>{survivorWeek.primary?.team || "n/a"}</strong>
-          <small>{pct(survivorWeek.primary?.win_probability)} vs {survivorWeek.primary?.opponent || "n/a"}</small>
+          <span>Survivor Score{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
+          <strong>{score(survivorWeek.primary?.survivor_score)}</strong>
+          <small>{survivorWeek.primary?.team || "n/a"} · {pct(survivorWeek.primary?.win_probability)} win prob</small>
         </button>
         <button className="command-kpi" onClick={() => onNavigate("warps")}>
-          <span>Top Win Prob Pick{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
+          <span>WARPS · Top Win Prob{isPreseason ? ` (${planningWeekLabel})` : ""}</span>
           <strong>{warpsTop[0]?.team || "n/a"}</strong>
           <small>{pct(warpsTop[0]?.winProb)} win prob · {warpsTop[0]?.fairMl || "n/a"} fair line</small>
         </button>
@@ -349,38 +343,27 @@ export function CommandCenterView({
         <article className="panel command-panel">
           <div className="command-panel-head">
             <div>
-              <h3><ShieldCheck size={15} /> Readiness</h3>
-              <p>Whether this week is ready for betting decisions.</p>
+              <h3><Target size={15} /> Edge Board</h3>
+              <p>Top-rated plays from the weekly engine, ranked by edge score.</p>
             </div>
-            <button className="text-button" onClick={() => onNavigate("scout")}>Scout</button>
+            <button className="text-button" onClick={() => onNavigate("edges")}>Open</button>
           </div>
-          <div className="command-readiness-list">
-            <span className={cardAvailable ? "ok" : "warn"}>Current betting card {cardAvailable ? "available" : "pending"}</span>
-            <span className={engineFeed?.model_readiness?.available ? "ok" : "warn"}>
-              Model readiness {engineFeed?.model_readiness?.status ? titleCase(engineFeed.model_readiness.status) : "unavailable"}
-            </span>
-            <span className={engineFeed?.research_summary?.source_reliability ? "ok" : "warn"}>
-              Source reliability {engineFeed?.research_summary?.source_reliability?.overall_status || "not loaded"}
-            </span>
-            <span className={preseasonOk ? "ok" : "warn"}>
-              Preseason dry run {preseason?.status || "unavailable"}
-              {preseason?.checks_total ? ` · ${preseason.checks_passed}/${preseason.checks_total} checks` : ""}
-            </span>
-            <span className={survivorBacktest?.available ? "ok" : "warn"}>
-              Survivor backtest {survivorBacktestBest ? `${titleCase(survivorBacktestBest.strategy)} · ${survivorBacktestBest.avg_survived_weeks} avg weeks` : "unavailable"}
-            </span>
-            <span className={survivorPoolEv?.available ? "ok" : "warn"}>
-              Pool EV {survivorPoolBest ? `${titleCase(survivorPoolBest.strategy)} · ${survivorPoolBest.pool_size}-entry · ${survivorPoolBest.avg_roi_units.toFixed(2)} ROI` : "unavailable"}
-            </span>
-            <span className={context?.mode === "live" ? "ok" : "warn"}>
-              Current context {context ? `${context.week_label} · ${titleCase(context.status)}` : "not published"}
-            </span>
-            {command?.source_gates && Object.entries(command.source_gates).map(([gate, status]) => (
-              <span className={status === "PASS" ? "ok" : "warn"} key={gate}>
-                {titleCase(gate)} {status}
-              </span>
-            ))}
-          </div>
+          {edges.length ? edges.map((game) => {
+            const betDisplay = game.best_edge.label || game.best_edge.recommendation || `${game.best_edge.market || ""} ${game.best_edge.side || ""}`.trim() || "pick";
+            return (
+              <div className="command-bet-row play" key={game.matchup_key}>
+                <span>W{game.week}</span>
+                <strong>{game.away_tla}@{game.home_tla}</strong>
+                <b>{betDisplay}</b>
+              </div>
+            );
+          }) : (
+            <div className="compact-empty">
+              {isPreseason
+                ? "No active edge picks yet · Plays populate once regular season games begin."
+                : "No playable edge games this week."}
+            </div>
+          )}
         </article>
       </div>
     </section>

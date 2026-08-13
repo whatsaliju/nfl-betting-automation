@@ -282,6 +282,7 @@ export function SurvivorView() {
         <div className="edge-board-stats">
           <span><Trophy size={14} />{survivor.metadata.candidate_count} picks scored</span>
           <span><Route size={14} />Path avg {pct(survivor.optimal_path.average_pick_probability)}</span>
+          <span><CalendarDays size={14} />Regular season Week 1–18 only · preseason not included</span>
           <span><ShieldAlert size={14} />Use as planning, not a lock</span>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { Activity, AlertTriangle, BadgeCheck, CircleSlash, Gauge, Info, TrendingUp } from "lucide-react";
+import { useEffect } from "react";
 import { teamLogos } from "../data/nflData";
 import type { EdgeBoardGame, EdgeMarket } from "../types";
 
@@ -54,7 +55,15 @@ function alignmentLabel(value?: string | null) {
   return value.replace(/_/g, " ");
 }
 
-export function EdgeBoardView({ games }: { games: EdgeBoardGame[] }) {
+export function EdgeBoardView({ games, focusGame, onFocusClear }: { games: EdgeBoardGame[]; focusGame?: string | null; onFocusClear?: () => void }) {
+  useEffect(() => {
+    if (!focusGame) return;
+    const el = document.getElementById(`edge-${focusGame}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const t = setTimeout(() => onFocusClear?.(), 2000);
+    return () => clearTimeout(t);
+  }, [focusGame, onFocusClear]);
+
   const regularGames = games
     .filter((game) => game.season_type === "REG")
     .sort((a, b) => a.week !== b.week ? a.week - b.week : (b.best_edge.score ?? 0) - (a.best_edge.score ?? 0));
@@ -88,7 +97,7 @@ export function EdgeBoardView({ games }: { games: EdgeBoardGame[] }) {
           const best = game.best_edge;
           const factors = game.factor_summary.slice(0, 4);
           return (
-            <article className={`edge-card ${best.status}`} key={`${game.week}-${game.matchup_key}`}>
+            <article className={`edge-card ${best.status}${focusGame === game.matchup_key ? " focused" : ""}`} key={`${game.week}-${game.matchup_key}`} id={`edge-${game.matchup_key}`}>
               <div className="edge-card-top">
                 <span>W{game.week}</span>
                 <span>{game.stage || "no run"}</span>
