@@ -21,10 +21,11 @@ export default function LandingApp() {
         </nav>
         <div className="landing-hero">
           <div className="landing-hero-copy">
-            <p className="landing-kicker">Project Lab · 2026 Season</p>
-            <h1 className="landing-name">NFL picks and schedule analysis, built to keep score.</h1>
+            <p className="landing-kicker">2026 NFL Season</p>
+            <h1 className="landing-name">NFL picks, win probabilities, and schedule analysis.</h1>
             <p className="landing-tagline">
-              Win-probability model validated across 26 NFL seasons. Weekly picks, schedule intelligence, and model research — all tracked against results.
+              Weekly picks and schedule intelligence for the 2026 NFL season.
+              Win-probability model built on 26 seasons of data.
             </p>
             <div className="landing-actions">
               <a href="matrix.html" className="landing-button primary">Open NFL Edge Hub</a>
@@ -58,14 +59,6 @@ export default function LandingApp() {
       </header>
 
       <main className="landing-main">
-        <section className="landing-about">
-          <h2>Start with a question. Build a model. See if it holds up.</h2>
-          <p>
-            Each project here turns a question into a model or dashboard, then tracks whether it was right.
-            Making the reasoning visible is the point — that's the only way to know what to fix next.
-          </p>
-        </section>
-
         <section className="landing-projects" id="projects">
 
           <div className="landing-project">
@@ -105,9 +98,8 @@ export default function LandingApp() {
               <h2 className="landing-project-title">YTTS Financials</h2>
             </div>
             <p className="landing-project-desc">
-              Model-driven equity screener — systematic research screens, long-hold position
-              monitoring, and a live trading desk. Filters and surfaces positions based on
-              model signals rather than manual spreadsheet work.
+              Equity screener and position tracker — research screens, long-hold monitoring,
+              and a live trading desk.
             </p>
             <div className="landing-ytts-links">
               <a href="https://lijuvarughese.com/ytts/internal_research_dashboard_app.html" target="_blank" rel="noreferrer" className="landing-link">
