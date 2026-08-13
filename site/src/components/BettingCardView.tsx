@@ -1,4 +1,5 @@
 import { AlertTriangle, BadgeCheck, CircleSlash, Clock, ShieldAlert, Target } from "lucide-react";
+import { useEffect } from "react";
 import { teamLogos } from "../data/nflData";
 import type { CurrentContext, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
 
@@ -69,9 +70,12 @@ function decisionSubtitle(card: WeeklyBettingCardRow) {
   return card.classification ? stripLeadingEmoji(titleCase(card.classification)) : "Engine recommendation";
 }
 
-function CardItem({ card, onViewAnalysis }: { card: WeeklyBettingCardRow; onViewAnalysis?: (matchupKey: string) => void }) {
+function CardItem({ card, isFocused, onViewAnalysis }: { card: WeeklyBettingCardRow; isFocused?: boolean; onViewAnalysis?: (matchupKey: string) => void }) {
   return (
-    <article className={`betting-card-item ${card.action}`}>
+    <article
+      className={`betting-card-item ${card.action}${isFocused ? " focused" : ""}`}
+      data-matchup={card.matchup_key}
+    >
       <div className="betting-card-top">
         <span>{weekDisplay(card.week)}</span>
         <span>{titleCase(card.confidence)}</span>
@@ -142,9 +146,17 @@ function EmptyBucket({ label }: { label: string }) {
   );
 }
 
-export function BettingCardView({ card, context, onViewAnalysis }: { card?: WeeklyBettingCard; context?: CurrentContext; onViewAnalysis?: (matchupKey: string) => void }) {
+export function BettingCardView({ card, context, focusCard, onFocusClear, onViewAnalysis }: { card?: WeeklyBettingCard; context?: CurrentContext; focusCard?: string | null; onFocusClear?: () => void; onViewAnalysis?: (matchupKey: string) => void }) {
   const cards = card?.cards || [];
   const grouped = actionGroups(cards);
+
+  useEffect(() => {
+    if (!focusCard) return;
+    const el = document.querySelector(`[data-matchup="${focusCard}"]`) as HTMLElement | null;
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const t = setTimeout(() => onFocusClear?.(), 2000);
+    return () => clearTimeout(t);
+  }, [focusCard, onFocusClear]);
   const hasActionable = grouped.plays.length > 0 || grouped.watch.length > 0;
   const activeLabel = contextLabel(context) || snapshotLabel(cards);
   const isLiveCard = Boolean(context?.has_betting_card);
@@ -182,11 +194,11 @@ export function BettingCardView({ card, context, onViewAnalysis }: { card?: Week
       <div className="betting-card-active-columns">
         <div className="betting-card-column play">
           <h3><Target size={15} /> Plays</h3>
-          {grouped.plays.length ? grouped.plays.map((row) => <CardItem card={row} key={row.key} onViewAnalysis={onViewAnalysis} />) : <EmptyBucket label="Plays" />}
+          {grouped.plays.length ? grouped.plays.map((row) => <CardItem card={row} key={row.key} isFocused={focusCard === row.matchup_key} onViewAnalysis={onViewAnalysis} />) : <EmptyBucket label="Plays" />}
         </div>
         <div className="betting-card-column watch">
           <h3><Clock size={15} /> Watchlist</h3>
-          {grouped.watch.length ? grouped.watch.map((row) => <CardItem card={row} key={row.key} onViewAnalysis={onViewAnalysis} />) : <EmptyBucket label="Watchlist" />}
+          {grouped.watch.length ? grouped.watch.map((row) => <CardItem card={row} key={row.key} isFocused={focusCard === row.matchup_key} onViewAnalysis={onViewAnalysis} />) : <EmptyBucket label="Watchlist" />}
         </div>
       </div>
 

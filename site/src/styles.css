@@ -1033,89 +1033,75 @@ select {
   border: 1px solid #dce3ea;
   border-radius: 8px;
   background: #fff;
-  padding: 12px;
+  padding: 14px;
   cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
 }
 .command-kpi:hover {
   border-color: #adc1d6;
   background: #f8fafc;
 }
-.command-kpi span, .command-kpi strong, .command-kpi small {
-  display: block;
+.command-kpi.ready {
+  border-color: #98d5b1;
+  background: #f2fbf6;
+}
+.command-kpi.ready:hover { background: #eaf7ef; border-color: #7dc9a0; }
+.command-kpi.hold,
+.command-kpi.watch {
+  border-color: #f0c37a;
+  background: #fffaf0;
+}
+.command-kpi.hold:hover,
+.command-kpi.watch:hover { background: #fef6dc; border-color: #e0b060; }
+.command-kpi.research {
+  border-color: #bfd0e3;
+  background: #f5f9fc;
+}
+.command-kpi.research:hover { background: #edf4f9; border-color: #9fbbd4; }
+.command-kpi-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+.command-kpi.ready .command-kpi-head { color: #17623a; }
+.command-kpi.hold .command-kpi-head,
+.command-kpi.watch .command-kpi-head { color: #8a4e06; }
+.command-kpi.research .command-kpi-head { color: #1e4f79; }
+.command-kpi-head span {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.command-kpi span {
-  color: #64748b;
-  font-size: 12px;
-}
 .command-kpi strong {
+  display: block;
   color: #0f172a;
   font-size: 24px;
-  margin: 3px 0;
+  margin: 2px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+.command-kpi.ready strong { color: #17623a; }
+.command-kpi.hold strong,
+.command-kpi.watch strong { color: #8a4e06; }
+.command-kpi.research strong { color: #1e4f79; }
 .command-kpi small {
+  display: block;
   color: #64748b;
   font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .command-warning {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-.command-lane-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-.command-lane {
-  border: 1px solid #dce3ea;
-  border-radius: 8px;
-  padding: 10px;
-  background: #fff;
-  min-width: 0;
-}
-.command-lane.ready {
-  border-color: #98d5b1;
-  background: #f2fbf6;
-}
-.command-lane.watch,
-.command-lane.hold {
-  border-color: #f0c37a;
-  background: #fffaf0;
-}
-.command-lane.research {
-  border-color: #bfd0e3;
-  background: #f5f9fc;
-}
-.command-lane div {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-.command-lane strong {
-  display: block;
-  margin-top: 6px;
-  color: #0f172a;
-  font-size: 16px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.command-lane.ready strong { color: #17623a; }
-.command-lane.watch strong,
-.command-lane.hold strong { color: #8a4e06; }
-.command-lane.research strong { color: #1e4f79; }
-.command-lane p {
-  margin: 4px 0 0;
-  color: #64748b;
-  font-size: 11px;
-  line-height: 1.35;
 }
 .command-grid {
   display: grid;
@@ -1145,6 +1131,16 @@ select {
   margin: 3px 0 0;
   color: #64748b;
   font-size: 12px;
+}
+.command-warps-row[role="button"],
+.command-bet-row[role="button"] {
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.command-warps-row[role="button"]:hover,
+.command-bet-row[role="button"]:hover {
+  background: #f0f6fb;
+  border-color: #b8cfe0;
 }
 .command-feature-pick, .command-warps-row, .command-bet-row {
   display: flex;
@@ -1289,6 +1285,10 @@ select {
 .betting-card-item.watch, .betting-card-item.lean {
   border-color: #f0c37a;
   background: #fffaf0;
+}
+.betting-card-item.focused {
+  box-shadow: 0 0 0 3px #3b82f6;
+  animation: edge-focus-fade 2s ease-out forwards;
 }
 .betting-card-top, .betting-card-decision, .betting-card-linebox, .risk-list span {
   display: flex;
@@ -1922,7 +1922,7 @@ select {
   .expectation-mini { grid-template-columns: 1fr; }
   .postseason-strip { flex-direction: column; }
   .command-hero { flex-direction: column; }
-  .command-lane-grid, .command-kpi-grid, .command-grid { grid-template-columns: 1fr; }
+  .command-kpi-grid, .command-grid { grid-template-columns: 1fr; }
   .command-status-stack { justify-content: flex-start; }
   .warps-hero-kpis { grid-template-columns: repeat(2, 1fr); }
   .warps-kpi-grid { grid-template-columns: repeat(2, 1fr); }

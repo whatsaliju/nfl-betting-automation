@@ -69,6 +69,7 @@ function App() {
   const [engineError, setEngineError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [focusedEdgeGame, setFocusedEdgeGame] = useState<string | null>(null);
+  const [focusedCard, setFocusedCard] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -304,6 +305,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
           edgeGames={edgeGames}
           warpsRows={warpsMarketOverlay2026 as WarpsMarketOverlay[]}
           onNavigate={setViewMode}
+          onFocusCard={(key) => { setFocusedCard(key); setViewMode("card"); }}
         />
       )}
 
@@ -335,7 +337,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
 
       {viewMode === "edges" && <EdgeBoardView games={edgeGames} focusGame={focusedEdgeGame} onFocusClear={() => setFocusedEdgeGame(null)} />}
 
-      {viewMode === "card" && <BettingCardView card={currentBettingCard} context={currentContext} onViewAnalysis={(key) => { setFocusedEdgeGame(key); setViewMode("edges"); }} />}
+      {viewMode === "card" && <BettingCardView card={currentBettingCard} context={currentContext} focusCard={focusedCard} onFocusClear={() => setFocusedCard(null)} onViewAnalysis={(key) => { setFocusedEdgeGame(key); setViewMode("edges"); }} />}
 
       {viewMode === "survivor" && <SurvivorView />}
 
