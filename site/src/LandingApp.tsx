@@ -59,10 +59,10 @@ export default function LandingApp() {
 
       <main className="landing-main">
         <section className="landing-about">
-          <h2>Small systems for testing ideas.</h2>
+          <h2>Start with a question. Build a model. See if it holds up.</h2>
           <p>
-            Each project starts with a question, turns it into a model or dashboard, and then keeps score.
-            The goal is not to make every answer automatic; it is to make the logic visible enough to improve.
+            Each project here turns a question into a model or dashboard, then tracks whether it was right.
+            Making the reasoning visible is the point — that's the only way to know what to fix next.
           </p>
         </section>
 
