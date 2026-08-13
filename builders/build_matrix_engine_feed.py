@@ -1353,7 +1353,8 @@ def build_feed():
     team_expectations = build_team_expectations(games)
     explanation_index = load_pick_explanation_index()
     warps_index = load_warps_market_overlay()
-    edge_board = [edge_board_payload(game, team_expectations, warps_index) for game in games]
+    analyzed_games = [g for g in games if (g.get("latest") or {}).get("available")]
+    edge_board = [edge_board_payload(game, team_expectations, warps_index) for game in analyzed_games]
     for row in edge_board:
         stage = row.get("stage") or "final"
         row["explanation"] = (
