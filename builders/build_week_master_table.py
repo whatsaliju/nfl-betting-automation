@@ -205,6 +205,8 @@ def attach_snapshot(df, snapshot, prefix):
         "data_quality_status",
         "unsafe_sources",
         "degraded_sources",
+        "sharp_spread_line",
+        "sharp_total_line",
     ]:
         df[prefix + "_" + field] = None
 
@@ -229,6 +231,9 @@ def attach_snapshot(df, snapshot, prefix):
         df.at[idx, prefix + "_data_quality_status"] = data_quality.get("status")
         df.at[idx, prefix + "_unsafe_sources"] = ", ".join(data_quality.get("unsafe_sources", []))
         df.at[idx, prefix + "_degraded_sources"] = ", ".join(data_quality.get("degraded_sources", []))
+        sharp = g.get("sharp_analysis") or {}
+        df.at[idx, prefix + "_sharp_spread_line"] = (sharp.get("spread") or {}).get("line") or ""
+        df.at[idx, prefix + "_sharp_total_line"] = (sharp.get("total") or {}).get("line") or ""
 
     return df
 

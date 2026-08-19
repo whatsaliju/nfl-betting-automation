@@ -256,6 +256,47 @@ jobs:
           python3 scripts/build_weekly_betting_card.py
           python3 builders/build_matrix_engine_feed.py
 
+      - name: Validate Line Data
+        env:
+          SEASON_TYPE: ${{ steps.info.outputs.season_type }}
+        run: |
+          python3 << 'EOF'
+          import json, os, sys
+
+          card_path = "data/historical/weekly_betting_card.json"
+          season_type = os.environ.get("SEASON_TYPE", "REG")
+
+          if not os.path.exists(card_path):
+              print("WARNING: weekly_betting_card.json not found, skipping line validation")
+              sys.exit(0)
+
+          with open(card_path) as f:
+              card = json.load(f)
+
+          plays_and_watches = [c for c in card.get("cards", []) if c.get("action") in ("play", "watch")]
+          missing_lines = [c for c in plays_and_watches if not c.get("current_line")]
+
+          if not plays_and_watches:
+              print("INFO: No play/watch picks; no line data to validate")
+              sys.exit(0)
+
+          pct_missing = len(missing_lines) / len(plays_and_watches) * 100
+          print(f"Line data coverage: {len(plays_and_watches) - len(missing_lines)}/{len(plays_and_watches)} picks have line data ({100 - pct_missing:.0f}%)")
+
+          for c in missing_lines:
+              print(f"  MISSING LINE: {c.get('matchup_key')} ({c.get('action')}, {c.get('market')})")
+
+          # Block regular-season publishes if ALL picks lack line data — suggests upstream data fetch failed
+          if season_type != "PRE" and plays_and_watches and len(missing_lines) == len(plays_and_watches):
+              print("ERROR: No line data found for any play/watch pick in a regular-season week. Check Action Network data fetch.")
+              sys.exit(1)
+
+          if missing_lines:
+              print(f"WARNING: {len(missing_lines)} pick(s) missing line data — verify Action Network CSV has lines for these games")
+          else:
+              print("OK: All play/watch picks have line data")
+          EOF
+
       - name: Commit Changes
         run: |
           git config user.name "github-actions[bot]"

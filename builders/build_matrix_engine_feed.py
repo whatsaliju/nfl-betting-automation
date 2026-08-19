@@ -372,6 +372,8 @@ def stage_payload(row, stage):
         "source_health_status": row.get(f"{stage}_source_health_status"),
         "source_health_warnings": row.get(f"{stage}_source_health_warnings"),
         "source_health_reference_time": row.get(f"{stage}_source_health_reference_time"),
+        "sharp_spread_line": row.get(f"{stage}_sharp_spread_line") or "",
+        "sharp_total_line": row.get(f"{stage}_sharp_total_line") or "",
     }
 
 
@@ -721,8 +723,10 @@ def edge_board_payload(game, expectations, warps_index, referee_index=None, refe
         "analysis_available": bool(latest.get("available")),
         "best_edge": best_edge,
         "markets": {
-            "spread": {**spread, "status": market_status(spread)},
-            "total": {**total, "status": market_status(total)},
+            "spread": {**spread, "status": market_status(spread),
+                       "line": latest.get("sharp_spread_line") or ""},
+            "total": {**total, "status": market_status(total),
+                      "line": latest.get("sharp_total_line") or ""},
             "moneyline": {
                 "market": "moneyline",
                 "side": None,
