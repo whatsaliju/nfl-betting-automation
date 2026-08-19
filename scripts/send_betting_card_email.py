@@ -307,7 +307,8 @@ else:
     subject_detail = f"No plays - {pass_count} pass{'es' if pass_count != 1 else ''}"
 
 msg = MIMEMultipart()
-msg["Subject"] = f"NFL Wk {week} {subject_prefix}: {subject_detail}"
+week_display = ctx_week_label if ctx_week_label and ctx_week_label != f"Week {week}" else f"Wk {week}"
+msg["Subject"] = f"NFL {week_display} {subject_prefix}: {subject_detail}"
 msg["From"] = gmail_user
 msg["To"] = RECIPIENT
 msg.attach(MIMEText(body, "html", "utf-8"))
