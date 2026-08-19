@@ -25,9 +25,10 @@ def week_to_int(week):
         return playoff_map[w]
     if w.startswith("PRE"):
         try:
-            return -(int(w[3:]) if w[3:] else 1)
+            # PRE1=-4, PRE2=-3, PRE3=-2, PRE4=-1 so max() picks the latest preseason week
+            return (int(w[3:]) if w[3:] else 1) - 5
         except ValueError:
-            return -1
+            return -5
     try:
         return int(w)
     except (ValueError, TypeError):

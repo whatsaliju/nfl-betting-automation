@@ -4,8 +4,8 @@
   "current_context": {
     "season": 2026,
     "season_type": "PRE",
-    "week": "PRE1",
-    "week_label": "PRE W1",
+    "week": "PRE2",
+    "week_label": "PRE W2",
     "stage": null,
     "status": "LIVE_CARD",
     "mode": "live",
@@ -27,116 +27,25 @@
   "betting_card": {
     "available": true,
     "plays": 0,
-    "watch": 2,
-    "passes": 14,
+    "watch": 1,
+    "passes": 15,
     "top_cards": [
       {
-        "key": "2026:PRE1:DEN@ATL",
+        "key": "2026:PRE2:NYJ@PIT",
         "season": 2026,
         "season_type": "PRE",
-        "week": "PRE1",
-        "matchup_key": "DEN@ATL",
-        "away_tla": "DEN",
-        "home_tla": "ATL",
-        "action": "watch",
-        "market": "spread",
-        "side": "AWAY",
-        "pick_label": "DEN -4.5",
-        "confidence": "watch",
-        "selector_score": 3.0,
-        "classification": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Denver Broncos -4.5 (proceed with caution)",
-        "required_line": "No target line available",
-        "current_line": "",
-        "warps_alignment": null,
-        "warps_side": null,
-        "source_health": "DEGRADED",
-        "data_quality": "DEGRADED",
-        "quality_gate": null,
-        "main_reasons": [
-          "\ud83d\udc40 LEAN: Denver Broncos -4.5 (proceed with caution)"
-        ],
-        "risk_flags": [
-          "source warning DEGRADED",
-          "thin expectation sample"
-        ],
-        "market_status": "blocked",
-        "spread_status": "blocked",
-        "total_status": "blocked",
-        "moneyline_status": "research_only",
-        "moneyline_promotion_status": "not_promoted",
-        "route_selected_market": "spread",
-        "route_reason": "spread routed as best available market with status blocked",
-        "market_options": [
-          {
-            "market": "spread",
-            "side": null,
-            "status": "blocked",
-            "score": null,
-            "threshold": null,
-            "blockers": [
-              "candidate unavailable"
-            ],
-            "signals": [],
-            "conflicts": [],
-            "warps_alignment": null,
-            "warps_side": null,
-            "warps_team": null,
-            "edge_value": null
-          },
-          {
-            "market": "total",
-            "side": null,
-            "status": "blocked",
-            "score": null,
-            "threshold": null,
-            "blockers": [
-              "candidate unavailable"
-            ],
-            "signals": [],
-            "conflicts": [],
-            "warps_alignment": null,
-            "warps_side": null,
-            "warps_team": null,
-            "edge_value": null
-          },
-          {
-            "market": "moneyline",
-            "side": null,
-            "status": "research_only",
-            "promotion_status": "not_promoted",
-            "score": null,
-            "threshold": null,
-            "blockers": [
-              "moneyline selector not promoted"
-            ],
-            "signals": [],
-            "conflicts": [],
-            "warps_alignment": null,
-            "warps_side": null,
-            "warps_team": null,
-            "edge_value": null
-          }
-        ],
-        "referee": "Alan Eck/David Oliver",
-        "referee_stats": null
-      },
-      {
-        "key": "2026:PRE1:GB@PIT",
-        "season": 2026,
-        "season_type": "PRE",
-        "week": "PRE1",
-        "matchup_key": "GB@PIT",
-        "away_tla": "GB",
+        "week": "PRE2",
+        "matchup_key": "NYJ@PIT",
+        "away_tla": "NYJ",
         "home_tla": "PIT",
         "action": "watch",
         "market": "spread",
         "side": "HOME",
-        "pick_label": "PIT +1.5",
+        "pick_label": "PIT -3.5",
         "confidence": "watch",
         "selector_score": 3.0,
         "classification": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers +1.5 (proceed with caution)",
+        "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers -3.5 (proceed with caution)",
         "required_line": "No target line available",
         "current_line": "",
         "warps_alignment": null,
@@ -145,30 +54,36 @@
         "data_quality": "DEGRADED",
         "quality_gate": null,
         "main_reasons": [
-          "\ud83d\udc40 LEAN: Pittsburgh Steelers +1.5 (proceed with caution)"
+          "\ud83d\udc40 LEAN: Pittsburgh Steelers -3.5 (proceed with caution)"
         ],
         "risk_flags": [
           "source warning DEGRADED",
           "thin expectation sample"
         ],
-        "market_status": "blocked",
-        "spread_status": "blocked",
-        "total_status": "blocked",
+        "market_status": "playable",
+        "spread_status": "playable",
+        "total_status": "lean",
         "moneyline_status": "research_only",
         "moneyline_promotion_status": "not_promoted",
         "route_selected_market": "spread",
-        "route_reason": "spread routed as best available market with status blocked",
+        "route_reason": "spread routed as best available market with status playable",
         "market_options": [
           {
             "market": "spread",
-            "side": null,
-            "status": "blocked",
-            "score": null,
-            "threshold": null,
-            "blockers": [
-              "candidate unavailable"
+            "side": "HOME",
+            "status": "playable",
+            "score": 3.0,
+            "threshold": 3.0,
+            "blockers": [],
+            "signals": [
+              {
+                "impact": 3,
+                "score": -3,
+                "side": "HOME",
+                "source": "sharp",
+                "status": "aligned"
+              }
             ],
-            "signals": [],
             "conflicts": [],
             "warps_alignment": null,
             "warps_side": null,
@@ -177,13 +92,11 @@
           },
           {
             "market": "total",
-            "side": null,
-            "status": "blocked",
-            "score": null,
-            "threshold": null,
-            "blockers": [
-              "candidate unavailable"
-            ],
+            "side": "UNDER",
+            "status": "lean",
+            "score": 0.0,
+            "threshold": 4.0,
+            "blockers": [],
             "signals": [],
             "conflicts": [],
             "warps_alignment": null,
@@ -209,8 +122,18 @@
             "edge_value": null
           }
         ],
-        "referee": "Brad Rogers/Bryan Neale",
-        "referee_stats": null
+        "referee": "Larry Smith BACKUP REFEREE",
+        "referee_stats": {
+          "su_record": "0-0",
+          "su_pct": 50.0,
+          "ats_record": "0-0",
+          "ats_pct": 50.0,
+          "ou_record": "0-0",
+          "ou_pct": 50.0,
+          "sample_size": 0,
+          "game_type": "C",
+          "favorite": "HF"
+        }
       }
     ]
   },
@@ -218,200 +141,12 @@
     {
       "season": 2026,
       "season_type": "PRE",
-      "week": "PRE1",
-      "matchup_key": "DEN@ATL",
-      "game": "Denver Broncos @ Atlanta Falcons",
-      "away_team": "Denver Broncos",
-      "home_team": "Atlanta Falcons",
-      "away_tla": "DEN",
-      "home_tla": "ATL",
-      "stage": "initial",
-      "analysis_available": true,
-      "best_edge": {
-        "market": "spread",
-        "side": "AWAY",
-        "score": 3.0,
-        "label": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Denver Broncos -4.5 (proceed with caution)",
-        "status": "play"
-      },
-      "markets": {
-        "spread": {
-          "market": "spread",
-          "side": null,
-          "score": null,
-          "threshold": null,
-          "cleared_threshold": false,
-          "blocked": true,
-          "blockers": [
-            "candidate unavailable"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "reasons": [],
-          "status": "blocked"
-        },
-        "total": {
-          "market": "total",
-          "side": null,
-          "score": null,
-          "threshold": null,
-          "cleared_threshold": false,
-          "blocked": true,
-          "blockers": [
-            "candidate unavailable"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "reasons": [],
-          "status": "blocked"
-        },
-        "moneyline": {
-          "market": "moneyline",
-          "side": null,
-          "score": null,
-          "threshold": null,
-          "status": "research_only",
-          "promotion_status": "not_promoted",
-          "blockers": [
-            "moneyline selector not promoted"
-          ],
-          "reason": "moneyline edge model remains research-only until historical validation clears promotion"
-        }
-      },
-      "referee": "Alan Eck/David Oliver",
-      "referee_stats": null,
-      "factor_summary": [],
-      "warps_market_overlay": {
-        "available": false,
-        "status": "unavailable",
-        "recommendation_policy": "forecast_context_only",
-        "reason": "WARPS market overlay not available for this matchup"
-      },
-      "schedule_context": {
-        "division_game": false,
-        "conference_game": false,
-        "away_division": "AFC West",
-        "home_division": "NFC South"
-      },
-      "expectation_context": {
-        "away_team": "DEN",
-        "home_team": "ATL",
-        "away": {
-          "team": "DEN",
-          "conference": "AFC",
-          "division": "AFC West",
-          "games_tracked": 0,
-          "actual_wins": 0,
-          "actual_losses": 0,
-          "points_for": 0,
-          "points_against": 0,
-          "vegas_win_total": 9.5,
-          "actual_win_pct": null,
-          "pythagorean_exponent": 2.37,
-          "pythagorean_win_pct": null,
-          "pythagorean_wins_tracked": null,
-          "pythagorean_wins_17_game_pace": null,
-          "actual_vs_pythagorean": null,
-          "pythagorean_pace_vs_vegas": null,
-          "actual_pace_vs_vegas": null,
-          "expectation_band": "unknown"
-        },
-        "home": {
-          "team": "ATL",
-          "conference": "NFC",
-          "division": "NFC South",
-          "games_tracked": 1,
-          "actual_wins": 0,
-          "actual_losses": 0,
-          "points_for": 0.0,
-          "points_against": 0.0,
-          "vegas_win_total": 7.5,
-          "actual_win_pct": 0.0,
-          "pythagorean_exponent": 2.37,
-          "pythagorean_win_pct": null,
-          "pythagorean_wins_tracked": null,
-          "pythagorean_wins_17_game_pace": null,
-          "actual_vs_pythagorean": null,
-          "pythagorean_pace_vs_vegas": null,
-          "actual_pace_vs_vegas": -7.5,
-          "expectation_band": "unknown"
-        },
-        "games_tracked_min": 0,
-        "pythagorean_wins_delta": null,
-        "vegas_win_total_delta": 2.0,
-        "pythagorean_vs_vegas_delta": null,
-        "actual_vs_pythagorean_delta": null,
-        "pythagorean_side": null,
-        "market_expectation_side": "AWAY",
-        "value_gap_side": null,
-        "overperformance_side": null,
-        "sample_warning": true
-      },
-      "source_health_status": "DEGRADED",
-      "data_quality_status": "DEGRADED",
-      "result": {
-        "away_score": null,
-        "home_score": null,
-        "final_margin": null,
-        "final_total": null
-      },
-      "explanation": {
-        "key": "DEN@ATL:initial",
-        "season": "2026",
-        "season_type": "PRE",
-        "week": "PRE1",
-        "matchup_key": "DEN@ATL",
-        "away_tla": "DEN",
-        "home_tla": "ATL",
-        "stage": "initial",
-        "raw_action": "play",
-        "quality_action": "play",
-        "quality_gate": "warn",
-        "confidence": "standard",
-        "market": "spread",
-        "side": "AWAY",
-        "selector_score": "3.0",
-        "label": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Denver Broncos -4.5 (proceed with caution)",
-        "source_health_status": "DEGRADED",
-        "data_quality_status": "DEGRADED",
-        "promoted_matches": [],
-        "source_blockers": [],
-        "source_warnings": [
-          "source_health_status=DEGRADED",
-          "data_quality_status=DEGRADED"
-        ],
-        "market_signals": [],
-        "market_conflicts": [],
-        "market_blockers": [
-          "candidate unavailable"
-        ],
-        "alignment": {
-          "pythagorean": "missing",
-          "market_expectation": "aligned",
-          "value_gap": "missing",
-          "overperformance": "missing",
-          "warps_spread": "",
-          "warps_moneyline": ""
-        },
-        "reasons": [
-          "Selector isolated spread AWAY",
-          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
-        ],
-        "result": "",
-        "margin_to_line": ""
-      }
-    },
-    {
-      "season": 2026,
-      "season_type": "PRE",
-      "week": "PRE1",
-      "matchup_key": "GB@PIT",
-      "game": "Green Bay Packers @ Pittsburgh Steelers",
-      "away_team": "Green Bay Packers",
+      "week": "PRE2",
+      "matchup_key": "NYJ@PIT",
+      "game": "New York Jets @ Pittsburgh Steelers",
+      "away_team": "New York Jets",
       "home_team": "Pittsburgh Steelers",
-      "away_tla": "GB",
+      "away_tla": "NYJ",
       "home_tla": "PIT",
       "stage": "initial",
       "analysis_available": true,
@@ -420,39 +155,45 @@
         "side": "HOME",
         "score": 3.0,
         "label": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers +1.5 (proceed with caution)",
+        "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers -3.5 (proceed with caution)",
         "status": "play"
       },
       "markets": {
         "spread": {
           "market": "spread",
-          "side": null,
-          "score": null,
-          "threshold": null,
-          "cleared_threshold": false,
-          "blocked": true,
-          "blockers": [
-            "candidate unavailable"
+          "side": "HOME",
+          "score": 3.0,
+          "threshold": 3.0,
+          "cleared_threshold": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 3,
+              "score": -3,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            }
           ],
-          "signals": [],
           "conflicts": [],
-          "reasons": [],
-          "status": "blocked"
+          "reasons": [
+            "sharp spread edge"
+          ],
+          "status": "playable"
         },
         "total": {
           "market": "total",
-          "side": null,
-          "score": null,
-          "threshold": null,
+          "side": "UNDER",
+          "score": 0.0,
+          "threshold": 4.0,
           "cleared_threshold": false,
-          "blocked": true,
-          "blockers": [
-            "candidate unavailable"
-          ],
+          "blocked": false,
+          "blockers": [],
           "signals": [],
           "conflicts": [],
           "reasons": [],
-          "status": "blocked"
+          "status": "lean"
         },
         "moneyline": {
           "market": "moneyline",
@@ -467,9 +208,27 @@
           "reason": "moneyline edge model remains research-only until historical validation clears promotion"
         }
       },
-      "referee": "Brad Rogers/Bryan Neale",
-      "referee_stats": null,
-      "factor_summary": [],
+      "referee": "Larry Smith BACKUP REFEREE",
+      "referee_stats": {
+        "su_record": "0-0",
+        "su_pct": 50.0,
+        "ats_record": "0-0",
+        "ats_pct": 50.0,
+        "ou_record": "0-0",
+        "ou_pct": 50.0,
+        "sample_size": 0,
+        "game_type": "C",
+        "favorite": "HF"
+      },
+      "factor_summary": [
+        {
+          "market": "spread",
+          "source": "sharp",
+          "side": "HOME",
+          "impact": 3,
+          "status": "aligned"
+        }
+      ],
       "warps_market_overlay": {
         "available": false,
         "status": "unavailable",
@@ -478,23 +237,23 @@
       },
       "schedule_context": {
         "division_game": false,
-        "conference_game": false,
-        "away_division": "NFC North",
+        "conference_game": true,
+        "away_division": "AFC East",
         "home_division": "AFC North"
       },
       "expectation_context": {
-        "away_team": "GB",
+        "away_team": "NYJ",
         "home_team": "PIT",
         "away": {
-          "team": "GB",
-          "conference": "NFC",
-          "division": "NFC North",
+          "team": "NYJ",
+          "conference": "AFC",
+          "division": "AFC East",
           "games_tracked": 1,
           "actual_wins": 0,
           "actual_losses": 0,
           "points_for": 0.0,
           "points_against": 0.0,
-          "vegas_win_total": 10.5,
+          "vegas_win_total": 5.5,
           "actual_win_pct": 0.0,
           "pythagorean_exponent": 2.37,
           "pythagorean_win_pct": null,
@@ -502,7 +261,7 @@
           "pythagorean_wins_17_game_pace": null,
           "actual_vs_pythagorean": null,
           "pythagorean_pace_vs_vegas": null,
-          "actual_pace_vs_vegas": -10.5,
+          "actual_pace_vs_vegas": -5.5,
           "expectation_band": "unknown"
         },
         "home": {
@@ -527,11 +286,11 @@
         },
         "games_tracked_min": 1,
         "pythagorean_wins_delta": null,
-        "vegas_win_total_delta": 2.0,
+        "vegas_win_total_delta": -3.0,
         "pythagorean_vs_vegas_delta": null,
         "actual_vs_pythagorean_delta": null,
         "pythagorean_side": null,
-        "market_expectation_side": "AWAY",
+        "market_expectation_side": "HOME",
         "value_gap_side": null,
         "overperformance_side": null,
         "sample_warning": true
@@ -545,12 +304,12 @@
         "final_total": null
       },
       "explanation": {
-        "key": "GB@PIT:initial",
+        "key": "NYJ@PIT:initial",
         "season": "2026",
         "season_type": "PRE",
-        "week": "PRE1",
-        "matchup_key": "GB@PIT",
-        "away_tla": "GB",
+        "week": "PRE2",
+        "matchup_key": "NYJ@PIT",
+        "away_tla": "NYJ",
         "home_tla": "PIT",
         "stage": "initial",
         "raw_action": "play",
@@ -561,18 +320,18 @@
         "side": "HOME",
         "selector_score": "3.0",
         "label": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers +1.5 (proceed with caution)",
+        "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers -3.5 (proceed with caution)",
         "source_health_status": "DEGRADED",
         "data_quality_status": "DEGRADED",
         "promoted_matches": [
           {
-            "factor": "market_expectation_pick_alignment=conflict",
+            "factor": "market_expectation_side=HOME",
             "status": "monitor",
             "allowed": false,
             "plays": 6,
-            "wins": 5,
-            "losses": 1,
-            "lift": 0.0555
+            "wins": 6,
+            "losses": 0,
+            "lift": 0.2222
           },
           {
             "factor": "best_edge_side=HOME",
@@ -589,14 +348,14 @@
           "source_health_status=DEGRADED",
           "data_quality_status=DEGRADED"
         ],
-        "market_signals": [],
-        "market_conflicts": [],
-        "market_blockers": [
-          "candidate unavailable"
+        "market_signals": [
+          "sharp"
         ],
+        "market_conflicts": [],
+        "market_blockers": [],
         "alignment": {
           "pythagorean": "missing",
-          "market_expectation": "conflict",
+          "market_expectation": "aligned",
           "value_gap": "missing",
           "overperformance": "missing",
           "warps_spread": "",
@@ -604,6 +363,7 @@
         },
         "reasons": [
           "Selector isolated spread HOME",
+          "Signals: sharp",
           "Promoted factors matched: 2",
           "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
         ],
