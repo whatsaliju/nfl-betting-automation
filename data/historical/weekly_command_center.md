@@ -1,6 +1,6 @@
 # Weekly Command Center
 
-- Context: 2026 PRE W1 · live
+- Context: 2026 PRE W2 · live
 - Recommended action: **WATCH**
 - Confidence tier: **C**
 - Reason: No plays cleared, but watchlist spots exist.
@@ -17,13 +17,12 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 2
-- Passes: 14
+- Watch: 1
+- Passes: 15
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| DEN@ATL | watch | spread | AWAY | 3.0 |
-| GB@PIT | watch | spread | HOME | 3.0 |
+| NYJ@PIT | watch | spread | HOME | 3.0 |
 
 ## Survivor
 
