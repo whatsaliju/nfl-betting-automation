@@ -158,6 +158,22 @@ def generate_report():
     </div>
     """
 
+    # Line move alert banner (injected after summary_html is built)
+    line_moves_total = int(os.getenv('LINE_MOVES_TOTAL', '0') or 0)
+    line_moves_pick_affected = int(os.getenv('LINE_MOVES_PICK_AFFECTED', '0') or 0)
+    line_moves_summary_str = os.getenv('LINE_MOVES_SUMMARY', '').strip()
+    line_move_banner = ""
+    if line_moves_total > 0:
+        pick_note = f" &mdash; <strong>{line_moves_pick_affected} affect model pick(s)</strong>" if line_moves_pick_affected else ""
+        move_detail = f"<br><small style='color:#555;'>{line_moves_summary_str}</small>" if line_moves_summary_str else ""
+        line_move_banner = (
+            f"<div style='background:#fde8e8; padding:12px 15px; border-left:4px solid #e53e3e;"
+            f" border-radius:4px; margin:15px 0;'>"
+            f"<strong>📉 LINE ALERT: {line_moves_total} significant move(s) since last analysis{pick_note}</strong>"
+            f"{move_detail}"
+            f"<br><small>Re-analysis ran automatically with updated lines.</small></div>"
+        )
+
     # Build subject line with top play info
     subject_prefix = os.getenv('SUBJECT_PREFIX', '🏈')
     if actionable:
@@ -181,6 +197,7 @@ def generate_report():
                 {stage_context}
                 <p style="text-align:center; color:#7f8c8d;">Generated: {timestamp}</p>
                 {summary_html}
+                {line_move_banner}
                 {game_cards_html}
             </div>
         </body>

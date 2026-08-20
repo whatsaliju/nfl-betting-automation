@@ -216,7 +216,10 @@ jobs:
           SUBJECT_PREFIX: ${{ steps.info.outputs.prefix }}
           NFL_SEASON: ${{ steps.info.outputs.season }}
           NFL_SEASON_TYPE: ${{ steps.info.outputs.season_type }}
-          FLIP_ALERT: ""
+          FLIP_ALERT: ${{ github.event.client_payload.line_flips }}
+          LINE_MOVES_TOTAL: ${{ github.event.client_payload.line_moves_total }}
+          LINE_MOVES_PICK_AFFECTED: ${{ github.event.client_payload.line_moves_pick_affected }}
+          LINE_MOVES_SUMMARY: ${{ github.event.client_payload.line_moves_summary }}
           PYTHONPATH: .
         run: python3 analyzers/nfl_reporter.py
 
