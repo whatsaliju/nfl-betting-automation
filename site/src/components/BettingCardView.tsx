@@ -1,7 +1,7 @@
-import { AlertTriangle, BadgeCheck, CircleSlash, Clock, ShieldAlert, Target } from "lucide-react";
+import { AlertTriangle, BadgeCheck, CircleSlash, Clock, ShieldAlert, Target, TrendingDown } from "lucide-react";
 import { useEffect } from "react";
 import { teamLogos } from "../data/nflData";
-import type { CurrentContext, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
+import type { CurrentContext, LineMoveAlert, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
 
 function formatScore(value?: number | null) {
   return typeof value === "number" ? value.toFixed(1) : "n/a";
@@ -152,7 +152,7 @@ function EmptyBucket({ label }: { label: string }) {
   );
 }
 
-export function BettingCardView({ card, context, focusCard, onFocusClear, onViewAnalysis }: { card?: WeeklyBettingCard; context?: CurrentContext; focusCard?: string | null; onFocusClear?: () => void; onViewAnalysis?: (matchupKey: string) => void }) {
+export function BettingCardView({ card, context, focusCard, onFocusClear, onViewAnalysis, lineMoveAlert }: { card?: WeeklyBettingCard; context?: CurrentContext; focusCard?: string | null; onFocusClear?: () => void; onViewAnalysis?: (matchupKey: string) => void; lineMoveAlert?: LineMoveAlert | null }) {
   const cards = card?.cards || [];
   const grouped = actionGroups(cards);
 
@@ -180,6 +180,18 @@ export function BettingCardView({ card, context, focusCard, onFocusClear, onView
           <span><CircleSlash size={14} />{card?.passes ?? 0} passes</span>
         </div>
       </div>
+
+      {lineMoveAlert && lineMoveAlert.total_moves > 0 && (
+        <div className="line-move-alert">
+          <TrendingDown size={16} />
+          <div>
+            <strong>Line Alert: {lineMoveAlert.total_moves} significant move{lineMoveAlert.total_moves !== 1 ? "s" : ""} since last analysis</strong>
+            {lineMoveAlert.pick_affected > 0 && <span> &mdash; {lineMoveAlert.pick_affected} affect model pick{lineMoveAlert.pick_affected !== 1 ? "s" : ""}</span>}
+            {lineMoveAlert.summary && <p className="line-move-detail">{lineMoveAlert.summary}</p>}
+            <p className="line-move-note">Re-analysis ran automatically with updated lines.</p>
+          </div>
+        </div>
+      )}
 
       {!card?.available && (
         <div className="feed-warning">Picks aren't published yet for this week — check back soon.</div>

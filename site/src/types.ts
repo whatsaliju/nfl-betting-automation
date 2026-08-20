@@ -720,6 +720,16 @@ export interface ResearchSummary {
   backtest_coverage?: BacktestCoverage | null;
 }
 
+export interface LineMoveAlert {
+  total_moves: number;
+  pick_affected: number;
+  flips: number;
+  threshold: number;
+  summary: string;
+  week: number | string;
+  season_type: SeasonType;
+}
+
 export interface EngineFeed {
   feed_version: string;
   source: string;
@@ -727,6 +737,7 @@ export interface EngineFeed {
   team_cell_count: number;
   edge_board_count?: number;
   current_context?: CurrentContext;
+  line_move_alert?: LineMoveAlert | null;
   weekly_command_center?: WeeklyCommandCenter;
   model_readiness?: {
     available: boolean;

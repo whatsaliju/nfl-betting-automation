@@ -1,7 +1,7 @@
-import { Activity, AlertTriangle, BadgeCheck, CircleSlash, Gauge, Info, TrendingUp } from "lucide-react";
+import { Activity, AlertTriangle, BadgeCheck, CircleSlash, Gauge, Info, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect } from "react";
 import { teamLogos } from "../data/nflData";
-import type { EdgeBoardGame, EdgeMarket } from "../types";
+import type { EdgeBoardGame, EdgeMarket, LineMoveAlert } from "../types";
 
 function formatScore(value: number | null) {
   return typeof value === "number" ? value.toFixed(1) : "n/a";
@@ -55,7 +55,7 @@ function alignmentLabel(value?: string | null) {
   return value.replace(/_/g, " ");
 }
 
-export function EdgeBoardView({ games, focusGame, onFocusClear }: { games: EdgeBoardGame[]; focusGame?: string | null; onFocusClear?: () => void }) {
+export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert }: { games: EdgeBoardGame[]; focusGame?: string | null; onFocusClear?: () => void; lineMoveAlert?: LineMoveAlert | null }) {
   useEffect(() => {
     if (!focusGame) return;
     const el = document.getElementById(`edge-${focusGame}`);
@@ -82,6 +82,18 @@ export function EdgeBoardView({ games, focusGame, onFocusClear }: { games: EdgeB
           <span><Info size={14} />ML not priced yet</span>
         </div>
       </div>
+
+      {lineMoveAlert && lineMoveAlert.total_moves > 0 && (
+        <div className="line-move-alert">
+          <TrendingDown size={16} />
+          <div>
+            <strong>Line Alert: {lineMoveAlert.total_moves} significant move{lineMoveAlert.total_moves !== 1 ? "s" : ""} since last analysis</strong>
+            {lineMoveAlert.pick_affected > 0 && <span> &mdash; {lineMoveAlert.pick_affected} affect model pick{lineMoveAlert.pick_affected !== 1 ? "s" : ""}</span>}
+            {lineMoveAlert.summary && <p className="line-move-detail">{lineMoveAlert.summary}</p>}
+            <p className="line-move-note">Re-analysis ran automatically with updated lines.</p>
+          </div>
+        </div>
+      )}
 
       {!regularGames.length && (
         <div className="coming-soon-empty">
