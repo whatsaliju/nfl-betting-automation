@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       week:
-        description: "NFL Week Number"
+        description: "NFL Week (1-18, PRE1, PRE2, PRE3, WC, DIV, CONF, SB)"
         required: true
-        type: number
+        type: string
       season:
         description: "NFL season"
         required: false
@@ -70,10 +70,148 @@ jobs:
           python3 scripts/build_weekly_betting_card.py
           python3 builders/build_matrix_engine_feed.py
 
+      - name: Build Week Results JSON
+        env:
+          WEEK: ${{ github.event.inputs.week }}
+          SEASON: ${{ github.event.inputs.season }}
+          SEASON_TYPE: ${{ github.event.inputs.season_type }}
+        run: |
+          python3 << 'EOF'
+          import json, pandas as pd, re
+          from pathlib import Path
+          import os
+
+          week = os.environ['WEEK']
+          season = int(os.environ.get('SEASON', 2026))
+          season_type = os.environ.get('SEASON_TYPE', 'REG')
+
+          # Read results from master CSV (post-grading)
+          master_path = Path(f"data/historical/week{week}_master.csv")
+          if not master_path.exists():
+              print(f"No master CSV for week {week}, skipping results JSON")
+              exit(0)
+
+          df = pd.read_csv(master_path)
+          df = df.where(pd.notna(df), None)
+
+          # Pull pick info from initial stage (the lean we published)
+          records = []
+          for _, row in df.iterrows():
+              mk = row.get('matchup_key', '')
+              away = str(row.get('away_tla') or '').strip()
+              home = str(row.get('home_tla') or '').strip()
+
+              # Get the pick from the stage that had analysis
+              pick_market = pick_side = pick_label = selector_score = None
+              for stage in ['final', 'lock', 'update', 'initial']:
+                  pm = row.get(f'{stage}_pick_market')
+                  if pm and str(pm).strip().lower() not in ('none', 'nan', ''):
+                      pick_market = pm
+                      pick_side = row.get(f'{stage}_pick_side')
+                      selector_score = row.get(f'{stage}_selector_score')
+                      # Build pick_label from side info
+                      if pick_market == 'spread':
+                          team = away if str(pick_side or '').upper() == 'AWAY' else home
+                          line = row.get(f'{stage}_sharp_spread_line') or ''
+                          m = re.search(r'([+-]?\d+(?:\.\d+)?)', str(line).split('|')[0] if str(pick_side or '').upper() == 'AWAY' else str(line).split('|')[-1])
+                          pick_label = f"{team} {m.group(1)}" if m else team
+                      elif pick_market == 'total':
+                          pick_label = str(pick_side or '').upper()
+                      break
+
+              a_score = row.get('away_score')
+              h_score = row.get('home_score')
+
+              # ATS result
+              spread_line = row.get('initial_sharp_spread_line') or row.get('final_sharp_spread_line') or ''
+              line_num = None
+              if spread_line:
+                  m = re.search(r'([+-]?\d+(?:\.\d+)?)', str(spread_line).split('|')[0])
+                  if m:
+                      line_num = float(m.group(1))
+
+              ats_result = ou_result = None
+              if a_score is not None and h_score is not None:
+                  a_score, h_score = float(a_score), float(h_score)
+                  if line_num is not None:
+                      cover = (a_score - h_score) + line_num
+                      ats_result = 'away_cover' if cover > 0 else ('home_cover' if cover < 0 else 'push')
+                  total_line_raw = row.get('initial_sharp_total_line') or row.get('final_sharp_total_line') or ''
+                  m = re.search(r'\d+(?:\.\d+)?', str(total_line_raw))
+                  if m:
+                      total_num = float(m.group())
+                      actual = a_score + h_score
+                      ou_result = 'over' if actual > total_num else ('under' if actual < total_num else 'push')
+
+              # Determine model action
+              model_action = 'not_evaluated'
+              if pick_market:
+                  model_action = 'watch' if (selector_score or 0) < 4 else 'play'
+
+              records.append({
+                  'season': season,
+                  'week': week,
+                  'away_tla': away,
+                  'home_tla': home,
+                  'matchup_key': mk,
+                  'spread_line': line_num,
+                  'away_score': int(a_score) if a_score is not None else None,
+                  'home_score': int(h_score) if h_score is not None else None,
+                  'total_points': int(a_score + h_score) if a_score is not None and h_score is not None else None,
+                  'ats_result': ats_result,
+                  'ou_result': ou_result,
+                  'model_action': model_action,
+                  'pick_market': pick_market,
+                  'pick_side': pick_side,
+                  'pick_label': pick_label,
+                  'selector_score': selector_score,
+              })
+
+          # Per-week JSON
+          week_dir = Path(f"data/week{week}")
+          week_dir.mkdir(parents=True, exist_ok=True)
+          model_picks = [r for r in records if r['model_action'] != 'not_evaluated']
+          correct = sum(
+              1 for r in model_picks
+              if r['ats_result'] and (
+                  (str(r.get('pick_side') or '').upper() == 'AWAY' and r['ats_result'] == 'away_cover') or
+                  (str(r.get('pick_side') or '').upper() == 'HOME' and r['ats_result'] == 'home_cover')
+              )
+          )
+          week_json = {
+              'week': week,
+              'season': season,
+              'season_type': season_type,
+              'game_count': len(records),
+              'ats_summary': {
+                  'away_cover': sum(1 for r in records if r['ats_result'] == 'away_cover'),
+                  'home_cover': sum(1 for r in records if r['ats_result'] == 'home_cover'),
+                  'push': sum(1 for r in records if r['ats_result'] == 'push'),
+              },
+              'ou_summary': {
+                  'over': sum(1 for r in records if r['ou_result'] == 'over'),
+                  'under': sum(1 for r in records if r['ou_result'] == 'under'),
+                  'push': sum(1 for r in records if r['ou_result'] == 'push'),
+              },
+              'model_record': {'picks': len(model_picks), 'correct': correct},
+              'games': records,
+          }
+          (week_dir / 'results.json').write_text(json.dumps(week_json, indent=2))
+          print(f"Wrote data/week{week}/results.json ({len(records)} games)")
+
+          # Update consolidated preseason JSON if PRE week
+          if str(week).upper().startswith('PRE'):
+              hist_path = Path('data/historical/preseason_results.json')
+              historical = json.loads(hist_path.read_text()) if hist_path.exists() else {}
+              historical[week] = week_json
+              hist_path.write_text(json.dumps(historical, indent=2))
+              print(f"Updated data/historical/preseason_results.json (weeks: {sorted(historical.keys())})")
+          EOF
+
       - name: Commit Results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/historical/ data/backtests/engine_2026_1_configured/
+          git add data/historical/ data/backtests/engine_2026_1_configured/ data/week${{ github.event.inputs.week }}/
           git commit -m "📊 Grade Week ${{ github.event.inputs.week }} results" || exit 0
           git push
