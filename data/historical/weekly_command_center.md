@@ -23,10 +23,10 @@
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | NYJ@PIT | play | spread | HOME | 3.0 |
-| BAL@MIN | watch | n/a | n/a | n/a |
-| BUF@CLE | watch | n/a | n/a | n/a |
-| DAL@ARI | watch | n/a | n/a | n/a |
-| SEA@TEN | watch | n/a | n/a | n/a |
+| BAL@MIN | watch | n/a | n/a | nan |
+| BUF@CLE | watch | n/a | n/a | nan |
+| DAL@ARI | watch | n/a | n/a | nan |
+| SEA@TEN | watch | n/a | n/a | nan |
 
 ## Survivor
 

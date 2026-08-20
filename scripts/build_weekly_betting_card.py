@@ -240,6 +240,9 @@ def card_row(game):
     route = route_summary(game, action, market, flags)
     recommendation = None if action == "pass" else best.get("recommendation")
     current_line = market_data.get("line") or ""
+    # For watch/lean games with no committed market, show the spread line as context
+    if not current_line and action in ("watch", "lean"):
+        current_line = (game.get("markets") or {}).get("spread", {}).get("line") or ""
     pick_label = (
         format_pick_label(
             market, side,
@@ -305,16 +308,23 @@ def build(feed):
 
     edge_board = feed.get("edge_board", [])
 
-    # For preseason: filter to PRE games only so stale REG data doesn't bleed through
+    # Filter to current week only so stale prior-week picks don't bleed through
+    current_season = context.get("season")
+    current_week = context.get("week")
     if is_preseason:
-        current_season = context.get("season")
         games_to_process = [
             g for g in edge_board
             if g.get("season_type") == "PRE"
             and (current_season is None or g.get("season") == current_season)
+            and (current_week is None or str(g.get("week")) == str(current_week))
         ]
     else:
-        games_to_process = edge_board
+        # REG/POST: restrict to current week so last week's picks don't carry over
+        games_to_process = [
+            g for g in edge_board
+            if (current_season is None or g.get("season") == current_season)
+            and (current_week is None or str(g.get("week")) == str(current_week))
+        ]
 
     rows = [card_row(game) for game in games_to_process]
     rows.sort(key=sort_key)
