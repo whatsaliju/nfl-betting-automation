@@ -20,7 +20,7 @@ import { WeekView } from "./components/WeekView";
 import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDisplayTeamStats, getSeasonResults, getSeasonSchedule, indexEdgeBoard, indexEngineCells, loadEngineFeed, postseasonCells } from "./lib/schedule";
 import { historicalVegasLines } from "./data/nflData";
 import warpsMarketOverlay2026 from "./data/warpsMarketOverlay2026.json";
-import type { CurrentContext, EngineFeed, Filter, TeamProfile, WarpsMarketOverlay, WeeklyBettingCard } from "./types";
+import type { CurrentContext, EngineFeed, Filter, LineMoveAlert, TeamProfile, WarpsMarketOverlay, WeeklyBettingCard } from "./types";
 
 type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
 
@@ -122,6 +122,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
   const hasEdges = edgeGames.length > 0;
   const hasProjections = Object.keys(teamExpectations).length > 0;
   const currentContext = engineFeed?.current_context;
+  const lineMoveAlert: LineMoveAlert | null = engineFeed?.line_move_alert ?? null;
   const currentBettingCard = useMemo(
     () => cardForContext(engineFeed?.weekly_betting_card, currentContext),
     [engineFeed?.weekly_betting_card, currentContext]
@@ -348,9 +349,9 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
         </>
       )}
 
-      {viewMode === "edges" && <EdgeBoardView games={edgeGames} focusGame={focusedEdgeGame} onFocusClear={() => setFocusedEdgeGame(null)} />}
+      {viewMode === "edges" && <EdgeBoardView games={edgeGames} focusGame={focusedEdgeGame} onFocusClear={() => setFocusedEdgeGame(null)} lineMoveAlert={lineMoveAlert} />}
 
-      {viewMode === "card" && <BettingCardView card={currentBettingCard} context={currentContext} focusCard={focusedCard} onFocusClear={() => setFocusedCard(null)} onViewAnalysis={(key) => { setFocusedEdgeGame(key); setViewMode("edges"); }} />}
+      {viewMode === "card" && <BettingCardView card={currentBettingCard} context={currentContext} focusCard={focusedCard} onFocusClear={() => setFocusedCard(null)} onViewAnalysis={(key) => { setFocusedEdgeGame(key); setViewMode("edges"); }} lineMoveAlert={lineMoveAlert} />}
 
       {viewMode === "survivor" && <SurvivorView />}
 

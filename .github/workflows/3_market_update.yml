@@ -150,6 +150,18 @@ jobs:
           echo "Weather: $ACTION_WEATHER_FILE"
           echo "RotoWire: $ROTOWIRE_FILE"
           
+      - name: Detect Line Moves vs Stored Pick Lines
+        id: line_moves
+        run: |
+          WEEK=${{ steps.get_week.outputs.week }}
+          SEASON_TYPE=""
+          echo "$WEEK" | grep -qiE '^PRE' && SEASON_TYPE="PRE" || true
+          echo "$WEEK" | grep -qiE '^(WC|DIV|CONF|SB)$' && SEASON_TYPE="POST" || true
+          [ -z "$SEASON_TYPE" ] && SEASON_TYPE="REG"
+          python3 scripts/detect_line_moves.py "$WEEK" \
+            --season-type "$SEASON_TYPE" \
+            --threshold 2.0 || true   # exit 2 on moves found — don't fail the step
+
       - name: Detect Line Flips & Update Referee Trends
         id: line_flips
         run: |
@@ -446,6 +458,7 @@ jobs:
           for pattern in "${FILES_TO_ADD[@]}"; do
             git add $pattern 2>/dev/null || echo "No files matching $pattern found to stage."
           done
+          git add data/week${{ steps.get_week.outputs.week }}/line_move_summary.json 2>/dev/null || true
           
           if git diff --cached --quiet; then
             echo "No changes to commit for market & lineup update. Skipping commit/push."
@@ -472,7 +485,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: market-data-ready
-          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "${{ steps.line_flips.outputs.analysis_type }}", "line_flips": "${{ steps.line_flips.outputs.flip_count }}", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}", "rotowire_file": "${{ steps.generated_files.outputs.rotowire_file }}"}'
+          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "${{ steps.line_flips.outputs.analysis_type }}", "line_flips": "${{ steps.line_flips.outputs.flip_count }}", "line_moves_total": "${{ steps.line_moves.outputs.line_moves_total }}", "line_moves_pick_affected": "${{ steps.line_moves.outputs.line_moves_pick_affected }}", "line_moves_summary": "${{ steps.line_moves.outputs.line_moves_summary }}", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}", "rotowire_file": "${{ steps.generated_files.outputs.rotowire_file }}"}'
       
       - name: Summary
         run: |

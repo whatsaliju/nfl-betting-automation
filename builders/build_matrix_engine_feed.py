@@ -372,6 +372,8 @@ def stage_payload(row, stage):
         "source_health_status": row.get(f"{stage}_source_health_status"),
         "source_health_warnings": row.get(f"{stage}_source_health_warnings"),
         "source_health_reference_time": row.get(f"{stage}_source_health_reference_time"),
+        "sharp_spread_line": row.get(f"{stage}_sharp_spread_line") or "",
+        "sharp_total_line": row.get(f"{stage}_sharp_total_line") or "",
     }
 
 
@@ -721,8 +723,10 @@ def edge_board_payload(game, expectations, warps_index, referee_index=None, refe
         "analysis_available": bool(latest.get("available")),
         "best_edge": best_edge,
         "markets": {
-            "spread": {**spread, "status": market_status(spread)},
-            "total": {**total, "status": market_status(total)},
+            "spread": {**spread, "status": market_status(spread),
+                       "line": latest.get("sharp_spread_line") or ""},
+            "total": {**total, "status": market_status(total),
+                      "line": latest.get("sharp_total_line") or ""},
             "moneyline": {
                 "market": "moneyline",
                 "side": None,
@@ -1438,6 +1442,40 @@ def research_summary_payload():
     return summary
 
 
+def line_move_alert_payload(week, season_type):
+    """Return a compact line move alert dict if recent moves exist for the current week, else None."""
+    if not week:
+        return None
+    summary_path = ROOT / "data" / f"week{week}" / "line_move_summary.json"
+    if not summary_path.exists():
+        return None
+    try:
+        summary = json.loads(summary_path.read_text())
+    except Exception:
+        return None
+    total = summary.get("total_moves", 0)
+    if not total:
+        return None
+    pick_affected = summary.get("pick_affected", 0)
+    flips = summary.get("flips", 0)
+    threshold = summary.get("threshold", 2.0)
+    moves = summary.get("moves", [])
+    compact = "; ".join(
+        f"{m['matchup_key']} {m['old_away_spread']:+.1f}→{m['new_away_spread']:+.1f}"
+        + (" [PICK]" if m.get("has_model_pick") else "")
+        for m in moves[:5]
+    )
+    return {
+        "total_moves": total,
+        "pick_affected": pick_affected,
+        "flips": flips,
+        "threshold": threshold,
+        "summary": compact,
+        "week": week,
+        "season_type": season_type,
+    }
+
+
 def build_feed():
     games = []
     for path in sorted(HISTORICAL_DIR.glob("week*_master.json"), key=sort_master_path):
@@ -1479,6 +1517,9 @@ def build_feed():
     preseason = preseason_dry_run_payload()
     current_context = current_context_payload(games, weekly_card, preseason)
     command_center = weekly_command_center_payload(current_context, weekly_card, edge_board, preseason, warps_index)
+    line_move_alert = line_move_alert_payload(
+        current_context.get("week"), current_context.get("season_type")
+    )
 
     feed = {
         "feed_version": "2026.1",
@@ -1487,6 +1528,7 @@ def build_feed():
         "team_cell_count": len(team_cells),
         "edge_board_count": len(edge_board),
         "current_context": current_context,
+        "line_move_alert": line_move_alert,
         "weekly_command_center": command_center,
         "model_readiness": model_readiness_payload(),
         "research_summary": research_summary_payload(),
