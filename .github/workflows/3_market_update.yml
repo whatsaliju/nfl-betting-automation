@@ -2,11 +2,13 @@ name: 3. Market Update (with Line-Flip Detection)
 
 on:
   schedule:
-    # Friday 12:00 AM UTC - Aug thru Feb (covers preseason + regular season)
+    # Wednesday 2:00 PM UTC (10am ET) - lines open mid-week, catch early sharp moves
+    - cron: '0 14 * 8-12,1-2 3'
+    # Friday 12:00 AM UTC (Thu 8pm ET) - mid-week line check before weekend games
     - cron: '0 0 * 8-12,1-2 5'
-    # Sunday 1:00 AM UTC - Aug thru Feb
+    # Sunday 1:00 AM UTC (Sat 9pm ET) - Saturday night line snapshot
     - cron: '0 1 * 8-12,1-2 0'
-    # Sunday 5:00 PM UTC - Aug thru Feb
+    # Sunday 5:00 PM UTC (Sun 1pm ET) - game-day line check before early kickoffs
     - cron: '30 16 * 8-12,1-2 0'
   workflow_dispatch:
     inputs:
