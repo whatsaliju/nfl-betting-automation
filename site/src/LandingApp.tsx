@@ -15,21 +15,22 @@ export default function LandingApp() {
           <span className="landing-brand">Liju Varughese</span>
           <div className="landing-nav-links">
             <a href="matrix.html">NFL Edge Hub</a>
-            <a href="warps.html">WARPS</a>
-            <a href="https://lijuvarughese.com/ytts/">YTTS</a>
+            <a href="warps.html">WARPS-NFL</a>
+            <a href="https://lijuvarughese.com/ytts/" target="_blank" rel="noreferrer">YTTS</a>
           </div>
         </nav>
         <div className="landing-hero">
           <div className="landing-hero-copy">
-            <p className="landing-kicker">2026 NFL Season</p>
-            <h1 className="landing-name">NFL picks, win probabilities, and schedule analysis.</h1>
+            <p className="landing-kicker">Project Lab</p>
+            <h1 className="landing-name">Quantitative research tools for sports and markets.</h1>
             <p className="landing-tagline">
-              Weekly picks and schedule intelligence for the 2026 NFL season.
-              Win-probability model built on 26 seasons of data.
+              NFL picks and schedule analysis. Win-total forecasting built on 26 seasons of data.
+              Weekly equity screener with model rankings and company research.
             </p>
             <div className="landing-actions">
               <a href="matrix.html" className="landing-button primary">Open NFL Edge Hub</a>
-              <a href="warps.html" className="landing-button secondary">WARPS Model</a>
+              <a href="warps.html" className="landing-button secondary">Open WARPS-NFL</a>
+              <a href="https://lijuvarughese.com/ytts/" target="_blank" rel="noreferrer" className="landing-button secondary">Open YTTS</a>
             </div>
           </div>
           <div className="landing-snapshot" aria-label="Project snapshot">
@@ -47,11 +48,11 @@ export default function LandingApp() {
                 <span>Preseason win-total model · beats Vegas baseline in 25 of 26 seasons.</span>
               </div>
             </a>
-            <a className="snapshot-row" href="https://lijuvarughese.com/ytts/">
+            <a className="snapshot-row" href="https://lijuvarughese.com/ytts/" target="_blank" rel="noreferrer">
               <TrendingUp size={19} />
               <div>
-                <strong>YTTS Screener</strong>
-                <span>Model-driven equity screener with research overlays and position monitoring.</span>
+                <strong>YTTS</strong>
+                <span>Weekly stock research — equity screener, model rankings, and risk checks.</span>
               </div>
             </a>
           </div>
@@ -95,23 +96,16 @@ export default function LandingApp() {
           <div className="landing-project">
             <div className="landing-project-head">
               <div className="landing-project-icon lp-ytts"><TrendingUp size={18} /></div>
-              <h2 className="landing-project-title">YTTS Financials</h2>
+              <h2 className="landing-project-title">YTTS</h2>
             </div>
             <p className="landing-project-desc">
-              Equity screener and position tracker — research screens, long-hold monitoring,
-              and a live trading desk.
+              A weekly stock research system: an equity screener with model rankings, valuation work,
+              company research, and risk checks. Tracks long-hold positions and surfaces new
+              opportunities through a structured, repeatable process each week.
             </p>
-            <div className="landing-ytts-links">
-              <a href="https://lijuvarughese.com/ytts/internal_research_dashboard_app.html" target="_blank" rel="noreferrer" className="landing-link">
-                <BarChart3 size={12} /> Research <ExternalLink size={11} />
-              </a>
-              <a href="https://lijuvarughese.com/ytts/longhold_dashboard.html" target="_blank" rel="noreferrer" className="landing-link">
-                <TrendingUp size={12} /> Long Hold <ExternalLink size={11} />
-              </a>
-              <a href="https://lijuvarughese.com/ytts/trading_dashboard.html" target="_blank" rel="noreferrer" className="landing-link">
-                <Activity size={12} /> Trading Desk <ExternalLink size={11} />
-              </a>
-            </div>
+            <a href="https://lijuvarughese.com/ytts/" target="_blank" rel="noreferrer" className="landing-link">
+              Open YTTS <ExternalLink size={12} />
+            </a>
           </div>
 
         </section>
@@ -119,8 +113,8 @@ export default function LandingApp() {
         <section className="landing-method">
           <div className="method-card">
             <Grid3X3 size={18} />
-            <strong>26 seasons of NFL data</strong>
-            <span>Models trained and validated on 2000–2025 regular season results.</span>
+            <strong>Weekly NFL analysis</strong>
+            <span>Sharp-money signals, injury context, referee trends, and schedule factors — every game, every week.</span>
           </div>
           <div className="method-card">
             <FlaskConical size={18} />
@@ -129,8 +123,8 @@ export default function LandingApp() {
           </div>
           <div className="method-card">
             <BarChart3 size={18} />
-            <strong>Every pick tracked</strong>
-            <span>Results, edge scores, and model accuracy logged week by week.</span>
+            <strong>Structured equity research</strong>
+            <span>Model-ranked screener with valuation, risk checks, and position monitoring — updated weekly.</span>
           </div>
         </section>
       </main>
