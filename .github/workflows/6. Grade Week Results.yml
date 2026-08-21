@@ -45,6 +45,14 @@ jobs:
             --season-type ${{ github.event.inputs.season_type }}
           python3 builders/build_matrix_engine_feed.py
           python3 builders/build_game_feature_table.py
+          # Rebuild backtest game_features with graded results from pick_results.csv
+          if [ -d data/backtests/engine_2026_1_configured ]; then
+            python3 builders/build_game_feature_table.py \
+              --replay-root data/backtests/engine_2026_1_configured \
+              --season ${{ github.event.inputs.season }} \
+              --json-output data/backtests/engine_2026_1_configured/game_features.json \
+              --csv-output data/backtests/engine_2026_1_configured/game_features.csv
+          fi
           python3 scripts/audit_game_features.py
           python3 scripts/generate_feature_research_report.py \
             --features data/historical/game_features.csv \
@@ -199,13 +207,15 @@ jobs:
           (week_dir / 'results.json').write_text(json.dumps(week_json, indent=2))
           print(f"Wrote data/week{week}/results.json ({len(records)} games)")
 
-          # Update consolidated preseason JSON if PRE week
+          # Update consolidated results JSON by season type
           if str(week).upper().startswith('PRE'):
               hist_path = Path('data/historical/preseason_results.json')
-              historical = json.loads(hist_path.read_text()) if hist_path.exists() else {}
-              historical[week] = week_json
-              hist_path.write_text(json.dumps(historical, indent=2))
-              print(f"Updated data/historical/preseason_results.json (weeks: {sorted(historical.keys())})")
+          else:
+              hist_path = Path('data/historical/regular_season_results.json')
+          historical = json.loads(hist_path.read_text()) if hist_path.exists() else {}
+          historical[week] = week_json
+          hist_path.write_text(json.dumps(historical, indent=2))
+          print(f"Updated {hist_path} (weeks: {sorted(historical.keys())})")
           EOF
 
       - name: Commit Results

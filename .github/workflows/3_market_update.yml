@@ -2,11 +2,13 @@ name: 3. Market Update (with Line-Flip Detection)
 
 on:
   schedule:
-    # Friday 12:00 AM UTC - Aug thru Feb (covers preseason + regular season)
+    # Wednesday 2:00 PM UTC (10am ET) - lines open mid-week, catch early sharp moves
+    - cron: '0 14 * 8-12,1-2 3'
+    # Friday 12:00 AM UTC (Thu 8pm ET) - mid-week line check before weekend games
     - cron: '0 0 * 8-12,1-2 5'
-    # Sunday 1:00 AM UTC - Aug thru Feb
+    # Sunday 1:00 AM UTC (Sat 9pm ET) - Saturday night line snapshot
     - cron: '0 1 * 8-12,1-2 0'
-    # Sunday 5:00 PM UTC - Aug thru Feb
+    # Sunday 5:00 PM UTC (Sun 1pm ET) - game-day line check before early kickoffs
     - cron: '30 16 * 8-12,1-2 0'
   workflow_dispatch:
     inputs:
@@ -485,7 +487,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: market-data-ready
-          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "${{ steps.line_flips.outputs.analysis_type }}", "line_flips": "${{ steps.line_flips.outputs.flip_count }}", "line_moves_total": "${{ steps.line_moves.outputs.line_moves_total }}", "line_moves_pick_affected": "${{ steps.line_moves.outputs.line_moves_pick_affected }}", "line_moves_summary": "${{ steps.line_moves.outputs.line_moves_summary }}", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}", "rotowire_file": "${{ steps.generated_files.outputs.rotowire_file }}"}'
+          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "${{ steps.line_flips.outputs.analysis_type }}", "line_flips": "${{ steps.line_flips.outputs.flip_count }}", "line_moves_total": "${{ steps.line_moves.outputs.line_moves_total }}", "line_moves_pick_affected": "${{ steps.line_moves.outputs.line_moves_pick_affected }}", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}", "rotowire_file": "${{ steps.generated_files.outputs.rotowire_file }}"}'
       
       - name: Summary
         run: |
