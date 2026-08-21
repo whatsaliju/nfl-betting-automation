@@ -240,9 +240,13 @@ def card_row(game):
     route = route_summary(game, action, market, flags)
     recommendation = None if action == "pass" else best.get("recommendation")
     current_line = market_data.get("line") or ""
-    # For watch/lean games with no committed market, show the spread line as context
-    if not current_line and action in ("watch", "lean"):
+    # Fall back to spread line for any action (play/watch/lean/pass) when market_data has no line.
+    # Covers update runs where a game scores below play threshold (PASS) — no market is selected
+    # so market_data is empty, but the spread line was still fetched and stored on the game object.
+    if not current_line:
         current_line = (game.get("markets") or {}).get("spread", {}).get("line") or ""
+    if not current_line:
+        current_line = game.get("spread_line") or ""
     pick_label = (
         format_pick_label(
             market, side,
