@@ -72,31 +72,9 @@ jobs:
             WEEK="${{ github.event.inputs.week }}"
           fi
           
-          # Priority 2: Auto-detect from existing files if no input provided
+          # Priority 2: Auto-detect from git history — most recently committed referee CSV
           if [ -z "$WEEK" ]; then
-            # Check for playoff weeks in chronological order: WC -> DIV -> CONF -> SB
-            if [ -f "data/weekSB/weekSB_referees.csv" ]; then
-              WEEK="SB"
-            elif [ -f "data/weekCONF/weekCONF_referees.csv" ]; then
-              WEEK="SB"  # Next week after CONF
-            elif [ -f "data/weekDIV/weekDIV_referees.csv" ]; then
-              WEEK="CONF"  # Next week after DIV
-            elif [ -f "data/weekWC/weekWC_referees.csv" ]; then
-              WEEK="DIV"  # Next week after WC
-            elif [ -f "data/weekPRE3/weekPRE3_referees.csv" ]; then
-              WEEK="PRE3"
-            elif [ -f "data/weekPRE2/weekPRE2_referees.csv" ]; then
-              WEEK="PRE2"
-            elif [ -f "data/weekPRE1/weekPRE1_referees.csv" ]; then
-              WEEK="PRE1"
-            else
-              # Fall back to numeric weeks (regular season)
-              WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
-              # If we have week 18, next should be WC
-              if [ "$WEEK" = "18" ]; then
-                WEEK="WC"
-              fi
-            fi
+            WEEK=$(git log --pretty=format: --name-only --diff-filter=A -- 'data/week*/week*_referees.csv' | grep -m1 -oP 'week\K[A-Za-z0-9]+(?=_referees)')
           fi
 
           # Normalize: strip decimal suffix, uppercase (so pre2/Pre2 → PRE2)
