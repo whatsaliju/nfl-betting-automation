@@ -58,7 +58,18 @@ jobs:
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
             WEEK="${{ github.event.client_payload.week }}"
           else
-            WEEK=$(git log --pretty=format: --name-only --diff-filter=AM -- 'data/week*/metadata.json' | grep -m1 -oP 'week\K[A-Za-z0-9]+(?=/metadata)')
+            # Priority 3a: current_week.json — canonical pointer written by this workflow on every run,
+            # never touched by backfills or scrapers; season-gated so a stale pointer from a prior year is ignored
+            if [ -f "data/current_week.json" ]; then
+              CW_SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
+              CW_WEEK=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('week',''))" 2>/dev/null || echo "")
+              [ "$CW_SEASON" = "$SEASON" ] && WEEK="$CW_WEEK"
+            fi
+            # Priority 3b: git-log fallback on metadata.json (last resort)
+            if [ -z "$WEEK" ]; then
+              WEEK=$(git log --pretty=format: --name-only --diff-filter=AM -- 'data/week*/metadata.json' | \
+                grep -m1 -oP 'week\K[A-Za-z0-9]+(?=/metadata)')
+            fi
           fi
           # Normalize to uppercase so pre2/Pre2 → PRE2 matches data directory names
           WEEK=$(echo "$WEEK" | tr '[:lower:]' '[:upper:]')
@@ -156,6 +167,8 @@ jobs:
         env:
           WEEK: ${{ steps.info.outputs.week }}
           STAGE: ${{ steps.info.outputs.stage }}
+          SEASON: ${{ steps.info.outputs.season }}
+          SEASON_TYPE: ${{ steps.info.outputs.season_type }}
         run: |
           WEEK_DIR="data/week$WEEK"
           # 1. Rename files for organization
@@ -205,6 +218,18 @@ jobs:
               'timestamp': datetime.datetime.now().isoformat()
           })
           with open(path, 'w') as f: json.dump(meta, f, indent=2)
+
+          # Write canonical current-week pointer — the authoritative auto-detect signal for
+          # Workflow 3 and any future run. Season-gated so a stale pointer from a prior year
+          # is ignored by Workflow 3's season check. Never written by backfill scripts.
+          pointer = {
+              'season': int(os.environ.get('SEASON', '2026')),
+              'season_type': os.environ.get('SEASON_TYPE', ''),
+              'week': week,
+              'updated_at': datetime.datetime.now().isoformat()
+          }
+          with open('data/current_week.json', 'w') as f: json.dump(pointer, f, indent=2)
+          print(f"✅ Wrote data/current_week.json → season={pointer['season']} week={pointer['week']}")
           EOF
 
       - name: Send Enhanced Professional Email
