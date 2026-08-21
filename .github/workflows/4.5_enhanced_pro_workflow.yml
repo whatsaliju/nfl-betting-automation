@@ -123,7 +123,8 @@ jobs:
         id: files
         run: |
           latest_file() {
-            python3 -c 'import glob, os, sys; files=[]; [files.extend(glob.glob(p)) for p in sys.argv[1:]]; files.sort(key=os.path.getmtime, reverse=True); print(files[0] if files else "")' "$@"
+            # Sort by basename (contains ISO date) — mtime is unreliable in fresh git checkouts
+            python3 -c 'import glob, os, sys; files=[]; [files.extend(glob.glob(p)) for p in sys.argv[1:]]; files.sort(key=os.path.basename, reverse=True); print(files[0] if files else "")' "$@"
           }
           # Prefer explicitly passed paths (repository_dispatch), fall back to latest on disk
           MARKETS="${{ github.event.client_payload.action_markets_file }}"
