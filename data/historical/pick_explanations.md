@@ -2,9 +2,23 @@
 
 | Game | Raw | Gated | Market | Side | Confidence | Reasons |
 |---|---|---|---|---|---|---|
-| WPRE2 NYJ@PIT | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp; Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 DEN@ATL | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 GB@PIT | play | play | spread | HOME | standard | Selector isolated spread HOME; Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE2 NYJ@PIT | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp; Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 ARI@LV | pass | pass |  |  | none | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 CAR@BUF | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 CLE@CHI | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 DAL@SEA | pass | pass |  |  | none | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 DET@CIN | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 IND@NE | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 JAX@NO | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 LAC@HOU | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 LAR@KC | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 MIA@WAS | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 MIN@NYG | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 PHI@BAL | pass | pass |  |  | none | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 TB@NYJ | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 TEN@SF | pass | pass |  |  | none | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 ATL@IND | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 BAL@MIN | lean | watch |  |  | watch | Signals: sharp; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 BUF@CLE | lean | watch |  |  | watch | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
@@ -20,20 +34,20 @@
 | WPRE2 SEA@TEN | lean | watch |  |  | watch | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 SF@LAC | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 WAS@DET | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 ARI@LV | pass | pass |  |  | none | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 CAR@BUF | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 CLE@CHI | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 DAL@SEA | pass | pass |  |  | none | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 DET@CIN | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 IND@NE | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 JAX@NO | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 LAC@HOU | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 LAR@KC | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 MIA@WAS | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 MIN@NYG | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 PHI@BAL | pass | pass |  |  | none | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 TB@NYJ | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 TEN@SF | pass | pass |  |  | none | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 ARI@SEA | lean | watch |  |  | watch | Signals: injury; Promoted factors matched: 3; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 ATL@IND | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 BAL@MIN | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 BUF@MIA | lean | watch |  |  | watch | Signals: injury; Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 CLE@NYJ | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 DET@WAS | pass | pass |  |  | none | Signals: injury; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 JAX@HOU | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 LAR@SF | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 LV@DEN | pass | pass |  |  | none | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 NE@TB | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 NO@CAR | pass | pass |  |  | none | Signals: injury; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 NYG@CHI | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 PHI@GB | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W10 PIT@LAC | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W18 ARI@LAR | pass | pass |  |  | none | Promoted factors matched: 2 |
 | W18 BAL@PIT | pass | pass |  |  | none | No isolated selector edge |
 | W18 CAR@TB | pass | pass |  |  | none | Promoted factors matched: 2 |
