@@ -487,7 +487,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: market-data-ready
-          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "${{ steps.line_flips.outputs.analysis_type }}", "line_flips": "${{ steps.line_flips.outputs.flip_count }}", "line_moves_total": "${{ steps.line_moves.outputs.line_moves_total }}", "line_moves_pick_affected": "${{ steps.line_moves.outputs.line_moves_pick_affected }}", "line_moves_summary": "${{ steps.line_moves.outputs.line_moves_summary }}", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}", "rotowire_file": "${{ steps.generated_files.outputs.rotowire_file }}"}'
+          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "${{ steps.line_flips.outputs.analysis_type }}", "line_flips": "${{ steps.line_flips.outputs.flip_count }}", "line_moves_total": "${{ steps.line_moves.outputs.line_moves_total }}", "line_moves_pick_affected": "${{ steps.line_moves.outputs.line_moves_pick_affected }}", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}", "rotowire_file": "${{ steps.generated_files.outputs.rotowire_file }}"}'
       
       - name: Summary
         run: |

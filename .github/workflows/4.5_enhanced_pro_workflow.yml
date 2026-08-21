@@ -219,7 +219,7 @@ jobs:
           FLIP_ALERT: ${{ github.event.client_payload.line_flips }}
           LINE_MOVES_TOTAL: ${{ github.event.client_payload.line_moves_total }}
           LINE_MOVES_PICK_AFFECTED: ${{ github.event.client_payload.line_moves_pick_affected }}
-          LINE_MOVES_SUMMARY: ${{ github.event.client_payload.line_moves_summary }}
+          LINE_MOVES_SUMMARY: ${{ github.event.client_payload.line_moves_summary || '' }}
           PYTHONPATH: .
         run: python3 analyzers/nfl_reporter.py
 
