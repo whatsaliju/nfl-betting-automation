@@ -72,9 +72,11 @@ jobs:
             WEEK="${{ github.event.inputs.week }}"
           fi
           
-          # Priority 2: Auto-detect from git history — most recently committed referee CSV
+          # Priority 2: Auto-detect from metadata.json — updated by every Workflow 4.5 run,
+          # never touched by historical backfills, always reflects the last actively analyzed week
           if [ -z "$WEEK" ]; then
-            WEEK=$(git log --pretty=format: --name-only --diff-filter=A -- 'data/week*/week*_referees.csv' | grep -m1 -oP 'week\K[A-Za-z0-9]+(?=_referees)')
+            WEEK=$(git log --pretty=format: --name-only --diff-filter=AM -- 'data/week*/metadata.json' | \
+              grep -m1 -oP 'week\K[A-Za-z0-9]+(?=/metadata)')
           fi
 
           # Normalize: strip decimal suffix, uppercase (so pre2/Pre2 → PRE2)

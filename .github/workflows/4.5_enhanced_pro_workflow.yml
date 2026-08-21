@@ -58,7 +58,7 @@ jobs:
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
             WEEK="${{ github.event.client_payload.week }}"
           else
-            WEEK=$(git log --pretty=format: --name-only --diff-filter=A -- 'data/week*/week*_referees.csv' | grep -m1 -oP 'week\K[A-Za-z0-9]+(?=_referees)')
+            WEEK=$(git log --pretty=format: --name-only --diff-filter=AM -- 'data/week*/metadata.json' | grep -m1 -oP 'week\K[A-Za-z0-9]+(?=/metadata)')
           fi
           # Normalize to uppercase so pre2/Pre2 → PRE2 matches data directory names
           WEEK=$(echo "$WEEK" | tr '[:lower:]' '[:upper:]')
