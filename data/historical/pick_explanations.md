@@ -29,7 +29,7 @@
 | WPRE2 LV@HOU | pass | pass |  |  | none | Promoted factors matched: 2 |
 | WPRE2 NO@LAR | pass | pass |  |  | none | Promoted factors matched: 2 |
 | WPRE2 NYG@MIA | pass | pass |  |  | none | No isolated selector edge |
-| WPRE2 NYJ@PIT | lean | watch |  |  | watch | Signals: sharp; Promoted factors matched: 2 |
+| WPRE2 NYJ@PIT | lean | watch |  |  | watch | Signals: sharp; Promoted factors matched: 1 |
 | WPRE2 PHI@NE | pass | pass |  |  | none | Promoted factors matched: 1 |
 | WPRE2 SEA@TEN | lean | watch |  |  | watch | Promoted factors matched: 1 |
 | WPRE2 SF@LAC | pass | pass |  |  | none | No isolated selector edge |

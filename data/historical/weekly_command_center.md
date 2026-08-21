@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 PRE W2 · live
-- Recommended action: **PLAY**
-- Confidence tier: **A**
-- Reason: At least one selector play cleared the current command gate.
+- Recommended action: **WATCH**
+- Confidence tier: **C**
+- Reason: No plays cleared, but watchlist spots exist.
 
 ## Source Gates
 
@@ -16,16 +16,17 @@
 
 ## Betting Card
 
-- Plays: 1
-- Watch: 4
-- Passes: 11
+- Plays: 0
+- Watch: 6
+- Passes: 10
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| NYJ@PIT | play | n/a | n/a | n/a |
 | BAL@MIN | watch | n/a | n/a | n/a |
 | BUF@CLE | watch | n/a | n/a | n/a |
 | DAL@ARI | watch | n/a | n/a | n/a |
+| KC@TB | watch | n/a | n/a | n/a |
+| NYJ@PIT | watch | n/a | n/a | n/a |
 | SEA@TEN | watch | n/a | n/a | n/a |
 
 ## Survivor
