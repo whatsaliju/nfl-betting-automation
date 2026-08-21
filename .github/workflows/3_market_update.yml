@@ -13,8 +13,9 @@ on:
   workflow_dispatch:
     inputs:
       week:
-        description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB, PRE1, PRE2, PRE3)'
-        required: true
+        description: 'NFL Week/Round (1-18, WC, DIV, CONF, SB, PRE1, PRE2, PRE3) — leave blank to auto-detect'
+        required: false
+        default: ''
         type: string
       season:
         description: 'NFL season'
