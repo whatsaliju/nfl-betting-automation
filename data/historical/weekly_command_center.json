@@ -39,19 +39,19 @@
         "away_tla": "NYJ",
         "home_tla": "PIT",
         "action": "play",
-        "market": "spread",
-        "side": "HOME",
-        "pick_label": "PIT -3.5",
+        "market": null,
+        "side": null,
+        "pick_label": null,
         "confidence": "standard",
-        "selector_score": 3.0,
-        "classification": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers -3.5 (proceed with caution)",
+        "selector_score": null,
+        "classification": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
         "required_line": "No target line available",
-        "current_line": "+3.5 (-112) | -3.5 (+102)",
+        "current_line": "",
         "warps_alignment": null,
         "warps_side": null,
-        "source_health": "DEGRADED",
-        "data_quality": "DEGRADED",
+        "source_health": "OK",
+        "data_quality": "OK",
         "quality_gate": "warn",
         "main_reasons": [
           "Selector isolated spread HOME",
@@ -60,29 +60,28 @@
           "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
         ],
         "risk_flags": [
-          "source warning DEGRADED",
           "thin expectation sample",
           "quality gate warn"
         ],
-        "market_status": "playable",
-        "spread_status": "playable",
+        "market_status": null,
+        "spread_status": "lean",
         "total_status": "lean",
         "moneyline_status": "research_only",
         "moneyline_promotion_status": "not_promoted",
-        "route_selected_market": "spread",
-        "route_reason": "spread routed as best available market with status playable",
+        "route_selected_market": null,
+        "route_reason": "Watchlist only; no final market selected.",
         "market_options": [
           {
             "market": "spread",
             "side": "HOME",
-            "status": "playable",
-            "score": 3.0,
-            "threshold": 3.0,
+            "status": "lean",
+            "score": 1.0,
+            "threshold": 4.0,
             "blockers": [],
             "signals": [
               {
-                "impact": 3,
-                "score": -3,
+                "impact": 1,
+                "score": -1,
                 "side": "HOME",
                 "source": "sharp",
                 "status": "aligned"
@@ -96,12 +95,20 @@
           },
           {
             "market": "total",
-            "side": "UNDER",
+            "side": "OVER",
             "status": "lean",
-            "score": 0.0,
+            "score": 1.0,
             "threshold": 4.0,
             "blockers": [],
-            "signals": [],
+            "signals": [
+              {
+                "impact": 1,
+                "score": 1,
+                "side": "OVER",
+                "source": "sharp",
+                "status": "aligned"
+              }
+            ],
             "conflicts": [],
             "warps_alignment": null,
             "warps_side": null,
@@ -152,22 +159,21 @@
         "side": null,
         "pick_label": null,
         "confidence": "watch",
-        "selector_score": NaN,
+        "selector_score": null,
         "classification": "\u26a0\ufe0f PASS",
         "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
         "required_line": "No target line available",
-        "current_line": "+3.5 (-107) | -3.5 (-105)",
+        "current_line": "+3.5 (-110) | -3.5 (-105)",
         "warps_alignment": null,
         "warps_side": null,
-        "source_health": "DEGRADED",
-        "data_quality": "DEGRADED",
+        "source_health": "OK",
+        "data_quality": "OK",
         "quality_gate": "warn",
         "main_reasons": [
           "Signals: sharp",
           "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
         ],
         "risk_flags": [
-          "source warning DEGRADED",
           "thin expectation sample",
           "quality gate warn"
         ],
@@ -183,13 +189,13 @@
             "market": "spread",
             "side": "AWAY",
             "status": "lean",
-            "score": 3.0,
+            "score": 2.0,
             "threshold": 4.0,
             "blockers": [],
             "signals": [
               {
-                "impact": 3,
-                "score": 3,
+                "impact": 2,
+                "score": 2,
                 "side": "AWAY",
                 "source": "sharp",
                 "status": "aligned"
@@ -203,12 +209,20 @@
           },
           {
             "market": "total",
-            "side": "OVER",
+            "side": "UNDER",
             "status": "lean",
-            "score": 0.0,
+            "score": 1.0,
             "threshold": 4.0,
             "blockers": [],
-            "signals": [],
+            "signals": [
+              {
+                "impact": 1,
+                "score": -1,
+                "side": "UNDER",
+                "source": "sharp",
+                "status": "aligned"
+              }
+            ],
             "conflicts": [],
             "warps_alignment": null,
             "warps_side": null,
@@ -259,22 +273,21 @@
         "side": null,
         "pick_label": null,
         "confidence": "watch",
-        "selector_score": NaN,
+        "selector_score": null,
         "classification": "\u26a0\ufe0f PASS",
         "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
         "required_line": "No target line available",
-        "current_line": "+3 (-110) | -2.5 (-117)",
+        "current_line": "+3 (-112) | -2.5 (-117)",
         "warps_alignment": null,
         "warps_side": null,
-        "source_health": "DEGRADED",
-        "data_quality": "DEGRADED",
+        "source_health": "OK",
+        "data_quality": "OK",
         "quality_gate": "warn",
         "main_reasons": [
           "Promoted factors matched: 2",
           "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
         ],
         "risk_flags": [
-          "source warning DEGRADED",
           "thin expectation sample",
           "quality gate warn"
         ],
@@ -288,7 +301,7 @@
         "market_options": [
           {
             "market": "spread",
-            "side": "HOME",
+            "side": "AWAY",
             "status": "blocked",
             "score": 0.0,
             "threshold": 4.0,
@@ -306,13 +319,13 @@
             "market": "total",
             "side": "OVER",
             "status": "lean",
-            "score": 3.0,
+            "score": 1.0,
             "threshold": 4.0,
             "blockers": [],
             "signals": [
               {
-                "impact": 3,
-                "score": 3,
+                "impact": 1,
+                "score": 1,
                 "side": "OVER",
                 "source": "sharp",
                 "status": "aligned"
@@ -368,15 +381,15 @@
         "side": null,
         "pick_label": null,
         "confidence": "watch",
-        "selector_score": NaN,
+        "selector_score": null,
         "classification": "\u26a0\ufe0f PASS",
         "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
         "required_line": "No target line available",
-        "current_line": "+1.5 (-108) | -1.5 (-109)",
+        "current_line": "+1 (-112) | -1.5 (+100)",
         "warps_alignment": null,
         "warps_side": null,
-        "source_health": "DEGRADED",
-        "data_quality": "DEGRADED",
+        "source_health": "OK",
+        "data_quality": "OK",
         "quality_gate": "warn",
         "main_reasons": [
           "Signals: sharp",
@@ -384,7 +397,6 @@
           "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
         ],
         "risk_flags": [
-          "source warning DEGRADED",
           "thin expectation sample",
           "quality gate warn"
         ],
@@ -400,13 +412,13 @@
             "market": "spread",
             "side": "AWAY",
             "status": "lean",
-            "score": 3.0,
+            "score": 2.0,
             "threshold": 4.0,
             "blockers": [],
             "signals": [
               {
-                "impact": 3,
-                "score": 3,
+                "impact": 2,
+                "score": 2,
                 "side": "AWAY",
                 "source": "sharp",
                 "status": "aligned"
@@ -422,10 +434,18 @@
             "market": "total",
             "side": "OVER",
             "status": "lean",
-            "score": 0.0,
+            "score": 1.0,
             "threshold": 4.0,
             "blockers": [],
-            "signals": [],
+            "signals": [
+              {
+                "impact": 1,
+                "score": 1,
+                "side": "OVER",
+                "source": "sharp",
+                "status": "aligned"
+              }
+            ],
             "conflicts": [],
             "warps_alignment": null,
             "warps_side": null,
@@ -476,22 +496,21 @@
         "side": null,
         "pick_label": null,
         "confidence": "watch",
-        "selector_score": NaN,
+        "selector_score": null,
         "classification": "\u26a0\ufe0f PASS",
         "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
         "required_line": "No target line available",
-        "current_line": "+4.5 (-105) | -4.5 (-110)",
+        "current_line": "+4.5 (-108) | -4.5 (-108)",
         "warps_alignment": null,
         "warps_side": null,
-        "source_health": "DEGRADED",
-        "data_quality": "DEGRADED",
+        "source_health": "OK",
+        "data_quality": "OK",
         "quality_gate": "warn",
         "main_reasons": [
           "Promoted factors matched: 1",
           "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
         ],
         "risk_flags": [
-          "source warning DEGRADED",
           "thin expectation sample",
           "quality gate warn"
         ],
@@ -505,12 +524,11 @@
         "market_options": [
           {
             "market": "spread",
-            "side": "NEUTRAL",
+            "side": "AWAY",
             "status": "blocked",
             "score": 0.0,
             "threshold": 4.0,
             "blockers": [
-              "no sharp spread side",
               "sharp spread edge required"
             ],
             "signals": [],
@@ -567,243 +585,7 @@
       }
     ]
   },
-  "best_edges": [
-    {
-      "season": 2026,
-      "season_type": "PRE",
-      "week": "PRE2",
-      "matchup_key": "NYJ@PIT",
-      "game": "New York Jets @ Pittsburgh Steelers",
-      "away_team": "New York Jets",
-      "home_team": "Pittsburgh Steelers",
-      "away_tla": "NYJ",
-      "home_tla": "PIT",
-      "stage": "initial",
-      "analysis_available": true,
-      "best_edge": {
-        "market": "spread",
-        "side": "HOME",
-        "score": 3.0,
-        "label": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers -3.5 (proceed with caution)",
-        "status": "play"
-      },
-      "markets": {
-        "spread": {
-          "market": "spread",
-          "side": "HOME",
-          "score": 3.0,
-          "threshold": 3.0,
-          "cleared_threshold": true,
-          "blocked": false,
-          "blockers": [],
-          "signals": [
-            {
-              "impact": 3,
-              "score": -3,
-              "side": "HOME",
-              "source": "sharp",
-              "status": "aligned"
-            }
-          ],
-          "conflicts": [],
-          "reasons": [
-            "sharp spread edge"
-          ],
-          "status": "playable",
-          "line": "+3.5 (-112) | -3.5 (+102)"
-        },
-        "total": {
-          "market": "total",
-          "side": "UNDER",
-          "score": 0.0,
-          "threshold": 4.0,
-          "cleared_threshold": false,
-          "blocked": false,
-          "blockers": [],
-          "signals": [],
-          "conflicts": [],
-          "reasons": [],
-          "status": "lean",
-          "line": "o38.5 (-110) | u38.5 (+100)"
-        },
-        "moneyline": {
-          "market": "moneyline",
-          "side": null,
-          "score": null,
-          "threshold": null,
-          "status": "research_only",
-          "promotion_status": "not_promoted",
-          "blockers": [
-            "moneyline selector not promoted"
-          ],
-          "reason": "moneyline edge model remains research-only until historical validation clears promotion"
-        }
-      },
-      "referee": "Larry Smith BACKUP REFEREE",
-      "referee_stats": {
-        "su_record": "0-0",
-        "su_pct": 50.0,
-        "ats_record": "0-0",
-        "ats_pct": 50.0,
-        "ou_record": "0-0",
-        "ou_pct": 50.0,
-        "sample_size": 0,
-        "game_type": "C",
-        "favorite": "HF"
-      },
-      "factor_summary": [
-        {
-          "market": "spread",
-          "source": "sharp",
-          "side": "HOME",
-          "impact": 3,
-          "status": "aligned"
-        }
-      ],
-      "warps_market_overlay": {
-        "available": false,
-        "status": "unavailable",
-        "recommendation_policy": "forecast_context_only",
-        "reason": "WARPS market overlay not available for this matchup"
-      },
-      "schedule_context": {
-        "division_game": false,
-        "conference_game": true,
-        "away_division": "AFC East",
-        "home_division": "AFC North"
-      },
-      "expectation_context": {
-        "away_team": "NYJ",
-        "home_team": "PIT",
-        "away": {
-          "team": "NYJ",
-          "conference": "AFC",
-          "division": "AFC East",
-          "games_tracked": 1,
-          "actual_wins": 0,
-          "actual_losses": 0,
-          "points_for": 0.0,
-          "points_against": 0.0,
-          "vegas_win_total": 5.5,
-          "actual_win_pct": 0.0,
-          "pythagorean_exponent": 2.37,
-          "pythagorean_win_pct": null,
-          "pythagorean_wins_tracked": null,
-          "pythagorean_wins_17_game_pace": null,
-          "actual_vs_pythagorean": null,
-          "pythagorean_pace_vs_vegas": null,
-          "actual_pace_vs_vegas": -5.5,
-          "expectation_band": "unknown"
-        },
-        "home": {
-          "team": "PIT",
-          "conference": "AFC",
-          "division": "AFC North",
-          "games_tracked": 1,
-          "actual_wins": 0,
-          "actual_losses": 0,
-          "points_for": 0.0,
-          "points_against": 0.0,
-          "vegas_win_total": 8.5,
-          "actual_win_pct": 0.0,
-          "pythagorean_exponent": 2.37,
-          "pythagorean_win_pct": null,
-          "pythagorean_wins_tracked": null,
-          "pythagorean_wins_17_game_pace": null,
-          "actual_vs_pythagorean": null,
-          "pythagorean_pace_vs_vegas": null,
-          "actual_pace_vs_vegas": -8.5,
-          "expectation_band": "unknown"
-        },
-        "games_tracked_min": 1,
-        "pythagorean_wins_delta": null,
-        "vegas_win_total_delta": -3.0,
-        "pythagorean_vs_vegas_delta": null,
-        "actual_vs_pythagorean_delta": null,
-        "pythagorean_side": null,
-        "market_expectation_side": "HOME",
-        "value_gap_side": null,
-        "overperformance_side": null,
-        "sample_warning": true
-      },
-      "source_health_status": "DEGRADED",
-      "data_quality_status": "DEGRADED",
-      "result": {
-        "away_score": NaN,
-        "home_score": NaN,
-        "final_margin": NaN,
-        "final_total": NaN
-      },
-      "explanation": {
-        "key": "NYJ@PIT:initial",
-        "season": "2026",
-        "season_type": "PRE",
-        "week": "PRE2",
-        "matchup_key": "NYJ@PIT",
-        "away_tla": "NYJ",
-        "home_tla": "PIT",
-        "stage": "initial",
-        "raw_action": "play",
-        "quality_action": "play",
-        "quality_gate": "warn",
-        "confidence": "standard",
-        "market": "spread",
-        "side": "HOME",
-        "selector_score": "3.0",
-        "label": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers -3.5 (proceed with caution)",
-        "source_health_status": "DEGRADED",
-        "data_quality_status": "DEGRADED",
-        "promoted_matches": [
-          {
-            "factor": "market_expectation_side=HOME",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 6,
-            "wins": 6,
-            "losses": 0,
-            "lift": 0.2222
-          },
-          {
-            "factor": "best_edge_side=HOME",
-            "status": "monitor",
-            "allowed": false,
-            "plays": 5,
-            "wins": 4,
-            "losses": 1,
-            "lift": 0.0222
-          }
-        ],
-        "source_blockers": [],
-        "source_warnings": [
-          "source_health_status=DEGRADED",
-          "data_quality_status=DEGRADED"
-        ],
-        "market_signals": [
-          "sharp"
-        ],
-        "market_conflicts": [],
-        "market_blockers": [],
-        "alignment": {
-          "pythagorean": "missing",
-          "market_expectation": "aligned",
-          "value_gap": "missing",
-          "overperformance": "missing",
-          "warps_spread": "",
-          "warps_moneyline": ""
-        },
-        "reasons": [
-          "Selector isolated spread HOME",
-          "Signals: sharp",
-          "Promoted factors matched: 2",
-          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
-        ],
-        "result": "",
-        "margin_to_line": ""
-      }
-    }
-  ],
+  "best_edges": [],
   "survivor": {
     "available": true,
     "week": 1,
