@@ -99,8 +99,9 @@ jobs:
             fi
           fi
 
-          # Normalize a possible decimal-looking manual value while preserving labels.
+          # Normalize: strip decimal suffix, uppercase (so pre2/Pre2 → PRE2)
           WEEK="${WEEK%.*}"
+          WEEK=$(echo "$WEEK" | tr '[:lower:]' '[:upper:]')
 
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "season=$SEASON" >> $GITHUB_OUTPUT

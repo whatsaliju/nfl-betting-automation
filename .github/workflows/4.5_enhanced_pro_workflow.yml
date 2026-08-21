@@ -60,6 +60,8 @@ jobs:
           else
             WEEK=$(git log --pretty=format: --name-only --diff-filter=A -- 'data/week*/week*_referees.csv' | grep -m1 -oP 'week\K[A-Za-z0-9]+(?=_referees)')
           fi
+          # Normalize to uppercase so pre2/Pre2 → PRE2 matches data directory names
+          WEEK=$(echo "$WEEK" | tr '[:lower:]' '[:upper:]')
 
           # Infer season type from week label; respect explicit override
           SEASON_TYPE="${{ github.event.inputs.season_type }}"
