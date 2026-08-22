@@ -1,6 +1,8 @@
 name: 9. Analysis – Model vs Actual Bets (Manual)
 
 on:
+  repository_dispatch:
+    types: [grades-complete]
   workflow_dispatch:
     inputs:
       week:
@@ -27,7 +29,7 @@ jobs:
 
       - name: Run Model vs Actuals Join
         env:
-          WEEK: ${{ github.event.inputs.week }}
+          WEEK: ${{ github.event.inputs.week || github.event.client_payload.week }}
         run: |
           if [ ! -f "analysis/join_model_and_actuals.py" ]; then
             echo "ERROR: analysis/join_model_and_actuals.py does not exist."

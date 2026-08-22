@@ -344,3 +344,10 @@ jobs:
             git rebase --continue
           }
           git push
+
+      - name: Notify downstream workflows
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: analysis-complete
+          client-payload: '{"week": "${{ steps.info.outputs.week }}", "season": "${{ steps.info.outputs.season }}", "season_type": "${{ steps.info.outputs.season_type }}", "stage": "${{ steps.info.outputs.stage }}"}'

@@ -1,13 +1,12 @@
 name: 5. Send Conversational Analysis Email
 
 on:
-  # Push trigger removed (C-2): WF4.5 already sends an email via nfl_reporter.py on every run.
-  # Keeping this trigger caused a duplicate email on every analysis commit. Trigger manually
-  # via workflow_dispatch when a standalone betting-card email is explicitly wanted.
+  repository_dispatch:
+    types: [analysis-complete]
   workflow_dispatch:
     inputs:
       week:
-        description: 'NFL week (auto-detected from matrix feed if blank)'
+        description: 'NFL week (auto-detected from current_week.json if blank)'
         required: false
         default: ''
         type: string
@@ -28,16 +27,21 @@ jobs:
       - name: Determine Week and Context
         id: file_vars
         run: |
-          CHANGED_FILE=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E 'data/week[A-Za-z0-9]+/week[A-Za-z0-9]+_executive_summary.txt' | head -n 1)
-
-          if [ -z "$CHANGED_FILE" ]; then
+          # Priority 1: explicit dispatch payload week
+          WEEK_NUM="${{ github.event.client_payload.week }}"
+          # Priority 2: manual workflow_dispatch input
+          [ -z "$WEEK_NUM" ] && WEEK_NUM="${{ github.event.inputs.week }}"
+          # Priority 3: current_week.json
+          if [ -z "$WEEK_NUM" ]; then
+            WEEK_NUM=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('week',''))" 2>/dev/null || echo "")
+          fi
+          # Priority 4: matrix feed
+          if [ -z "$WEEK_NUM" ]; then
             WEEK_NUM=$(python3 -c "import json; d=json.load(open('data/historical/matrix_engine_feed.json')); print(d.get('current_context',{}).get('week','unknown') or 'unknown')" 2>/dev/null || echo "unknown")
-            if [ "$WEEK_NUM" = "unknown" ] || [ -z "$WEEK_NUM" ]; then
-              echo "::warning::No data file found. Skipping email."
-              exit 0
-            fi
-          else
-            WEEK_NUM=$(echo "$CHANGED_FILE" | grep -oP 'week\K[A-Za-z0-9]+' | head -n 1)
+          fi
+          if [ -z "$WEEK_NUM" ] || [ "$WEEK_NUM" = "unknown" ]; then
+            echo "::warning::No week found. Skipping email."
+            exit 0
           fi
 
           DAY_OF_WEEK=$(date +%u)
