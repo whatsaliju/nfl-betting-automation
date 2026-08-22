@@ -25,7 +25,19 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial, lru_cache
 # >>> END NEW IMPORTS <<<
-from data.schedule_rest_2025 import SCHEDULE_REST_DATA_2025
+def _load_schedule_rest(season):
+    """Dynamically import the year-stamped schedule rest data module."""
+    try:
+        import importlib
+        mod = importlib.import_module(f"data.schedule_rest_{season}")
+        return getattr(mod, f"SCHEDULE_REST_DATA_{season}", {})
+    except (ImportError, AttributeError):
+        # Module doesn't exist yet for this season — return empty dict
+        return {}
+
+from analyzers.nfl_common import get_current_season as _get_current_season
+_CURRENT_SEASON = _get_current_season()
+SCHEDULE_REST_DATA = _load_schedule_rest(_CURRENT_SEASON)
 sys.path.append(os.path.dirname(__file__))
 import performance_tracker
 from playoff_stats_enhancement import PlayoffStatsAnalyzer
@@ -217,15 +229,12 @@ def calculate_schedule_score(week, home_tla, away_tla):
     Calculates schedule score with robust error handling for all weeks
     """
     try:
-        # Import with error details
-        from data.schedule_rest_2025 import SCHEDULE_REST_DATA_2025
-        
         week_key = f"W{week}" if isinstance(week, int) else week
-        rest_data = SCHEDULE_REST_DATA_2025.get(week_key, {})
-        
+        rest_data = SCHEDULE_REST_DATA.get(week_key, {})
+
         if not rest_data:
             # This will help debug if specific weeks are missing
-            available_weeks = list(SCHEDULE_REST_DATA_2025.keys())
+            available_weeks = list(SCHEDULE_REST_DATA.keys())
             return 0, f"Week {week_key} not found. Available: {available_weeks[:5]}..."
         
         home_rest = rest_data.get(home_tla, 7)

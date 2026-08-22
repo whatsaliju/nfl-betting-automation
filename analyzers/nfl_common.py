@@ -29,6 +29,24 @@ TEAM_MAP = {
 FULL_NAME_TO_TLA = {full.lower(): tla for tla, full in TEAM_MAP.items()}
 
 
+def get_current_season(fallback=2026):
+    """Return the active NFL season year from data/current_week.json.
+
+    Falls back to `fallback` if the file is absent or unreadable.  Any script
+    that previously hardcoded a season year should call this instead.
+    """
+    import json as _json
+    for path in ("data/current_week.json", "../data/current_week.json"):
+        try:
+            with open(path) as _f:
+                val = _json.load(_f).get("season")
+            if val:
+                return int(val)
+        except Exception:
+            pass
+    return fallback
+
+
 def canonical_team(team_raw):
     if not team_raw:
         return ""

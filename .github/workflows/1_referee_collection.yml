@@ -45,6 +45,7 @@ jobs:
         run: |
           SEASON="${{ github.event.inputs.season }}"
           [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
+          [ -z "$SEASON" ] && SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
           [ -z "$SEASON" ] && SEASON="2026"
           START_DATE="${{ vars.NFL_SEASON_START_DATE }}"
           [ -z "$START_DATE" ] && START_DATE="${SEASON}-09-10"

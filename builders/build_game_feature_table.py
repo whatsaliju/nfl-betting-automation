@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from analyzers.nfl_common import canonical_team, split_matchup
+from analyzers.nfl_common import canonical_team, get_current_season, split_matchup
 from builders.build_matrix_engine_feed import (
     build_team_expectations,
     candidate_payload,
@@ -494,11 +494,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--feed", type=Path, default=DEFAULT_FEED)
     parser.add_argument("--replay-root", type=Path, default=None)
-    parser.add_argument("--season", type=int, default=2025)
+    parser.add_argument("--season", type=int, default=None)
     parser.add_argument("--stage", default="final")
     parser.add_argument("--json-output", type=Path, default=DEFAULT_JSON)
     parser.add_argument("--csv-output", type=Path, default=DEFAULT_CSV)
     args = parser.parse_args()
+    if args.season is None:
+        args.season = get_current_season()
 
     if args.replay_root:
         rows = build_replay_rows(args.replay_root, args.season, args.stage)
