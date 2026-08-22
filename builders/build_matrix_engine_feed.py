@@ -844,6 +844,26 @@ def make_week_label(season_type, week):
 
 
 def current_context_payload(games, card_payload, preseason_payload):
+    # M-1 fix: prefer data/current_week.json as the authoritative week/season context.
+    # Without this, max() over card rows can pick a prior-season row with a higher week
+    # number, overriding the correct current week.
+    _cw_season = None
+    _cw_week = None
+    _cw_season_type = None
+    _cw_path = ROOT / "data" / "current_week.json"
+    if _cw_path.exists():
+        try:
+            _cw = json.loads(_cw_path.read_text())
+            _s = _cw.get("season")
+            _w = str(_cw.get("week", "")).strip()
+            _st = str(_cw.get("season_type", "")).strip().upper()
+            if _s and _w:
+                _cw_season = int(_s)
+                _cw_week = _w
+                _cw_season_type = _st or "REG"
+        except Exception:
+            pass  # Fall through to card-scanning fallback
+
     cards = card_payload.get("cards") or []
     active_cards = [
         row for row in cards
@@ -853,6 +873,42 @@ def current_context_payload(games, card_payload, preseason_payload):
         row for row in games
         if row.get("season") == ACTIVE_SEASON and row.get("season_type") in ("PRE", "REG", "POST")
     ]
+
+    if _cw_season and _cw_week and _cw_season_type:
+        # current_week.json is authoritative — skip card-row scanning for week/season_type.
+        season_type = _cw_season_type
+        week = _cw_week
+        # Still derive stage from any card rows that match this specific week, if available.
+        week_cards = [
+            row for row in active_cards
+            if str(row.get("week") or "") == str(week) and row.get("season_type") == season_type
+        ]
+        if week_cards:
+            _best = max(
+                week_cards,
+                key=lambda row: (
+                    row.get("latest", {}).get("stage") in ("lock", "final")
+                    if isinstance(row.get("latest"), dict) else False,
+                ),
+            )
+            stage = (
+                (_best.get("latest") or {}).get("stage")
+                if isinstance(_best.get("latest"), dict)
+                else _best.get("stage")
+            )
+        else:
+            stage = None
+        return {
+            "season": _cw_season,
+            "season_type": season_type,
+            "week": week,
+            "week_label": make_week_label(season_type, week),
+            "stage": stage,
+            "status": "LIVE_CARD" if active_cards else "LIVE_GAMES_NO_CARD",
+            "mode": "live",
+            "has_betting_card": bool(active_cards),
+            "message": "Current active engine context from current_week.json.",
+        }
 
     candidates = active_cards or active_games
     if candidates:
