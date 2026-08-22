@@ -1,20 +1,24 @@
 name: 6. Enhanced Performance Tracker
 on:
+  schedule:
+    - cron: '0 12 * * 2'  # Tuesday noon UTC (8am ET) — after Monday night games finish
+  repository_dispatch:
+    types: [grade-ready]
   workflow_dispatch:
     inputs:
       week:
-        description: 'NFL Week Number'
-        required: true
-        default: '12'
+        description: 'NFL Week Number (auto-detected from current_week.json if blank)'
+        required: false
+        default: ''
         type: string
       season:
-        description: 'NFL season year'
+        description: 'NFL season year (auto-detected if blank)'
         required: false
-        default: '2026'
+        default: ''
         type: string
       action:
         description: 'Action to perform'
-        required: true
+        required: false
         default: 'auto'
         type: choice
         options:
@@ -47,12 +51,31 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pandas numpy requests
-    
+
+    - name: Resolve week and season
+      id: resolve
+      run: |
+        WEEK="${{ github.event.inputs.week }}"
+        [ -z "$WEEK" ] && WEEK="${{ github.event.client_payload.week }}"
+        if [ -z "$WEEK" ]; then
+          WEEK=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('week',''))" 2>/dev/null || echo "")
+        fi
+        SEASON="${{ github.event.inputs.season }}"
+        [ -z "$SEASON" ] && SEASON="${{ github.event.client_payload.season }}"
+        if [ -z "$SEASON" ]; then
+          SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season', 2026))" 2>/dev/null || echo "2026")
+        fi
+        SEASON_TYPE=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season_type', 'REG'))" 2>/dev/null || echo "REG")
+        echo "week=$WEEK" >> $GITHUB_OUTPUT
+        echo "season=$SEASON" >> $GITHUB_OUTPUT
+        echo "season_type=$SEASON_TYPE" >> $GITHUB_OUTPUT
+        echo "🏈 Week: $WEEK  Season: $SEASON  Type: $SEASON_TYPE"
+
     - name: Process Week Performance
       env:
-        WEEK: ${{ github.event.inputs.week }}
-        SEASON: ${{ github.event.inputs.season || '' }}
-        ACTION: ${{ github.event.inputs.action }}
+        WEEK: ${{ steps.resolve.outputs.week }}
+        SEASON: ${{ steps.resolve.outputs.season }}
+        ACTION: ${{ github.event.inputs.action || 'auto' }}
         ANALYTICS_FILE: ${{ github.event.inputs.analytics_file }}
       run: |
         python <<EOF
@@ -60,15 +83,15 @@ jobs:
         from analyzers.performance_tracker import EnhancedPerformanceTracker
         
         # Get inputs
-        week = int(os.getenv('WEEK'))
+        sys.path.insert(0, '.')
+        from analyzers.nfl_common import get_current_season
+        week_env = os.getenv('WEEK', '').strip()
+        if not week_env:
+            raise SystemExit('WEEK is empty — current_week.json may not exist yet')
+        week = int(week_env) if week_env.isdigit() else week_env
         season_env = os.getenv('SEASON', '').strip()
-        if season_env:
-            season = int(season_env)
-        else:
-            sys.path.insert(0, '.')
-            from analyzers.nfl_common import get_current_season
-            season = get_current_season()
-        action = os.getenv('ACTION')
+        season = int(season_env) if season_env else get_current_season()
+        action = os.getenv('ACTION', 'auto')
         analytics_file = os.getenv('ANALYTICS_FILE').strip() or None
         
         print('🏈 Processing Week ' + str(week) + ' - Action: ' + action)
@@ -267,23 +290,21 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        
-        # Check if there are changes to commit
+        WEEK="${{ steps.resolve.outputs.week }}"
+        ACTION="${{ github.event.inputs.action || 'auto' }}"
         if [ -n "$(git status --porcelain)" ]; then
-          
-          # Stage files (your original line)
-          git add data/historical/ week${{ github.event.inputs.week }}_performance_report.txt
-          
-          # 1. COMMIT LOCAL CHANGES FIRST (FIXES: 'index contains uncommitted changes')
-          git commit -m "📊 Performance update: Week ${{ github.event.inputs.week }} (${{ github.event.inputs.action }})"
-          
-          # 2. PULL AND REBASE (FIXES: 'non-fast-forward' push failures)
+          git add data/historical/ week${WEEK}_performance_report.txt
+          git commit -m "📊 Performance update: Week ${WEEK} (${ACTION})"
           git pull --rebase
-          
-          # 3. PUSH the finalized commit
           git push
-          
           echo "✅ Performance data committed and pushed"
         else
           echo "ℹ️ No changes to commit"
         fi
+
+    - name: Notify grader
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        event-type: performance-complete
+        client-payload: '{"week": "${{ steps.resolve.outputs.week }}", "season": "${{ steps.resolve.outputs.season }}", "season_type": "${{ steps.resolve.outputs.season_type }}"}'

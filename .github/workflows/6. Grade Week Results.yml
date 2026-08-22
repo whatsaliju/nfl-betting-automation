@@ -1,21 +1,23 @@
 name: 6. Grade Week Results
 
 on:
+  repository_dispatch:
+    types: [performance-complete]
   workflow_dispatch:
     inputs:
       week:
-        description: "NFL Week (1-18, PRE1, PRE2, PRE3, WC, DIV, CONF, SB)"
-        required: true
+        description: "NFL Week (1-18, PRE1, PRE2, PRE3, WC, DIV, CONF, SB) — auto-detected from current_week.json if blank"
+        required: false
         type: string
       season:
-        description: "NFL season"
+        description: "NFL season (auto-detected if blank)"
         required: false
-        default: "2026"
+        default: ""
         type: string
       season_type:
-        description: "Season type (PRE, REG, or POST)"
+        description: "Season type (PRE, REG, or POST — auto-detected if blank)"
         required: false
-        default: "REG"
+        default: ""
         type: string
 
 jobs:
@@ -30,19 +32,46 @@ jobs:
 
       - run: pip install pandas requests
 
+      - name: Resolve week and season
+        id: resolve
+        run: |
+          WEEK="${{ github.event.inputs.week }}"
+          [ -z "$WEEK" ] && WEEK="${{ github.event.client_payload.week }}"
+          if [ -z "$WEEK" ]; then
+            WEEK=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('week',''))" 2>/dev/null || echo "")
+          fi
+          SEASON="${{ github.event.inputs.season }}"
+          [ -z "$SEASON" ] && SEASON="${{ github.event.client_payload.season }}"
+          if [ -z "$SEASON" ]; then
+            SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season', 2026))" 2>/dev/null || echo "2026")
+          fi
+          SEASON_TYPE="${{ github.event.inputs.season_type }}"
+          [ -z "$SEASON_TYPE" ] && SEASON_TYPE="${{ github.event.client_payload.season_type }}"
+          if [ -z "$SEASON_TYPE" ]; then
+            SEASON_TYPE=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season_type', 'REG'))" 2>/dev/null || echo "REG")
+          fi
+          BACKTEST_DIR="data/backtests/engine_${SEASON}_1_configured"
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "season=$SEASON" >> $GITHUB_OUTPUT
+          echo "season_type=$SEASON_TYPE" >> $GITHUB_OUTPUT
+          echo "backtest_dir=$BACKTEST_DIR" >> $GITHUB_OUTPUT
+          echo "🏈 Week: $WEEK  Season: $SEASON  Type: $SEASON_TYPE"
+
       - name: Grade Week
         run: |
           python3 graders/grade_week_results.py \
-            --season ${{ github.event.inputs.season }} \
-            --week ${{ github.event.inputs.week }} \
-            --season-type ${{ github.event.inputs.season_type }}
+            --season ${{ steps.resolve.outputs.season }} \
+            --week ${{ steps.resolve.outputs.week }} \
+            --season-type ${{ steps.resolve.outputs.season_type }}
 
       - name: Refresh Week Master and Matrix Feed
+        env:
+          BACKTEST_DIR: ${{ steps.resolve.outputs.backtest_dir }}
         run: |
           python3 builders/build_week_master_table.py \
-            --season ${{ github.event.inputs.season }} \
-            --week ${{ github.event.inputs.week }} \
-            --season-type ${{ github.event.inputs.season_type }}
+            --season ${{ steps.resolve.outputs.season }} \
+            --week ${{ steps.resolve.outputs.week }} \
+            --season-type ${{ steps.resolve.outputs.season_type }}
           # Build betting card first so the matrix feed reads the current week's card (not prior week)
           python3 scripts/build_pick_explanations.py
           python3 scripts/build_weekly_betting_card.py
@@ -50,13 +79,13 @@ jobs:
           echo "--- build_game_feature_table (historical) ---"
           python3 builders/build_game_feature_table.py
           # Rebuild backtest game_features with graded results from pick_results.csv
-          if [ -d data/backtests/engine_2026_1_configured ]; then
+          if [ -d "$BACKTEST_DIR" ]; then
             echo "--- build_game_feature_table (backtest) ---"
             python3 builders/build_game_feature_table.py \
-              --replay-root data/backtests/engine_2026_1_configured \
-              --season ${{ github.event.inputs.season }} \
-              --json-output data/backtests/engine_2026_1_configured/game_features.json \
-              --csv-output data/backtests/engine_2026_1_configured/game_features.csv
+              --replay-root "$BACKTEST_DIR" \
+              --season ${{ steps.resolve.outputs.season }} \
+              --json-output "$BACKTEST_DIR/game_features.json" \
+              --csv-output "$BACKTEST_DIR/game_features.csv"
           fi
           python3 scripts/audit_game_features.py
           python3 scripts/generate_feature_research_report.py \
@@ -64,7 +93,7 @@ jobs:
             --audit data/historical/game_feature_audit.csv \
             --json-output data/historical/feature_research_report.json \
             --md-output data/historical/feature_research_report.md
-          if [ -f data/backtests/engine_2026_1_configured/game_features.csv ]; then
+          if [ -f "$BACKTEST_DIR/game_features.csv" ]; then
             python3 scripts/build_model_training_dataset.py
             python3 scripts/evaluate_factor_promotion.py
             python3 scripts/simulate_promotion_overlays.py
@@ -74,17 +103,17 @@ jobs:
             python3 scripts/audit_closing_line_value.py
             python3 scripts/generate_backtest_coverage_report.py
             python3 scripts/build_pick_explanations.py \
-              --features data/backtests/engine_2026_1_configured/game_features.csv \
-              --json-output data/backtests/engine_2026_1_configured/pick_explanations.json \
-              --csv-output data/backtests/engine_2026_1_configured/pick_explanations.csv \
-              --md-output data/backtests/engine_2026_1_configured/pick_explanations.md
+              --features "$BACKTEST_DIR/game_features.csv" \
+              --json-output "$BACKTEST_DIR/pick_explanations.json" \
+              --csv-output "$BACKTEST_DIR/pick_explanations.csv" \
+              --md-output "$BACKTEST_DIR/pick_explanations.md"
           fi
 
       - name: Build Week Results JSON
         env:
-          WEEK: ${{ github.event.inputs.week }}
-          SEASON: ${{ github.event.inputs.season }}
-          SEASON_TYPE: ${{ github.event.inputs.season_type }}
+          WEEK: ${{ steps.resolve.outputs.week }}
+          SEASON: ${{ steps.resolve.outputs.season }}
+          SEASON_TYPE: ${{ steps.resolve.outputs.season_type }}
         run: |
           python3 << 'EOF'
           import json, pandas as pd, re
@@ -224,6 +253,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/historical/ data/backtests/engine_2026_1_configured/ data/week${{ github.event.inputs.week }}/
-          git commit -m "📊 Grade Week ${{ github.event.inputs.week }} results" || exit 0
+          WEEK="${{ steps.resolve.outputs.week }}"
+          BACKTEST_DIR="${{ steps.resolve.outputs.backtest_dir }}"
+          git add data/historical/ data/week${WEEK}/
+          [ -d "$BACKTEST_DIR" ] && git add "$BACKTEST_DIR/"
+          git commit -m "📊 Grade Week ${WEEK} results" || exit 0
+          git pull --rebase origin main || true
           git push
+
+      - name: Notify model-vs-actuals
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: grades-complete
+          client-payload: '{"week": "${{ steps.resolve.outputs.week }}", "season": "${{ steps.resolve.outputs.season }}"}'
