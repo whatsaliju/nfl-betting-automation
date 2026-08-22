@@ -65,6 +65,7 @@ jobs:
         run: |
           SEASON="${{ github.event.inputs.season }}"
           [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
+          [ -z "$SEASON" ] && SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
           [ -z "$SEASON" ] && SEASON="2026"
           WEEK=""
           # Priority 1: workflow_dispatch input

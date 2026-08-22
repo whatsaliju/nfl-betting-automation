@@ -59,44 +59,23 @@ SURVIVOR_POOL_EV_BACKTEST = HISTORICAL_DIR / "survivor_pool_ev_backtest.json"
 SURVIVOR_RECOMMENDATIONS = HISTORICAL_DIR / "survivor_recommendations_2026.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
-ACTIVE_SEASON = 2026
+from analyzers.nfl_common import get_current_season as _get_current_season
+ACTIVE_SEASON = _get_current_season()
 PYTHAGOREAN_EXPONENT = 2.37
-CURRENT_SEASON = 2026
-# BetMGM 2026 season win totals (July 2026)
-VEGAS_WIN_TOTALS_2026 = {
-    "ARI": 4.5,
-    "ATL": 7.5,
-    "BAL": 11.5,
-    "BUF": 10.5,
-    "CAR": 7.5,
-    "CHI": 9.5,
-    "CIN": 9.5,
-    "CLE": 6.5,
-    "DAL": 9.5,
-    "DEN": 9.5,
-    "DET": 10.5,
-    "GB": 10.5,
-    "HOU": 9.5,
-    "IND": 7.5,
-    "JAX": 9.5,
-    "KC": 10.5,
-    "LAC": 10.5,
-    "LAR": 11.5,
-    "LV": 5.5,
-    "MIA": 4.5,
-    "MIN": 8.5,
-    "NE": 9.5,
-    "NO": 7.5,
-    "NYG": 7.5,
-    "NYJ": 5.5,
-    "PHI": 10.5,
-    "PIT": 8.5,
-    "SEA": 10.5,
-    "SF": 10.5,
-    "TB": 8.5,
-    "TEN": 6.5,
-    "WAS": 7.5,
-}
+CURRENT_SEASON = _get_current_season()
+
+
+def _load_vegas_win_totals(season):
+    import json as _json
+    try:
+        with open("data/historical/vegas_win_totals.json") as _f:
+            all_totals = _json.load(_f)
+        return all_totals.get(str(season), {})
+    except Exception:
+        return {}
+
+
+VEGAS_WIN_TOTALS = _load_vegas_win_totals(ACTIVE_SEASON)
 DIVISIONS = {
     "AFC East": {"BUF", "MIA", "NE", "NYJ"},
     "AFC North": {"BAL", "CIN", "CLE", "PIT"},
@@ -237,7 +216,7 @@ def expectation_band(actual_vs_pythag):
 
 def build_team_expectations(games):
     teams = {}
-    for team in VEGAS_WIN_TOTALS_2026:
+    for team in VEGAS_WIN_TOTALS:
         teams[team] = {
             "team": team,
             "conference": team_conference(team),
@@ -247,7 +226,7 @@ def build_team_expectations(games):
             "actual_losses": 0,
             "points_for": 0,
             "points_against": 0,
-            "vegas_win_total": VEGAS_WIN_TOTALS_2026.get(team),
+            "vegas_win_total": VEGAS_WIN_TOTALS.get(team),
         }
 
     for game in games:
@@ -277,7 +256,7 @@ def build_team_expectations(games):
                     "actual_losses": 0,
                     "points_for": 0,
                     "points_against": 0,
-                    "vegas_win_total": VEGAS_WIN_TOTALS_2026.get(team),
+                    "vegas_win_total": VEGAS_WIN_TOTALS.get(team),
                 }
 
         away_won = away_score > home_score
@@ -931,7 +910,7 @@ def current_context_payload(games, card_payload, preseason_payload):
             "status": "LIVE_CARD" if active_cards else "LIVE_GAMES_NO_CARD",
             "mode": "live",
             "has_betting_card": bool(active_cards),
-            "message": "Current active engine context from 2026 artifacts.",
+            "message": f"Current active engine context from {ACTIVE_SEASON} artifacts.",
         }
 
     if preseason_payload.get("available"):
@@ -969,7 +948,7 @@ def current_context_payload(games, card_payload, preseason_payload):
         "mode": "planning",
         "has_betting_card": False,
         "historical_card_available": historical_cards,
-        "message": "No 2026 live card is published yet. Historical cards are retained for audit only.",
+        "message": f"No {ACTIVE_SEASON} live card is published yet. Historical cards are retained for audit only.",
     }
 
 
@@ -1578,7 +1557,7 @@ def build_feed():
     )
 
     feed = {
-        "feed_version": "2026.1",
+        "feed_version": f"{ACTIVE_SEASON}.1",
         "source": "nfl-betting-automation weekly master files",
         "game_count": len(games),
         "team_cell_count": len(team_cells),

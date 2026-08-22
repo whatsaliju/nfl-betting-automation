@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Optional
 import numpy as np
 import re
+from analyzers.nfl_common import get_current_season
 
 
 class EnhancedPerformanceTracker:
@@ -42,8 +43,9 @@ class EnhancedPerformanceTracker:
             ])
             df.to_csv(self.results_file, index=False)
     
-    def fetch_week_scores(self, week: int, season: int = 2025) -> Dict[str, Dict]:
+    def fetch_week_scores(self, week: int, season: int = None) -> Dict[str, Dict]:
         """Fetch NFL scores for a specific week using ESPN API with proper historical parameters."""
+        season = season or get_current_season()
         try:
             # Use proper ESPN parameters for historical weeks
             url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
@@ -108,8 +110,8 @@ class EnhancedPerformanceTracker:
         try:
             # Look for Action Network files
             action_files = [
-                "action_all_markets_2025-11-17.csv",  # Week 11 date
-                "action_all_markets_2025-11-24.csv",  # Week 12 date
+                # Dated fallback CSVs must be supplied at runtime
+                # (e.g. "action_all_markets_2026-11-16.csv")
                 "action_all_markets_" + str(week) + ".csv"
             ]
             
@@ -126,9 +128,9 @@ class EnhancedPerformanceTracker:
             print("⚠️ Action Network fallback failed: " + str(e))
             return {}
     
-    def update_pass_results(self, week: int, season: int = 2025):
+    def update_pass_results(self, week: int, season: int = None):
         """Update the outcomes of games we passed on to validate our discipline"""
-        
+        season = season or get_current_season()
         passes_file = "data/historical/betting_passes.csv"
         
         if not os.path.exists(passes_file):
@@ -154,9 +156,9 @@ class EnhancedPerformanceTracker:
         
         return updated_count
         
-    def update_week_results_auto(self, week: int, season: int = 2025):
+    def update_week_results_auto(self, week: int, season: int = None):
         """Automatically update results using NFL API or ESPN data"""
-        
+        season = season or get_current_season()
         try:
             # Load existing results
             if not os.path.exists(self.results_file):
@@ -375,11 +377,12 @@ class EnhancedPerformanceTracker:
         
         return result
     
-    def log_week_recommendations(self, week: int, analytics_file_path: str, season: int = 2025): # Added season default
+    def log_week_recommendations(self, week: int, analytics_file_path: str, season: int = None):
         """
         Logs recommendations from the analytics file to the betting results CSV.
         Handles multiple bets per recommendation string by creating multiple rows.
         """
+        season = season or get_current_season()
         if not os.path.exists(analytics_file_path):
             print(f"Analytics file not found: {analytics_file_path}")
             return

@@ -15,6 +15,7 @@ import sys
 import pandas as pd
 from datetime import datetime, timedelta
 import argparse
+from nfl_common import get_current_season, regular_season_sunday
 
 # Configuration
 # GimmeTheDog / SDQL Credentials (from environment or fallback to local)
@@ -26,7 +27,8 @@ ODDS_API_KEY = os.getenv('ODDS_API_KEY')
 
 def get_current_nfl_week():
     """Auto-detect NEXT NFL week (upcoming games)"""
-    season_start = datetime(2025, 9, 5)
+    _season = get_current_season()
+    season_start = datetime.combine(regular_season_sunday(_season, 1), datetime.min.time())
     today = datetime.now()
     
     if today < season_start:

@@ -51,7 +51,7 @@ jobs:
     - name: Process Week Performance
       env:
         WEEK: ${{ github.event.inputs.week }}
-        SEASON: ${{ github.event.inputs.season || '2026' }}
+        SEASON: ${{ github.event.inputs.season || '' }}
         ACTION: ${{ github.event.inputs.action }}
         ANALYTICS_FILE: ${{ github.event.inputs.analytics_file }}
       run: |
@@ -61,7 +61,13 @@ jobs:
         
         # Get inputs
         week = int(os.getenv('WEEK'))
-        season = int(os.getenv('SEASON', '2026'))
+        season_env = os.getenv('SEASON', '').strip()
+        if season_env:
+            season = int(season_env)
+        else:
+            sys.path.insert(0, '.')
+            from analyzers.nfl_common import get_current_season
+            season = get_current_season()
         action = os.getenv('ACTION')
         analytics_file = os.getenv('ANALYTICS_FILE').strip() or None
         
