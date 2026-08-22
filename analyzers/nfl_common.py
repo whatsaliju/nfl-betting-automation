@@ -175,11 +175,16 @@ def espn_week(season_type=None, week=None):
     return max(1, week - 18)
 
 
+_WEEK1_SUNDAY = {
+    2025: date(2025, 9, 7),   # Season opened Fri 2025-09-05; Week 1 Sunday two days later
+    2026: date(2026, 9, 6),   # Season opens Thu 2026-09-03; Week 1 Sunday three days later
+}
+
 def regular_season_sunday(season, week):
-    # 2025 season opened Friday 2025-09-05. Sunday of Week 1 is two days later.
-    if season != 2025:
-        raise ValueError("This helper currently knows the 2025 calendar only.")
-    return date(2025, 9, 7) + timedelta(days=(week - 1) * 7)
+    anchor = _WEEK1_SUNDAY.get(season)
+    if anchor is None:
+        raise ValueError(f"regular_season_sunday: no Week 1 anchor for season {season}. Add it to _WEEK1_SUNDAY.")
+    return anchor + timedelta(days=(week - 1) * 7)
 
 
 def _week_num(week) -> int:
@@ -206,13 +211,12 @@ def week_anchor_date(season, week, season_type=None):
         # Approximate first preseason Sunday. Exact dry-run dates should come
         # from schedule data once preseason markets are available.
         return date(season, 8, 3) + timedelta(days=(week_num - 1) * 7)
-    if season == 2025 and season_type == "POST":
-        anchors = {
-            19: date(2026, 1, 11),
-            20: date(2026, 1, 18),
-            21: date(2026, 1, 25),
-            22: date(2026, 2, 8),
-        }
+    _POST_ANCHORS = {
+        2025: {19: date(2026, 1, 11), 20: date(2026, 1, 18), 21: date(2026, 1, 25), 22: date(2026, 2, 8)},
+        2026: {19: date(2027, 1, 10), 20: date(2027, 1, 17), 21: date(2027, 1, 24), 22: date(2027, 2, 7)},
+    }
+    if season_type == "POST" and season in _POST_ANCHORS:
+        anchors = _POST_ANCHORS[season]
         if week_num in anchors:
             return anchors[week_num]
     return regular_season_sunday(season, week_num)

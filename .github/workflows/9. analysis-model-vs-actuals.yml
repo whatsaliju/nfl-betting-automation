@@ -29,6 +29,11 @@ jobs:
         env:
           WEEK: ${{ github.event.inputs.week }}
         run: |
+          if [ ! -f "analysis/join_model_and_actuals.py" ]; then
+            echo "ERROR: analysis/join_model_and_actuals.py does not exist."
+            echo "This script has not been created yet. Create it before running this workflow."
+            exit 1
+          fi
           python3 analysis/join_model_and_actuals.py
 
       - name: Upload Analysis Artifact

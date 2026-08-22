@@ -107,18 +107,24 @@ def validate_model_config(path, failures):
 
 
 def validate_replay_stage_times(failures):
-    expected = {
+    # 2025 regular season — Week 11 (Sun 2025-11-16)
+    expected_2025 = {
         "initial": "2025-11-13T12:00:00+00:00",
         "update": "2025-11-15T12:00:00+00:00",
         "lock": "2025-11-15T16:00:00+00:00",
         "final": "2025-11-16T00:00:00+00:00",
     }
-    for stage, expected_value in expected.items():
+    for stage, expected_value in expected_2025.items():
         got = reference_time_for_stage(2025, 11, stage).isoformat()
-        check(got == expected_value, f"{stage} reference time expected {expected_value}, got {got}", failures)
+        check(got == expected_value, f"2025 Week 11 {stage} reference time expected {expected_value}, got {got}", failures)
     got = reference_time_for_stage(2025, 22, "final", "POST").isoformat()
     expected_value = "2026-02-08T00:00:00+00:00"
-    check(got == expected_value, f"Super Bowl reference time expected {expected_value}, got {got}", failures)
+    check(got == expected_value, f"2025 Super Bowl reference time expected {expected_value}, got {got}", failures)
+
+    # 2026 regular season — Week 1 (Sun 2026-09-06). Validates that regular_season_sunday supports 2026.
+    got_2026_final = reference_time_for_stage(2026, 1, "final").isoformat()
+    check(got_2026_final == "2026-09-06T00:00:00+00:00",
+          f"2026 Week 1 final reference time expected 2026-09-06T00:00:00+00:00, got {got_2026_final}", failures)
 
 
 def validate_replay_outputs(replay_root, stage, failures, expected=None):

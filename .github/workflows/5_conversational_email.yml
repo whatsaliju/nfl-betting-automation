@@ -1,12 +1,16 @@
 name: 5. Send Conversational Analysis Email
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'data/**/week*_executive_summary.txt'
-      - 'data/historical/matrix_engine_feed.json'
+  # Push trigger removed (C-2): WF4.5 already sends an email via nfl_reporter.py on every run.
+  # Keeping this trigger caused a duplicate email on every analysis commit. Trigger manually
+  # via workflow_dispatch when a standalone betting-card email is explicitly wanted.
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'NFL week (auto-detected from matrix feed if blank)'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   send_email:

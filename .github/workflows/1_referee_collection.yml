@@ -53,6 +53,15 @@ jobs:
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK="${{ github.event.inputs.week }}"
           else
+            # Priority 2: current_week.json — canonical pointer written by Workflow 4.5 on every run.
+            # Season-gated so a stale pointer from a prior year is ignored.
+            if [ -f "data/current_week.json" ]; then
+              CW_SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
+              CW_WEEK=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('week',''))" 2>/dev/null || echo "")
+              [ "$CW_SEASON" = "$SEASON" ] && WEEK="$CW_WEEK"
+            fi
+          fi
+          if [ -z "$WEEK" ]; then
             IS_PRESEASON=$(python3 -c "from datetime import datetime; print('yes' if datetime.now() < datetime.strptime('$START_DATE','%Y-%m-%d') else 'no')")
             if [ "$IS_PRESEASON" = "yes" ]; then
               PRE_DAYS=$(python3 -c "from datetime import datetime; print(max(0,(datetime.now()-datetime.strptime('$PRE_START_DATE','%Y-%m-%d')).days))")

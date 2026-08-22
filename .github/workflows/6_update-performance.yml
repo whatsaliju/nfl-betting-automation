@@ -7,6 +7,11 @@ on:
         required: true
         default: '12'
         type: string
+      season:
+        description: 'NFL season year'
+        required: false
+        default: '2026'
+        type: string
       action:
         description: 'Action to perform'
         required: true
@@ -46,6 +51,7 @@ jobs:
     - name: Process Week Performance
       env:
         WEEK: ${{ github.event.inputs.week }}
+        SEASON: ${{ github.event.inputs.season || '2026' }}
         ACTION: ${{ github.event.inputs.action }}
         ANALYTICS_FILE: ${{ github.event.inputs.analytics_file }}
       run: |
@@ -55,6 +61,7 @@ jobs:
         
         # Get inputs
         week = int(os.getenv('WEEK'))
+        season = int(os.getenv('SEASON', '2026'))
         action = os.getenv('ACTION')
         analytics_file = os.getenv('ANALYTICS_FILE').strip() or None
         
@@ -93,11 +100,11 @@ jobs:
                 
                 # Update results with live scores
                 print('🔄 Updating results with live NFL scores...')
-                results = tracker.update_week_results_auto(week, season=2025)
+                results = tracker.update_week_results_auto(week, season=season)
                 
                 # NEW: Update pass results too
                 print('🔄 Updating pass results...')
-                pass_results = tracker.update_pass_results(week, season=2025)
+                pass_results = tracker.update_pass_results(week, season=season)
                 
                 if 'error' in results:
                     print('⚠️ Auto-update failed: ' + str(results.get('error', 'Unknown error')))
@@ -130,7 +137,7 @@ jobs:
                     
             elif action == 'update_only':
                 print('🔄 Updating results only...')
-                results = tracker.update_week_results_auto(week, season=2025)
+                results = tracker.update_week_results_auto(week, season=season)
                 
                 if 'error' not in results:
                     print('✅ Updated ' + str(results.get('updated_games', 0)) + ' games')

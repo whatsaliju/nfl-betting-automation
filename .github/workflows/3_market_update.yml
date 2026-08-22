@@ -235,26 +235,38 @@ jobs:
               sys.exit(0)
           
           # Load COMPLETE Action Network dataset (preserve all games from initial scrape)
+          # Scope to the current week's data directory first to avoid picking up historical CSVs
+          # from prior seasons. Fall back to the global data/ directory only if the week dir is empty.
           try:
-              action_files_in_data = [f for f in os.listdir('data') if f.startswith('action_all_markets_')]
-              if not action_files_in_data:
-                  raise FileNotFoundError("No 'action_all_markets_' files found in 'data' directory.")
-              
-              # Use the OLDEST file (Wednesday's complete scrape) instead of newest
-              earliest_action_file = sorted(action_files_in_data)[0]
-              complete_spreads_path = os.path.join('data', earliest_action_file)
+              week_dir_files = [
+                  f for f in os.listdir(f'data/week{week}') if f.startswith('action_all_markets_')
+              ] if os.path.isdir(f'data/week{week}') else []
+              if week_dir_files:
+                  # Use the earliest file in this week's directory as the opening-line baseline
+                  earliest_action_file = sorted(week_dir_files)[0]
+                  complete_spreads_path = os.path.join('data', f'week{week}', earliest_action_file)
+                  action_files_scope = [os.path.join('data', f'week{week}', f) for f in week_dir_files]
+              else:
+                  # Fall back to global data/ — pick newest (this week's scrape, not a 2025 file)
+                  action_files_in_data = [f for f in os.listdir('data') if f.startswith('action_all_markets_')]
+                  if not action_files_in_data:
+                      raise FileNotFoundError("No 'action_all_markets_' files found in 'data' or week directory.")
+                  all_sorted = sorted(action_files_in_data, reverse=True)
+                  earliest_action_file = all_sorted[-1]  # Oldest of this week's files
+                  complete_spreads_path = os.path.join('data', earliest_action_file)
+                  action_files_scope = [os.path.join('data', f) for f in action_files_in_data]
+
               current_spreads = pd.read_csv(complete_spreads_path)
               current_spreads = current_spreads[current_spreads['Market'] == 'Spread']
-              
-              # Try to get updated lines for games that haven't started yet
-              latest_files = [f for f in action_files_in_data if f > earliest_action_file]
-              if latest_files:
-                  latest_action_file = sorted(latest_files, reverse=True)[0]
-                  latest_spreads_path = os.path.join('data', latest_action_file)
+
+              # Try to get updated lines from the newest file in scope
+              later_files = sorted(action_files_scope)[1:]  # Everything after the earliest
+              if later_files:
+                  latest_spreads_path = later_files[-1]
                   try:
                       latest_spreads = pd.read_csv(latest_spreads_path)
                       latest_spreads = latest_spreads[latest_spreads['Market'] == 'Spread']
-                      
+
                       # Update lines for games that appear in both datasets (active games)
                       for _, latest_row in latest_spreads.iterrows():
                           matchup_mask = current_spreads['Matchup'] == latest_row['Matchup']
@@ -264,7 +276,7 @@ jobs:
                       print(f"✅ Updated lines from {latest_spreads_path} for active games")
                   except Exception as e:
                       print(f"⚠️ Could not update with latest lines: {e}, using complete dataset only")
-              
+
               print(f"📊 Using complete dataset from {complete_spreads_path} ({len(current_spreads)} games)")
               print(f"Games included: {current_spreads['Matchup'].tolist()}")
               
