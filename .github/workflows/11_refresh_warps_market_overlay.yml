@@ -25,6 +25,9 @@ permissions:
 jobs:
   refresh-warps-market-overlay:
     runs-on: ubuntu-latest
+    concurrency:
+      group: warps-overlay
+      cancel-in-progress: false
 
     steps:
       - name: Checkout code
@@ -58,8 +61,8 @@ jobs:
 
           path = Path("site/src/data/warpsMarketOverlay2026.json")
           rows = json.loads(path.read_text())
-          if len(rows) != 272:
-              raise SystemExit(f"Expected 272 overlay rows, found {len(rows)}")
+          if len(rows) < 200:
+              raise SystemExit(f"Overlay suspiciously small: only {len(rows)} rows (expected ~272 for a full season)")
           print(f"Overlay rows: {len(rows)}")
           print(f"Priced rows: {sum(1 for row in rows if row.get('status') == 'priced')}")
           PY

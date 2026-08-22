@@ -26,7 +26,7 @@ jobs:
   deploy-nfl-edge-hub:
     runs-on: ubuntu-latest
     env:
-      BLUEHOST_PORT_VALUE: ${{ secrets.BLUEHOST_PORT || '22' }}
+      BLUEHOST_PORT_VALUE: ${{ secrets.BLUEHOST_PORT != '' && secrets.BLUEHOST_PORT || '22' }}
       BLUEHOST_TARGET_VALUE: ${{ github.event.inputs.target_dir || '/home/lijuvaru/public_html' }}
     defaults:
       run:

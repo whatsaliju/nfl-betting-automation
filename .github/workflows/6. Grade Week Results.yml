@@ -43,10 +43,15 @@ jobs:
             --season ${{ github.event.inputs.season }} \
             --week ${{ github.event.inputs.week }} \
             --season-type ${{ github.event.inputs.season_type }}
+          # Build betting card first so the matrix feed reads the current week's card (not prior week)
+          python3 scripts/build_pick_explanations.py
+          python3 scripts/build_weekly_betting_card.py
           python3 builders/build_matrix_engine_feed.py
+          echo "--- build_game_feature_table (historical) ---"
           python3 builders/build_game_feature_table.py
           # Rebuild backtest game_features with graded results from pick_results.csv
           if [ -d data/backtests/engine_2026_1_configured ]; then
+            echo "--- build_game_feature_table (backtest) ---"
             python3 builders/build_game_feature_table.py \
               --replay-root data/backtests/engine_2026_1_configured \
               --season ${{ github.event.inputs.season }} \
@@ -74,9 +79,6 @@ jobs:
               --csv-output data/backtests/engine_2026_1_configured/pick_explanations.csv \
               --md-output data/backtests/engine_2026_1_configured/pick_explanations.md
           fi
-          python3 scripts/build_pick_explanations.py
-          python3 scripts/build_weekly_betting_card.py
-          python3 builders/build_matrix_engine_feed.py
 
       - name: Build Week Results JSON
         env:
