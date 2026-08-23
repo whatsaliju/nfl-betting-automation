@@ -168,7 +168,7 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert }:
                 {game.referee && <span className="referee-tag">🦓 {game.referee}</span>}
               {game.referee_stats && (
                 <span className={`referee-stat-tag ${(game.referee_stats.ou_pct ?? 50) >= 55 ? "ou-over" : (game.referee_stats.ou_pct ?? 50) <= 45 ? "ou-under" : ""}`}>
-                  OU {game.referee_stats.ou_pct?.toFixed(0)}% · ATS {game.referee_stats.ats_pct?.toFixed(0)}% {game.referee_stats.favorite} · n={game.referee_stats.sample_size}
+                  OU {game.referee_stats.ou_pct != null ? `${game.referee_stats.ou_pct.toFixed(0)}%` : "n/a"} · ATS {game.referee_stats.ats_pct != null ? `${game.referee_stats.ats_pct.toFixed(0)}%` : "n/a"} {game.referee_stats.favorite || "—"} · n={game.referee_stats.sample_size}
                 </span>
               )}
               </div>
