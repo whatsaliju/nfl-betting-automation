@@ -183,7 +183,7 @@ def candidate_payload(trace, market):
     }
 
 
-def _moneyline_market(warps_overlay):
+def _moneyline_market(warps_overlay, sharp_moneyline_line=""):
     """Build the moneyline market block from WARPS ML EV when available."""
     ml_ev = None
     ml_side = None
@@ -209,6 +209,7 @@ def _moneyline_market(warps_overlay):
         "status": ml_status,
         "promotion_status": "not_promoted",
         "blockers": blockers,
+        "line": sharp_moneyline_line or "",
         "reason": "WARPS ML EV" if ml_score is not None else "moneyline selector not promoted; WARPS provides context only",
     }
 
@@ -383,6 +384,7 @@ def stage_payload(row, stage):
         "source_health_reference_time": row.get(f"{stage}_source_health_reference_time"),
         "sharp_spread_line": row.get(f"{stage}_sharp_spread_line") or "",
         "sharp_total_line": row.get(f"{stage}_sharp_total_line") or "",
+        "sharp_moneyline_line": row.get(f"{stage}_sharp_moneyline_line") or "",
     }
 
 
@@ -765,7 +767,7 @@ def edge_board_payload(game, expectations, warps_index, referee_index=None, refe
                        "line": latest.get("sharp_spread_line") or ""},
             "total": {**total, "status": market_status(total),
                       "line": latest.get("sharp_total_line") or ""},
-            "moneyline": _moneyline_market(warps_overlay),
+            "moneyline": _moneyline_market(warps_overlay, latest.get("sharp_moneyline_line") or ""),
         },
         "referee": referee,
         "referee_stats": ref_stats,

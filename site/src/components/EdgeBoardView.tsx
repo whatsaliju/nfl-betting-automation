@@ -23,14 +23,21 @@ function marketLabel(market: EdgeMarket) {
   return "unavailable";
 }
 
+function scoreContext(market: EdgeMarket) {
+  if (market.score == null) return "n/a";
+  if (market.threshold != null) return `${market.score.toFixed(1)} / ${market.threshold.toFixed(1)}`;
+  return market.score.toFixed(1);
+}
+
 function MarketMini({ market }: { market: EdgeMarket }) {
   return (
     <div className={`market-mini ${market.status}`}>
       <div>
         <strong>{market.market}</strong>
         <span>{market.side || marketLabel(market)}</span>
+        {market.line && <span className="market-line">{market.line}</span>}
       </div>
-      <b>{formatScore(market.score)}</b>
+      <b title={`score / threshold`}>{scoreContext(market)}</b>
     </div>
   );
 }
