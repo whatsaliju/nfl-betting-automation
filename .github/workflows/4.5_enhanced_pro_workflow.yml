@@ -256,6 +256,8 @@ jobs:
         run: python3 analyzers/nfl_reporter.py
 
       - name: Build Week Master Table
+        env:
+          PYTHONPATH: .
         run: |
           python3 builders/build_week_master_table.py \
             --season ${{ steps.info.outputs.season }} \
@@ -263,6 +265,8 @@ jobs:
             --season-type ${{ steps.info.outputs.season_type }}
 
       - name: Build Matrix Engine Feed
+        env:
+          PYTHONPATH: .
         run: |
           python3 scripts/build_weekly_betting_card.py
           python3 builders/build_matrix_engine_feed.py
