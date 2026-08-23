@@ -508,10 +508,20 @@ def referee_stats_for_game(referee, is_division, referee_stats_index):
         return None
     preferred = "C" if is_division else "NDIV"
     fallback = "NDIV" if is_division else "C"
-    return (
+    result = (
         referee_stats_index.get((referee, preferred))
         or referee_stats_index.get((referee, fallback))
     )
+    if result:
+        return result
+    # Queries CSV may produce composite names like "Alan Eck/David Oliver"; try first name only
+    primary = referee.split("/")[0].strip()
+    if primary != referee:
+        return (
+            referee_stats_index.get((primary, preferred))
+            or referee_stats_index.get((primary, fallback))
+        )
+    return None
 
 
 def load_warps_market_overlay():
@@ -643,6 +653,13 @@ def edge_board_payload(game, expectations, warps_index, referee_index=None, refe
         candidate_scores = [s for s in [spread.get("score"), total.get("score")] if s is not None]
         if candidate_scores:
             selector_score = number_or_none(max(candidate_scores))
+
+    # Back-fill candidate market score from selector_score when trace lacks market_candidates
+    # (common in preseason where the stage row has selector_score but no candidate detail)
+    if pick_market == "spread" and spread.get("score") is None and selector_score is not None:
+        spread["score"] = selector_score
+    if pick_market == "total" and total.get("score") is None and selector_score is not None:
+        total["score"] = selector_score
 
     away = canonical_tla(game.get("away_tla"))
     home = canonical_tla(game.get("home_tla"))
