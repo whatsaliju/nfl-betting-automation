@@ -189,7 +189,12 @@ export function postseasonCells(feed: EngineFeed | null, season = DEFAULT_SEASON
 }
 
 export function edgeBoardGames(feed: EngineFeed | null, season = DEFAULT_SEASON) {
-  return (feed?.edge_board || []).filter((game) => game.season === season);
+  const currentWeek = feed?.current_context?.week;
+  return (feed?.edge_board || []).filter((game) => {
+    if (game.season !== season) return false;
+    if (currentWeek != null && game.week !== currentWeek) return false;
+    return true;
+  });
 }
 
 export function indexEdgeBoard(feed: EngineFeed | null, season = DEFAULT_SEASON) {
