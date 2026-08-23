@@ -173,11 +173,17 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert }:
               )}
               </div>
 
-              {game.expectation_context && (
+              {game.expectation_context && (game.expectation_context.pythagorean_side || game.expectation_context.value_gap_side || game.expectation_context.overperformance_side) && (
                 <div className="expectation-mini">
-                  <span>Py {game.expectation_context.pythagorean_side || "n/a"} {signed(game.expectation_context.pythagorean_wins_delta)}</span>
-                  <span>Value {game.expectation_context.value_gap_side || "n/a"} {signed(game.expectation_context.pythagorean_vs_vegas_delta)}</span>
-                  <span>Act-Py {game.expectation_context.overperformance_side || "n/a"} {signed(game.expectation_context.actual_vs_pythagorean_delta)}</span>
+                  {game.expectation_context.pythagorean_side != null && (
+                    <span>Py {game.expectation_context.pythagorean_side} {signed(game.expectation_context.pythagorean_wins_delta)}</span>
+                  )}
+                  {game.expectation_context.value_gap_side != null && (
+                    <span>Value {game.expectation_context.value_gap_side} {signed(game.expectation_context.pythagorean_vs_vegas_delta)}</span>
+                  )}
+                  {game.expectation_context.overperformance_side != null && (
+                    <span>Act-Py {game.expectation_context.overperformance_side} {signed(game.expectation_context.actual_vs_pythagorean_delta)}</span>
+                  )}
                 </div>
               )}
 

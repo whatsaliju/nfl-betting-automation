@@ -638,6 +638,11 @@ def edge_board_payload(game, expectations, warps_index, referee_index=None, refe
 
     if pick_market in ("spread", "total") and selector_score is None:
         selector_score = number_or_none(spread.get("score") if pick_market == "spread" else total.get("score"))
+    # For WATCH/PASS games with no committed market, still surface the best candidate score
+    if selector_score is None:
+        candidate_scores = [s for s in [spread.get("score"), total.get("score")] if s is not None]
+        if candidate_scores:
+            selector_score = number_or_none(max(candidate_scores))
 
     away = canonical_tla(game.get("away_tla"))
     home = canonical_tla(game.get("home_tla"))
