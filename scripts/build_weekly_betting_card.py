@@ -163,6 +163,10 @@ def line_hint(game, market, side):
         return "Require current total to still match selector side before betting"
     if market == "moneyline":
         return "Research only until ML selector is promoted"
+    # WATCH games: no committed market — use spread line as a reference point
+    spread_line = ((game.get("markets") or {}).get("spread") or {}).get("line") or ""
+    if spread_line:
+        return f"Spread ref: {spread_line}"
     return "No target line available"
 
 

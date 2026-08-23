@@ -183,6 +183,37 @@ def candidate_payload(trace, market):
     }
 
 
+def _moneyline_market(warps_overlay, sharp_moneyline_line=""):
+    """Build the moneyline market block from WARPS ML EV when available."""
+    ml_ev = None
+    ml_side = None
+    if warps_overlay and warps_overlay.get("available"):
+        ml_ev = warps_overlay.get("ml_ev")
+        ml_side = warps_overlay.get("ml_side")
+    # Scale EV (decimal probability edge) to a display score in percent-EV units
+    ml_score = round(ml_ev * 100, 1) if ml_ev is not None else None
+    if ml_score is not None and abs(ml_score) >= 2.0:
+        ml_status = "lean"
+        blockers = []
+    elif ml_score is not None:
+        ml_status = "not_priced"
+        blockers = ["ML edge below lean threshold"]
+    else:
+        ml_status = "research_only"
+        blockers = ["WARPS ML unavailable for this week"]
+    return {
+        "market": "moneyline",
+        "side": ml_side,
+        "score": ml_score,
+        "threshold": 2.0,
+        "status": ml_status,
+        "promotion_status": "not_promoted",
+        "blockers": blockers,
+        "line": sharp_moneyline_line or "",
+        "reason": "WARPS ML EV" if ml_score is not None else "moneyline selector not promoted; WARPS provides context only",
+    }
+
+
 def market_status(candidate):
     if candidate.get("cleared_threshold"):
         return "playable"
@@ -353,6 +384,7 @@ def stage_payload(row, stage):
         "source_health_reference_time": row.get(f"{stage}_source_health_reference_time"),
         "sharp_spread_line": row.get(f"{stage}_sharp_spread_line") or "",
         "sharp_total_line": row.get(f"{stage}_sharp_total_line") or "",
+        "sharp_moneyline_line": row.get(f"{stage}_sharp_moneyline_line") or "",
     }
 
 
@@ -675,13 +707,20 @@ def edge_board_payload(game, expectations, warps_index, referee_index=None, refe
     ref_stats = referee_stats_for_game(referee, is_division, referee_stats_index)
 
     best_market = pick_market if pick_market in ("spread", "total") else None
+    classification_label = (latest.get("classification_label") or "").lower()
+    if best_market:
+        edge_status = "play"
+    elif classification_label in ("lean", "watch", "lean_play"):
+        edge_status = "watch"
+    else:
+        edge_status = "pass"
     best_edge = {
         "market": best_market,
         "side": pick_side if best_market else None,
         "score": selector_score,
         "label": latest.get("classification"),
         "recommendation": latest.get("recommendation"),
-        "status": "play" if best_market else "pass",
+        "status": edge_status,
     }
     warps_overlay = warps_overlay_payload(game, warps_index, best_edge)
 
@@ -728,16 +767,7 @@ def edge_board_payload(game, expectations, warps_index, referee_index=None, refe
                        "line": latest.get("sharp_spread_line") or ""},
             "total": {**total, "status": market_status(total),
                       "line": latest.get("sharp_total_line") or ""},
-            "moneyline": {
-                "market": "moneyline",
-                "side": None,
-                "score": None,
-                "threshold": None,
-                "status": "research_only",
-                "promotion_status": "not_promoted",
-                "blockers": ["moneyline selector not promoted"],
-                "reason": "moneyline edge model remains research-only until historical validation clears promotion",
-            },
+            "moneyline": _moneyline_market(warps_overlay, latest.get("sharp_moneyline_line") or ""),
         },
         "referee": referee,
         "referee_stats": ref_stats,

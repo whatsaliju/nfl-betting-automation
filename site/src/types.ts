@@ -162,6 +162,7 @@ export interface EdgeMarket {
   side: string | null;
   score: number | null;
   threshold: number | null;
+  line?: string | null;
   cleared_threshold?: boolean;
   blocked?: boolean;
   blockers?: string[];
@@ -180,7 +181,7 @@ export interface EdgeMarket {
     status?: string;
   }>;
   reasons?: string[];
-  status: "playable" | "lean" | "blocked" | "unavailable" | "not_priced";
+  status: "playable" | "lean" | "blocked" | "unavailable" | "not_priced" | "research_only" | string;
   reason?: string;
 }
 
