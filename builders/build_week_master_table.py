@@ -223,7 +223,12 @@ def attach_snapshot(df, snapshot, prefix):
         pick = g.get("pick_metadata") or {}
         df.at[idx, prefix + "_pick_market"] = pick.get("market")
         df.at[idx, prefix + "_pick_side"] = pick.get("side")
-        df.at[idx, prefix + "_selector_score"] = pick.get("score")
+        score = pick.get("score")
+        if score is None and pick.get("market") == "none":
+            # PASS games record per-market scores as spread_score/total_score; use the best one
+            cands = [pick.get("spread_score"), pick.get("total_score")]
+            score = max((s for s in cands if s is not None), default=None)
+        df.at[idx, prefix + "_selector_score"] = score
         df.at[idx, prefix + "_pick_reasons"] = "; ".join(pick.get("reasons", []))
         trace = g.get("recommendation_trace") or pick.get("trace") or {}
         df.at[idx, prefix + "_recommendation_trace"] = json.dumps(trace, sort_keys=True)
@@ -364,7 +369,12 @@ def build_week_master(season: int, week, season_type: str = None):
 
     if os.path.exists(out_path):
         existing = pd.read_csv(out_path)
-    
+        # Prevent dtype coercion during combine_first: pandas upcasts an all-NaN
+        # column to float64 which silently converts any string values to NaN.
+        # Force JSON-string and other object columns to stay as object dtype.
+        for col in existing.columns:
+            if col.endswith("_recommendation_trace") or col.endswith("_pick_reasons"):
+                existing[col] = existing[col].astype(object)
         df = (
             df.set_index("matchup_key")
               .combine_first(
