@@ -183,6 +183,23 @@ def candidate_payload(trace, market):
     }
 
 
+def _ml_line_string(warps_overlay, sharp_moneyline_line):
+    """Return the best available ML line string: sharp odds > WARPS market odds."""
+    if sharp_moneyline_line:
+        return sharp_moneyline_line
+    if not (warps_overlay and warps_overlay.get("available")):
+        return ""
+    away_ml = warps_overlay.get("market_away_moneyline")
+    home_ml = warps_overlay.get("market_home_moneyline")
+    away_tla = warps_overlay.get("away_tla") or "Away"
+    home_tla = warps_overlay.get("home_tla") or "Home"
+    if away_ml is not None and home_ml is not None:
+        away_str = f"{away_ml:+.0f}" if isinstance(away_ml, float) else str(away_ml)
+        home_str = f"{home_ml:+.0f}" if isinstance(home_ml, float) else str(home_ml)
+        return f"{away_tla} {away_str} | {home_tla} {home_str}"
+    return ""
+
+
 def _moneyline_market(warps_overlay, sharp_moneyline_line=""):
     """Build the moneyline market block from WARPS ML EV when available."""
     ml_ev = None
@@ -201,6 +218,7 @@ def _moneyline_market(warps_overlay, sharp_moneyline_line=""):
     else:
         ml_status = "research_only"
         blockers = ["WARPS ML unavailable for this week"]
+    line = _ml_line_string(warps_overlay, sharp_moneyline_line)
     return {
         "market": "moneyline",
         "side": ml_side,
@@ -209,7 +227,7 @@ def _moneyline_market(warps_overlay, sharp_moneyline_line=""):
         "status": ml_status,
         "promotion_status": "not_promoted",
         "blockers": blockers,
-        "line": sharp_moneyline_line or "",
+        "line": line,
         "reason": "WARPS ML EV" if ml_score is not None else "moneyline selector not promoted; WARPS provides context only",
     }
 
