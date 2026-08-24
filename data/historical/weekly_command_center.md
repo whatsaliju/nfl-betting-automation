@@ -22,11 +22,11 @@
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| BAL@MIN | watch | n/a | n/a | n/a |
-| BUF@CLE | watch | n/a | n/a | n/a |
-| DAL@ARI | watch | n/a | n/a | n/a |
-| KC@TB | watch | n/a | n/a | n/a |
-| NYJ@PIT | watch | n/a | n/a | n/a |
+| KC@TB | watch | n/a | n/a | 3.0 |
+| BAL@MIN | watch | n/a | n/a | 2.0 |
+| BUF@CLE | watch | n/a | n/a | 2.0 |
+| DAL@ARI | watch | n/a | n/a | 2.0 |
+| NYJ@PIT | watch | n/a | n/a | 1.0 |
 | SEA@TEN | watch | n/a | n/a | n/a |
 
 ## Survivor
