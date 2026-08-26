@@ -8,9 +8,9 @@
 |---:|---|---|---|---|---|---|---|---|
 | PRE2 | KC@TB | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp | thin expectation sample |
 | PRE2 | BAL@MIN | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; Promoted factors matched: 1 | thin expectation sample |
-| PRE2 | BUF@CLE | watch |  |  | watch | Watchlist only; no final market selected. | Promoted factors matched: 2 | thin expectation sample |
 | PRE2 | DAL@ARI | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; Promoted factors matched: 2 | thin expectation sample |
 | PRE2 | NYJ@PIT | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; Promoted factors matched: 1 | thin expectation sample |
+| PRE2 | BUF@CLE | watch |  |  | watch | Watchlist only; no final market selected. | Promoted factors matched: 2 | thin expectation sample |
 | PRE2 | SEA@TEN | watch |  |  | watch | Watchlist only; no final market selected. | Promoted factors matched: 1 | thin expectation sample |
 | PRE2 | ATL@IND | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
 | PRE2 | CAR@JAX | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
