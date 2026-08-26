@@ -62,14 +62,35 @@ jobs:
           elif [ -n "${{ github.event.client_payload.week }}" ]; then
             WEEK="${{ github.event.client_payload.week }}"
           else
-            # Priority 3a: current_week.json — canonical pointer written by this workflow on every run,
-            # never touched by backfills or scrapers; season-gated so a stale pointer from a prior year is ignored
-            if [ -f "data/current_week.json" ]; then
+            # Priority 3a: ESPN live scoreboard — the only source that actually knows what week it is right now.
+            # Maps seasontype (1=PRE, 2=REG, 3=POST) + week number to our label scheme.
+            WEEK=$(python3 - <<'PYEOF'
+import urllib.request, json, sys
+POST_MAP = {1: "WC", 2: "DIV", 3: "CONF", 4: "SB"}
+try:
+    with urllib.request.urlopen("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard", timeout=8) as r:
+        data = json.load(r)
+    stype = data.get("season", {}).get("type")   # 1=PRE 2=REG 3=POST
+    wnum  = data.get("week", {}).get("number")
+    if stype and wnum:
+        if stype == 1:
+            print(f"PRE{wnum}")
+        elif stype == 2:
+            print(str(wnum))
+        elif stype == 3:
+            print(POST_MAP.get(wnum, f"POST{wnum}"))
+except Exception as e:
+    print("", end="")  # ESPN unavailable — fall through to current_week.json
+PYEOF
+            )
+            # Priority 3b: current_week.json — fallback when ESPN is unreachable; season-gated
+            # so a stale pointer from a prior year is ignored
+            if [ -z "$WEEK" ] && [ -f "data/current_week.json" ]; then
               CW_SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
               CW_WEEK=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('week',''))" 2>/dev/null || echo "")
               [ "$CW_SEASON" = "$SEASON" ] && WEEK="$CW_WEEK"
             fi
-            # Priority 3b: git-log fallback on metadata.json (last resort)
+            # Priority 3c: git-log fallback on metadata.json (last resort)
             if [ -z "$WEEK" ]; then
               WEEK=$(git log --pretty=format: --name-only --diff-filter=AM -- 'data/week*/metadata.json' | \
                 grep -m1 -oP 'week\K[A-Za-z0-9]+(?=/metadata)')
