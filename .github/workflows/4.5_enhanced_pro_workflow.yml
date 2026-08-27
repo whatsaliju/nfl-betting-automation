@@ -271,8 +271,8 @@ jobs:
         env:
           PYTHONPATH: .
         run: |
-          python3 scripts/build_weekly_betting_card.py
           python3 builders/build_matrix_engine_feed.py
+          python3 scripts/build_weekly_betting_card.py
           python3 builders/build_game_feature_table.py
           python3 scripts/audit_game_features.py
           python3 scripts/generate_feature_research_report.py \
