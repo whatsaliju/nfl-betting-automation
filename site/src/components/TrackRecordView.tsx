@@ -191,6 +191,98 @@ function SeasonDetail({ summary, onBack }: { summary: SeasonSummary; onBack: () 
   );
 }
 
+// ─── Season chart ─────────────────────────────────────────────────────────────
+function SeasonChart({ summaries }: { summaries: SeasonSummary[] }) {
+  const complete = summaries.filter(s => s.complete && s.warpsPickAcc !== null).reverse();
+  if (complete.length < 2) return null;
+  const barW = 30, barGap = 6, chartH = 90, labelH = 20, padL = 28, padTop = 16;
+  const totalW = complete.length * (barW + barGap) - barGap;
+  const svgW = totalW + padL + 8;
+  const svgH = chartH + labelH + padTop;
+
+  return (
+    <div className="track-chart-wrap">
+      <div className="track-chart-label">WARPS Pick Accuracy by Season</div>
+      <div className="track-chart-scroll">
+        <svg width={svgW} height={svgH} className="track-chart-svg">
+          {/* Y-axis grid lines at 40%, 50%, 60% */}
+          {[40, 50, 60].map(pct => {
+            const y = padTop + chartH * (1 - pct / 100);
+            return (
+              <g key={pct}>
+                <line x1={padL} y1={y} x2={svgW - 8} y2={y} stroke="#e2e8f0" strokeDasharray={pct === 50 ? "4 2" : "2 4"} />
+                <text x={padL - 4} y={y + 4} textAnchor="end" fontSize={9} fill="#94a3b8">{pct}%</text>
+              </g>
+            );
+          })}
+          {complete.map((s, i) => {
+            const acc = s.warpsPickAcc!;
+            const barH = Math.max(2, acc * chartH);
+            const x = padL + i * (barW + barGap);
+            const y = padTop + chartH - barH;
+            const color = acc >= 0.57 ? "#16a34a" : acc >= 0.5 ? "#3b82f6" : "#dc2626";
+            return (
+              <g key={s.season}>
+                <rect x={x} y={y} width={barW} height={barH} rx={4} fill={color} opacity={0.82} />
+                <text x={x + barW / 2} y={y - 3} textAnchor="middle" fontSize={9} fill={color} fontWeight="700">
+                  {(acc * 100).toFixed(0)}%
+                </text>
+                <text x={x + barW / 2} y={svgH - 2} textAnchor="middle" fontSize={9} fill="#64748b">
+                  {s.season}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      <div className="track-chart-mae">
+        <div className="track-chart-label">Vegas vs WARPS MAE by Season</div>
+        <div className="track-chart-scroll">
+          <svg width={svgW} height={svgH} className="track-chart-svg">
+            {(() => {
+              const maxMAE = Math.max(...complete.map(s => Math.max(s.vegasMAE, s.warpsMAE ?? 0)));
+              const scale = maxMAE > 0 ? chartH / (maxMAE * 1.15) : 1;
+              return (
+                <>
+                  {[1, 2, 3].filter(v => v <= maxMAE * 1.2).map(v => {
+                    const y = padTop + chartH - v * scale;
+                    return (
+                      <g key={v}>
+                        <line x1={padL} y1={y} x2={svgW - 8} y2={y} stroke="#e2e8f0" strokeDasharray="2 4" />
+                        <text x={padL - 4} y={y + 4} textAnchor="end" fontSize={9} fill="#94a3b8">{v}w</text>
+                      </g>
+                    );
+                  })}
+                  {complete.map((s, i) => {
+                    const x = padL + i * (barW + barGap);
+                    const hV = s.vegasMAE * scale;
+                    const hW = (s.warpsMAE ?? 0) * scale;
+                    return (
+                      <g key={s.season}>
+                        <rect x={x} y={padTop + chartH - hV} width={barW / 2 - 1} height={hV} rx={3} fill="#94a3b8" opacity={0.75} />
+                        {s.warpsMAE !== null && (
+                          <rect x={x + barW / 2} y={padTop + chartH - hW} width={barW / 2 - 1} height={hW} rx={3} fill="#3b82f6" opacity={0.8} />
+                        )}
+                        <text x={x + barW / 2} y={svgH - 2} textAnchor="middle" fontSize={9} fill="#64748b">
+                          {s.season}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </>
+              );
+            })()}
+          </svg>
+        </div>
+        <div className="track-chart-legend">
+          <span><span className="legend-dot" style={{ background: "#94a3b8" }} />Vegas</span>
+          <span><span className="legend-dot" style={{ background: "#3b82f6" }} />WARPS</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── All-seasons summary table ────────────────────────────────────────────────
 function AllSeasonsSummary({ summaries, onSelect }: { summaries: SeasonSummary[]; onSelect: (s: number) => void }) {
   const totals = useMemo(() => {
@@ -310,7 +402,12 @@ export function TrackRecordView() {
 
       {current
         ? <SeasonDetail summary={current} onBack={() => setDrillSeason(null)} />
-        : <AllSeasonsSummary summaries={summaries} onSelect={setDrillSeason} />
+        : (
+          <>
+            <SeasonChart summaries={summaries} />
+            <AllSeasonsSummary summaries={summaries} onSelect={setDrillSeason} />
+          </>
+        )
       }
     </div>
   );

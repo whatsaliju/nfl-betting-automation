@@ -76,19 +76,23 @@ function CardItem({ card, isFocused, onViewAnalysis }: { card: WeeklyBettingCard
       className={`betting-card-item ${card.action}${isFocused ? " focused" : ""}`}
       data-matchup={card.matchup_key}
     >
-      <div className="betting-card-top">
-        <span>{weekDisplay(card.week)}</span>
-        <span>{titleCase(card.confidence)}</span>
+      <div className={`card-action-banner ${card.action}`}>
+        {actionIcon(card.action)}
+        <span className="card-banner-action">{card.action.toUpperCase()}</span>
+        <span className="card-banner-week">{weekDisplay(card.week)}</span>
+        <span className="card-banner-conf">{titleCase(card.confidence)}</span>
       </div>
-      <div className="edge-matchup">
+      <div className="edge-matchup card-matchup-lg">
         <img src={teamLogos[card.away_tla]} alt="" />
         <strong>{card.away_tla}</strong>
         <span>@</span>
         <img src={teamLogos[card.home_tla]} alt="" />
         <strong>{card.home_tla}</strong>
       </div>
+      {card.pick_label && card.action !== "pass" && (
+        <div className={`pick-chip ${card.action}`}>{card.pick_label}</div>
+      )}
       <div className="betting-card-decision">
-        {actionIcon(card.action)}
         <div>
           <strong>{decisionTitle(card)}</strong>
           <span>{decisionSubtitle(card)}</span>

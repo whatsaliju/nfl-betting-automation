@@ -905,6 +905,29 @@ select {
 .market-mini.not_priced { background: #f1f5f9; color: #64748b; }
 .market-mini.lean { border-color: #93c5fd; background: #eff6ff; }
 .market-mini.research_only { background: #f8fafc; color: #94a3b8; }
+.market-mini-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.score-meter {
+  width: 48px;
+  height: 5px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+.score-meter-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #64748b;
+  transition: width 0.3s ease;
+}
+.market-mini.playable .score-meter-fill { background: #16a34a; }
+.market-mini.lean .score-meter-fill { background: #3b82f6; }
+.market-mini.blocked .score-meter-fill { background: #f59e0b; }
 .context-tags, .factor-list {
   display: flex;
   flex-wrap: wrap;
@@ -1327,6 +1350,66 @@ select {
 .betting-card-item.focused {
   box-shadow: 0 0 0 3px #3b82f6;
   animation: edge-focus-fade 2s ease-out forwards;
+}
+.card-action-banner {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: #f1f5f9;
+  color: #475569;
+}
+.card-action-banner.play {
+  background: #dcfce7;
+  color: #15803d;
+}
+.card-action-banner.watch, .card-action-banner.lean {
+  background: #fef3c7;
+  color: #92400e;
+}
+.card-action-banner.pass {
+  background: #f1f5f9;
+  color: #64748b;
+}
+.card-banner-action {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.card-banner-week {
+  margin-left: auto;
+  font-weight: 600;
+  font-size: 11px;
+}
+.card-banner-conf {
+  font-size: 11px;
+  opacity: 0.75;
+  text-transform: capitalize;
+}
+.pick-chip {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+.pick-chip.watch, .pick-chip.lean {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+.card-matchup-lg img {
+  width: 34px;
+  height: 34px;
+}
+.card-matchup-lg strong {
+  font-size: 16px;
 }
 .betting-card-top, .betting-card-decision, .betting-card-linebox, .risk-list span {
   display: flex;
@@ -3836,6 +3919,47 @@ select {
   margin: 0;
   max-width: 680px;
   line-height: 1.5;
+}
+
+/* Season charts */
+.track-chart-wrap {
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.track-chart-mae {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.track-chart-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 2px;
+}
+.track-chart-scroll {
+  overflow-x: auto;
+}
+.track-chart-svg {
+  display: block;
+}
+.track-chart-legend {
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+  color: #64748b;
+  align-items: center;
+  margin-top: 2px;
+}
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 /* Aggregate KPI row */
