@@ -30,6 +30,9 @@ function scoreContext(market: EdgeMarket) {
 }
 
 function MarketMini({ market }: { market: EdgeMarket }) {
+  const pct = market.score != null && market.threshold != null
+    ? Math.min(100, Math.max(0, (market.score / market.threshold) * 100))
+    : null;
   return (
     <div className={`market-mini ${market.status}`}>
       <div>
@@ -37,7 +40,14 @@ function MarketMini({ market }: { market: EdgeMarket }) {
         <span>{market.side || marketLabel(market)}</span>
         {market.line && <span className="market-line">{market.line}</span>}
       </div>
-      <b title={`score / threshold`}>{scoreContext(market)}</b>
+      <div className="market-mini-right">
+        <b title="score / threshold">{scoreContext(market)}</b>
+        {pct !== null && (
+          <div className="score-meter">
+            <div className="score-meter-fill" style={{ width: `${pct}%` }} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
