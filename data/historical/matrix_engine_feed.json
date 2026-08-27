@@ -62,7 +62,7 @@
         "home_team": "Kansas City Chiefs",
         "away_tla": "SEA",
         "home_tla": "KC",
-        "stage": "initial",
+        "stage": "final",
         "analysis_available": true,
         "best_edge": {
           "market": "spread",
@@ -220,7 +220,53 @@
           "final_margin": null,
           "final_total": null
         },
-        "explanation": null
+        "explanation": {
+          "key": "SEA@KC:initial",
+          "season": "2026",
+          "season_type": "PRE",
+          "week": "PRE3",
+          "matchup_key": "SEA@KC",
+          "away_tla": "SEA",
+          "home_tla": "KC",
+          "stage": "initial",
+          "raw_action": "play",
+          "quality_action": "play",
+          "quality_gate": "warn",
+          "confidence": "standard",
+          "market": "spread",
+          "side": "AWAY",
+          "selector_score": "3.0",
+          "label": "\ud83d\udcca LEAN",
+          "recommendation": "\ud83d\udc40 LEAN: Seattle Seahawks -2.5 (proceed with caution)",
+          "source_health_status": "DEGRADED",
+          "data_quality_status": "DEGRADED",
+          "promoted_matches": [],
+          "source_blockers": [],
+          "source_warnings": [
+            "source_health_status=DEGRADED",
+            "data_quality_status=DEGRADED"
+          ],
+          "market_signals": [
+            "sharp"
+          ],
+          "market_conflicts": [],
+          "market_blockers": [],
+          "alignment": {
+            "pythagorean": "missing",
+            "market_expectation": "neutral",
+            "value_gap": "missing",
+            "overperformance": "missing",
+            "warps_spread": "",
+            "warps_moneyline": ""
+          },
+          "reasons": [
+            "Selector isolated spread AWAY",
+            "Signals: sharp",
+            "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+          ],
+          "result": "",
+          "margin_to_line": ""
+        }
       }
     ],
     "survivor": {
@@ -10766,22 +10812,39 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\u26a0\ufe0f LANDMINE",
+          "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+          "pick_market": "none",
           "pick_side": null,
           "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "signal classification was LANDMINE",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {},
+              "total": {}
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "+1.5 (-116) | +0.5 (-117)",
+          "sharp_total_line": "o36.5 (-102) | u35.5 (-106)",
+          "sharp_moneyline_line": "+103 | -110"
         }
       }
     },
@@ -10869,9 +10932,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -11097,22 +11160,87 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\ud83d\udcca LEAN",
+          "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+          "pick_market": "none",
           "pick_side": null,
-          "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "selector_score": 3,
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "no market cleared threshold",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "has_sharp_edge": true,
+                "market": "spread",
+                "reasons": [
+                  "sharp spread edge"
+                ],
+                "requires_sharp_edge": true,
+                "score": 3,
+                "side": "AWAY",
+                "signals": [
+                  {
+                    "impact": 3,
+                    "score": 3,
+                    "side": "AWAY",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4,
+                "threshold_adjustments": []
+              },
+              "total": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "market": "total",
+                "reasons": [
+                  "referee under trend"
+                ],
+                "score": 2,
+                "side": "UNDER",
+                "signals": [
+                  {
+                    "impact": 2,
+                    "reasons": [
+                      "referee under trend"
+                    ],
+                    "score": -2,
+                    "side": "UNDER",
+                    "source": "ref_weather_context",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4
+              }
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "-3.5 (-114) | +3.5 (+102)",
+          "sharp_total_line": "o36.5 (-110) | u36.5 (-108)",
+          "sharp_moneyline_line": "-173 | +165"
         }
       }
     },
@@ -11200,9 +11328,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -11293,9 +11421,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -11386,9 +11514,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -11479,9 +11607,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -11725,22 +11853,96 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\ud83d\udea8 TRAP GAME",
+          "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+          "pick_market": "none",
           "pick_side": null,
-          "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "selector_score": 3,
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "no market cleared threshold",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "has_sharp_edge": true,
+                "market": "spread",
+                "reasons": [
+                  "sharp spread edge"
+                ],
+                "requires_sharp_edge": true,
+                "score": 3,
+                "side": "AWAY",
+                "signals": [
+                  {
+                    "impact": 3,
+                    "score": 3,
+                    "side": "AWAY",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4,
+                "threshold_adjustments": []
+              },
+              "total": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [
+                  {
+                    "impact": -2,
+                    "reasons": [
+                      "referee under trend"
+                    ],
+                    "score": -2,
+                    "side": "UNDER",
+                    "source": "ref_weather_context",
+                    "status": "conflict"
+                  }
+                ],
+                "market": "total",
+                "reasons": [
+                  "sharp total edge",
+                  "ref/weather total context conflicts"
+                ],
+                "score": 1,
+                "side": "OVER",
+                "signals": [
+                  {
+                    "impact": 3,
+                    "score": 3,
+                    "side": "OVER",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4
+              }
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "+3 (-107) | -2.5 (-112)",
+          "sharp_total_line": "o36.5 (-110) | u36.5 (-104)",
+          "sharp_moneyline_line": "+132 | -134"
         }
       }
     },
@@ -11867,22 +12069,39 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\u26a0\ufe0f LANDMINE",
+          "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+          "pick_market": "none",
           "pick_side": null,
           "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "signal classification was LANDMINE",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {},
+              "total": {}
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "+3 (-110) | -2.5 (-117)",
+          "sharp_total_line": "o36.5 (+100) | u36.5 (-105)",
+          "sharp_moneyline_line": "+129 | -141"
         }
       }
     },
@@ -11970,9 +12189,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -12192,22 +12411,84 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\ud83d\udea8 TRAP GAME",
+          "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+          "pick_market": "none",
           "pick_side": null,
-          "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "selector_score": 3,
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "no market cleared threshold",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "has_sharp_edge": true,
+                "market": "spread",
+                "reasons": [
+                  "sharp spread edge"
+                ],
+                "requires_sharp_edge": true,
+                "score": 3,
+                "side": "AWAY",
+                "signals": [
+                  {
+                    "impact": 3,
+                    "score": 3,
+                    "side": "AWAY",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4,
+                "threshold_adjustments": []
+              },
+              "total": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "market": "total",
+                "reasons": [
+                  "sharp total edge"
+                ],
+                "score": 1,
+                "side": "OVER",
+                "signals": [
+                  {
+                    "impact": 1,
+                    "score": 1,
+                    "side": "OVER",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4
+              }
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "+3.5 (-104) | -3.5 (-112)",
+          "sharp_total_line": "o36.5 (-102) | u36 (-110)",
+          "sharp_moneyline_line": "+160 | -165"
         }
       }
     },
@@ -12295,9 +12576,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -12501,22 +12782,76 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\ud83d\udcca LEAN",
+          "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+          "pick_market": "none",
           "pick_side": null,
-          "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "selector_score": 1,
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "no market cleared threshold",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {
+                "blocked": true,
+                "blockers": [
+                  "sharp spread edge required"
+                ],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "has_sharp_edge": false,
+                "market": "spread",
+                "reasons": [],
+                "requires_sharp_edge": true,
+                "score": 0,
+                "side": "AWAY",
+                "signals": [],
+                "threshold": 4,
+                "threshold_adjustments": []
+              },
+              "total": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "market": "total",
+                "reasons": [
+                  "sharp total edge"
+                ],
+                "score": 1,
+                "side": "OVER",
+                "signals": [
+                  {
+                    "impact": 1,
+                    "score": 1,
+                    "side": "OVER",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4
+              }
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "-1 (-104) | +1 (-112)",
+          "sharp_total_line": "o36.5 (-102) | u35.5 (-102)",
+          "sharp_moneyline_line": "-110 | +102"
         }
       }
     },
@@ -12604,9 +12939,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -12790,22 +13125,66 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\ud83d\udcca LEAN",
+          "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+          "pick_market": "none",
           "pick_side": null,
-          "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "selector_score": 0,
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "no market cleared threshold",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {
+                "blocked": true,
+                "blockers": [
+                  "sharp spread edge required"
+                ],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "has_sharp_edge": false,
+                "market": "spread",
+                "reasons": [],
+                "requires_sharp_edge": true,
+                "score": 0,
+                "side": "HOME",
+                "signals": [],
+                "threshold": 4,
+                "threshold_adjustments": []
+              },
+              "total": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "market": "total",
+                "reasons": [],
+                "score": 0,
+                "side": "OVER",
+                "signals": [],
+                "threshold": 4
+              }
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "+4 (-109) | -3.5 (-112)",
+          "sharp_total_line": "o38.5 (-105) | u39.5 (-110)",
+          "sharp_moneyline_line": "+156 | -178"
         }
       }
     },
@@ -12893,9 +13272,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -13025,22 +13404,39 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u274c FADE",
+          "signal_classification": "\u274c FADE",
+          "recommendation": "\u274c AVOID: Multiple negative factors align",
+          "pick_market": "none",
           "pick_side": null,
           "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "signal classification was FADE",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {},
+              "total": {}
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "+4 (-114) | -3.5 (-107)",
+          "sharp_total_line": "o37.5 (-110) | u38.5 (-110)",
+          "sharp_moneyline_line": "+156 | -178"
         }
       }
     },
@@ -13241,22 +13637,76 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\ud83d\udcca LEAN",
+          "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+          "pick_market": "none",
           "pick_side": null,
-          "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "selector_score": 3,
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "no market cleared threshold",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {
+                "blocked": true,
+                "blockers": [
+                  "sharp spread edge required"
+                ],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "has_sharp_edge": false,
+                "market": "spread",
+                "reasons": [],
+                "requires_sharp_edge": true,
+                "score": 0,
+                "side": "AWAY",
+                "signals": [],
+                "threshold": 4,
+                "threshold_adjustments": []
+              },
+              "total": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "market": "total",
+                "reasons": [
+                  "sharp total edge"
+                ],
+                "score": 3,
+                "side": "UNDER",
+                "signals": [
+                  {
+                    "impact": 3,
+                    "score": -3,
+                    "side": "UNDER",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4
+              }
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "-2.5 (-110) | +3 (-118)",
+          "sharp_total_line": "o35 (-108) | u35.5 (-110)",
+          "sharp_moneyline_line": "-141 | +120"
         }
       }
     },
@@ -13383,22 +13833,39 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\u26a0\ufe0f LANDMINE",
+          "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+          "pick_market": "none",
           "pick_side": null,
           "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "signal classification was LANDMINE",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {},
+              "total": {}
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "+2.5 (-112) | -1.5 (-105)",
+          "sharp_total_line": "o38.5 (-105) | u38.5 (-110)",
+          "sharp_moneyline_line": "+110 | -126"
         }
       }
     },
@@ -13486,9 +13953,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -13579,9 +14046,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -13711,22 +14178,39 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\u26a0\ufe0f LANDMINE",
+          "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+          "pick_market": "none",
           "pick_side": null,
           "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "signal classification was LANDMINE",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {},
+              "total": {}
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "-3 (-112) | +3 (-105)",
+          "sharp_total_line": "o36.5 (-114) | u36.5 (-104)",
+          "sharp_moneyline_line": "-152 | +143"
         }
       }
     },
@@ -13814,9 +14298,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -13907,9 +14391,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -14039,22 +14523,39 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u274c FADE",
+          "signal_classification": "\u274c FADE",
+          "recommendation": "\u274c AVOID: Multiple negative factors align",
+          "pick_market": "none",
           "pick_side": null,
           "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "signal classification was FADE",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {},
+              "total": {}
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "+3 (-105) | -2.5 (-120)",
+          "sharp_total_line": "o35.5 (-110) | u35.5 (-110)",
+          "sharp_moneyline_line": "+135 | -146"
         }
       }
     },
@@ -14138,11 +14639,11 @@
         "data_quality_status": "DEGRADED",
         "source_health_status": "DEGRADED",
         "source_health_warnings": "rotowire: missing file path",
-        "source_health_reference_time": "2026-08-26T23:27:33.946576+00:00",
+        "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
         "sharp_spread_line": "-2.5 (-110) | +3.5 (-130)",
         "sharp_total_line": "o37.5 (+100) | u35.5 (+100)",
         "sharp_moneyline_line": "-134 | +124",
-        "stage": "initial"
+        "stage": "final"
       },
       "stages": {
         "initial": {
@@ -14253,22 +14754,75 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
-          "pick_side": null,
-          "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "available": true,
+          "classification": "\ud83d\udcca LEAN",
+          "signal_classification": "\ud83c\udfaf TARGETED PLAY",
+          "recommendation": "\ud83d\udc40 LEAN: Seattle Seahawks -2.5 (proceed with caution)",
+          "pick_market": "spread",
+          "pick_side": "AWAY",
+          "selector_score": 3,
+          "pick_reasons": "sharp spread edge",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "spread",
+              "reason": "spread candidate cleared threshold and ranked highest",
+              "score": 3,
+              "side": "AWAY"
+            },
+            "market_candidates": {
+              "spread": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": true,
+                "conflicts": [],
+                "has_sharp_edge": true,
+                "market": "spread",
+                "reasons": [
+                  "sharp spread edge"
+                ],
+                "requires_sharp_edge": true,
+                "score": 3,
+                "side": "AWAY",
+                "signals": [
+                  {
+                    "impact": 3,
+                    "score": 3,
+                    "side": "AWAY",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 3,
+                "threshold_adjustments": []
+              },
+              "total": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "market": "total",
+                "reasons": [],
+                "score": 0,
+                "side": "UNDER",
+                "signals": [],
+                "threshold": 4
+              }
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "-2.5 (-110) | +3.5 (-130)",
+          "sharp_total_line": "o37.5 (+100) | u35.5 (+100)",
+          "sharp_moneyline_line": "-134 | +124"
         }
       }
     },
@@ -14356,9 +14910,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -14449,9 +15003,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -14671,22 +15225,84 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\ud83c\udfaf TARGETED PLAY",
+          "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+          "pick_market": "none",
           "pick_side": null,
-          "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "selector_score": 2,
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "no market cleared threshold",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "has_sharp_edge": true,
+                "market": "spread",
+                "reasons": [
+                  "sharp spread edge"
+                ],
+                "requires_sharp_edge": true,
+                "score": 2,
+                "side": "HOME",
+                "signals": [
+                  {
+                    "impact": 2,
+                    "score": -2,
+                    "side": "HOME",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 3,
+                "threshold_adjustments": []
+              },
+              "total": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "market": "total",
+                "reasons": [
+                  "sharp total edge"
+                ],
+                "score": 1,
+                "side": "OVER",
+                "signals": [
+                  {
+                    "impact": 1,
+                    "score": 1,
+                    "side": "OVER",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4
+              }
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "+3.5 (-113) | -3 (-115)",
+          "sharp_total_line": "o37.5 (-108) | u37.5 (-108)",
+          "sharp_moneyline_line": "+145 | -162"
         }
       }
     },
@@ -14813,22 +15429,39 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u274c FADE",
+          "signal_classification": "\u274c FADE",
+          "recommendation": "\u274c AVOID: Multiple negative factors align",
+          "pick_market": "none",
           "pick_side": null,
           "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "signal classification was FADE",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {},
+              "total": {}
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "-2.5 (-122) | +3 (-110)",
+          "sharp_total_line": "o35.5 (-105) | u35.5 (-108)",
+          "sharp_moneyline_line": "-144 | +129"
         }
       }
     },
@@ -14955,22 +15588,39 @@
           "sharp_moneyline_line": ""
         },
         "final": {
-          "available": false,
-          "classification": null,
-          "signal_classification": null,
-          "recommendation": null,
-          "pick_market": null,
+          "available": true,
+          "classification": "\u26a0\ufe0f PASS",
+          "signal_classification": "\u26a0\ufe0f LANDMINE",
+          "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+          "pick_market": "none",
           "pick_side": null,
           "selector_score": null,
-          "pick_reasons": null,
-          "recommendation_trace": {},
-          "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
-          "sharp_spread_line": "",
-          "sharp_total_line": "",
-          "sharp_moneyline_line": ""
+          "pick_reasons": "",
+          "recommendation_trace": {
+            "final_decision": {
+              "market": "none",
+              "reason": "signal classification was LANDMINE",
+              "side": null
+            },
+            "market_candidates": {
+              "spread": {},
+              "total": {}
+            },
+            "selector_version": "2026.1",
+            "source_policy": {
+              "blocked": false,
+              "critical_warnings": [],
+              "status": "DEGRADED",
+              "unsafe_sources": []
+            }
+          },
+          "data_quality_status": "DEGRADED",
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
+          "sharp_spread_line": "+3.5 (-112) | -3.5 (-102)",
+          "sharp_total_line": "o34 (-112) | u34.5 (-109)",
+          "sharp_moneyline_line": "+140 | -158"
         }
       }
     },
@@ -15058,9 +15708,9 @@
           "pick_reasons": null,
           "recommendation_trace": {},
           "data_quality_status": null,
-          "source_health_status": null,
-          "source_health_warnings": "",
-          "source_health_reference_time": null,
+          "source_health_status": "DEGRADED",
+          "source_health_warnings": "rotowire: missing file path",
+          "source_health_reference_time": "2026-08-27T00:15:33.679616+00:00",
           "sharp_spread_line": "",
           "sharp_total_line": "",
           "sharp_moneyline_line": ""
@@ -24492,7 +25142,7 @@
       "matchup_key": "SEA@KC",
       "score_for": null,
       "score_against": null,
-      "latest_stage": "initial",
+      "latest_stage": "final",
       "analysis_available": true,
       "classification": "\ud83d\udcca LEAN",
       "pick_market": "spread",
@@ -27099,7 +27749,7 @@
       "home_team": "Kansas City Chiefs",
       "away_tla": "SEA",
       "home_tla": "KC",
-      "stage": "initial",
+      "stage": "final",
       "analysis_available": true,
       "best_edge": {
         "market": "spread",
@@ -27257,7 +27907,53 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "SEA@KC:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "SEA@KC",
+        "away_tla": "SEA",
+        "home_tla": "KC",
+        "stage": "initial",
+        "raw_action": "play",
+        "quality_action": "play",
+        "quality_gate": "warn",
+        "confidence": "standard",
+        "market": "spread",
+        "side": "AWAY",
+        "selector_score": "3.0",
+        "label": "\ud83d\udcca LEAN",
+        "recommendation": "\ud83d\udc40 LEAN: Seattle Seahawks -2.5 (proceed with caution)",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [
+          "sharp"
+        ],
+        "market_conflicts": [],
+        "market_blockers": [],
+        "alignment": {
+          "pythagorean": "missing",
+          "market_expectation": "neutral",
+          "value_gap": "missing",
+          "overperformance": "missing",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Selector isolated spread AWAY",
+          "Signals: sharp",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -27644,7 +28340,63 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "ATL@MIA:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "ATL@MIA",
+        "away_tla": "ATL",
+        "home_tla": "MIA",
+        "stage": "initial",
+        "raw_action": "lean",
+        "quality_action": "watch",
+        "quality_gate": "warn",
+        "confidence": "watch",
+        "market": "",
+        "side": "",
+        "selector_score": "3.0",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "total_score_bin=0_to_3.5",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 4,
+            "wins": 4,
+            "losses": 0,
+            "lift": 0.2222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [
+          "sharp"
+        ],
+        "market_conflicts": [],
+        "market_blockers": [],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Signals: sharp",
+          "Promoted factors matched: 1",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -27843,7 +28595,63 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "CHI@TEN:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "CHI@TEN",
+        "away_tla": "CHI",
+        "home_tla": "TEN",
+        "stage": "initial",
+        "raw_action": "lean",
+        "quality_action": "watch",
+        "quality_gate": "warn",
+        "confidence": "watch",
+        "market": "",
+        "side": "",
+        "selector_score": "3.0",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "total_score_bin=0_to_3.5",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 4,
+            "wins": 4,
+            "losses": 0,
+            "lift": 0.2222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [
+          "sharp"
+        ],
+        "market_conflicts": [],
+        "market_blockers": [],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Signals: sharp",
+          "Promoted factors matched: 1",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -28030,7 +28838,63 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "DET@IND:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "DET@IND",
+        "away_tla": "DET",
+        "home_tla": "IND",
+        "stage": "initial",
+        "raw_action": "lean",
+        "quality_action": "watch",
+        "quality_gate": "warn",
+        "confidence": "watch",
+        "market": "",
+        "side": "",
+        "selector_score": "3.0",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "total_score_bin=0_to_3.5",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 4,
+            "wins": 4,
+            "losses": 0,
+            "lift": 0.2222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [
+          "sharp"
+        ],
+        "market_conflicts": [],
+        "market_blockers": [],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Signals: sharp",
+          "Promoted factors matched: 1",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -28202,7 +29066,62 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "NE@CLE:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "NE@CLE",
+        "away_tla": "NE",
+        "home_tla": "CLE",
+        "stage": "initial",
+        "raw_action": "lean",
+        "quality_action": "watch",
+        "quality_gate": "warn",
+        "confidence": "watch",
+        "market": "",
+        "side": "",
+        "selector_score": "3.0",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "total_score_bin=0_to_3.5",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 4,
+            "wins": 4,
+            "losses": 0,
+            "lift": 0.2222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "sharp spread edge required"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Promoted factors matched: 1",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -28783,7 +29702,72 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "SF@LV:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "SF@LV",
+        "away_tla": "SF",
+        "home_tla": "LV",
+        "stage": "initial",
+        "raw_action": "lean",
+        "quality_action": "watch",
+        "quality_gate": "warn",
+        "confidence": "watch",
+        "market": "",
+        "side": "",
+        "selector_score": "2.0",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "total_score_bin=0_to_3.5",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 4,
+            "wins": 4,
+            "losses": 0,
+            "lift": 0.2222
+          },
+          {
+            "factor": "vegas_win_total_delta_bin=abs>=4",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 4,
+            "wins": 4,
+            "losses": 0,
+            "lift": 0.2222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [
+          "sharp"
+        ],
+        "market_conflicts": [],
+        "market_blockers": [],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Signals: sharp",
+          "Promoted factors matched: 2",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -29673,7 +30657,62 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "HOU@CAR:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "HOU@CAR",
+        "away_tla": "HOU",
+        "home_tla": "CAR",
+        "stage": "initial",
+        "raw_action": "lean",
+        "quality_action": "watch",
+        "quality_gate": "warn",
+        "confidence": "watch",
+        "market": "",
+        "side": "",
+        "selector_score": "1.0",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "total_score_bin=0_to_3.5",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 4,
+            "wins": 4,
+            "losses": 0,
+            "lift": 0.2222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "sharp spread edge required"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Promoted factors matched: 1",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -35163,7 +36202,71 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "ARI@GB:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "ARI@GB",
+        "away_tla": "ARI",
+        "home_tla": "GB",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "market_expectation_side=HOME",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 6,
+            "wins": 6,
+            "losses": 0,
+            "lift": 0.2222
+          },
+          {
+            "factor": "vegas_win_total_delta_bin=abs>=4",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 4,
+            "wins": 4,
+            "losses": 0,
+            "lift": 0.2222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Promoted factors matched: 2",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -35319,7 +36422,71 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "CIN@PHI:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "CIN@PHI",
+        "away_tla": "CIN",
+        "home_tla": "PHI",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "market_expectation_side=HOME",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 6,
+            "wins": 6,
+            "losses": 0,
+            "lift": 0.2222
+          },
+          {
+            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 5,
+            "wins": 4,
+            "losses": 1,
+            "lift": 0.0222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Promoted factors matched: 2",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -35473,7 +36640,62 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "LAR@LAC:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "LAR@LAC",
+        "away_tla": "LAR",
+        "home_tla": "LAC",
+        "stage": "initial",
+        "raw_action": "lean",
+        "quality_action": "watch",
+        "quality_gate": "warn",
+        "confidence": "watch",
+        "market": "",
+        "side": "",
+        "selector_score": "0.0",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 5,
+            "wins": 4,
+            "losses": 1,
+            "lift": 0.0222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "sharp spread edge required"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Promoted factors matched: 1",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -35629,7 +36851,71 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "MIN@DEN:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "MIN@DEN",
+        "away_tla": "MIN",
+        "home_tla": "DEN",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u274c FADE",
+        "recommendation": "\u274c AVOID: Multiple negative factors align",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "market_expectation_side=HOME",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 6,
+            "wins": 6,
+            "losses": 0,
+            "lift": 0.2222
+          },
+          {
+            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 5,
+            "wins": 4,
+            "losses": 1,
+            "lift": 0.0222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Promoted factors matched: 2",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -35785,7 +37071,62 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "NO@DAL:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "NO@DAL",
+        "away_tla": "NO",
+        "home_tla": "DAL",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "market_expectation_side=HOME",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 6,
+            "wins": 6,
+            "losses": 0,
+            "lift": 0.2222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Promoted factors matched: 1",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -35941,7 +37282,51 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "NYG@NYJ:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "NYG@NYJ",
+        "away_tla": "NYG",
+        "home_tla": "NYJ",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -36097,7 +37482,62 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "PIT@BUF:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "PIT@BUF",
+        "away_tla": "PIT",
+        "home_tla": "BUF",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u274c FADE",
+        "recommendation": "\u274c AVOID: Multiple negative factors align",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "market_expectation_side=HOME",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 6,
+            "wins": 6,
+            "losses": 0,
+            "lift": 0.2222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Promoted factors matched: 1",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -36253,7 +37693,71 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "TB@JAX:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "TB@JAX",
+        "away_tla": "TB",
+        "home_tla": "JAX",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u274c FADE",
+        "recommendation": "\u274c AVOID: Multiple negative factors align",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "market_expectation_side=HOME",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 6,
+            "wins": 6,
+            "losses": 0,
+            "lift": 0.2222
+          },
+          {
+            "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 5,
+            "wins": 4,
+            "losses": 1,
+            "lift": 0.0222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Promoted factors matched: 2",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
@@ -36409,7 +37913,71 @@
         "final_margin": null,
         "final_total": null
       },
-      "explanation": null
+      "explanation": {
+        "key": "WAS@BAL:initial",
+        "season": "2026",
+        "season_type": "PRE",
+        "week": "PRE3",
+        "matchup_key": "WAS@BAL",
+        "away_tla": "WAS",
+        "home_tla": "BAL",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [
+          {
+            "factor": "market_expectation_side=HOME",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 6,
+            "wins": 6,
+            "losses": 0,
+            "lift": 0.2222
+          },
+          {
+            "factor": "vegas_win_total_delta_bin=abs>=4",
+            "status": "monitor",
+            "allowed": false,
+            "plays": 4,
+            "wins": 4,
+            "losses": 0,
+            "lift": 0.2222
+          }
+        ],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "",
+          "warps_moneyline": ""
+        },
+        "reasons": [
+          "Promoted factors matched: 2",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     },
     {
       "season": 2026,
