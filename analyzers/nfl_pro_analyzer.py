@@ -2437,11 +2437,11 @@ class ClassificationEngine:
         """Determine game classification"""
         total = game_analysis['total_score']
         sharp_score = abs(game_analysis['sharp_consensus_score'])
-        ref_score = abs(game_analysis['referee_analysis']['ats_score'])
         injury_score = abs(game_analysis['injury_analysis']['score'])
-        
-        # Blue Chip: Strong alignment across all factors (15+ confidence)
-        if total >= 15 and sharp_score >= 2 and (ref_score >= 2 or injury_score >= 3):
+
+        # Blue Chip: Strong alignment across all factors (15+ confidence).
+        # Referee ATS removed from gate: backtest shows it does not predict outcome quality.
+        if total >= 15 and sharp_score >= 2 and injury_score >= 3:
             return "🔵 BLUE CHIP", "STRONG PLAY", 15
         
         # Targeted Play: Good edge with supporting factors (7+ confidence)
@@ -3528,7 +3528,9 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
         (
         FACTOR_WEIGHTS['sharp_consensus_score'] * abs(sharp_analysis['spread'].get('score', 0))
         + FACTOR_WEIGHTS['weather_score']       * max(weather_analysis.get('score', 0), 0)
-        + FACTOR_WEIGHTS['referee_ats_score']   * abs(referee_analysis.get('ats_score', 0))
+        # referee_ats_score removed: backtest (3,028 games) shows no predictive value for spread outcomes.
+        # Conflict picks (ref vs our side) win at 55% — ATS history is noise, not signal.
+        # Referee OU trend kept for total picks only (separate path via total_side_from_context).
         + FACTOR_WEIGHTS['referee_ou_score']    * abs(referee_analysis.get('ou_score', 0))
         + FACTOR_WEIGHTS['injury_score']        * abs(injury_analysis.get('score', 0))
         + FACTOR_WEIGHTS['situational_score']   * situational_analysis.get('score', 0)
