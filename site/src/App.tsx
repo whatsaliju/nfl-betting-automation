@@ -118,7 +118,8 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
   // partial-season actual_wins from whenever the feed was last generated.  For finished
   // seasons we read actual wins straight from seasonSchedules.json (schedule.teamStats).
   const hasEngineForSeason = selectedSeason === engineSeason && !seasonSchedule.hasResults;
-  const teamExpectations = hasEngineForSeason ? engineFeed?.team_expectations || {} : {};
+  const isPreseason = engineFeed?.current_context?.season_type === "PRE";
+  const teamExpectations = (hasEngineForSeason && !isPreseason) ? engineFeed?.team_expectations || {} : {};
   const hasEdges = edgeGames.length > 0;
   const hasProjections = Object.keys(teamExpectations).length > 0;
   const currentContext = engineFeed?.current_context;

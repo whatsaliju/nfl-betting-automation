@@ -182,13 +182,44 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert }:
                 {game.expectation_context?.sample_warning && <span>Thin expectation sample</span>}
                 {game.source_health_status && game.source_health_status !== "OK" && <span>Source risk</span>}
                 {game.data_quality_status && game.data_quality_status !== "OK" && <span>Data quality</span>}
-                {game.referee && <span className="referee-tag">🦓 {game.referee}</span>}
-              {game.referee_stats && (
-                <span className={`referee-stat-tag ${(game.referee_stats.ou_pct ?? 50) >= 55 ? "ou-over" : (game.referee_stats.ou_pct ?? 50) <= 45 ? "ou-under" : ""}`}>
-                  OU {game.referee_stats.ou_pct != null ? `${game.referee_stats.ou_pct.toFixed(0)}%` : "n/a"} · ATS {game.referee_stats.ats_pct != null ? `${game.referee_stats.ats_pct.toFixed(0)}%` : "n/a"} {game.referee_stats.favorite || "—"} · n={game.referee_stats.sample_size}
-                </span>
-              )}
               </div>
+
+              {game.referee && (
+                <div className={`referee-strip${
+                  game.referee_stats
+                    ? (game.referee_stats.ou_pct ?? 50) >= 55
+                      ? " over-lean"
+                      : (game.referee_stats.ou_pct ?? 50) <= 45
+                      ? " under-lean"
+                      : ""
+                    : ""
+                }`}>
+                  <div className="ref-name-col">
+                    <strong>🦓 {game.referee}</strong>
+                    {game.referee_stats && <span>{game.referee_stats.sample_size} games · {game.referee_stats.game_type}</span>}
+                  </div>
+                  {game.referee_stats ? (
+                    <>
+                      <div className={`ref-stat-col${
+                        (game.referee_stats.ats_pct ?? 50) >= 55 ? " ats-high"
+                          : (game.referee_stats.ats_pct ?? 50) <= 45 ? " ats-low" : ""
+                      }`}>
+                        <span>ATS (fav)</span>
+                        <b>{game.referee_stats.ats_record} · {(game.referee_stats.ats_pct ?? 0).toFixed(0)}%</b>
+                      </div>
+                      <div className={`ref-stat-col${
+                        (game.referee_stats.ou_pct ?? 50) >= 55 ? " ou-high"
+                          : (game.referee_stats.ou_pct ?? 50) <= 45 ? " ou-low" : ""
+                      }`}>
+                        <span>Over rate</span>
+                        <b>{game.referee_stats.ou_record} · {(game.referee_stats.ou_pct ?? 0).toFixed(0)}%</b>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="ref-stat-col"><span>No history</span></div>
+                  )}
+                </div>
+              )}
 
               {game.expectation_context && (game.expectation_context.pythagorean_side || game.expectation_context.value_gap_side || game.expectation_context.overperformance_side) && (
                 <div className="expectation-mini">
