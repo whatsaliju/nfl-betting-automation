@@ -2906,6 +2906,30 @@ class RecommendationSelector:
                 "reason": "injury context present",
                 "delta": injury_threshold_bump,
             })
+
+        # Week-phase threshold adjustment (backtest: 11 seasons, 3,028 graded REG games)
+        # Early REG (wk 1-10, ex wk 7): 53.8% win rate (+3% ROI)
+        # Late REG (wk 11-14): 46% win rate (-13% ROI)
+        # Late REG (wk 15-18): 47% win rate (-11% ROI)
+        # Week 7: 40.4% avg win rate (-25% ROI) — consistently poor across 7/11 seasons
+        # Divisional round (wk 20): 40.9% win rate (-24% ROI)
+        _wk = game_analysis.get('week')
+        _season_type = game_analysis.get('season_type', 'REG')
+        _week_num = get_week_number(_wk) if _wk is not None else 0
+        if _week_num > 0:
+            if _season_type == 'REG' and _week_num == 7:
+                spread_threshold += 2
+                spread_threshold_adjustments.append({"reason": "week 7 historically poor ATS (40.4% avg)", "delta": 2})
+            elif _season_type == 'REG' and _week_num >= 15:
+                spread_threshold += 1
+                spread_threshold_adjustments.append({"reason": "late REG season (wk 15+) historically poor ATS", "delta": 1})
+            elif _season_type == 'REG' and _week_num >= 11:
+                spread_threshold += 0.5
+                spread_threshold_adjustments.append({"reason": "late REG season (wk 11-14) moderately poor ATS", "delta": 0.5})
+            elif _week_num == 20:  # Divisional round
+                spread_threshold += 1.5
+                spread_threshold_adjustments.append({"reason": "divisional round historically poor ATS (40.9%)", "delta": 1.5})
+
         total_threshold = SELECTOR_CONFIG.get('total_threshold', 4)
 
         spread_trace = {
@@ -3553,6 +3577,8 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
         {
             'away': away_full,
             'home': home_full,
+            'week': week,
+            'season_type': StatisticalAnalyzer.default_season_type(week),
             'sharp_analysis': sharp_analysis,
             'referee_analysis': referee_analysis,
             'weather_analysis': weather_analysis,
