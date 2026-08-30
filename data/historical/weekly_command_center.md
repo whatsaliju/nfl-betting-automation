@@ -25,9 +25,9 @@
 | SEA@KC | play | spread | AWAY | 3.0 |
 | ATL@MIA | watch | n/a | n/a | 3.0 |
 | CHI@TEN | watch | n/a | n/a | 3.0 |
-| DET@IND | watch | n/a | n/a | 3.0 |
-| NE@CLE | watch | n/a | n/a | 3.0 |
+| NE@CLE | watch | n/a | n/a | 2.0 |
 | SF@LV | watch | n/a | n/a | 2.0 |
+| HOU@CAR | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 

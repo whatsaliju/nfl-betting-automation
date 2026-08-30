@@ -2,12 +2,13 @@
 
 | Game | Raw | Gated | Market | Side | Confidence | Reasons |
 |---|---|---|---|---|---|---|
+| WPRE3 ATL@MIA | play | play | total | UNDER | standard | Selector isolated total UNDER; Signals: sharp, ref_weather_context; Promoted factors matched: 7 |
 | WPRE1 DEN@ATL | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 GB@PIT | play | play | spread | HOME | standard | Selector isolated spread HOME; Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE3 HOU@CAR | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp; Promoted factors matched: 3 |
 | WPRE3 SEA@KC | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 KC@TB | pass | pass |  |  | none | No isolated selector edge |
-| WPRE3 ATL@MIA | lean | watch |  |  | watch | Signals: sharp |
-| WPRE3 CHI@TEN | lean | watch |  |  | watch | Signals: sharp |
+| WPRE3 CHI@TEN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | Promoted factors matched: 1 |
 | WPRE3 NE@CLE | lean | watch |  |  | watch | Promoted factors matched: 1 |
@@ -15,7 +16,6 @@
 | W10 ARI@SEA | lean | watch |  |  | watch | Signals: injury; Promoted factors matched: 3; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W10 BUF@MIA | lean | watch |  |  | watch | Signals: injury; Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 NYJ@PIT | pass | pass |  |  | none | Promoted factors matched: 1 |
-| WPRE3 HOU@CAR | lean | watch |  |  | watch | Promoted factors matched: 1 |
 | WPRE3 LAR@LAC | lean | watch |  |  | watch | Signals: sharp; Promoted factors matched: 2 |
 | WPRE1 ARI@LV | pass | pass |  |  | none | Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 CAR@BUF | pass | pass |  |  | none | Promoted factors matched: 1; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
