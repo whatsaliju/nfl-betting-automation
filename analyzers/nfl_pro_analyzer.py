@@ -74,7 +74,7 @@ def debug_log(message):
 # ================================================================
 
 DEFAULT_MODEL_CONFIG = {
-    'model_version': '2026.3',
+    'model_version': '2026.4',
     'factor_weights': {
         'sharp_consensus_score': 1.5,
         'referee_ou_score': 0.0,   # walk-forward backtest: 50.2% accuracy, noise
@@ -2965,6 +2965,48 @@ class RecommendationSelector:
             elif _week_num == 20:  # Divisional round
                 spread_threshold += 1.5
                 spread_threshold_adjustments.append({"reason": "divisional round historically poor ATS (40.9%)", "delta": 1.5})
+
+        # Large-spread / market-confidence gate:
+        # Picks where the picked team is favored by >8.5 pts ATS win at 44.3%
+        # (the "model overconfidence zone": market has fully priced the talent gap).
+        # ML implied probability offers a more direct signal: picks where the market
+        # prices the picked side at > 70% win probability also win at 44.3% ATS.
+        # Both checks are complementary — the spread gate catches large-line games
+        # even when ML odds are standard (-110); the ML gate catches juiced-up
+        # situations where the spread is modest but the line has moved heavily.
+        if spread_side in {'AWAY', 'HOME'} and spread_num:
+            try:
+                _raw_spread = float(spread_num)
+                if spread_side == 'AWAY':
+                    _fav_cover_pts = abs(_raw_spread) if _raw_spread < 0 else 0
+                else:
+                    _fav_cover_pts = _raw_spread if _raw_spread > 0 else 0
+                if _fav_cover_pts > 8.5:
+                    spread_threshold += 1.0
+                    spread_threshold_adjustments.append({
+                        "reason": f"large-spread pick ({_fav_cover_pts:.1f} pts favorite): market overconfidence zone (44.3% win historically)",
+                        "delta": 1.0,
+                    })
+            except (ValueError, TypeError):
+                pass
+        # ML-implied probability gate: if market prices picked side > 70% to win
+        # outright, ATS win rate drops to 44.3% — same overconfidence zone
+        _ml_line_raw = sharp.get('moneyline', {}).get('line', '')
+        if _ml_line_raw and spread_side in {'AWAY', 'HOME'}:
+            import re as _re2
+            _ml_odds_all = _re2.findall(r'([+-]\d+)', str(_ml_line_raw))
+            try:
+                _ml_odds_str = _ml_odds_all[0] if spread_side == 'AWAY' else (_ml_odds_all[1] if len(_ml_odds_all) > 1 else _ml_odds_all[0])
+                _ml_o = int(_ml_odds_str)
+                _ml_prob = abs(_ml_o) / (abs(_ml_o) + 100) if _ml_o < 0 else 100 / (_ml_o + 100)
+                if _ml_prob > 0.70:
+                    spread_threshold += 0.5
+                    spread_threshold_adjustments.append({
+                        "reason": f"market ML implies {_ml_prob:.0%} win prob for pick side: overconfidence zone",
+                        "delta": 0.5,
+                    })
+            except (ValueError, IndexError):
+                pass
 
         total_threshold = SELECTOR_CONFIG.get('total_threshold', 4)
 
