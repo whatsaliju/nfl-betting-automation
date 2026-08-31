@@ -74,7 +74,7 @@ def debug_log(message):
 # ================================================================
 
 DEFAULT_MODEL_CONFIG = {
-    'model_version': '2026.2',
+    'model_version': '2026.3',
     'factor_weights': {
         'sharp_consensus_score': 1.5,
         'referee_ou_score': 0.0,   # walk-forward backtest: 50.2% accuracy, noise
@@ -2733,7 +2733,8 @@ class RecommendationSelector:
         sharp = game_analysis['sharp_analysis']
         away_team = game_analysis.get('away', '')
         home_team = game_analysis.get('home', '')
-        spread_num = ClassificationEngine.extract_spread_number(sharp.get('spread', {}).get('line', ''))
+        spread_line_str = sharp.get('spread', {}).get('line', '')
+        spread_num = ClassificationEngine.extract_spread_number(spread_line_str)
         total_num = ClassificationEngine.extract_total_number(sharp.get('total', {}).get('line', ''))
 
         spread_score = 0
@@ -2853,6 +2854,22 @@ class RecommendationSelector:
             else:
                 spread_blockers.append("sharp spread edge required")
 
+        # Juice gate: spread picks at < -120 odds win at 45.8% (-16.5% ROI) across
+        # 75 games / 11 seasons — true even when WARPS aligns (-18.2% ROI). Block.
+        if not spread_blocked and spread_side in {'AWAY', 'HOME'}:
+            import re as _re
+            _paren_odds = _re.findall(r'\((-?\d+)\)', str(spread_line_str))
+            _side_idx = 0 if spread_side == 'AWAY' else 1
+            try:
+                _spread_pick_odds = int(_paren_odds[_side_idx]) if _side_idx < len(_paren_odds) else None
+            except (ValueError, IndexError):
+                _spread_pick_odds = None
+            if _spread_pick_odds is not None and _spread_pick_odds < -120:
+                spread_blocked = True
+                spread_blockers.append(
+                    f"spread priced at juice ({_spread_pick_odds}): historically 45.8% win, -16.5% ROI"
+                )
+
         if spread_blocked or (not has_sharp_spread_edge and not model_override):
             spread_score = 0
 
@@ -2939,9 +2956,12 @@ class RecommendationSelector:
             elif _season_type == 'REG' and _week_num >= 15:
                 spread_threshold += 1
                 spread_threshold_adjustments.append({"reason": "late REG season (wk 15+) historically poor ATS", "delta": 1})
-            elif _season_type == 'REG' and _week_num >= 11:
+            elif _season_type == 'REG' and _week_num in (11, 12):
+                spread_threshold += 1.0
+                spread_threshold_adjustments.append({"reason": "weeks 11-12 historically worst ATS (36-43% WARPS-aligned win rate)", "delta": 1.0})
+            elif _season_type == 'REG' and _week_num >= 13:
                 spread_threshold += 0.5
-                spread_threshold_adjustments.append({"reason": "late REG season (wk 11-14) moderately poor ATS", "delta": 0.5})
+                spread_threshold_adjustments.append({"reason": "late REG season (wk 13-14) moderately poor ATS", "delta": 0.5})
             elif _week_num == 20:  # Divisional round
                 spread_threshold += 1.5
                 spread_threshold_adjustments.append({"reason": "divisional round historically poor ATS (40.9%)", "delta": 1.5})
