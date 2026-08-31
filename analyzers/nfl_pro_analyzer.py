@@ -74,10 +74,10 @@ def debug_log(message):
 # ================================================================
 
 DEFAULT_MODEL_CONFIG = {
-    'model_version': '2026.1',
+    'model_version': '2026.2',
     'factor_weights': {
         'sharp_consensus_score': 1.5,
-        'referee_ou_score': 0.7,
+        'referee_ou_score': 0.0,   # walk-forward backtest: 50.2% accuracy, noise
         'weather_score': 0.5,
         'injury_score': 1.2,
         'situational_score': 1.0,
@@ -132,7 +132,7 @@ MODEL_VERSION = MODEL_CONFIG.get('model_version', 'unknown')
 # Define weights for each factor's score contribution to the total_score.
 FACTOR_WEIGHTS = MODEL_CONFIG.get('factor_weights', {
     'sharp_consensus_score': 1.5,   # High influence
-    'referee_ou_score': 0.7,
+    'referee_ou_score': 0.0,
     'weather_score': 0.5,           # Low influence, often secondary
     'injury_score': 1.2,
     'situational_score': 1.0,
