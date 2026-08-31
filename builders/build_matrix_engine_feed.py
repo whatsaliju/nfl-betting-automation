@@ -201,34 +201,64 @@ def _ml_line_string(warps_overlay, sharp_moneyline_line):
 
 
 def _moneyline_market(warps_overlay, sharp_moneyline_line=""):
-    """Build the moneyline market block from WARPS ML EV when available."""
+    """Build the moneyline market block from WARPS ML edge when available.
+
+    Only favorites qualify: backtest (3,028 games, 2015-2025) showed underdog
+    ML picks win at 32% regardless of edge level (-4.6% ROI/play). Favorite
+    picks with >=5% probability edge win at 61% (+7.2% ROI/play, 7/11 seasons
+    positive). Threshold is 5% edge_prob for playable, 2% for lean.
+    """
     ml_ev = None
     ml_side = None
+    ml_edge_prob = None
+    ml_odds = None
     if warps_overlay and warps_overlay.get("available"):
         ml_ev = warps_overlay.get("ml_ev")
         ml_side = warps_overlay.get("ml_side")
-    # Scale EV (decimal probability edge) to a display score in percent-EV units
-    ml_score = round(ml_ev * 100, 1) if ml_ev is not None else None
-    if ml_score is not None and abs(ml_score) >= 2.0:
-        ml_status = "lean"
-        blockers = []
-    elif ml_score is not None:
-        ml_status = "not_priced"
-        blockers = ["ML edge below lean threshold"]
-    else:
+        ml_edge_prob = warps_overlay.get("ml_edge_prob")
+        if ml_side == "HOME":
+            ml_odds = warps_overlay.get("market_home_moneyline")
+        elif ml_side == "AWAY":
+            ml_odds = warps_overlay.get("market_away_moneyline")
+
+    # Use edge_prob (%) as the display score so it reads against a 5.0 threshold
+    edge_pct = ml_edge_prob if ml_edge_prob is not None else None
+    ml_score = round(edge_pct * 100, 1) if edge_pct is not None else None
+    is_favorite = isinstance(ml_odds, (int, float)) and ml_odds < 0
+
+    if ml_score is None:
         ml_status = "research_only"
         blockers = ["WARPS ML unavailable for this week"]
+    elif not is_favorite:
+        ml_status = "blocked"
+        blockers = ["underdog ML not predictive (32% win rate historically, all edge levels)"]
+    elif edge_pct >= 0.05:
+        ml_status = "playable"
+        blockers = []
+    elif edge_pct >= 0.02:
+        ml_status = "lean"
+        blockers = []
+    else:
+        ml_status = "not_priced"
+        blockers = ["ML edge below lean threshold (need >=2% on a favorite)"]
+
     line = _ml_line_string(warps_overlay, sharp_moneyline_line)
     return {
         "market": "moneyline",
         "side": ml_side,
         "score": ml_score,
-        "threshold": 2.0,
+        "threshold": 5.0,
+        "cleared_threshold": ml_status == "playable",
         "status": ml_status,
-        "promotion_status": "not_promoted",
+        "promotion_status": "playable" if ml_status == "playable" else "not_promoted",
         "blockers": blockers,
         "line": line,
-        "reason": "WARPS ML EV" if ml_score is not None else "moneyline selector not promoted; WARPS provides context only",
+        "reason": (
+            "WARPS ML: fav >=5% edge playable" if ml_status == "playable"
+            else "WARPS ML: fav >=2% edge lean" if ml_status == "lean"
+            else "WARPS ML EV" if ml_score is not None
+            else "moneyline selector not promoted; WARPS provides context only"
+        ),
     }
 
 

@@ -140,8 +140,13 @@ def moneyline_research_payload(line, expectation, sharp_moneyline=None):
     side = "AWAY" if away_ev >= home_ev else "HOME"
     selected_ev = away_ev if side == "AWAY" else home_ev
     selected_edge = away_edge if side == "AWAY" else home_edge
+    selected_odds = away_odds if side == "AWAY" else home_odds
+    is_favorite = isinstance(selected_odds, (int, float)) and selected_odds < 0
     if expectation.get("sample_warning"):
         status = "research_thin_sample"
+    elif not is_favorite:
+        # Underdog ML historically ~32% win rate regardless of edge
+        status = "blocked"
     elif selected_ev >= 0.03 and selected_edge >= 0.025:
         status = "playable"
     elif selected_ev > 0 and selected_edge > 0:
