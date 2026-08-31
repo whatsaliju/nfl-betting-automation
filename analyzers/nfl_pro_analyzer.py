@@ -77,13 +77,12 @@ DEFAULT_MODEL_CONFIG = {
     'model_version': '2026.1',
     'factor_weights': {
         'sharp_consensus_score': 1.5,
-        'referee_ats_score': 0.7,
         'referee_ou_score': 0.7,
         'weather_score': 0.5,
         'injury_score': 1.2,
         'situational_score': 1.0,
         'statistical_score': 1.8,
-        'game_theory_score': 0.0,
+        'game_theory_score': 0.4,
         'schedule_score': 0.8
     },
     'selector': {
@@ -94,7 +93,8 @@ DEFAULT_MODEL_CONFIG = {
         'strong_score': 6,
         'require_sharp_spread_edge': True,
         'block_spread_on_team_rating_conflict': True,
-        'injury_spread_mode': 'context'
+        'injury_spread_mode': 'context',
+        'model_confidence_override_threshold': 10
     },
     'source_quality': {
         'max_age_days': 4,
@@ -132,13 +132,12 @@ MODEL_VERSION = MODEL_CONFIG.get('model_version', 'unknown')
 # Define weights for each factor's score contribution to the total_score.
 FACTOR_WEIGHTS = MODEL_CONFIG.get('factor_weights', {
     'sharp_consensus_score': 1.5,   # High influence
-    'referee_ats_score': 0.7,
     'referee_ou_score': 0.7,
     'weather_score': 0.5,           # Low influence, often secondary
     'injury_score': 1.2,
     'situational_score': 1.0,
     'statistical_score': 1.8,       # Highest influence
-    'game_theory_score': 0.0,
+    'game_theory_score': 0.4,
     'schedule_score': 0.8
 })
 SELECTOR_CONFIG = MODEL_CONFIG.get('selector', DEFAULT_MODEL_CONFIG['selector'])
@@ -2835,9 +2834,26 @@ class RecommendationSelector:
                     "status": "conflict",
                 })
 
-        if spread_blocked or (SELECTOR_CONFIG.get('require_sharp_spread_edge', True) and not has_sharp_spread_edge):
-            if SELECTOR_CONFIG.get('require_sharp_spread_edge', True) and not has_sharp_spread_edge:
+        model_override = False
+        if (SELECTOR_CONFIG.get('require_sharp_spread_edge', True) and not has_sharp_spread_edge
+                and not spread_blocked):
+            override_thresh = SELECTOR_CONFIG.get('model_confidence_override_threshold', 10)
+            game_total_score = game_analysis.get('_total_score', 0)
+            if (game_total_score >= override_thresh and stat_score >= 2
+                    and stat_side in {'AWAY', 'HOME'} and stat_side == spread_side):
+                model_override = True
+                spread_reasons.append("model confidence override: high stat + total score")
+                spread_signals.append({
+                    "source": "model_confidence",
+                    "side": stat_side,
+                    "score": stat_score,
+                    "impact": stat_score,
+                    "status": "override",
+                })
+            else:
                 spread_blockers.append("sharp spread edge required")
+
+        if spread_blocked or (not has_sharp_spread_edge and not model_override):
             spread_score = 0
 
         total_score = 0
@@ -3584,7 +3600,8 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
             'weather_analysis': weather_analysis,
             'injury_analysis': injury_analysis,
             'statistical_analysis': statistical_analysis,
-            'public_exposure': sharp_analysis['spread'].get('bets_pct', 50)
+            'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
+            '_total_score': total_score
         }
     )
     classification, recommendation_label, tier_score = RecommendationSelector.classification_for_pick(pick_metadata)
