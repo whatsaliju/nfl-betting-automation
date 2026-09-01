@@ -74,7 +74,7 @@ def debug_log(message):
 # ================================================================
 
 DEFAULT_MODEL_CONFIG = {
-    'model_version': '2026.4',
+    'model_version': '2026.5',
     'factor_weights': {
         'sharp_consensus_score': 1.5,
         'referee_ou_score': 0.0,   # walk-forward backtest: 50.2% accuracy, noise
@@ -3008,6 +3008,24 @@ class RecommendationSelector:
             except (ValueError, IndexError):
                 pass
 
+        # WARPS confidence sweet-spot: away pick + early REG (wk 1-10, not wk 7) +
+        # model confidence 55-65% on away side → 66.7% ATS win rate, +28.4% ROI, 10/11 seasons.
+        # When WARPS home_win_prob is 0.35-0.45, the away team sits in this sweet-spot:
+        # market still prices home team as slight favorite but WARPS sees a genuine edge.
+        _warps_hwp = game_analysis.get('warps_home_win_prob')
+        if (_warps_hwp is not None and spread_side == 'AWAY'
+                and _season_type == 'REG' and 0 < _week_num <= 10 and _week_num != 7):
+            try:
+                _away_win_prob = 1.0 - float(_warps_hwp)
+                if 0.55 <= _away_win_prob < 0.65:
+                    spread_threshold -= 0.5
+                    spread_threshold_adjustments.append({
+                        "reason": f"WARPS confidence sweet-spot: {_away_win_prob:.0%} away win prob (55-65%), early season — 66.7% ATS historically",
+                        "delta": -0.5,
+                    })
+            except (ValueError, TypeError):
+                pass
+
         total_threshold = SELECTOR_CONFIG.get('total_threshold', 4)
 
         spread_trace = {
@@ -3197,7 +3215,7 @@ def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df,
 # ================================================================
 # SINGLE GAME ANALYSIS (REFRACTORED FOR PARALLELISM)
 # ================================================================
-def analyze_single_game(row, week, action, action_injuries, rotowire, referee_trends, weather=None):
+def analyze_single_game(row, week, action, action_injuries, rotowire, referee_trends, weather=None, warps_overlay_lookup=None):
     """
     Core deterministic single-game analysis.
     Input row → output dict
@@ -3224,6 +3242,10 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
 
     # stable matchup key (NO lowercase, NO spaces)
     matchup_key = f"{away_tla}@{home_tla}"
+
+    # Look up WARPS overlay data for this game (home_win_prob from pre-season priors)
+    _warps_overlay_row = (warps_overlay_lookup or {}).get(matchup_key, {})
+    warps_home_win_prob = _warps_overlay_row.get('home_win_prob')
 
     # ======================================================
     # STEP 2 — ACTION MATCHING (CANONICAL, STABLE)
@@ -3663,7 +3685,8 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
             'injury_analysis': injury_analysis,
             'statistical_analysis': statistical_analysis,
             'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
-            '_total_score': total_score
+            '_total_score': total_score,
+            'warps_home_win_prob': warps_home_win_prob,
         }
     )
     classification, recommendation_label, tier_score = RecommendationSelector.classification_for_pick(pick_metadata)
@@ -3849,15 +3872,35 @@ def analyze_week(week):
     num_games = len(final)
     print(f"\n🔬 Analyzing {num_games} games in parallel...\n")
     
+    # Load WARPS 2026 game priors (home_win_prob for confidence sweet-spot gate)
+    _warps_overlay_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "data", "historical", "warps_2026_market_overlay.csv"
+    )
+    warps_overlay_lookup = {}
+    try:
+        _warps_df = pd.read_csv(_warps_overlay_path)
+        for _, _wrow in _warps_df.iterrows():
+            _key = str(_wrow.get("matchup_key", "")).strip()
+            if _key:
+                _hwp = _wrow.get("home_win_prob")
+                warps_overlay_lookup[_key] = {
+                    "home_win_prob": float(_hwp) if pd.notna(_hwp) else None,
+                }
+        print(f"  ✓ Loaded {len(warps_overlay_lookup)} WARPS game priors")
+    except Exception as _e:
+        print(f"  ⚠️ WARPS overlay unavailable: {_e}")
+
     # Use partial to 'lock in' the arguments that are constant for all games
     analyzer = partial(
-        analyze_single_game, 
-        week=week, 
-        action=action, 
-        action_injuries=action_injuries, 
+        analyze_single_game,
+        week=week,
+        action=action,
+        action_injuries=action_injuries,
         rotowire=rotowire,
         referee_trends=referee_trends,
-        weather=weather
+        weather=weather,
+        warps_overlay_lookup=warps_overlay_lookup,
     )
 
     # Use ThreadPoolExecutor to run the single-game analysis concurrently
