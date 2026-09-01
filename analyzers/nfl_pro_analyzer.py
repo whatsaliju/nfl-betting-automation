@@ -74,7 +74,7 @@ def debug_log(message):
 # ================================================================
 
 DEFAULT_MODEL_CONFIG = {
-    'model_version': '2026.6',
+    'model_version': '2026.7',
     'factor_weights': {
         'sharp_consensus_score': 1.5,
         'referee_ou_score': 0.0,   # walk-forward backtest: 50.2% accuracy, noise
@@ -3067,6 +3067,30 @@ class RecommendationSelector:
             except (ValueError, TypeError):
                 pass
 
+        # Tofte independent algorithm consensus signal:
+        # Teams appearing in 4/4 algorithms are strong playoff-caliber teams.
+        # When our spread pick IS a 4/4 consensus team vs a 0-1 count opponent → -0.3 threshold.
+        # When our spread pick is a 0-1 count team fading a 4/4 consensus team → +0.5 threshold.
+        # Based on Tofte's models: 1A (4yr track record), 1B/2A/2B (1yr, each 10-11/14 correct).
+        _tofte = game_analysis.get('_tofte_consensus', {})
+        if _tofte and spread_side in {'AWAY', 'HOME'} and not spread_blocked:
+            _pick_tla = game_analysis.get('_away_tla', '') if spread_side == 'AWAY' else game_analysis.get('_home_tla', '')
+            _opp_tla = game_analysis.get('_home_tla', '') if spread_side == 'AWAY' else game_analysis.get('_away_tla', '')
+            _pick_count = _tofte.get(_pick_tla, 0)
+            _opp_count = _tofte.get(_opp_tla, 0)
+            if _pick_count == 4 and _opp_count <= 1:
+                spread_threshold -= 0.3
+                spread_threshold_adjustments.append({
+                    "reason": f"Tofte 4/4 algorithm consensus pick ({_pick_tla}) vs non-consensus opponent ({_opp_tla})",
+                    "delta": -0.3,
+                })
+            elif _opp_count == 4 and _pick_count <= 1:
+                spread_threshold += 0.5
+                spread_threshold_adjustments.append({
+                    "reason": f"fading Tofte 4/4 consensus team ({_opp_tla}): algorithmic playoff-caliber opponent",
+                    "delta": 0.5,
+                })
+
         total_threshold = SELECTOR_CONFIG.get('total_threshold', 4)
 
         spread_trace = {
@@ -3256,7 +3280,7 @@ def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df,
 # ================================================================
 # SINGLE GAME ANALYSIS (REFRACTORED FOR PARALLELISM)
 # ================================================================
-def analyze_single_game(row, week, action, action_injuries, rotowire, referee_trends, weather=None, warps_overlay_lookup=None):
+def analyze_single_game(row, week, action, action_injuries, rotowire, referee_trends, weather=None, warps_overlay_lookup=None, tofte_consensus=None):
     """
     Core deterministic single-game analysis.
     Input row → output dict
@@ -3732,6 +3756,9 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
             'warps_home_win_prob': warps_home_win_prob,
             'warps_market_home_spread': warps_market_home_spread,
             'warps_away_spread_edge': warps_away_spread_edge,
+            '_away_tla': away_tla,
+            '_home_tla': home_tla,
+            '_tofte_consensus': tofte_consensus or {},
         }
     )
     classification, recommendation_label, tier_score = RecommendationSelector.classification_for_pick(pick_metadata)
@@ -3941,6 +3968,21 @@ def analyze_week(week):
     except Exception as _e:
         print(f"  ⚠️ WARPS overlay unavailable: {_e}")
 
+    # Load Tofte 2026 playoff consensus counts (independent algorithmic signal)
+    _tofte_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "data", "historical", "tofte_2026_playoff_predictions.json"
+    )
+    tofte_consensus = {}
+    try:
+        import json as _json
+        with open(_tofte_path) as _tf:
+            _tofte = _json.load(_tf)
+        tofte_consensus = _tofte.get("consensus_count", {})
+        print(f"  ✓ Loaded Tofte 2026 playoff consensus ({len(tofte_consensus)} teams)")
+    except Exception as _e:
+        print(f"  ⚠️ Tofte consensus unavailable: {_e}")
+
     # Use partial to 'lock in' the arguments that are constant for all games
     analyzer = partial(
         analyze_single_game,
@@ -3951,6 +3993,7 @@ def analyze_week(week):
         referee_trends=referee_trends,
         weather=weather,
         warps_overlay_lookup=warps_overlay_lookup,
+        tofte_consensus=tofte_consensus,
     )
 
     # Use ThreadPoolExecutor to run the single-game analysis concurrently
