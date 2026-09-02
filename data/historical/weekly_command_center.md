@@ -16,18 +16,18 @@
 
 ## Betting Card
 
-- Plays: 1
-- Watch: 6
-- Passes: 9
+- Plays: 3
+- Watch: 3
+- Passes: 10
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
+| ATL@MIA | play | n/a | n/a | 5.0 |
 | SEA@KC | play | spread | AWAY | 3.0 |
-| ATL@MIA | watch | total | UNDER | 5.0 |
-| CHI@TEN | watch | n/a | n/a | 3.0 |
-| HOU@CAR | watch | spread | HOME | 3.0 |
-| NE@CLE | watch | n/a | n/a | 2.0 |
-| SF@LV | watch | n/a | n/a | 2.0 |
+| HOU@CAR | play | n/a | n/a | n/a |
+| LAR@LAC | watch | n/a | n/a | n/a |
+| NE@CLE | watch | n/a | n/a | n/a |
+| SF@LV | watch | n/a | n/a | n/a |
 
 ## Survivor
 
