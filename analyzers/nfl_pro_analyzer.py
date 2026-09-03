@@ -74,7 +74,7 @@ def debug_log(message):
 # ================================================================
 
 DEFAULT_MODEL_CONFIG = {
-    'model_version': '2026.4',
+    'model_version': '2026.6',
     'factor_weights': {
         'sharp_consensus_score': 1.5,
         'referee_ou_score': 0.0,   # walk-forward backtest: 50.2% accuracy, noise
@@ -2966,6 +2966,13 @@ class RecommendationSelector:
                 spread_threshold += 1.5
                 spread_threshold_adjustments.append({"reason": "divisional round historically poor ATS (40.9%)", "delta": 1.5})
 
+        # Week 18 AWAY hard block: every season since the 17-game era (2021+) is
+        # negative for AWAY picks in week 18. The existing wk15+ +1.0 is insufficient.
+        # 44.4% WR, -14.4% ROI, 0/5 seasons positive. Hard block regardless of signal strength.
+        if _season_type == 'REG' and _week_num == 18 and spread_side == 'AWAY':
+            spread_blocked = True
+            spread_blockers.append("week 18 AWAY: 44.4% WR, -14.4% ROI, 0/5 seasons positive in 17-game era")
+
         # Large-spread / market-confidence gate:
         # Picks where the picked team is favored by >8.5 pts ATS win at 44.3%
         # (the "model overconfidence zone": market has fully priced the talent gap).
@@ -3006,6 +3013,58 @@ class RecommendationSelector:
                         "delta": 0.5,
                     })
             except (ValueError, IndexError):
+                pass
+
+        # WARPS confidence sweet-spot: away pick + early REG (wk 1-10, not wk 7) +
+        # model confidence 55-65% on away side → 66.7% ATS win rate, +28.4% ROI, 10/11 seasons.
+        # When WARPS home_win_prob is 0.35-0.45, the away team sits in this sweet-spot:
+        # market still prices home team as slight favorite but WARPS sees a genuine edge.
+        _warps_hwp = game_analysis.get('warps_home_win_prob')
+        if (_warps_hwp is not None and spread_side == 'AWAY'
+                and _season_type == 'REG' and 0 < _week_num <= 10 and _week_num != 7):
+            try:
+                _away_win_prob = 1.0 - float(_warps_hwp)
+                if 0.55 <= _away_win_prob < 0.65:
+                    spread_threshold -= 0.5
+                    spread_threshold_adjustments.append({
+                        "reason": f"WARPS confidence sweet-spot: {_away_win_prob:.0%} away win prob (55-65%), early season — 66.7% ATS historically",
+                        "delta": -0.5,
+                    })
+            except (ValueError, TypeError):
+                pass
+
+        # Early-season near-consensus AWAY (Signal 1): wk 1-6, AWAY pick, WARPS spread
+        # edge < 2 pts over market. Small model-market disagreement in early weeks correlates
+        # with genuine inefficiency, not model uncertainty. Edge bands 2-5 pts show 49.3% WR
+        # and -4.6% ROI in the same window. 63.3% WR, +23.4% ROI, 10/11 seasons positive.
+        _warps_away_edge = game_analysis.get('warps_away_spread_edge')
+        if (not spread_blocked and _warps_away_edge is not None and spread_side == 'AWAY'
+                and _season_type == 'REG' and 0 < _week_num <= 6):
+            try:
+                if abs(float(_warps_away_edge)) < 2.0:
+                    spread_threshold -= 1.0
+                    spread_threshold_adjustments.append({
+                        "reason": f"near-consensus AWAY ({_warps_away_edge:.1f}pt WARPS edge), early REG wk 1-6 — 63.3% ATS historically",
+                        "delta": -1.0,
+                    })
+            except (ValueError, TypeError):
+                pass
+
+        # Slight home favorite AWAY fade (Signal 2): wk 1-6, AWAY pick, market has home
+        # as -1 to -3 pt favorite (near pick-em). 66.4% WR, +30.3% ROI, 9/11 seasons.
+        # Effect vanishes in wks 7-18 (50.3% WR, -1.1% ROI) — calendar-gated.
+        _mhs = game_analysis.get('warps_market_home_spread')
+        if (not spread_blocked and _mhs is not None and spread_side == 'AWAY'
+                and _season_type == 'REG' and 0 < _week_num <= 6):
+            try:
+                _mhs_f = float(_mhs)
+                if -3.0 <= _mhs_f < 0.0:
+                    spread_threshold -= 0.5
+                    spread_threshold_adjustments.append({
+                        "reason": f"slight home favorite ({_mhs_f:+.1f}) AWAY fade, early REG wk 1-6 — 66.4% ATS historically",
+                        "delta": -0.5,
+                    })
+            except (ValueError, TypeError):
                 pass
 
         total_threshold = SELECTOR_CONFIG.get('total_threshold', 4)
@@ -3197,7 +3256,7 @@ def analyze_injuries_with_team_mapping(away_team, home_team, action_injuries_df,
 # ================================================================
 # SINGLE GAME ANALYSIS (REFRACTORED FOR PARALLELISM)
 # ================================================================
-def analyze_single_game(row, week, action, action_injuries, rotowire, referee_trends, weather=None):
+def analyze_single_game(row, week, action, action_injuries, rotowire, referee_trends, weather=None, warps_overlay_lookup=None):
     """
     Core deterministic single-game analysis.
     Input row → output dict
@@ -3224,6 +3283,12 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
 
     # stable matchup key (NO lowercase, NO spaces)
     matchup_key = f"{away_tla}@{home_tla}"
+
+    # Look up WARPS overlay data for this game (pre-season priors)
+    _warps_overlay_row = (warps_overlay_lookup or {}).get(matchup_key, {})
+    warps_home_win_prob = _warps_overlay_row.get('home_win_prob')
+    warps_market_home_spread = _warps_overlay_row.get('market_home_spread')
+    warps_away_spread_edge = _warps_overlay_row.get('away_spread_edge')
 
     # ======================================================
     # STEP 2 — ACTION MATCHING (CANONICAL, STABLE)
@@ -3663,7 +3728,10 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
             'injury_analysis': injury_analysis,
             'statistical_analysis': statistical_analysis,
             'public_exposure': sharp_analysis['spread'].get('bets_pct', 50),
-            '_total_score': total_score
+            '_total_score': total_score,
+            'warps_home_win_prob': warps_home_win_prob,
+            'warps_market_home_spread': warps_market_home_spread,
+            'warps_away_spread_edge': warps_away_spread_edge,
         }
     )
     classification, recommendation_label, tier_score = RecommendationSelector.classification_for_pick(pick_metadata)
@@ -3849,15 +3917,40 @@ def analyze_week(week):
     num_games = len(final)
     print(f"\n🔬 Analyzing {num_games} games in parallel...\n")
     
+    # Load WARPS 2026 game priors (home_win_prob for confidence sweet-spot gate)
+    _warps_overlay_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "data", "historical", "warps_2026_market_overlay.csv"
+    )
+    warps_overlay_lookup = {}
+    try:
+        _warps_df = pd.read_csv(_warps_overlay_path)
+        for _, _wrow in _warps_df.iterrows():
+            _key = str(_wrow.get("matchup_key", "")).strip()
+            if _key:
+                def _f(col):
+                    v = _wrow.get(col)
+                    return float(v) if v is not None and pd.notna(v) else None
+                warps_overlay_lookup[_key] = {
+                    "home_win_prob": _f("home_win_prob"),
+                    "market_home_spread": _f("market_home_spread"),
+                    "home_spread_edge": _f("home_spread_edge"),
+                    "away_spread_edge": _f("away_spread_edge"),
+                }
+        print(f"  ✓ Loaded {len(warps_overlay_lookup)} WARPS game priors")
+    except Exception as _e:
+        print(f"  ⚠️ WARPS overlay unavailable: {_e}")
+
     # Use partial to 'lock in' the arguments that are constant for all games
     analyzer = partial(
-        analyze_single_game, 
-        week=week, 
-        action=action, 
-        action_injuries=action_injuries, 
+        analyze_single_game,
+        week=week,
+        action=action,
+        action_injuries=action_injuries,
         rotowire=rotowire,
         referee_trends=referee_trends,
-        weather=weather
+        weather=weather,
+        warps_overlay_lookup=warps_overlay_lookup,
     )
 
     # Use ThreadPoolExecutor to run the single-game analysis concurrently
