@@ -74,7 +74,7 @@ def debug_log(message):
 # ================================================================
 
 DEFAULT_MODEL_CONFIG = {
-    'model_version': '2026.6',
+    'model_version': '2026.7',
     'factor_weights': {
         'sharp_consensus_score': 1.5,
         'referee_ou_score': 0.0,   # walk-forward backtest: 50.2% accuracy, noise
@@ -2973,6 +2973,18 @@ class RecommendationSelector:
             spread_blocked = True
             spread_blockers.append("week 18 AWAY: 44.4% WR, -14.4% ROI, 0/5 seasons positive in 17-game era")
 
+        # Week 15 AWAY hard block: 1/11 seasons positive (most consistent bad week after wk 18).
+        # 43.0% WR, -14.6% ROI across 93 games. The +1.0 late-season threshold is insufficient.
+        if _season_type == 'REG' and _week_num == 15 and spread_side == 'AWAY':
+            spread_blocked = True
+            spread_blockers.append("week 15 AWAY: 43.0% WR, -14.6% ROI, 1/11 seasons positive — hard block")
+
+        # Week 12 AWAY hard block: worst mid-season ROI (-21.4%) and 4/11 seasons positive.
+        # 39.5% WR across 81 games. The +1.0 wk11-12 threshold is insufficient for AWAY.
+        if _season_type == 'REG' and _week_num == 12 and spread_side == 'AWAY':
+            spread_blocked = True
+            spread_blockers.append("week 12 AWAY: 39.5% WR, -21.4% ROI, 4/11 seasons positive — hard block")
+
         # Large-spread / market-confidence gate:
         # Picks where the picked team is favored by >8.5 pts ATS win at 44.3%
         # (the "model overconfidence zone": market has fully priced the talent gap).
@@ -3046,6 +3058,23 @@ class RecommendationSelector:
                     spread_threshold_adjustments.append({
                         "reason": f"near-consensus AWAY ({_warps_away_edge:.1f}pt WARPS edge), early REG wk 1-6 — 63.3% ATS historically",
                         "delta": -1.0,
+                    })
+            except (ValueError, TypeError):
+                pass
+
+        # Week 10 AWAY lift: 60.2% WR, +20.0% ROI, 8/11 seasons positive overall.
+        # With WARPS edge > 1pt: 63.8% WR, +27.1% ROI, 9/11 seasons positive.
+        # Dedicated threshold reduction for wk 10 AWAY picks with any model edge.
+        if (not spread_blocked and spread_side == 'AWAY'
+                and _season_type == 'REG' and _week_num == 10):
+            _warps_ae_val = game_analysis.get('warps_away_spread_edge')
+            try:
+                _ae = float(_warps_ae_val) if _warps_ae_val is not None else 0.0
+                if _ae > 1.0:
+                    spread_threshold -= 0.5
+                    spread_threshold_adjustments.append({
+                        "reason": f"week 10 AWAY lift: WARPS edge {_ae:.1f}pt — 63.8% ATS, +27.1% ROI, 9/11 seasons",
+                        "delta": -0.5,
                     })
             except (ValueError, TypeError):
                 pass
