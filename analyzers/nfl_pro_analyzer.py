@@ -74,7 +74,7 @@ def debug_log(message):
 # ================================================================
 
 DEFAULT_MODEL_CONFIG = {
-    'model_version': '2026.7',
+    'model_version': '2026.8',
     'factor_weights': {
         'sharp_consensus_score': 1.5,
         'referee_ou_score': 0.0,   # walk-forward backtest: 50.2% accuracy, noise
@@ -2985,6 +2985,26 @@ class RecommendationSelector:
             spread_blocked = True
             spread_blockers.append("week 12 AWAY: 39.5% WR, -21.4% ROI, 4/11 seasons positive — hard block")
 
+        # Late-season AWAY overconfidence zone (3-5pt WARPS edge, wk 13/14/16/17):
+        # When WARPS projects 3-5pt AWAY edge in late REG season (excl wks already hard-blocked),
+        # the model is systematically overconfident — 35.5% WR, -28.9% ROI, 1/11 seasons positive
+        # across 76 games. Each sub-week is independently bad (wk13: 1/9, wk14: 3/11,
+        # wk16: 3/10, wk17: 1/7). Hard block before signal strength check.
+        if (not spread_blocked and _season_type == 'REG'
+                and _week_num in (13, 14, 16, 17) and spread_side == 'AWAY'):
+            _ase = game_analysis.get('warps_away_spread_edge')
+            if _ase is not None:
+                try:
+                    _ase_f = float(_ase)
+                    if 3.0 <= _ase_f < 5.0:
+                        spread_blocked = True
+                        spread_blockers.append(
+                            f"late-season AWAY overconfidence ({_ase_f:.1f}pt edge, wk{_week_num}): "
+                            "35.5% WR, -28.9% ROI, 1/11 seasons positive — hard block"
+                        )
+                except (ValueError, TypeError):
+                    pass
+
         # Large-spread / market-confidence gate:
         # Picks where the picked team is favored by >8.5 pts ATS win at 44.3%
         # (the "model overconfidence zone": market has fully priced the talent gap).
@@ -3078,6 +3098,24 @@ class RecommendationSelector:
                     })
             except (ValueError, TypeError):
                 pass
+
+        # Week 14 AWAY near-consensus exception: when the WARPS model sees only a small
+        # edge (0-2pt) in week 14, this sub-group beats the blanket wk13-14 +0.5 penalty.
+        # 68.0% WR, +32.0% ROI, 8/11 seasons positive (N=25). Offset the late-season penalty.
+        if (not spread_blocked and spread_side == 'AWAY'
+                and _season_type == 'REG' and _week_num == 14):
+            _w14_ae = game_analysis.get('warps_away_spread_edge')
+            if _w14_ae is not None:
+                try:
+                    _w14_ae_f = float(_w14_ae)
+                    if 0.0 <= _w14_ae_f < 2.0:
+                        spread_threshold -= 0.5
+                        spread_threshold_adjustments.append({
+                            "reason": f"wk14 AWAY near-consensus ({_w14_ae_f:.1f}pt edge): 68.0% ATS, +32.0% ROI, 8/11 seasons",
+                            "delta": -0.5,
+                        })
+                except (ValueError, TypeError):
+                    pass
 
         # Slight home favorite AWAY fade (Signal 2): wk 1-6, AWAY pick, market has home
         # as -1 to -3 pt favorite (near pick-em). 66.4% WR, +30.3% ROI, 9/11 seasons.
