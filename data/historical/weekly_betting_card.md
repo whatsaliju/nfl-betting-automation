@@ -1,24 +1,24 @@
 # Weekly Betting Card
 
-- Plays: 1
-- Watch: 0
-- Passes: 15
+- Plays: 0
+- Watch: 2
+- Passes: 14
 
 | Week | Game | Action | Market | Side | Confidence | Route | Reasons | Risk |
 |---:|---|---|---|---|---|---|---|---|
-| PRE3 | SEA@KC | play | spread | AWAY | standard | spread routed as best available market with status playable | Selector isolated spread AWAY; Signals: sharp; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED | source warning DEGRADED; thin expectation sample; quality gate warn |
-| PRE3 | ARI@GB | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | ATL@MIA | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | CHI@TEN | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | CIN@PHI | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | DET@IND | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | HOU@CAR | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | LAR@LAC | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | MIN@DEN | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | NE@CLE | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | NO@DAL | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | NYG@NYJ | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | PIT@BUF | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | SF@LV | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | TB@JAX | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
-| PRE3 | WAS@BAL | pass |  |  | none | Blocked by risk/source flags: thin expectation sample | Selector did not clear an actionable market threshold | thin expectation sample |
+| 1 | ATL@PIT | watch | spread | HOME | watch | spread routed as best available market with status playable; WARPS conflict keeps risk elevated | 👀 LEAN: Pittsburgh Steelers -3.5 (proceed with caution) | source warning DEGRADED; WARPS spread conflict; thin expectation sample |
+| 1 | DEN@KC | watch | spread | AWAY | watch | spread routed as best available market with status playable; WARPS agrees | 👀 LEAN: Denver Broncos +2.5 (proceed with caution) | source warning DEGRADED; thin expectation sample |
+| 1 | ARI@LAC | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | BAL@IND | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | BUF@HOU | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | CHI@CAR | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | CLE@JAX | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | DAL@NYG | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | GB@MIN | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | MIA@LV | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | NE@SEA | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | NO@DET | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | NYJ@TEN | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | SF@LAR | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | TB@CIN | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |
+| 1 | WSH@PHI | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, thin expectation sample | Selector did not clear an actionable market threshold | source warning DEGRADED; thin expectation sample |

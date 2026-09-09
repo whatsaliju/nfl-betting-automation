@@ -1,9 +1,9 @@
 # Weekly Command Center
 
-- Context: 2026 PRE W3 · live
-- Recommended action: **PLAY**
-- Confidence tier: **A**
-- Reason: At least one selector play cleared the current command gate.
+- Context: 2026 W1 · live
+- Recommended action: **PASS**
+- Confidence tier: **X**
+- Reason: No playable or watchlist edges are active.
 
 ## Source Gates
 
@@ -16,13 +16,9 @@
 
 ## Betting Card
 
-- Plays: 1
+- Plays: 0
 - Watch: 0
-- Passes: 15
-
-| Game | Action | Market | Side | Score |
-|---|---|---|---|---:|
-| SEA@KC | play | spread | AWAY | 3.0 |
+- Passes: 0
 
 ## Survivor
 
@@ -46,3 +42,7 @@
 | LAC | vs ARI | 62.4% | -166 |
 | SEA | vs NE | 61.1% | -157 |
 | LAR | vs SF | 61.1% | -157 |
+
+## Warnings
+
+- No actionable betting plays or watchlist spots are active.

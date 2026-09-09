@@ -3,9 +3,9 @@
   "generated_from": "matrix_engine_feed_builder",
   "current_context": {
     "season": 2026,
-    "season_type": "PRE",
-    "week": "PRE3",
-    "week_label": "PRE W3",
+    "season_type": "REG",
+    "week": "1",
+    "week_label": "W1",
     "stage": null,
     "status": "LIVE_CARD",
     "mode": "live",
@@ -13,159 +13,51 @@
     "message": "Current active engine context from current_week.json."
   },
   "decision_mode": "live",
-  "recommended_action": "PLAY",
-  "confidence_tier": "A",
-  "action_reason": "At least one selector play cleared the current command gate.",
+  "recommended_action": "PASS",
+  "confidence_tier": "X",
+  "action_reason": "No playable or watchlist edges are active.",
   "source_gates": {
     "live_betting_card": "PASS",
     "preseason_dry_run": "PASS",
     "warps_priors": "PASS",
     "survivor_recommendations": "PASS"
   },
-  "do_nothing_warning": false,
-  "warnings": [],
+  "do_nothing_warning": true,
+  "warnings": [
+    "No actionable betting plays or watchlist spots are active."
+  ],
   "betting_card": {
     "available": true,
-    "plays": 1,
+    "plays": 0,
     "watch": 0,
-    "passes": 15,
-    "top_cards": [
-      {
-        "key": "2026:PRE3:SEA@KC",
-        "season": 2026,
-        "season_type": "PRE",
-        "week": "PRE3",
-        "matchup_key": "SEA@KC",
-        "away_tla": "SEA",
-        "home_tla": "KC",
-        "action": "play",
-        "market": "spread",
-        "side": "AWAY",
-        "pick_label": "SEA -2.5",
-        "confidence": "standard",
-        "selector_score": 3.0,
-        "classification": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Seattle Seahawks -2.5 (proceed with caution)",
-        "required_line": "Spread ref: -2.5 (-110) | +3.5 (-130)",
-        "current_line": "-2.5 (-110) | +3.5 (-130)",
-        "warps_alignment": null,
-        "warps_side": null,
-        "source_health": "DEGRADED",
-        "data_quality": "DEGRADED",
-        "quality_gate": "warn",
-        "main_reasons": [
-          "Selector isolated spread AWAY",
-          "Signals: sharp",
-          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
-        ],
-        "risk_flags": [
-          "source warning DEGRADED",
-          "thin expectation sample",
-          "quality gate warn"
-        ],
-        "market_status": "playable",
-        "spread_status": "playable",
-        "total_status": "lean",
-        "moneyline_status": "research_only",
-        "moneyline_promotion_status": "not_promoted",
-        "route_selected_market": "spread",
-        "route_reason": "spread routed as best available market with status playable",
-        "market_options": [
-          {
-            "market": "spread",
-            "side": "AWAY",
-            "status": "playable",
-            "score": 3.0,
-            "threshold": 3.0,
-            "blockers": [],
-            "signals": [
-              {
-                "impact": 3,
-                "score": 3,
-                "side": "AWAY",
-                "source": "sharp",
-                "status": "aligned"
-              }
-            ],
-            "conflicts": [],
-            "warps_alignment": null,
-            "warps_side": null,
-            "warps_team": null,
-            "edge_value": null
-          },
-          {
-            "market": "total",
-            "side": "UNDER",
-            "status": "lean",
-            "score": 0.0,
-            "threshold": 4.0,
-            "blockers": [],
-            "signals": [],
-            "conflicts": [],
-            "warps_alignment": null,
-            "warps_side": null,
-            "warps_team": null,
-            "edge_value": null
-          },
-          {
-            "market": "moneyline",
-            "side": null,
-            "status": "research_only",
-            "promotion_status": "not_promoted",
-            "score": null,
-            "threshold": 5.0,
-            "blockers": [
-              "WARPS ML unavailable for this week",
-              "moneyline selector not promoted"
-            ],
-            "signals": [],
-            "conflicts": [],
-            "warps_alignment": null,
-            "warps_side": null,
-            "warps_team": null,
-            "edge_value": null
-          }
-        ],
-        "referee": "Scott Novak",
-        "referee_stats": {
-          "su_record": "25-19",
-          "su_pct": 56.8,
-          "ats_record": "17-27",
-          "ats_pct": 38.6,
-          "ou_record": "23-21",
-          "ou_pct": 52.3,
-          "sample_size": 44,
-          "game_type": "NDIV",
-          "favorite": "HF"
-        }
-      }
-    ]
+    "passes": 0,
+    "top_cards": []
   },
   "best_edges": [
     {
       "season": 2026,
-      "season_type": "PRE",
-      "week": "PRE3",
-      "matchup_key": "SEA@KC",
-      "game": "Seattle Seahawks @ Kansas City Chiefs",
-      "away_team": "Seattle Seahawks",
-      "home_team": "Kansas City Chiefs",
-      "away_tla": "SEA",
-      "home_tla": "KC",
-      "stage": "final",
+      "season_type": "REG",
+      "week": "1",
+      "matchup_key": "ATL@PIT",
+      "game": "Atlanta Falcons @ Pittsburgh Steelers",
+      "away_team": "Atlanta Falcons",
+      "home_team": "Pittsburgh Steelers",
+      "away_tla": "ATL",
+      "home_tla": "PIT",
+      "stage": "initial",
       "analysis_available": true,
       "best_edge": {
         "market": "spread",
-        "side": "AWAY",
+        "side": "HOME",
         "score": 3.0,
         "label": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Seattle Seahawks -2.5 (proceed with caution)",
+        "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers -3.5 (proceed with caution)",
         "status": "play"
       },
       "markets": {
         "spread": {
           "market": "spread",
-          "side": "AWAY",
+          "side": "HOME",
           "score": 3.0,
           "threshold": 3.0,
           "cleared_threshold": true,
@@ -174,7 +66,230 @@
           "signals": [
             {
               "impact": 3,
-              "score": 3,
+              "score": -3,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge"
+          ],
+          "status": "playable",
+          "line": "+3.5 (-110) | -3 (-110)"
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 2.0,
+          "threshold": 4.0,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "reasons": [
+                "referee over trend"
+              ],
+              "score": 2,
+              "side": "OVER",
+              "source": "ref_weather_context",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "referee over trend"
+          ],
+          "status": "lean",
+          "line": "o41.5 (-109) | u41.5 (-103)"
+        },
+        "moneyline": {
+          "market": "moneyline",
+          "side": "AWAY",
+          "score": 3.0,
+          "threshold": 5.0,
+          "cleared_threshold": false,
+          "status": "blocked",
+          "promotion_status": "not_promoted",
+          "blockers": [
+            "underdog ML not predictive (32% win rate historically, all edge levels)"
+          ],
+          "line": "+154 | -160",
+          "reason": "WARPS ML EV"
+        }
+      },
+      "referee": "Brad Rogers",
+      "referee_stats": {
+        "su_record": "22-17",
+        "su_pct": 56.4,
+        "ats_record": "17-21-1",
+        "ats_pct": 44.7,
+        "ou_record": "24-15",
+        "ou_pct": 61.5,
+        "sample_size": 39,
+        "game_type": "NDIV",
+        "favorite": "HF"
+      },
+      "factor_summary": [
+        {
+          "market": "spread",
+          "source": "sharp",
+          "side": "HOME",
+          "impact": 3,
+          "status": "aligned"
+        },
+        {
+          "market": "total",
+          "source": "ref_weather_context",
+          "side": "OVER",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "WARPS fair-line prior",
+          "side": "AWAY",
+          "impact": 0.4,
+          "status": "conflict"
+        }
+      ],
+      "warps_market_overlay": {
+        "available": true,
+        "status": "priced",
+        "source": "WARPS v2.3 game prior + supplied current odds",
+        "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
+        "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
+        "away_tla": "ATL",
+        "home_tla": "PIT",
+        "away_warps_wins": 7.99,
+        "home_warps_wins": 8.88,
+        "fair_home_spread": -3.1,
+        "fair_away_spread": 3.1,
+        "home_win_prob": 0.5923,
+        "away_win_prob": 0.4077,
+        "home_fair_moneyline": "-145",
+        "away_fair_moneyline": "+145",
+        "market_home_spread": -3.5,
+        "market_away_spread": 3.5,
+        "market_home_moneyline": -185.0,
+        "market_away_moneyline": 154.0,
+        "spread_side": "AWAY",
+        "spread_team": "ATL",
+        "spread_edge_points": 0.4,
+        "spread_pick_alignment": "conflict",
+        "fair_spread_side": "HOME",
+        "ml_side": "AWAY",
+        "ml_team": "ATL",
+        "ml_edge_prob": 0.0302,
+        "ml_ev": 0.0356,
+        "ml_pick_alignment": "research_only"
+      },
+      "schedule_context": {
+        "division_game": false,
+        "conference_game": false,
+        "away_division": "NFC South",
+        "home_division": "AFC North"
+      },
+      "expectation_context": {
+        "away_team": "ATL",
+        "home_team": "PIT",
+        "away": {
+          "team": "ATL",
+          "conference": "NFC",
+          "division": "NFC South",
+          "games_tracked": 2,
+          "actual_wins": 0,
+          "actual_losses": 0,
+          "points_for": 0.0,
+          "points_against": 0.0,
+          "vegas_win_total": 7.5,
+          "actual_win_pct": 0.0,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": null,
+          "pythagorean_wins_tracked": null,
+          "pythagorean_wins_17_game_pace": null,
+          "actual_vs_pythagorean": null,
+          "pythagorean_pace_vs_vegas": null,
+          "actual_pace_vs_vegas": -7.5,
+          "expectation_band": "unknown"
+        },
+        "home": {
+          "team": "PIT",
+          "conference": "AFC",
+          "division": "AFC North",
+          "games_tracked": 2,
+          "actual_wins": 0,
+          "actual_losses": 0,
+          "points_for": 0.0,
+          "points_against": 0.0,
+          "vegas_win_total": 8.5,
+          "actual_win_pct": 0.0,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": null,
+          "pythagorean_wins_tracked": null,
+          "pythagorean_wins_17_game_pace": null,
+          "actual_vs_pythagorean": null,
+          "pythagorean_pace_vs_vegas": null,
+          "actual_pace_vs_vegas": -8.5,
+          "expectation_band": "unknown"
+        },
+        "games_tracked_min": 2,
+        "pythagorean_wins_delta": null,
+        "vegas_win_total_delta": -1.0,
+        "pythagorean_vs_vegas_delta": null,
+        "actual_vs_pythagorean_delta": null,
+        "pythagorean_side": null,
+        "market_expectation_side": "HOME",
+        "value_gap_side": null,
+        "overperformance_side": null,
+        "sample_warning": true
+      },
+      "source_health_status": "DEGRADED",
+      "data_quality_status": "DEGRADED",
+      "result": {
+        "away_score": 0,
+        "home_score": 0,
+        "final_margin": 0,
+        "final_total": 0
+      },
+      "explanation": null
+    },
+    {
+      "season": 2026,
+      "season_type": "REG",
+      "week": "1",
+      "matchup_key": "DEN@KC",
+      "game": "Denver Broncos @ Kansas City Chiefs",
+      "away_team": "Denver Broncos",
+      "home_team": "Kansas City Chiefs",
+      "away_tla": "DEN",
+      "home_tla": "KC",
+      "stage": "initial",
+      "analysis_available": true,
+      "best_edge": {
+        "market": "spread",
+        "side": "AWAY",
+        "score": 2.0,
+        "label": "\ud83d\udcca LEAN",
+        "recommendation": "\ud83d\udc40 LEAN: Denver Broncos +2.5 (proceed with caution)",
+        "status": "play"
+      },
+      "markets": {
+        "spread": {
+          "market": "spread",
+          "side": "AWAY",
+          "score": 2.0,
+          "threshold": 1.5,
+          "cleared_threshold": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": 2,
               "side": "AWAY",
               "source": "sharp",
               "status": "aligned"
@@ -185,83 +300,118 @@
             "sharp spread edge"
           ],
           "status": "playable",
-          "line": "-2.5 (-110) | +3.5 (-130)"
+          "line": "+2.5 (+100) | -2.5 (-114)"
         },
         "total": {
           "market": "total",
           "side": "UNDER",
-          "score": 0.0,
+          "score": -2.0,
           "threshold": 4.0,
           "cleared_threshold": false,
           "blocked": false,
           "blockers": [],
           "signals": [],
-          "conflicts": [],
-          "reasons": [],
+          "conflicts": [
+            {
+              "impact": -2,
+              "reasons": [
+                "referee over trend"
+              ],
+              "score": 2,
+              "side": "OVER",
+              "source": "ref_weather_context",
+              "status": "conflict"
+            }
+          ],
+          "reasons": [
+            "ref/weather total context conflicts"
+          ],
           "status": "lean",
-          "line": "o37.5 (+100) | u35.5 (+100)"
+          "line": "o43 (-109) | u43.5 (-110)"
         },
         "moneyline": {
           "market": "moneyline",
-          "side": null,
-          "score": null,
+          "side": "AWAY",
+          "score": 2.0,
           "threshold": 5.0,
           "cleared_threshold": false,
-          "status": "research_only",
+          "status": "blocked",
           "promotion_status": "not_promoted",
           "blockers": [
-            "WARPS ML unavailable for this week"
+            "underdog ML not predictive (32% win rate historically, all edge levels)"
           ],
-          "line": "-134 | +124",
-          "reason": "moneyline selector not promoted; WARPS provides context only"
+          "line": "+130 | -141",
+          "reason": "WARPS ML EV"
         }
       },
-      "referee": "Scott Novak",
-      "referee_stats": {
-        "su_record": "25-19",
-        "su_pct": 56.8,
-        "ats_record": "17-27",
-        "ats_pct": 38.6,
-        "ou_record": "23-21",
-        "ou_pct": 52.3,
-        "sample_size": 44,
-        "game_type": "NDIV",
-        "favorite": "HF"
-      },
+      "referee": "Clay Martin",
+      "referee_stats": null,
       "factor_summary": [
         {
           "market": "spread",
           "source": "sharp",
           "side": "AWAY",
-          "impact": 3,
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "WARPS fair-line prior",
+          "side": "AWAY",
+          "impact": 1.2,
           "status": "aligned"
         }
       ],
       "warps_market_overlay": {
-        "available": false,
-        "status": "unavailable",
-        "recommendation_policy": "forecast_context_only",
-        "reason": "WARPS market overlay not available for this matchup"
+        "available": true,
+        "status": "priced",
+        "source": "WARPS v2.3 game prior + supplied current odds",
+        "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
+        "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
+        "away_tla": "DEN",
+        "home_tla": "KC",
+        "away_warps_wins": 9.52,
+        "home_warps_wins": 9.32,
+        "fair_home_spread": -1.8,
+        "fair_away_spread": 1.8,
+        "home_win_prob": 0.5523,
+        "away_win_prob": 0.4477,
+        "home_fair_moneyline": "-123",
+        "away_fair_moneyline": "+123",
+        "market_home_spread": -3.0,
+        "market_away_spread": 3.0,
+        "market_home_moneyline": -148.0,
+        "market_away_moneyline": 124.0,
+        "spread_side": "AWAY",
+        "spread_team": "DEN",
+        "spread_edge_points": 1.2,
+        "spread_pick_alignment": "aligned",
+        "fair_spread_side": "HOME",
+        "ml_side": "AWAY",
+        "ml_team": "DEN",
+        "ml_edge_prob": 0.0198,
+        "ml_ev": 0.0028,
+        "ml_pick_alignment": "research_only"
       },
       "schedule_context": {
-        "division_game": false,
-        "conference_game": false,
-        "away_division": "NFC West",
+        "division_game": true,
+        "conference_game": true,
+        "away_division": "AFC West",
         "home_division": "AFC West"
       },
       "expectation_context": {
-        "away_team": "SEA",
+        "away_team": "DEN",
         "home_team": "KC",
         "away": {
-          "team": "SEA",
-          "conference": "NFC",
-          "division": "NFC West",
+          "team": "DEN",
+          "conference": "AFC",
+          "division": "AFC West",
           "games_tracked": 1,
           "actual_wins": 0,
           "actual_losses": 0,
           "points_for": 0.0,
           "points_against": 0.0,
-          "vegas_win_total": 10.5,
+          "vegas_win_total": 9.5,
           "actual_win_pct": 0.0,
           "pythagorean_exponent": 2.37,
           "pythagorean_win_pct": null,
@@ -269,14 +419,14 @@
           "pythagorean_wins_17_game_pace": null,
           "actual_vs_pythagorean": null,
           "pythagorean_pace_vs_vegas": null,
-          "actual_pace_vs_vegas": -10.5,
+          "actual_pace_vs_vegas": -9.5,
           "expectation_band": "unknown"
         },
         "home": {
           "team": "KC",
           "conference": "AFC",
           "division": "AFC West",
-          "games_tracked": 1,
+          "games_tracked": 2,
           "actual_wins": 0,
           "actual_losses": 0,
           "points_for": 0.0,
@@ -294,11 +444,11 @@
         },
         "games_tracked_min": 1,
         "pythagorean_wins_delta": null,
-        "vegas_win_total_delta": 0.0,
+        "vegas_win_total_delta": -1.0,
         "pythagorean_vs_vegas_delta": null,
         "actual_vs_pythagorean_delta": null,
         "pythagorean_side": null,
-        "market_expectation_side": "NEUTRAL",
+        "market_expectation_side": "HOME",
         "value_gap_side": null,
         "overperformance_side": null,
         "sample_warning": true
@@ -306,64 +456,18 @@
       "source_health_status": "DEGRADED",
       "data_quality_status": "DEGRADED",
       "result": {
-        "away_score": null,
-        "home_score": null,
-        "final_margin": null,
-        "final_total": null
+        "away_score": 0,
+        "home_score": 0,
+        "final_margin": 0,
+        "final_total": 0
       },
-      "explanation": {
-        "key": "SEA@KC:final",
-        "season": "2026",
-        "season_type": "PRE",
-        "week": "PRE3",
-        "matchup_key": "SEA@KC",
-        "away_tla": "SEA",
-        "home_tla": "KC",
-        "stage": "final",
-        "raw_action": "play",
-        "quality_action": "play",
-        "quality_gate": "warn",
-        "confidence": "standard",
-        "market": "spread",
-        "side": "AWAY",
-        "selector_score": "3.0",
-        "label": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Seattle Seahawks -2.5 (proceed with caution)",
-        "source_health_status": "DEGRADED",
-        "data_quality_status": "DEGRADED",
-        "promoted_matches": [],
-        "source_blockers": [],
-        "source_warnings": [
-          "source_health_status=DEGRADED",
-          "data_quality_status=DEGRADED"
-        ],
-        "market_signals": [
-          "sharp"
-        ],
-        "market_conflicts": [],
-        "market_blockers": [],
-        "alignment": {
-          "pythagorean": "missing",
-          "market_expectation": "neutral",
-          "value_gap": "missing",
-          "overperformance": "missing",
-          "warps_spread": "",
-          "warps_moneyline": ""
-        },
-        "reasons": [
-          "Selector isolated spread AWAY",
-          "Signals: sharp",
-          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
-        ],
-        "result": "",
-        "margin_to_line": ""
-      }
+      "explanation": null
     }
   ],
   "survivor": {
     "available": true,
     "week": 1,
-    "planning_context": "preseason",
+    "planning_context": "current",
     "primary": {
       "season": 2026,
       "week": 1,
