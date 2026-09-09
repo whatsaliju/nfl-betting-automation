@@ -73,29 +73,48 @@ jobs:
           echo "season=$SEASON" >> $GITHUB_OUTPUT
           echo "📅 Collecting initial market data for Week $WEEK"
           echo "🏈 NFL Season: $SEASON"
+
+      - name: Idempotency check — skip if initial already ran this week
+        id: idempotency
+        run: |
+          WEEK=${{ steps.get_week.outputs.week }}
+          # Allow force-rerun via workflow_dispatch; guard only cron/dispatch chains
+          TRIGGER="${{ github.event_name }}"
+          if [ "$TRIGGER" != "workflow_dispatch" ] && [ -f "data/week${WEEK}/initial.json" ]; then
+            echo "SKIP=true" >> $GITHUB_OUTPUT
+            echo "⏭️  SKIP: data/week${WEEK}/initial.json already exists — initial analysis already complete for Week ${WEEK}."
+            echo "    To force a re-run, use workflow_dispatch."
+          else
+            echo "SKIP=false" >> $GITHUB_OUTPUT
+          fi
       
       - name: Create config folder
+        if: steps.idempotency.outputs.SKIP != 'true'
         run: mkdir -p config
-  
+
       - name: Create Action Network Cookies
+        if: steps.idempotency.outputs.SKIP != 'true'
         env:
           COOKIES: ${{ secrets.ACTION_NETWORK_COOKIES }}
         run: echo "$COOKIES" > config/action_network_cookies.json
-      
+
       - name: Scrape Action Network (All Markets)
+        if: steps.idempotency.outputs.SKIP != 'true'
         env:
           ACTION_NETWORK_EMAIL: ${{ secrets.ACTION_NETWORK_EMAIL }}
           ACTION_NETWORK_PASSWORD: ${{ secrets.ACTION_NETWORK_PASSWORD }}
         run: |
           echo "📊 Scraping Action Network..."
           python3 scrapers/action_network_scraper_cookies.py ${{ steps.get_week.outputs.week }}
-      
+
       - name: Scrape Action Network Injuries & Weather
+        if: steps.idempotency.outputs.SKIP != 'true'
         run: |
           echo "🩹 Scraping Action Network injuries & weather..."
           python3 scrapers/action_network_injuries_weather.py
 
       - name: Capture Generated Input Files
+        if: steps.idempotency.outputs.SKIP != 'true'
         id: generated_files
         run: |
           latest_file() {
@@ -111,33 +130,39 @@ jobs:
           echo "Markets: $ACTION_MARKETS_FILE"
           echo "Injuries: $ACTION_INJURIES_FILE"
           echo "Weather: $ACTION_WEATHER_FILE"
-      
+
       - name: Commit Market Data
+        if: steps.idempotency.outputs.SKIP != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/action_all_markets_*.csv \
                   data/action_injuries_*.csv \
                   data/action_weather_*.csv || true
-          
+
           # 1. Commit changes
           git commit -m "📊 Week ${{ steps.get_week.outputs.week }} initial market data" || echo "No changes to commit"
-          
+
           # 2. FIX: Pull remote changes and reapply your commit cleanly
           git pull --rebase origin main
-          
+
           # 3. Push the resulting changes
           git push
-      
+
       - name: Trigger Pro Analysis
+        if: steps.idempotency.outputs.SKIP != 'true'
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: initial-market-data
           client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "initial", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}"}'
-      
+
       - name: Summary
         run: |
-          echo "✅ Initial market data collection complete"
-          echo "📁 Market files created:"
-          ls -lh data/action_all_markets_*.csv data/action_injuries_*.csv data/action_weather_*.csv 2>/dev/null || true
+          if [ "${{ steps.idempotency.outputs.SKIP }}" = "true" ]; then
+            echo "⏭️  SKIPPED: initial analysis already complete for Week ${{ steps.get_week.outputs.week }} — no duplicate email sent."
+          else
+            echo "✅ Initial market data collection complete"
+            echo "📁 Market files created:"
+            ls -lh data/action_all_markets_*.csv data/action_injuries_*.csv data/action_weather_*.csv 2>/dev/null || true
+          fi
