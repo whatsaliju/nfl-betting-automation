@@ -246,84 +246,6 @@
     "margin_to_line": ""
   },
   {
-    "key": "DEN@KC:initial",
-    "season": "2026",
-    "season_type": "REG",
-    "week": "1",
-    "matchup_key": "DEN@KC",
-    "away_tla": "DEN",
-    "home_tla": "KC",
-    "stage": "initial",
-    "raw_action": "play",
-    "quality_action": "play",
-    "quality_gate": "warn",
-    "confidence": "standard",
-    "market": "spread",
-    "side": "AWAY",
-    "selector_score": "2.0",
-    "label": "\ud83d\udcca LEAN",
-    "recommendation": "\ud83d\udc40 LEAN: Denver Broncos +2.5 (proceed with caution)",
-    "source_health_status": "DEGRADED",
-    "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "market_expectation_pick_alignment=conflict",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 5,
-        "losses": 1,
-        "lift": 0.0555
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
-    "source_blockers": [],
-    "source_warnings": [
-      "source_health_status=DEGRADED",
-      "data_quality_status=DEGRADED"
-    ],
-    "market_signals": [
-      "sharp"
-    ],
-    "market_conflicts": [],
-    "market_blockers": [],
-    "alignment": {
-      "pythagorean": "missing",
-      "market_expectation": "conflict",
-      "value_gap": "missing",
-      "overperformance": "missing",
-      "warps_spread": "aligned",
-      "warps_moneyline": "research_only"
-    },
-    "reasons": [
-      "Selector isolated spread AWAY",
-      "Signals: sharp",
-      "WARPS fair-line prior agrees with the spread side (+1.2 pts)",
-      "WARPS moneyline overlay: AWAY +0.3% EV",
-      "Promoted factors matched: 3",
-      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
-    ],
-    "result": "",
-    "margin_to_line": ""
-  },
-  {
     "key": "ATL@MIA:update",
     "season": "2026",
     "season_type": "PRE",
@@ -516,15 +438,15 @@
     "away_tla": "NO",
     "home_tla": "DET",
     "stage": "initial",
-    "raw_action": "lean",
-    "quality_action": "watch",
+    "raw_action": "pass",
+    "quality_action": "pass",
     "quality_gate": "warn",
-    "confidence": "watch",
+    "confidence": "none",
     "market": "",
     "side": "",
     "selector_score": "3.0",
     "label": "\u26a0\ufe0f PASS",
-    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
     "promoted_matches": [
@@ -536,15 +458,6 @@
         "wins": 6,
         "losses": 0,
         "lift": 0.2222
-      },
-      {
-        "factor": "total_score_bin=0_to_3.5",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
       }
     ],
     "source_blockers": [],
@@ -552,11 +465,11 @@
       "source_health_status=DEGRADED",
       "data_quality_status=DEGRADED"
     ],
-    "market_signals": [
-      "sharp"
-    ],
+    "market_signals": [],
     "market_conflicts": [],
-    "market_blockers": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
     "alignment": {
       "pythagorean": "no_pick",
       "market_expectation": "no_pick",
@@ -566,9 +479,8 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "Signals: sharp",
       "WARPS moneyline overlay: AWAY +15.9% EV",
-      "Promoted factors matched: 2",
+      "Promoted factors matched: 1",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -863,6 +775,73 @@
     },
     "reasons": [
       "Promoted factors matched: 1"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "DEN@KC:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "1",
+    "matchup_key": "DEN@KC",
+    "away_tla": "DEN",
+    "home_tla": "KC",
+    "stage": "initial",
+    "raw_action": "lean",
+    "quality_action": "watch",
+    "quality_gate": "warn",
+    "confidence": "watch",
+    "market": "",
+    "side": "",
+    "selector_score": "1.0",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [
+      {
+        "factor": "market_expectation_side=HOME",
+        "status": "monitor",
+        "allowed": false,
+        "plays": 6,
+        "wins": 6,
+        "losses": 0,
+        "lift": 0.2222
+      },
+      {
+        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
+        "status": "monitor",
+        "allowed": false,
+        "plays": 5,
+        "wins": 4,
+        "losses": 1,
+        "lift": 0.0222
+      }
+    ],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [
+      "sharp"
+    ],
+    "market_conflicts": [],
+    "market_blockers": [],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "Signals: sharp",
+      "WARPS moneyline overlay: AWAY +0.3% EV",
+      "Promoted factors matched: 2",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
     "margin_to_line": ""

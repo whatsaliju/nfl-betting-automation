@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W1 · live
-- Recommended action: **PASS**
-- Confidence tier: **X**
-- Reason: No playable or watchlist edges are active.
+- Recommended action: **WATCH**
+- Confidence tier: **C**
+- Reason: No plays cleared, but watchlist spots exist.
 
 ## Source Gates
 
@@ -17,8 +17,13 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 0
-- Passes: 0
+- Watch: 2
+- Passes: 14
+
+| Game | Action | Market | Side | Score |
+|---|---|---|---|---:|
+| ATL@PIT | watch | spread | HOME | 3.0 |
+| DEN@KC | watch | spread | AWAY | 2.0 |
 
 ## Survivor
 
@@ -42,7 +47,3 @@
 | LAC | vs ARI | 62.4% | -166 |
 | SEA | vs NE | 61.1% | -157 |
 | LAR | vs SF | 61.1% | -157 |
-
-## Warnings
-
-- No actionable betting plays or watchlist spots are active.
