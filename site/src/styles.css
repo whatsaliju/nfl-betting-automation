@@ -909,11 +909,14 @@ select {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  min-width: 0;
+  flex-shrink: 0;
   gap: 4px;
   flex-shrink: 0;
 }
 .score-meter {
-  width: 48px;
+  width: 100%;
+  max-width: 48px;
   height: 5px;
   border-radius: 3px;
   background: #e2e8f0;
@@ -4783,3 +4786,76 @@ select {
   .betting-card-active-columns { grid-template-columns: 1fr; }
   .mc-meta-pill { white-space: normal; }
 }
+
+/* ── Pick'em View ── */
+.pickem-view { padding: 20px; max-width: 1100px; margin: 0 auto; }
+.pickem-empty { padding: 40px; text-align: center; color: #64748b; }
+.pickem-header { margin-bottom: 18px; }
+.pickem-header h2 { font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 4px; }
+.pickem-header p { font-size: 12px; color: #64748b; margin: 0; }
+
+.pickem-tiebreakers { display: flex; gap: 14px; margin-bottom: 22px; }
+.pickem-tb { flex: 1; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; }
+.pickem-tb.most { background: #ecfdf5; border: 1.5px solid #6ee7b7; }
+.pickem-tb.fewest { background: #fef2f2; border: 1.5px solid #fca5a5; }
+.tb-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #64748b; }
+.tb-team { font-size: 28px; font-weight: 800; color: #0f172a; line-height: 1.1; }
+.pickem-tb.most .tb-team { color: #059669; }
+.pickem-tb.fewest .tb-team { color: #dc2626; }
+.tb-implied { font-size: 13px; color: #475569; }
+.tb-matchup { font-size: 11px; color: #94a3b8; font-family: monospace; }
+
+.pickem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-bottom: 28px; }
+.pickem-card { border: 1px solid #dce3ea; border-radius: 8px; background: #fbfdff; padding: 12px; display: flex; flex-direction: column; gap: 7px; }
+.pickem-card.pickem-hot { border-color: #6ee7b7; background: #f0fdf9; }
+.pickem-card.pickem-lean { border-color: #93c5fd; background: #eff6ff; }
+.pickem-card.pickem-fade { border-color: #fca5a5; background: #fff5f5; }
+.pickem-card.pickem-pass { border-color: #e2e8f0; }
+
+.pickem-matchup { display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 600; }
+.pk-team { color: #64748b; }
+.pk-team.fav { color: #0f172a; font-weight: 800; }
+.pk-at { color: #94a3b8; font-size: 11px; }
+
+.pickem-lines { font-size: 11px; color: #64748b; font-family: monospace; }
+
+.pickem-su { display: flex; align-items: center; gap: 8px; }
+.pk-su-label { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: #94a3b8; }
+.pk-su-team { font-size: 16px; font-weight: 800; color: #0f172a; }
+
+.pickem-model { font-size: 11px; border-radius: 5px; padding: 3px 7px; }
+.pickem-model.model-agree { background: #ecfdf5; color: #059669; }
+.pickem-model.model-fade { background: #fff7ed; color: #c2410c; }
+.pk-market { opacity: .7; }
+
+.pickem-implied { display: flex; gap: 10px; font-size: 11px; color: #64748b; font-family: monospace; border-top: 1px solid #f1f5f9; padding-top: 6px; }
+
+.pickem-totals-section h3 { font-size: 13px; font-weight: 700; color: #334155; margin: 0 0 10px; }
+.pickem-totals-table { display: flex; flex-direction: column; gap: 3px; }
+.pt-row { display: grid; grid-template-columns: 24px 44px 52px 1fr 36px; align-items: center; gap: 8px; font-size: 12px; padding: 5px 10px; border-radius: 5px; background: #f8fafc; }
+.pt-row.pt-most { background: #ecfdf5; font-weight: 700; }
+.pt-row.pt-fewest { background: #fef2f2; font-weight: 700; }
+.pt-rank { color: #94a3b8; font-size: 11px; }
+.pt-tla { font-weight: 700; color: #0f172a; }
+.pt-implied { font-family: monospace; font-weight: 600; color: #334155; }
+.pt-matchup { font-family: monospace; color: #64748b; font-size: 11px; }
+.pt-role { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .04em; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pickem-header h2 { color: #f1f5f9; }
+  :root:not([data-theme="light"]) .pk-team.fav { color: #f1f5f9; }
+  :root:not([data-theme="light"]) .pk-su-team { color: #f1f5f9; }
+  :root:not([data-theme="light"]) .pickem-card { background: #1e293b; border-color: #334155; }
+  :root:not([data-theme="light"]) .pickem-tb.most { background: #064e3b; border-color: #6ee7b7; }
+  :root:not([data-theme="light"]) .pickem-tb.fewest { background: #450a0a; border-color: #fca5a5; }
+  :root:not([data-theme="light"]) .pt-row { background: #1e293b; }
+  :root:not([data-theme="light"]) .pt-tla { color: #f1f5f9; }
+}
+:root[data-theme="dark"] .pickem-header h2 { color: #f1f5f9; }
+:root[data-theme="dark"] .pk-team.fav { color: #f1f5f9; }
+:root[data-theme="dark"] .pk-su-team { color: #f1f5f9; }
+:root[data-theme="dark"] .pickem-card { background: #1e293b; border-color: #334155; }
+:root[data-theme="dark"] .pickem-tb.most { background: #064e3b; border-color: #6ee7b7; }
+:root[data-theme="dark"] .pickem-tb.fewest { background: #450a0a; border-color: #fca5a5; }
+:root[data-theme="dark"] .pt-row { background: #1e293b; }
+:root[data-theme="dark"] .pt-tla { color: #f1f5f9; }

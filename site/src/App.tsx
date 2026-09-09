@@ -1,6 +1,7 @@
 import { Activity, BarChart3, CalendarDays, ClipboardList, Crosshair, Flame, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { BettingCardView } from "./components/BettingCardView";
+import { PickemView } from "./components/PickemView";
 import { buildScoutGames } from "./components/ScoutView";
 import { CommandCenterView } from "./components/CommandCenterView";
 import { CompareView } from "./components/CompareView";
@@ -22,13 +23,13 @@ import { historicalVegasLines } from "./data/nflData";
 import warpsMarketOverlay2026 from "./data/warpsMarketOverlay2026.json";
 import type { CurrentContext, EngineFeed, Filter, LineMoveAlert, TeamProfile, WarpsMarketOverlay, WeeklyBettingCard } from "./types";
 
-type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections";
+type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections" | "pickem";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["command", "track", "matrix", "edges", "card", "survivor", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections"]);
+const VALID_VIEWS = new Set<AppViewMode>(["command", "track", "matrix", "edges", "card", "survivor", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections", "pickem"]);
 
 function cardForContext(card?: WeeklyBettingCard, context?: CurrentContext): WeeklyBettingCard | undefined {
   if (!card || !context) return card;
@@ -377,6 +378,8 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
       )}
 
       {viewMode === "results" && <ResultsView results={seasonResults} loading={false} error={seasonSchedule.hasResults ? null : `${selectedSeason} results are not available yet.`} />}
+
+      {viewMode === "pickem" && <PickemView feed={engineFeed} />}
 
       {viewMode === "warps" && <WARPSView />}
 
