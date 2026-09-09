@@ -323,6 +323,53 @@ def parse_datetime_from_text(text):
     return None
 
 
+def convert_game_time_utc_to_et(game_time_str):
+    """Convert Action Network game time string (UTC) to Eastern Time for display.
+
+    Handles two formats Action Network uses:
+      - Full:      "Thu 9/10, 12:20 AM"  (day M/D, H:MM AM/PM)
+      - Time-only: "11:30 PM"
+    September through January = EDT (UTC-4); November+ switches to EST (UTC-5).
+    Uses zoneinfo for correct DST handling.
+    """
+    if not game_time_str or str(game_time_str).strip().lower() in ('none', 'tbd', '', 'nan'):
+        return game_time_str
+    try:
+        from zoneinfo import ZoneInfo
+        gts = str(game_time_str).strip()
+        full_pat = re.match(
+            r'(\w+)\s+(\d{1,2})/(\d{1,2}),\s+(\d{1,2}):(\d{2})\s+(AM|PM)', gts
+        )
+        time_pat = re.match(r'(\d{1,2}):(\d{2})\s+(AM|PM)$', gts)
+        if full_pat:
+            _, month_s, day_s, hour_s, minute_s, ampm = full_pat.groups()
+            h = int(hour_s)
+            if ampm == 'PM' and h != 12:
+                h += 12
+            elif ampm == 'AM' and h == 12:
+                h = 0
+            year = datetime.now(tz=ZoneInfo('UTC')).year
+            utc_dt = datetime(year, int(month_s), int(day_s), h, int(minute_s),
+                              tzinfo=ZoneInfo('UTC'))
+            et_dt = utc_dt.astimezone(ZoneInfo('America/New_York'))
+            day_abbr = et_dt.strftime('%a')
+            return f"{day_abbr} {et_dt.month}/{et_dt.day}, {et_dt.strftime('%-I:%M %p')} ET"
+        elif time_pat:
+            hour_s, minute_s, ampm = time_pat.groups()
+            h = int(hour_s)
+            if ampm == 'PM' and h != 12:
+                h += 12
+            elif ampm == 'AM' and h == 12:
+                h = 0
+            now_utc = datetime.now(tz=ZoneInfo('UTC'))
+            utc_dt = now_utc.replace(hour=h, minute=int(minute_s), second=0, microsecond=0)
+            et_dt = utc_dt.astimezone(ZoneInfo('America/New_York'))
+            return et_dt.strftime('%-I:%M %p ET')
+    except Exception:
+        pass
+    return game_time_str
+
+
 def file_week_from_name(path):
     if not path:
         return None
@@ -3805,11 +3852,13 @@ def analyze_single_game(row, week, action, action_injuries, rotowire, referee_tr
     recommendation_trace = pick_metadata.get('trace', {})
 
     # Extract kickoff time from Action Network (best source) or referees CSV fallback
+    # Action Network stores times in UTC — convert to ET for display
     game_time = ""
     if action_row is not None and not action_row.empty:
         game_time = str(action_row.iloc[0].get("Game Time") or action_row.iloc[0].get("game_time") or "").strip()
     if not game_time:
         game_time = str(getattr(row, "time", "") or "").strip()
+    game_time = convert_game_time_utc_to_et(game_time)
 
     return {
         'matchup': f"{away_full} @ {home_full}",
