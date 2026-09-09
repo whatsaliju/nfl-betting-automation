@@ -24,8 +24,20 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Skip if initial stage (nfl_reporter.py handles that email)
+        id: gate
+        run: |
+          STAGE="${{ github.event.client_payload.stage }}"
+          if [ "$STAGE" = "initial" ]; then
+            echo "SKIP=true" >> $GITHUB_OUTPUT
+            echo "⏭️  SKIP: stage=initial — nfl_reporter.py already sent the initial email. This workflow only runs for update/final stages."
+          else
+            echo "SKIP=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Determine Week and Context
         id: file_vars
+        if: steps.gate.outputs.SKIP != 'true'
         run: |
           # Priority 1: explicit dispatch payload week
           WEEK_NUM="${{ github.event.client_payload.week }}"
@@ -81,6 +93,7 @@ jobs:
           echo "time=$TIME_STAMP" >> $GITHUB_OUTPUT
 
       - name: Send Betting Card Email
+        if: steps.gate.outputs.SKIP != 'true'
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
