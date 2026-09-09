@@ -57,8 +57,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pandas selenium lxml webdriver-manager
+          sudo rm -f /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google*.list || true
           sudo apt-get update
-          sudo apt-get install -y chromium-browser 
+          sudo apt-get install -y chromium-browser
       
       - name: Get Week Number
         id: get_week
