@@ -1,8 +1,31 @@
-import smtplib, os, json
+import smtplib, os, json, re
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+
+
+def validate_total_line(total_line_str):
+    """Return (display_str, warning) for a total line.
+
+    Checks that over and under numbers are within 1.0 of each other.
+    A gap larger than that indicates a parsing error (e.g. 'o44.5 / u54.5').
+    Returns the original string if valid, or a ⚠️-flagged version if not.
+    """
+    if not total_line_str or total_line_str == 'N/A':
+        return total_line_str, None
+    nums = re.findall(r'[ou](\d+(?:\.\d+)?)', str(total_line_str), re.IGNORECASE)
+    if len(nums) == 2:
+        try:
+            gap = abs(float(nums[0]) - float(nums[1]))
+            if gap > 1.0:
+                return (
+                    f"⚠️ DATA ERROR ({total_line_str})",
+                    f"Over/under gap {gap:.1f}pts — parsing mismatch, verify raw odds"
+                )
+        except ValueError:
+            pass
+    return total_line_str, None
 
 def generate_report():
     week = os.getenv('WEEK')
@@ -49,74 +72,63 @@ def generate_report():
         sharp_spread = game.get('sharp_analysis', {}).get('spread', {}).get('differential', 0)
         sharp_total = game.get('sharp_analysis', {}).get('total', {}).get('differential', 0)
         
-        # Market data (FIXED)  
+        # Market data
         spread_line = game.get('sharp_analysis', {}).get('spread', {}).get('line', 'N/A')
-        total_line = game.get('sharp_analysis', {}).get('total', {}).get('line', 'N/A')
-        
-        # Injury analysis (FIXED)
+        raw_total_line = game.get('sharp_analysis', {}).get('total', {}).get('line', 'N/A')
+        total_line, total_warning = validate_total_line(raw_total_line)
+
+        # Injury analysis
         injury_analysis = game.get('injury_analysis', {})
         total_injuries = len(injury_analysis.get('away_injuries', [])) + len(injury_analysis.get('home_injuries', []))
         injuries_text = injury_analysis.get('description', 'No injuries') if total_injuries > 0 else 'No significant injuries'
-        
-        # Weather (FIXED)
+
+        # Weather
         weather_data = game.get('weather_analysis', {})
         weather_text = weather_data.get('description', 'Indoor/No weather concerns')
-        
-        # Total score (FIXED)
-        total_score = game.get('total_score', 0)
 
+        # Score
+        total_score = game.get('total_score', 0)
         recommendation = game.get('recommendation', 'No specific recommendation')
 
-        # Enhanced sharp activity section
-        sharp_details = []
-        if abs(sharp_spread) >= 5:
-            edge_text = f"+{sharp_spread:.1f}%" if sharp_spread > 0 else f"{sharp_spread:.1f}%"
-            sharp_details.append(f"📈 Spread Edge: {edge_text}")
-        if abs(sharp_total) >= 5:
-            edge_text = f"+{sharp_total:.1f}%" if sharp_total > 0 else f"{sharp_total:.1f}%"
-            sharp_details.append(f"📊 Total Edge: {edge_text}")
-            
-        # Add your existing sharp stories
+        # Sharp — build one summary sentence
         sharp_list = game.get('sharp_stories', [])
-        all_sharp_content = sharp_details + sharp_list
-        sharp_html = "".join([f"<li>{s}</li>" for s in all_sharp_content]) if all_sharp_content else "<li>No specific sharp story recorded.</li>"
+        sharp_pct_parts = []
+        if abs(sharp_spread) >= 5:
+            sharp_pct_parts.append(f"{'+'if sharp_spread>0 else ''}{sharp_spread:.0f}% spread")
+        if abs(sharp_total) >= 5:
+            sharp_pct_parts.append(f"{'+'if sharp_total>0 else ''}{sharp_total:.0f}% total")
+        sharp_summary = (", ".join(sharp_pct_parts) + " — " if sharp_pct_parts else "") + (sharp_list[0] if sharp_list else "Balanced action")
 
-        # Combine Referee and Situational Data
+        # Context
         ref_name = game.get('referee_analysis', {}).get('referee', 'Unknown')
         ref_tendency = game.get('referee_analysis', {}).get('ats_tendency', 'NEUTRAL')
-        
-        # Get dynamic factors from JSON lists
-        factors = []
-        factors.extend(game.get('situational_analysis', {}).get('factors', []))
-        factors.extend(game.get('statistical_analysis', {}).get('factors', []))
-        factors_html = "".join([f"<li>{f}</li>" for f in factors]) if factors else "<li>Neutral factors detected.</li>"
+        stat_edge = next((f for f in game.get('statistical_analysis', {}).get('factors', [])), '')
+        context_parts = [f"{ref_name} ({ref_tendency})"]
+        if weather_text and 'indoor' not in weather_text.lower() and 'no weather' not in weather_text.lower():
+            context_parts.append(weather_text)
+        if injuries_text and 'no significant' not in injuries_text.lower():
+            context_parts.append(injuries_text)
+        context_line = ' · '.join(context_parts)
 
-        # Build enhanced card
+        # Data warning banner
+        warning_html = ""
+        if total_warning:
+            warning_html = f'<p style="margin:6px 0 0 0; font-size:11px; color:#c62828; background:#ffebee; padding:4px 8px; border-radius:3px;">⚠️ {total_warning}</p>'
+
+        # Compact card
         game_cards_html += f"""
-        <div style="margin:20px 0; padding:15px; border-left:6px solid {color}; background-color:{bg}; border-radius:4px; font-family:sans-serif;">
-            <h2 style="margin:0; color:#333;">{emoji} {game['matchup']}</h2>
-            <div style="display:grid; grid-template-columns:2fr 1fr; gap:15px; margin:10px 0;">
-                <div>
-                    <p style="font-weight:bold; color:{color}; margin:0;">{class_text} | Confidence: {game.get('confidence', '0'):.1f}/20</p>
-                    <p style="color:#666; margin:5px 0; font-size:14px;">📋 {recommendation}</p>
-                </div>
-                <div style="text-align:right;">
-                    <p style="margin:0; font-size:12px; color:#666;">🕐 {game.get('game_time', '') or 'TBD'}</p>
-                    <p style="margin:0; font-size:12px; color:#666;">Spread: {spread_line}</p>
-                    <p style="margin:0; font-size:12px; color:#666;">Total: {total_line}</p>
-                    <p style="margin:0; font-size:12px; font-weight:bold; color:{color};">Score: {total_score:.1f}</p>
-                </div>
+        <div style="margin:16px 0; padding:14px 16px; border-left:5px solid {color}; background-color:{bg}; border-radius:3px; font-family:sans-serif;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
+                <span style="font-size:16px; font-weight:bold; color:#222;">{emoji} {game['matchup']}</span>
+                <span style="font-size:12px; color:#666;">{game.get('game_time', '') or 'TBD'}</span>
             </div>
-            
-            <div style="background:white; padding:12px; border-radius:4px; border:1px solid #ddd;">
-                <h4 style="margin:0 0 8px 0; color:#e65100; border-bottom:1px solid #eee;">💰 Sharp Activity</h4>
-                <ul style="margin:0; padding-left:20px; font-size:13px; color:#444;">{sharp_html}</ul>
-                
-                <h4 style="margin:12px 0 8px 0; color:#5d4e75; border-bottom:1px solid #eee;">⚖️ Context & Intel</h4>
-                <p style="font-size:12px; margin:0 0 5px 20px;"><strong>Official:</strong> {ref_name} ({ref_tendency})</p>
-                <p style="font-size:12px; margin:0 0 5px 20px;"><strong>Injuries:</strong> {injuries_text}</p>
-                <p style="font-size:12px; margin:0 0 5px 20px;"><strong>Weather:</strong> {weather_text}</p>
-                <ul style="margin:5px 0 0 0; padding-left:20px; font-size:13px; color:#444;">{factors_html}</ul>
+            <p style="margin:6px 0 2px 0; font-weight:bold; color:{color}; font-size:13px;">{class_text} · {game.get('confidence', 0):.1f}/20 · {recommendation}</p>
+            <p style="margin:4px 0; font-size:12px; color:#555; font-family:monospace;">Spread: {spread_line} &nbsp;|&nbsp; Total: {total_line}</p>
+            {warning_html}
+            <div style="margin-top:8px; padding:8px 10px; background:rgba(255,255,255,0.7); border-radius:3px; font-size:12px; color:#444; line-height:1.6;">
+                <span style="color:#e65100; font-weight:bold;">Sharp:</span> {sharp_summary}<br>
+                <span style="color:#5d4e75; font-weight:bold;">Context:</span> {context_line}<br>
+                {f'<span style="color:#2e7d32; font-weight:bold;">Edge:</span> {stat_edge}' if stat_edge else ''}
             </div>
         </div>"""
 
