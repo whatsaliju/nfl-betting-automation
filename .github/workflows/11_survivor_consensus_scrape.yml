@@ -1,0 +1,38 @@
+name: 11 Scrape Survivor Consensus Data
+
+on:
+  schedule:
+    # Wednesday 10:00 AM UTC — picks stabilize mid-week
+    - cron: "0 10 * * 3"
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run scraper
+        run: python scripts/scrape_survivor_consensus.py
+
+      - name: Commit updated consensus data
+        run: |
+          git config user.name "nflsignal-bot"
+          git config user.email "noreply@nflsignal.com"
+          git add site/src/data/survivorConsensus2026.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update survivor consensus data [skip ci]"
+            git push
+          fi
