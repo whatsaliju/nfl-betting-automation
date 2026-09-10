@@ -216,7 +216,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
         <div className="brand-block brand-home-btn" onClick={() => setViewMode("command")} title="Back to command center">
           <Grid3X3 size={26} />
           <div>
-            <h1>NFL Edge Hub</h1>
+            <h1>NFL Signal</h1>
             <p>NFL picks, win probabilities &amp; schedule analysis · 2015–2026</p>
           </div>
         </div>
