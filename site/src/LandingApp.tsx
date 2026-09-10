@@ -1,58 +1,50 @@
-import {
-  Activity,
-  BarChart3,
-  ExternalLink,
-  FlaskConical,
-  Grid3X3,
-  TrendingUp,
-} from "lucide-react";
+import { BarChart3, ExternalLink, FlaskConical, ShieldCheck, Target } from "lucide-react";
 
 export default function LandingApp() {
   return (
     <div className="landing-shell">
       <header className="landing-header">
-        <nav className="landing-nav" aria-label="Project navigation">
-          <span className="landing-brand">Liju Varughese</span>
+        <nav className="landing-nav" aria-label="Site navigation">
+          <span className="landing-brand">NFL Signal</span>
           <div className="landing-nav-links">
-            <a href="matrix.html">NFL Edge Hub</a>
-            <a href="warps.html">WARPS-NFL</a>
-            <a href="https://lijuvarughese.com/ytts/" target="_blank" rel="noreferrer">YTTS</a>
+            <a href="matrix.html">Edge Board</a>
+            <a href="matrix.html#pickem">Pick'em</a>
+            <a href="warps.html">WARPS</a>
           </div>
         </nav>
         <div className="landing-hero">
           <div className="landing-hero-copy">
-            <p className="landing-kicker">Project Lab</p>
-            <h1 className="landing-name">Quantitative research tools for sports and markets.</h1>
+            <p className="landing-kicker">2026 NFL Season</p>
+            <h1 className="landing-name">The edge your picks are missing.</h1>
             <p className="landing-tagline">
-              NFL picks and schedule analysis. Win-total forecasting built on 26 seasons of data.
-              Weekly equity screener with model rankings and company research.
+              Weekly spread, total, and moneyline analysis powered by 26 seasons of NFL data.
+              Model-backed picks, WARPS fair value, survivor tools — all in one board.
             </p>
             <div className="landing-actions">
-              <a href="matrix.html" className="landing-button primary">Open NFL Edge Hub</a>
-              <a href="warps.html" className="landing-button secondary">Open WARPS-NFL</a>
-              <a href="https://lijuvarughese.com/ytts/" target="_blank" rel="noreferrer" className="landing-button secondary">Open YTTS</a>
+              <a href="matrix.html" className="landing-button primary">Open the Board</a>
+              <a href="warps.html" className="landing-button secondary">WARPS Model</a>
             </div>
           </div>
-          <div className="landing-snapshot" aria-label="Project snapshot">
-            <a className="snapshot-row" href="matrix.html">
-              <Grid3X3 size={19} />
+          <div className="landing-snapshot" aria-label="Feature overview">
+            <a className="snapshot-row" href="matrix.html#edges">
+              <BarChart3 size={19} />
               <div>
-                <strong>NFL Edge Hub</strong>
-                <span>Weekly picks, schedule spots, win-prob model, and matchup comparisons.</span>
+                <strong>Weekly Edge Board</strong>
+                <span>Play/watch/pass decisions with scores — spread, total, and moneyline every week.</span>
+              </div>
+            </a>
+            <a className="snapshot-row" href="matrix.html#pickem">
+              <Target size={19} />
+              <div>
+                <strong>Pick'em Tool</strong>
+                <span>SU picks powered by WARPS fair value, implied totals, and tiebreaker rankings.</span>
               </div>
             </a>
             <a className="snapshot-row" href="warps.html">
               <FlaskConical size={19} />
               <div>
-                <strong>WARPS-NFL</strong>
-                <span>Preseason win-total model · beats Vegas baseline in 25 of 26 seasons.</span>
-              </div>
-            </a>
-            <a className="snapshot-row" href="https://lijuvarughese.com/ytts/" target="_blank" rel="noreferrer">
-              <TrendingUp size={19} />
-              <div>
-                <strong>YTTS</strong>
-                <span>Weekly stock research — equity screener, model rankings, and risk checks.</span>
+                <strong>WARPS-NFL™</strong>
+                <span>Preseason win-total model · outperforms the Vegas baseline in 25 of 26 seasons.</span>
               </div>
             </a>
           </div>
@@ -60,20 +52,35 @@ export default function LandingApp() {
       </header>
 
       <main className="landing-main">
-        <section className="landing-projects" id="projects">
+        <section className="landing-projects" id="features">
 
           <div className="landing-project">
             <div className="landing-project-head">
-              <div className="landing-project-icon lp-matrix"><Grid3X3 size={18} /></div>
-              <h2 className="landing-project-title">NFL Edge Hub</h2>
+              <div className="landing-project-icon lp-matrix"><BarChart3 size={18} /></div>
+              <h2 className="landing-project-title">Weekly Edge Board</h2>
             </div>
             <p className="landing-project-desc">
-              Full-season schedule matrix with engine overlays, weekly edge board with play/watch/pass
-              decisions, team win-probability signals, schedule scout, matchup comparisons, and model research.
-              Live during the 2026 NFL season.
+              Every game rated across spread, total, and moneyline. Edge scores, referee trends,
+              schedule context, and WARPS fair-value overlays — updated weekly during the season.
+              Play / watch / pass with a reason why.
             </p>
             <a href="matrix.html" className="landing-link">
-              Open NFL Edge Hub <ExternalLink size={12} />
+              Open the Board <ExternalLink size={12} />
+            </a>
+          </div>
+
+          <div className="landing-project">
+            <div className="landing-project-head">
+              <div className="landing-project-icon lp-matrix"><Target size={18} /></div>
+              <h2 className="landing-project-title">Pick'em &amp; Survivor</h2>
+            </div>
+            <p className="landing-project-desc">
+              Straight-up picks for office pools — ranked by WARPS win probability and implied scoring.
+              Survivor manager tracks multiple pools, highlights already-used teams, and suggests
+              season paths that maximize survival probability.
+            </p>
+            <a href="matrix.html#pickem" className="landing-link">
+              Open Pick'em <ExternalLink size={12} />
             </a>
           </div>
 
@@ -86,25 +93,9 @@ export default function LandingApp() {
               Preseason win-total forecasting model built on 26 seasons of NFL data.
               A 75% Pythagorean + 25% point differential blend beats the statistical baseline
               in 25 of 26 seasons (MAE 2.374, p&nbsp;&lt;&nbsp;0.0001 vs baseline).
-              The 2026 slate identifies where Vegas lines are mispriced vs. the model.
             </p>
             <a href="warps.html" className="landing-link">
               Open WARPS-NFL™ <ExternalLink size={12} />
-            </a>
-          </div>
-
-          <div className="landing-project">
-            <div className="landing-project-head">
-              <div className="landing-project-icon lp-ytts"><TrendingUp size={18} /></div>
-              <h2 className="landing-project-title">YTTS</h2>
-            </div>
-            <p className="landing-project-desc">
-              A weekly stock research system: an equity screener with model rankings, valuation work,
-              company research, and risk checks. Tracks long-hold positions and surfaces new
-              opportunities through a structured, repeatable process each week.
-            </p>
-            <a href="https://lijuvarughese.com/ytts/" target="_blank" rel="noreferrer" className="landing-link">
-              Open YTTS <ExternalLink size={12} />
             </a>
           </div>
 
@@ -112,9 +103,9 @@ export default function LandingApp() {
 
         <section className="landing-method">
           <div className="method-card">
-            <Grid3X3 size={18} />
+            <BarChart3 size={18} />
             <strong>Weekly NFL analysis</strong>
-            <span>Sharp-money signals, injury context, referee trends, and schedule factors — every game, every week.</span>
+            <span>Sharp-money signals, referee trends, schedule context, and WARPS fair value — every game, every week.</span>
           </div>
           <div className="method-card">
             <FlaskConical size={18} />
@@ -122,19 +113,15 @@ export default function LandingApp() {
             <span>WARPS win-total model outperforms the statistical baseline in 25 of 26 seasons.</span>
           </div>
           <div className="method-card">
-            <BarChart3 size={18} />
-            <strong>Structured equity research</strong>
-            <span>Model-ranked screener with valuation, risk checks, and position monitoring — updated weekly.</span>
+            <ShieldCheck size={18} />
+            <strong>Survivor-optimized</strong>
+            <span>Pool-aware pick strategy that balances survival probability against public chalk to maximize pool EV.</span>
           </div>
         </section>
       </main>
 
       <footer className="landing-footer">
-        <span>© 2026 Liju Varughese</span>
-        <span className="landing-footer-sep">·</span>
-        <a href="https://github.com/whatsaliju/nfl-betting-automation" target="_blank" rel="noreferrer">
-          github.com/whatsaliju
-        </a>
+        <span>© 2026 NFL Signal</span>
       </footer>
     </div>
   );
