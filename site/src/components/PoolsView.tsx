@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Star, X } from "lucide-react";
+import { Star, X, LogOut } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
 import { teamLogos } from "../data/nflData";
+import { AuthGate } from "./AuthGate";
 
-const STORAGE_KEY = "nfl_survivor_pools_2026";
 const ALL_TEAMS = Object.keys(teamLogos).sort();
 const WEEKS = Array.from({ length: 18 }, (_, i) => i + 1);
 const CURRENT_WEEK = 1;
@@ -13,26 +15,37 @@ interface Pool {
   picks: Record<number, string>;
 }
 
-const DEFAULT_POOLS: Pool[] = [1, 2, 3, 4, 5].map((i) => ({
-  id: `pool${i}`,
-  name: `Pool ${i}`,
-  picks: {},
-}));
+const DEFAULT_POOL_NAMES = ["Pool 1", "Pool 2", "Pool 3", "Pool 4", "Pool 5"];
 
-function loadPools(): Pool[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_POOLS;
-    const parsed = JSON.parse(raw) as Pool[];
-    // Ensure exactly 5 pools — backfill if saved data has fewer
-    while (parsed.length < 5) {
-      const i = parsed.length + 1;
-      parsed.push({ id: `pool${i}`, name: `Pool ${i}`, picks: {} });
-    }
-    return parsed;
-  } catch {
-    return DEFAULT_POOLS;
-  }
+async function loadUserPools(userId: string): Promise<Pool[]> {
+  const { data, error } = await supabase
+    .from("pools")
+    .select("id, name, picks")
+    .eq("user_id", userId)
+    .order("created_at");
+  if (error || !data) return [];
+  return data.map((row) => ({ id: row.id, name: row.name, picks: row.picks ?? {} }));
+}
+
+async function ensureDefaultPools(userId: string): Promise<Pool[]> {
+  const inserts = DEFAULT_POOL_NAMES.map((name) => ({
+    user_id: userId,
+    name,
+    picks: {},
+  }));
+  const { data, error } = await supabase
+    .from("pools")
+    .insert(inserts)
+    .select("id, name, picks");
+  if (error || !data) return [];
+  return data.map((row) => ({ id: row.id, name: row.name, picks: row.picks ?? {} }));
+}
+
+async function savePool(pool: Pool) {
+  await supabase
+    .from("pools")
+    .update({ name: pool.name, picks: pool.picks })
+    .eq("id", pool.id);
 }
 
 interface EditCell {
@@ -41,33 +54,90 @@ interface EditCell {
 }
 
 export function PoolsView({ onOpenSurvivor }: { onOpenSurvivor?: () => void }) {
-  const [pools, setPools] = useState<Pool[]>(loadPools);
+  const [user, setUser] = useState<User | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [pools, setPools] = useState<Pool[]>([]);
+  const [loadingPools, setLoadingPools] = useState(false);
   const [editCell, setEditCell] = useState<EditCell | null>(null);
   const [editName, setEditName] = useState<string | null>(null);
 
+  // Track which pool ids have pending saves
+  const saveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(pools));
-    } catch {}
-  }, [pools]);
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user ?? null);
+      setAuthReady(true);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setPools([]);
+      return;
+    }
+    setLoadingPools(true);
+    loadUserPools(user.id).then(async (loaded) => {
+      if (loaded.length === 0) {
+        const created = await ensureDefaultPools(user.id);
+        setPools(created);
+      } else {
+        // Ensure exactly 5 pools, backfill if needed
+        if (loaded.length < 5) {
+          const missing = DEFAULT_POOL_NAMES.slice(loaded.length).map((name) => ({
+            user_id: user.id,
+            name,
+            picks: {},
+          }));
+          const { data } = await supabase
+            .from("pools")
+            .insert(missing)
+            .select("id, name, picks");
+          const extra = (data ?? []).map((r) => ({ id: r.id, name: r.name, picks: r.picks ?? {} }));
+          setPools([...loaded, ...extra]);
+        } else {
+          setPools(loaded);
+        }
+      }
+      setLoadingPools(false);
+    });
+  }, [user]);
+
+  function updatePool(updated: Pool) {
+    setPools((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    // Debounce DB write 800ms
+    clearTimeout(saveTimers.current[updated.id]);
+    saveTimers.current[updated.id] = setTimeout(() => savePool(updated), 800);
+  }
 
   function setPick(poolId: string, week: number, team: string | null) {
-    setPools((prev) =>
-      prev.map((p) => {
-        if (p.id !== poolId) return p;
-        const picks = { ...p.picks };
-        if (team) picks[week] = team;
-        else delete picks[week];
-        return { ...p, picks };
-      })
-    );
+    const pool = pools.find((p) => p.id === poolId);
+    if (!pool) return;
+    const picks = { ...pool.picks };
+    if (team) picks[week] = team;
+    else delete picks[week];
+    updatePool({ ...pool, picks });
     setEditCell(null);
   }
 
   function renamePool(poolId: string, name: string) {
-    setPools((prev) => prev.map((p) => (p.id === poolId ? { ...p, name } : p)));
+    const pool = pools.find((p) => p.id === poolId);
+    if (!pool) return;
+    updatePool({ ...pool, name });
     setEditName(null);
   }
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    setPools([]);
+  }
+
+  if (!authReady) return null;
+  if (!user) return <AuthGate />;
 
   const editPool = editCell ? pools.find((p) => p.id === editCell.poolId) ?? null : null;
   const editUsed = editPool ? new Set(Object.values(editPool.picks)) : new Set<string>();
@@ -79,82 +149,91 @@ export function PoolsView({ onOpenSurvivor }: { onOpenSurvivor?: () => void }) {
           <h2>Survivor Pools · 2026</h2>
           <p className="panel-subtitle">Click a week cell to set your pick · Used teams flagged per pool · Click pool name to rename</p>
         </div>
-        <button className="pools-link-btn" onClick={onOpenSurvivor}>
-          <Star size={13} /> Model picks
-        </button>
+        <div className="pools-toolbar-actions">
+          <button className="pools-link-btn" onClick={onOpenSurvivor}>
+            <Star size={13} /> Model picks
+          </button>
+          <button className="pools-signout-btn" onClick={signOut} title="Sign out">
+            <LogOut size={13} />
+          </button>
+        </div>
       </div>
 
-      <div className="pools-grid-wrap">
-        <table className="pools-table">
-          <thead>
-            <tr>
-              <th className="pools-th-name">Pool</th>
-              {WEEKS.map((w) => (
-                <th key={w} className={`pools-th-week${w === CURRENT_WEEK ? " pools-current-week" : ""}`}>
-                  W{w}
-                </th>
-              ))}
-              <th className="pools-th-remaining">Remaining</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pools.map((pool) => {
-              const usedTeams = new Set(Object.values(pool.picks));
-              const remaining = ALL_TEAMS.filter((t) => !usedTeams.has(t));
-              return (
-                <tr key={pool.id}>
-                  <td className="pools-td-name">
-                    {editName === pool.id ? (
-                      <input
-                        className="pools-name-input"
-                        defaultValue={pool.name}
-                        autoFocus
-                        onBlur={(e) => renamePool(pool.id, e.target.value.trim() || pool.name)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                          if (e.key === "Escape") setEditName(null);
-                        }}
-                      />
-                    ) : (
-                      <span className="pools-name-label" onClick={() => setEditName(pool.id)} title="Click to rename">
-                        {pool.name}
+      {loadingPools ? (
+        <div className="pools-loading">Loading your pools…</div>
+      ) : (
+        <div className="pools-grid-wrap">
+          <table className="pools-table">
+            <thead>
+              <tr>
+                <th className="pools-th-name">Pool</th>
+                {WEEKS.map((w) => (
+                  <th key={w} className={`pools-th-week${w === CURRENT_WEEK ? " pools-current-week" : ""}`}>
+                    W{w}
+                  </th>
+                ))}
+                <th className="pools-th-remaining">Remaining</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pools.map((pool) => {
+                const usedTeams = new Set(Object.values(pool.picks));
+                const remaining = ALL_TEAMS.filter((t) => !usedTeams.has(t));
+                return (
+                  <tr key={pool.id}>
+                    <td className="pools-td-name">
+                      {editName === pool.id ? (
+                        <input
+                          className="pools-name-input"
+                          defaultValue={pool.name}
+                          autoFocus
+                          onBlur={(e) => renamePool(pool.id, e.target.value.trim() || pool.name)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                            if (e.key === "Escape") setEditName(null);
+                          }}
+                        />
+                      ) : (
+                        <span className="pools-name-label" onClick={() => setEditName(pool.id)} title="Click to rename">
+                          {pool.name}
+                        </span>
+                      )}
+                    </td>
+                    {WEEKS.map((w) => {
+                      const pick = pool.picks[w];
+                      const isActive = editCell?.poolId === pool.id && editCell?.week === w;
+                      return (
+                        <td key={w} className="pools-td-cell">
+                          <button
+                            className={`pools-cell${pick ? " has-pick" : ""}${isActive ? " active" : ""}`}
+                            onClick={() => setEditCell(isActive ? null : { poolId: pool.id, week: w })}
+                          >
+                            {pick ? (
+                              <>
+                                <img src={teamLogos[pick]} alt={pick} className="pools-pick-logo" />
+                                <span>{pick}</span>
+                              </>
+                            ) : (
+                              <span className="pools-cell-empty">—</span>
+                            )}
+                          </button>
+                        </td>
+                      );
+                    })}
+                    <td className="pools-td-remaining">
+                      <b>{remaining.length}</b>
+                      <span>
+                        {remaining.slice(0, 5).join(" · ")}
+                        {remaining.length > 5 ? ` +${remaining.length - 5}` : ""}
                       </span>
-                    )}
-                  </td>
-                  {WEEKS.map((w) => {
-                    const pick = pool.picks[w];
-                    const isActive = editCell?.poolId === pool.id && editCell?.week === w;
-                    return (
-                      <td key={w} className="pools-td-cell">
-                        <button
-                          className={`pools-cell${pick ? " has-pick" : ""}${isActive ? " active" : ""}`}
-                          onClick={() => setEditCell(isActive ? null : { poolId: pool.id, week: w })}
-                        >
-                          {pick ? (
-                            <>
-                              <img src={teamLogos[pick]} alt={pick} className="pools-pick-logo" />
-                              <span>{pick}</span>
-                            </>
-                          ) : (
-                            <span className="pools-cell-empty">—</span>
-                          )}
-                        </button>
-                      </td>
-                    );
-                  })}
-                  <td className="pools-td-remaining">
-                    <b>{remaining.length}</b>
-                    <span>
-                      {remaining.slice(0, 5).join(" · ")}
-                      {remaining.length > 5 ? ` +${remaining.length - 5}` : ""}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {editCell && editPool && (
         <TeamPickerModal
