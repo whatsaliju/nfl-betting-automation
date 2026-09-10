@@ -14,6 +14,7 @@ import { ResearchView } from "./components/ResearchView";
 import { ResultsView } from "./components/ResultsView";
 import { ScoutView } from "./components/ScoutView";
 import { SurvivorView } from "./components/SurvivorView";
+import { PoolsView } from "./components/PoolsView";
 import { TrackRecordView } from "./components/TrackRecordView";
 import { WARPSView } from "./components/WARPSView";
 import { TeamModal } from "./components/TeamModal";
@@ -23,13 +24,13 @@ import { historicalVegasLines } from "./data/nflData";
 import warpsMarketOverlay2026 from "./data/warpsMarketOverlay2026.json";
 import type { CurrentContext, EngineFeed, Filter, LineMoveAlert, TeamProfile, WarpsMarketOverlay, WeeklyBettingCard } from "./types";
 
-type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections" | "pickem";
+type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections" | "pickem" | "pools";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["command", "track", "matrix", "edges", "card", "survivor", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections", "pickem"]);
+const VALID_VIEWS = new Set<AppViewMode>(["command", "track", "matrix", "edges", "card", "survivor", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections", "pickem", "pools"]);
 
 function cardForContext(card?: WeeklyBettingCard, context?: CurrentContext): WeeklyBettingCard | undefined {
   if (!card || !context) return card;
@@ -356,6 +357,8 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
       {viewMode === "card" && <BettingCardView card={currentBettingCard} context={currentContext} focusCard={focusedCard} onFocusClear={() => setFocusedCard(null)} onViewAnalysis={(key) => { setFocusedEdgeGame(key); setViewMode("edges"); }} lineMoveAlert={lineMoveAlert} />}
 
       {viewMode === "survivor" && <SurvivorView />}
+
+      {viewMode === "pools" && <PoolsView onOpenSurvivor={() => setViewMode("survivor")} />}
 
       {viewMode === "research" && <ResearchView summary={researchSummary} />}
 
