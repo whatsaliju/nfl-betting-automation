@@ -1,7 +1,9 @@
 import { Activity, AlertTriangle, BadgeCheck, CircleSlash, Gauge, Info, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect } from "react";
 import { teamLogos } from "../data/nflData";
-import type { EdgeBoardGame, EdgeMarket, LineMoveAlert } from "../types";
+import type { EdgeBoardGame, EdgeMarket, LineMoveAlert, WarpsMarketOverlay } from "../types";
+
+const DAY_ORDER: Record<string, number> = { Thu: 0, Fri: 1, Sat: 2, Sun: 3, Mon: 4, Tue: 5, Wed: 6 };
 
 function formatScore(value: number | null) {
   return typeof value === "number" ? value.toFixed(1) : "n/a";
@@ -72,7 +74,7 @@ function alignmentLabel(value?: string | null) {
   return value.replace(/_/g, " ");
 }
 
-export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert }: { games: EdgeBoardGame[]; focusGame?: string | null; onFocusClear?: () => void; lineMoveAlert?: LineMoveAlert | null }) {
+export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, warpsRows }: { games: EdgeBoardGame[]; focusGame?: string | null; onFocusClear?: () => void; lineMoveAlert?: LineMoveAlert | null; warpsRows?: WarpsMarketOverlay[] }) {
   useEffect(() => {
     if (!focusGame) return;
     const el = document.getElementById(`edge-${focusGame}`);
@@ -81,8 +83,21 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert }:
     return () => clearTimeout(t);
   }, [focusGame, onFocusClear]);
 
+  const warpsDateIndex = new Map((warpsRows ?? []).map((r) => [r.matchup_key, r]));
+
   const regularGames = games
-    .sort((a, b) => a.week !== b.week ? String(a.week).localeCompare(String(b.week)) : (b.best_edge.score ?? 0) - (a.best_edge.score ?? 0));
+    .sort((a, b) => {
+      const wa = warpsDateIndex.get(a.matchup_key);
+      const wb = warpsDateIndex.get(b.matchup_key);
+      if (wa?.game_date && wb?.game_date && wa.game_date !== wb.game_date) {
+        return wa.game_date < wb.game_date ? -1 : 1;
+      }
+      const dayA = DAY_ORDER[wa?.game_day ?? ""] ?? 9;
+      const dayB = DAY_ORDER[wb?.game_day ?? ""] ?? 9;
+      if (dayA !== dayB) return dayA - dayB;
+      if (a.week !== b.week) return String(a.week).localeCompare(String(b.week));
+      return (b.best_edge.score ?? 0) - (a.best_edge.score ?? 0);
+    });
   const playable = regularGames.filter((game) => game.best_edge.status === "play");
   const passes = regularGames.length - playable.length;
 
