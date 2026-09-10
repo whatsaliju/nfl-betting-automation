@@ -89,17 +89,6 @@ jobs:
           fi
           ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Prepare remote target directory
-        run: |
-          test -n "$BLUEHOST_TARGET_VALUE"
-          REMOTE_TARGET="$BLUEHOST_TARGET_VALUE"
-          case "$REMOTE_TARGET" in
-            /public_html/*) REMOTE_TARGET="/home/${{ secrets.BLUEHOST_USER }}${REMOTE_TARGET}" ;;
-          esac
-          echo "Remote target directory style normalized."
-          SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
-          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" "printf 'Bluehost SSH connection ready\n' && mkdir -p -- '$REMOTE_TARGET'"
-
       - name: Upload static site via SSH tar
         run: |
           test -n "$BLUEHOST_TARGET_VALUE"
@@ -108,12 +97,12 @@ jobs:
             /public_html/*) REMOTE_TARGET="/home/${{ secrets.BLUEHOST_USER }}${REMOTE_TARGET}" ;;
           esac
           SSH_OPTS="-i ~/.ssh/bluehost_deploy_key -p $BLUEHOST_PORT_VALUE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
-          # Pack the build output, stream it over SSH, and extract on the remote.
-          # This avoids needing rsync on the Bluehost server while preserving the
-          # --delete behaviour: old files under the target are cleared first (ytts
-          # subdirectory is kept), then the fresh build is unpacked.
-          ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" \
-            "find '$REMOTE_TARGET' -maxdepth 1 -mindepth 1 -not -name 'ytts' -exec rm -rf {} + 2>/dev/null; true"
+          # Brief pause so Bluehost doesn't throttle back-to-back SSH connections
+          # (ssh-keyscan above opens a connection; a second one immediately after
+          # triggers a connection-reset on Bluehost shared hosting).
+          sleep 5
+          # Single SSH session: mkdir, clear old files (keep /ytts), then extract
+          # the new build from the piped tar stream — no separate rm connection.
           tar -czf - -C dist . | \
             ssh $SSH_OPTS "${{ secrets.BLUEHOST_USER }}@${{ secrets.BLUEHOST_HOST }}" \
-            "tar -xzf - -C '$REMOTE_TARGET'"
+            "mkdir -p '$REMOTE_TARGET' && find '$REMOTE_TARGET' -maxdepth 1 -mindepth 1 -not -name 'ytts' -exec rm -rf {} + 2>/dev/null; tar -xzf - -C '$REMOTE_TARGET'"

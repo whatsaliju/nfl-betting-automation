@@ -61,7 +61,7 @@ TEAM_MAP = {
     "Seattle Seahawks": "SEA", "Seattle": "SEA", "SEA": "SEA",
     "Tampa Bay Buccaneers": "TB", "Tampa Bay": "TB", "TB": "TB",
     "Tennessee Titans": "TEN", "Tennessee": "TEN", "TEN": "TEN",
-    "Washington Commanders": "WAS", "Washington": "WAS", "WAS": "WAS",
+    "Washington Commanders": "WAS", "Washington": "WAS", "WAS": "WAS", "WSH": "WAS",
 }
 
 
@@ -97,7 +97,8 @@ def try_json_in_scripts(soup: BeautifulSoup) -> dict | None:
 
 
 def normalize_team(raw: str) -> str | None:
-    raw = raw.strip()
+    # Strip suffixes like (W), (L), (F), (D) that survivorgrid appends
+    raw = re.sub(r"\([A-Z]\)$", "", raw.strip()).strip()
     return TEAM_MAP.get(raw) or TEAM_MAP.get(raw.upper()) or None
 
 
@@ -129,18 +130,24 @@ def parse_picks_page(html: str) -> dict:
         if not any(h in headers for h in ["team", "w%", "p%", "ev", "win", "pick"]):
             continue
 
-        # Detect column positions
+        # Detect column positions.
+        # survivorgrid.com/picks headers (as of 2026):
+        #   Team | YahooYahoo | ESPNESPN | USA Football PoolsUSA Pools | ProjectedProj | 24hr +/-
         col = {}
-        for h_list in [headers]:
-            for idx, h in enumerate(h_list):
-                if "team" in h:
-                    col.setdefault("team", idx)
-                elif "w" in h and "%" in h:
-                    col.setdefault("w", idx)
-                elif "p" in h and "%" in h:
-                    col.setdefault("p", idx)
-                elif "ev" in h:
-                    col.setdefault("ev", idx)
+        for idx, h in enumerate(headers):
+            hl = h.lower()
+            if "team" in hl and "team" not in col:
+                col["team"] = idx
+            elif "proj" in hl and "p" not in col:
+                col["p"] = idx          # Projected pick % — best aggregate
+            elif "yahoo" in hl and "yahoo" not in col:
+                col["yahoo"] = idx
+            elif "espn" in hl and "espn" not in col:
+                col["espn"] = idx
+            elif "ev" == hl.strip() and "ev" not in col:
+                col["ev"] = idx
+            elif ("win" in hl or hl.strip() == "w%") and "%" in hl and "w" not in col:
+                col["w"] = idx
 
         print(f"[scraper] Column map: {col}", file=sys.stderr)
 
@@ -162,10 +169,15 @@ def parse_picks_page(html: str) -> dict:
             if not team:
                 print(f"[scraper] Unrecognized team: {team_raw!r}", file=sys.stderr)
                 continue
+            def cell(key: str) -> float | None:
+                i = col.get(key)
+                return pct_to_float(cells[i]) if i is not None and i < len(cells) else None
             week_data[team] = {
-                "w": pct_to_float(cells[col["w"]]) if "w" in col and col["w"] < len(cells) else None,
-                "p": pct_to_float(cells[col["p"]]) if "p" in col and col["p"] < len(cells) else None,
-                "ev": pct_to_float(cells[col["ev"]]) if "ev" in col and col["ev"] < len(cells) else None,
+                "w":     cell("w"),
+                "p":     cell("p"),
+                "ev":    cell("ev"),
+                "yahoo": cell("yahoo"),
+                "espn":  cell("espn"),
             }
         if week_data:
             weeks[str(week_num)] = week_data
