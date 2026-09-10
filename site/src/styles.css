@@ -2065,9 +2065,16 @@ select {
 
 @media (max-width: 760px) {
   .app-shell { padding: 10px 12px; }
-  .topbar { align-items: flex-start; flex-direction: column; }
+  .topbar { align-items: flex-start; flex-direction: column; gap: 8px; padding: 10px 12px; }
   .brand-block h1 { font-size: 18px; }
-  .controls { flex-wrap: nowrap; }
+  .brand-block p { display: none; }
+  .status-row { gap: 6px; }
+  /* Make the nav tab bar horizontally scrollable — the main mobile fix */
+  .controls { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+              scrollbar-width: none; padding: 8px 10px; gap: 8px; }
+  .controls::-webkit-scrollbar { display: none; }
+  /* Hide desktop-only utility controls on phones */
+  .toggle { display: none; }
   .matrix-table { font-size: 11px; }
   .team-col { min-width: 76px; }
   .game-cell { min-width: 58px; }
@@ -2087,6 +2094,12 @@ select {
   .edge-bar-wrap, .mae-bar-wrap { width: 48px; }
   .survivor-hero-grid { grid-template-columns: 1fr; }
   .survivor-settings-grid { grid-template-columns: 1fr; }
+  /* Pick'em on mobile */
+  .pickem-view { padding: 12px; }
+  .pickem-tiebreakers { flex-direction: column; gap: 8px; }
+  .pickem-grid { grid-template-columns: 1fr; }
+  /* Edge board single column on phones */
+  .edge-board-grid { grid-template-columns: 1fr; }
 }
 
 /* ── WARPS Lab ─────────────────────────────────────────── */
