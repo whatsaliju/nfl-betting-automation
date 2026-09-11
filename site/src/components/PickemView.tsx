@@ -14,6 +14,24 @@ function normalizeKey(key: string): string {
   return parts.length === 2 ? `${normalizeTla(parts[0])}@${normalizeTla(parts[1])}` : key;
 }
 
+// Convert UTC ISO time to Eastern Time (EDT = UTC-4 for early NFL season)
+function utcToEt(iso: string): { date: string; day: string; timeLabel: string } {
+  if (!iso) return { date: "", day: "", timeLabel: "" };
+  const d = new Date(iso);
+  const etMs = d.getTime() - 4 * 60 * 60 * 1000;
+  const et = new Date(etMs);
+  const etHour = et.getUTCHours();
+  const etMin = et.getUTCMinutes();
+  const period = etHour >= 12 ? "PM" : "AM";
+  const h12 = etHour % 12 || 12;
+  const timeLabel = `${h12}:${String(etMin).padStart(2, "0")} ${period}`;
+  return {
+    date: et.toISOString().slice(0, 10),
+    day: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][et.getUTCDay()],
+    timeLabel,
+  };
+}
+
 interface PickemGame {
   awayTla: string;
   homeTla: string;
@@ -100,9 +118,10 @@ function parseGame(
   const awayImplied = favTla === g.away_tla ? favImplied : dogImplied;
   const homeImplied = favTla === g.home_tla ? favImplied : dogImplied;
 
-  const isoTime = kickoffTime ?? warps?.game_date ?? "";
-  const fallbackDate = isoTime ? isoTime.slice(0, 10) : "";
-  const parsedDay = isoTime ? ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date(isoTime).getUTCDay()] : "";
+  const isoTime = kickoffTime ?? "";
+  const etFallback = utcToEt(isoTime);
+  const fallbackDate = etFallback.date;
+  const parsedDay = etFallback.day;
 
   return {
     awayTla: normalizeTla(g.away_tla),
@@ -187,16 +206,29 @@ export function PickemView({
   const mostPoints = sorted[0] ?? null;
   const fewestPoints = sorted[sorted.length - 1] ?? null;
 
-  // Group by date for day headers
-  const byDate: { date: string; day: string; games: PickemGame[] }[] = [];
+  // Group by ET date, then by kickoff time slot within each day
+  type TimeSlot = { timeLabel: string; games: PickemGame[] };
+  type DateGroup = { date: string; day: string; slots: TimeSlot[] };
+  const byDate: DateGroup[] = [];
+
   for (const g of games) {
-    const last = byDate[byDate.length - 1];
-    const dayLabel = g.gameDay || (g.gameDate ? ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date(g.gameDate).getUTCDay()] : "") || g.gameDate;
-    if (last && last.date === g.gameDate) {
-      last.games.push(g);
-    } else {
-      byDate.push({ date: g.gameDate || g.gameTime.slice(0, 10), day: dayLabel, games: [g] });
+    const et = g.gameTime ? utcToEt(g.gameTime) : { date: g.gameDate, day: g.gameDay, timeLabel: "" };
+    const groupDate = et.date || g.gameDate;
+    const dayLabel = g.gameDay || et.day || groupDate;
+
+    let dateGroup = byDate.find((d) => d.date === groupDate);
+    if (!dateGroup) {
+      dateGroup = { date: groupDate, day: dayLabel, slots: [] };
+      byDate.push(dateGroup);
     }
+
+    const slotLabel = et.timeLabel;
+    let slot = dateGroup.slots.find((s) => s.timeLabel === slotLabel);
+    if (!slot) {
+      slot = { timeLabel: slotLabel, games: [] };
+      dateGroup.slots.push(slot);
+    }
+    slot.games.push(g);
   }
 
   return (
@@ -227,11 +259,16 @@ export function PickemView({
         </div>
       </div>
 
-      {byDate.map(({ date, day, games: dayGames }) => (
+      {byDate.map(({ date, day, slots }) => (
         <div key={date} className="pickem-day-group">
           <div className="pickem-day-label">{day} · {date}</div>
-          <div className="pickem-grid">
-            {dayGames.map((g) => {
+          {slots.map(({ timeLabel, games: slotGames }) => (
+            <div key={timeLabel || "slot"} className="pickem-time-slot">
+              {slots.length > 1 && timeLabel && (
+                <div className="pickem-time-label">{timeLabel} ET</div>
+              )}
+              <div className="pickem-grid">
+              {slotGames.map((g) => {
               const myPick = g.modelPickSide === "HOME" ? g.homeTla : g.modelPickSide === "AWAY" ? g.awayTla : null;
               const modelFadesVegas = myPick && myPick !== g.favTla;
               const tag = classTag(g.classification);
@@ -299,7 +336,9 @@ export function PickemView({
                 </div>
               );
             })}
-          </div>
+              </div>
+            </div>
+          ))}
         </div>
       ))}
 
