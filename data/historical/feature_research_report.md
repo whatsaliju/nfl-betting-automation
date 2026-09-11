@@ -35,8 +35,9 @@
 - true: 27 games
 
 ### data_quality_status
-- DEGRADED: 30 games
+- DEGRADED: 14 games
 - NONE: 16 games
+- OK: 16 games
 
 ## Candidate Policy
 
