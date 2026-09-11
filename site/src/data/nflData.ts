@@ -115,7 +115,7 @@ export const historicalVegasLines: Record<string, Record<string, number>> = {
 };
 
 export const intlGames: Record<number, Array<[string, string, string]>> = {
-  1: [["KC", "@LAC", "BR"], ["LAC", "KC", "BR"]],
+  1: [["NE", "@SEA", "AU"], ["SEA", "NE", "AU"], ["SF", "@LAR", "AU"], ["LAR", "SF", "AU"], ["KC", "@LAC", "BR"], ["LAC", "KC", "BR"]],
   4: [["MIN", "@PIT", "IE"], ["PIT", "MIN", "IE"]],
   6: [["NYJ", "@MIN", "GB"], ["MIN", "NYJ", "GB"]],
   7: [["DEN", "@NYJ", "GB"], ["NYJ", "DEN", "GB"]],
