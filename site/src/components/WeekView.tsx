@@ -1,6 +1,6 @@
 import { intlVenue, teamColors, teamLogos } from "../data/nflData";
 import gameTimesData from "../data/gameTimes2026.json";
-import { cleanOpponent, flagEmoji, internationalCode } from "../lib/schedule";
+import { cleanOpponent, flagEmoji, internationalBroadcaster, internationalCode } from "../lib/schedule";
 import type { EdgeBoardGame, EngineTeamCell, TeamProfile, WarpsMarketOverlay } from "../types";
 import { EngineBadge } from "./EngineBadge";
 import { WarpsMarketBadge } from "./WarpsMarketBadge";
@@ -87,6 +87,7 @@ export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex
           const venueId = internationalCode(homeTeam, week, game.opponent);
           const venue = venueId ? intlVenue[venueId] : null;
           const flag = venue ? flagEmoji(venue.countryCode) : null;
+          const broadcaster = venueId ? internationalBroadcaster(homeTeam, week, game.opponent) : null;
           const homeColor = teamColors[homeTeam] || "#003594";
           const awayColor = teamColors[awayTeam] || "#64748b";
           return (
@@ -101,6 +102,7 @@ export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex
                 <div className="game-card-intl-badge">
                   <span>{flag}</span>
                   <span>{venue.stadium}</span>
+                  {broadcaster && <span className="intl-broadcaster">{broadcaster}</span>}
                 </div>
               )}
               <div className="matchup-teams">

@@ -115,19 +115,19 @@ export const historicalVegasLines: Record<string, Record<string, number>> = {
 };
 
 // 2026 NFL International Schedule (official)
-// Each week lists [teamA, teamB, countryCode, venueId] — both orderings included so
+// Each week lists [teamA, teamB, countryCode, venueId, broadcaster] — both orderings included so
 // internationalCode() matches from either team's perspective.
 // countryCode drives the flag emoji; venueId keys intlVenue for city/stadium.
-export const intlGames: Record<number, Array<[string, string, string, string]>> = {
-  1:  [["SF", "LAR", "AU", "MCG"], ["LAR", "SF", "AU", "MCG"]],
-  3:  [["BAL", "DAL", "BR", "RIO"], ["DAL", "BAL", "BR", "RIO"]],
-  4:  [["IND", "WAS", "GB", "TOT"], ["WAS", "IND", "GB", "TOT"]],
-  5:  [["PHI", "JAX", "GB", "TOT"], ["JAX", "PHI", "GB", "TOT"]],
-  6:  [["HOU", "JAX", "GB", "WEM"], ["JAX", "HOU", "GB", "WEM"]],
-  7:  [["PIT", "NO", "FR", "PAR"], ["NO", "PIT", "FR", "PAR"]],
-  9:  [["CIN", "ATL", "ES", "BER"], ["ATL", "CIN", "ES", "BER"]],
-  10: [["NE", "DET", "DE", "MUN"], ["DET", "NE", "DE", "MUN"]],
-  11: [["MIN", "SF", "MX", "CDM"], ["SF", "MIN", "MX", "CDM"]],
+export const intlGames: Record<number, Array<[string, string, string, string, string]>> = {
+  1:  [["SF", "LAR", "AU", "MCG", "Netflix"],      ["LAR", "SF", "AU", "MCG", "Netflix"]],
+  3:  [["BAL", "DAL", "BR", "RIO", "CBS"],          ["DAL", "BAL", "BR", "RIO", "CBS"]],
+  4:  [["IND", "WAS", "GB", "TOT", "NFL Network"],  ["WAS", "IND", "GB", "TOT", "NFL Network"]],
+  5:  [["PHI", "JAX", "GB", "TOT", "NFL Network"],  ["JAX", "PHI", "GB", "TOT", "NFL Network"]],
+  6:  [["HOU", "JAX", "GB", "WEM", "NFL Network"],  ["JAX", "HOU", "GB", "WEM", "NFL Network"]],
+  7:  [["PIT", "NO", "FR", "PAR", "NFL Network"],   ["NO", "PIT", "FR", "PAR", "NFL Network"]],
+  9:  [["CIN", "ATL", "ES", "BER", "NFL Network"],  ["ATL", "CIN", "ES", "BER", "NFL Network"]],
+  10: [["NE", "DET", "DE", "MUN", "Fox"],           ["DET", "NE", "DE", "MUN", "Fox"]],
+  11: [["MIN", "SF", "MX", "CDM", "NBC"],           ["SF", "MIN", "MX", "CDM", "NBC"]],
 };
 
 export const intlVenue: Record<string, { city: string; stadium: string; countryCode: string }> = {
