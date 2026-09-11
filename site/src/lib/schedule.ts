@@ -54,7 +54,7 @@ export function internationalCode(team: string, week: number, opponent: string) 
     const b = cleanOpponent(right);
     return (cleanTeam === a && cleanOpp === b) || (cleanTeam === b && cleanOpp === a);
   });
-  return match?.[2] || null;
+  return match?.[3] || null; // returns venueId; use intlVenue[venueId].countryCode for flag
 }
 
 export function isDivisionGame(team: string, opponent: string) {

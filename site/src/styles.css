@@ -392,7 +392,12 @@ tr.selected-team td.sticky-col { border-left: 3px solid #3b82f6; }
   font-weight: 600;
   color: #475569;
 }
-.team-button img, .matchup-row img, .compare-head img, .modal-heading img, .result-card img {
+.team-button img, .compare-head img, .modal-heading img, .result-card img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+.matchup-row img {
   width: 22px;
   height: 22px;
   object-fit: contain;
@@ -719,15 +724,90 @@ select {
 .game-card, .result-card, .compare-card, .postseason-game, .modal-game {
   border: 1px solid #dce3ea;
   border-radius: 8px;
-  padding: 10px;
-  background: #fbfdff;
+  overflow: hidden;
+  background: var(--card-bg, #fbfdff);
 }
+.game-card {
+  padding: 0;
+}
+.game-card-stripe {
+  height: 4px;
+  background: linear-gradient(to right, var(--away-color, #64748b) 50%, var(--home-color, #003594) 50%);
+}
+.game-card > .game-card-top,
+.game-card > .matchup-teams,
+.game-card > .engine-badge,
+.game-card > .warps-market-badge,
+.game-card > .week-edge-summary {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.result-card, .compare-card, .postseason-game, .modal-game { padding: 10px; }
 .game-card-top {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
   color: #64748b;
+  padding-top: 8px;
   margin-bottom: 8px;
-  font-size: 12px;
+  font-size: 11px;
+}
+.game-card-day {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #334155;
+}
+.game-card-date { color: #64748b; }
+.game-card-time { margin-left: auto; font-weight: 600; color: #475569; }
+.game-card-intl-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 4px 10px 0;
+  padding: 3px 8px;
+  background: linear-gradient(135deg, #f59e0b22, #d9770622);
+  border: 1px solid #f59e0b66;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400e;
+  width: fit-content;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.game-card-intl { border-color: #f59e0b55; }
+.matchup-teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.matchup-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 52px;
+}
+.matchup-team img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+.matchup-at {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 500;
+  padding-bottom: 14px;
+}
+.team-tla {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .03em;
 }
 .matchup-row { justify-content: center; }
 
@@ -4950,8 +5030,9 @@ select {
 .pickem-card.pickem-pass { border-color: #e2e8f0; }
 
 .pickem-matchup { display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 600; }
-.pk-team { color: #64748b; }
+.pk-team { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #64748b; min-width: 44px; }
 .pk-team.fav { color: #0f172a; font-weight: 800; }
+.pk-logo { width: 32px; height: 32px; object-fit: contain; }
 .pk-at { color: #94a3b8; font-size: 11px; }
 
 .pickem-lines { font-size: 11px; color: #64748b; font-family: monospace; }
@@ -5006,6 +5087,8 @@ select {
   :root:not([data-theme="light"]) .pickem-warps.warps-agree { background: #064e3b; border-color: #6ee7b7; }
   :root:not([data-theme="light"]) .pickem-warps.warps-fade { background: #451a03; border-color: #f0c37a; }
   :root:not([data-theme="light"]) .warps-fair { color: #cbd5e1; }
+  :root:not([data-theme="light"]) .game-card-intl-badge { background: linear-gradient(135deg, #78350f44, #92400e33); border-color: #f59e0b88; color: #fbbf24; }
+  :root:not([data-theme="light"]) .game-card-intl { border-color: #f59e0b44; }
 }
 :root[data-theme="dark"] .pickem-header h2 { color: #f1f5f9; }
 :root[data-theme="dark"] .pk-team.fav { color: #f1f5f9; }
@@ -5021,3 +5104,5 @@ select {
 :root[data-theme="dark"] .pickem-warps.warps-fade { background: #451a03; border-color: #f0c37a; }
 :root[data-theme="dark"] .warps-fair { color: #cbd5e1; }
 :root[data-theme="dark"] .pt-tla { color: #f1f5f9; }
+:root[data-theme="dark"] .game-card-intl-badge { background: linear-gradient(135deg, #78350f44, #92400e33); border-color: #f59e0b88; color: #fbbf24; }
+:root[data-theme="dark"] .game-card-intl { border-color: #f59e0b44; }

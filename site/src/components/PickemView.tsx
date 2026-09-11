@@ -1,3 +1,4 @@
+import { teamLogos } from "../data/nflData";
 import type { EngineFeed, WarpsMarketOverlay } from "../types";
 
 interface PickemGame {
@@ -213,9 +214,15 @@ export function PickemView({
               return (
                 <div key={g.matchupKey} className={`pickem-card pickem-${tag}`}>
                   <div className="pickem-matchup">
-                    <span className={g.favTla === g.awayTla ? "pk-team fav" : "pk-team"}>{g.awayTla}</span>
+                    <div className={g.favTla === g.awayTla ? "pk-team fav" : "pk-team"}>
+                      <img src={teamLogos[g.awayTla]} alt={g.awayTla} className="pk-logo" />
+                      <span>{g.awayTla}</span>
+                    </div>
                     <span className="pk-at">@</span>
-                    <span className={g.favTla === g.homeTla ? "pk-team fav" : "pk-team"}>{g.homeTla}</span>
+                    <div className={g.favTla === g.homeTla ? "pk-team fav" : "pk-team"}>
+                      <img src={teamLogos[g.homeTla]} alt={g.homeTla} className="pk-logo" />
+                      <span>{g.homeTla}</span>
+                    </div>
                   </div>
 
                   <div className="pickem-lines">
