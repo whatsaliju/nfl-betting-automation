@@ -392,7 +392,12 @@ tr.selected-team td.sticky-col { border-left: 3px solid #3b82f6; }
   font-weight: 600;
   color: #475569;
 }
-.team-button img, .matchup-row img, .compare-head img, .modal-heading img, .result-card img {
+.team-button img, .compare-head img, .modal-heading img, .result-card img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+.matchup-row img {
   width: 22px;
   height: 22px;
   object-fit: contain;
@@ -719,15 +724,72 @@ select {
 .game-card, .result-card, .compare-card, .postseason-game, .modal-game {
   border: 1px solid #dce3ea;
   border-radius: 8px;
-  padding: 10px;
-  background: #fbfdff;
+  overflow: hidden;
+  background: var(--card-bg, #fbfdff);
 }
+.game-card {
+  padding: 0;
+}
+.game-card-stripe {
+  height: 4px;
+  background: linear-gradient(to right, var(--away-color, #64748b) 50%, var(--home-color, #003594) 50%);
+}
+.game-card > .game-card-top,
+.game-card > .matchup-teams,
+.game-card > .engine-badge,
+.game-card > .warps-market-badge,
+.game-card > .week-edge-summary {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.result-card, .compare-card, .postseason-game, .modal-game { padding: 10px; }
 .game-card-top {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
   color: #64748b;
+  padding-top: 8px;
   margin-bottom: 8px;
-  font-size: 12px;
+  font-size: 11px;
+}
+.game-card-day {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #334155;
+}
+.game-card-date { margin-left: auto; }
+.matchup-teams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.matchup-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 52px;
+}
+.matchup-team img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+.matchup-at {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 500;
+  padding-bottom: 14px;
+}
+.team-tla {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .03em;
 }
 .matchup-row { justify-content: center; }
 
