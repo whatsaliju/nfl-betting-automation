@@ -8,10 +8,10 @@ const PROJECTS = [
         tagline: "Weekly edge board & picks platform",
         desc: "Data-driven NFL betting analysis for the 2026 season. Every game graded across spread, total, and moneyline — model-backed picks, WARPS fair-value overlays, Pick'em tools, and a survivor pool manager.",
         links: [
-          { text: "Open NFL Signal", href: "https://nflsignal.pages.dev/matrix.html", primary: true },
-          { text: "Weekly Picks", href: "https://nflsignal.pages.dev/matrix.html#command" },
-          { text: "Pick'em", href: "https://nflsignal.pages.dev/matrix.html#pickem" },
-          { text: "Edge Board", href: "https://nflsignal.pages.dev/matrix.html#edges" },
+          { text: "Open NFL Signal", href: "https://nflsignal.com/matrix.html", primary: true },
+          { text: "Weekly Picks", href: "https://nflsignal.com/matrix.html#command" },
+          { text: "Pick'em", href: "https://nflsignal.com/matrix.html#pickem" },
+          { text: "Edge Board", href: "https://nflsignal.com/matrix.html#edges" },
         ],
         accent: "navy",
       },
@@ -21,7 +21,7 @@ const PROJECTS = [
         tagline: "Preseason win-total probability model",
         desc: "A 75% Pythagorean + 25% point-differential blend for predicting NFL regular-season win totals. Built on 26 seasons of data (2000–2025). Beats the statistical baseline in 25 of 26 seasons — MAE 2.374, p < 0.0001.",
         links: [
-          { text: "Open WARPS", href: "https://nflsignal.pages.dev/warps.html", primary: true },
+          { text: "Open WARPS", href: "https://nflsignal.com/warps.html", primary: true },
           { text: "Read the paper", href: "warps.html" },
         ],
         accent: "red",
