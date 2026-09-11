@@ -8,7 +8,7 @@ export default function LandingApp() {
         <div className="ls-nav-links">
           <a href="matrix.html">Edge Board</a>
           <a href="matrix.html#pickem">Pick'em</a>
-          <a href="warps.html">WARPS</a>
+          <a href="matrix.html#survivor">Survivor</a>
           <a href="matrix.html" className="ls-nav-cta">Open the Board →</a>
         </div>
       </nav>
@@ -18,11 +18,11 @@ export default function LandingApp() {
         <h1 className="ls-headline">The edge your<br />picks are missing.</h1>
         <p className="ls-sub">
           Weekly spread, total, and moneyline analysis powered by 26 seasons of NFL data.
-          Model-backed picks, WARPS fair value, survivor tools — all in one board.
+          Model-backed picks, fair value analysis, survivor tools — all in one board.
         </p>
         <div className="ls-hero-actions">
           <a href="matrix.html" className="ls-btn-primary">Open the Board</a>
-          <a href="warps.html" className="ls-btn-ghost">WARPS Model →</a>
+          <a href="matrix.html#pickem" className="ls-btn-ghost">Pick'em →</a>
         </div>
       </section>
 
