@@ -1,5 +1,36 @@
 import { teamLogos } from "../data/nflData";
+import gameTimesData from "../data/gameTimes2026.json";
 import type { EngineFeed, WarpsMarketOverlay } from "../types";
+
+const gameTimes = (gameTimesData as { weeks: Record<string, Record<string, string>> }).weeks;
+
+function normalizeTla(tla: string): string {
+  const aliases: Record<string, string> = { WSH: "WAS" };
+  return aliases[tla] ?? tla;
+}
+
+function normalizeKey(key: string): string {
+  const parts = key.split("@");
+  return parts.length === 2 ? `${normalizeTla(parts[0])}@${normalizeTla(parts[1])}` : key;
+}
+
+// Convert UTC ISO time to Eastern Time (EDT = UTC-4 for early NFL season)
+function utcToEt(iso: string): { date: string; day: string; timeLabel: string } {
+  if (!iso) return { date: "", day: "", timeLabel: "" };
+  const d = new Date(iso);
+  const etMs = d.getTime() - 4 * 60 * 60 * 1000;
+  const et = new Date(etMs);
+  const etHour = et.getUTCHours();
+  const etMin = et.getUTCMinutes();
+  const period = etHour >= 12 ? "PM" : "AM";
+  const h12 = etHour % 12 || 12;
+  const timeLabel = `${h12}:${String(etMin).padStart(2, "0")} ${period}`;
+  return {
+    date: et.toISOString().slice(0, 10),
+    day: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][et.getUTCDay()],
+    timeLabel,
+  };
+}
 
 interface PickemGame {
   awayTla: string;
@@ -7,6 +38,7 @@ interface PickemGame {
   matchupKey: string;
   gameDate: string;     // ISO date from WARPS overlay e.g. "2026-09-13"
   gameDay: string;      // "Thu" | "Sat" | "Sun" | "Mon"
+  gameTime: string;     // ISO kickoff time from gameTimes e.g. "2026-09-13T17:00:00Z"
   awaySpread: number | null;
   homeSpread: number | null;
   spreadVal: number | null;
@@ -49,7 +81,8 @@ function classTag(cls: string | null): string {
 
 function parseGame(
   g: { away_tla: string; home_tla: string; matchup_key: string; latest: Record<string, unknown> },
-  warps: WarpsMarketOverlay | undefined
+  warps: WarpsMarketOverlay | undefined,
+  kickoffTime: string | undefined
 ): PickemGame {
   const lat = g.latest as Record<string, string | null>;
   const spreadLine = lat.sharp_spread_line ?? "";
@@ -85,12 +118,18 @@ function parseGame(
   const awayImplied = favTla === g.away_tla ? favImplied : dogImplied;
   const homeImplied = favTla === g.home_tla ? favImplied : dogImplied;
 
+  const isoTime = kickoffTime ?? "";
+  const etFallback = utcToEt(isoTime);
+  const fallbackDate = etFallback.date;
+  const parsedDay = etFallback.day;
+
   return {
-    awayTla: g.away_tla,
-    homeTla: g.home_tla,
-    matchupKey: g.matchup_key,
-    gameDate: warps?.game_date ?? "",
-    gameDay: warps?.game_day ?? "",
+    awayTla: normalizeTla(g.away_tla),
+    homeTla: normalizeTla(g.home_tla),
+    matchupKey: normalizeKey(g.matchup_key),
+    gameDate: warps?.game_date ?? fallbackDate,
+    gameDay: warps?.game_day ?? parsedDay,
+    gameTime: isoTime,
     awaySpread,
     homeSpread,
     spreadVal,
@@ -124,7 +163,8 @@ export function PickemView({
   const ctx = feed.current_context;
   if (!ctx) return <div className="pickem-empty">No active week context.</div>;
 
-  const warpsIndex = new Map(warpsRows.map((r) => [r.matchup_key, r]));
+  const warpsIndex = new Map(warpsRows.map((r) => [normalizeKey(r.matchup_key), r]));
+  const weekTimes: Record<string, string> = gameTimes[String(ctx.week)] ?? {};
 
   const weekGames = (feed.games ?? []).filter(
     (g) =>
@@ -139,14 +179,17 @@ export function PickemView({
   }
 
   const games: PickemGame[] = weekGames
-    .map((g) =>
-      parseGame(
+    .map((g) => {
+      const normKey = normalizeKey(g.matchup_key);
+      return parseGame(
         { away_tla: g.away_tla, home_tla: g.home_tla, matchup_key: g.matchup_key, latest: g.latest as Record<string, unknown> },
-        warpsIndex.get(g.matchup_key)
-      )
-    )
+        warpsIndex.get(normKey),
+        weekTimes[normKey]
+      );
+    })
     .sort((a, b) => {
-      // Sort by date first, then by day-of-week order within same date
+      // Sort by kickoff time first (ISO string sort), then date, then day-of-week
+      if (a.gameTime && b.gameTime) return a.gameTime < b.gameTime ? -1 : a.gameTime > b.gameTime ? 1 : 0;
       if (a.gameDate !== b.gameDate) return a.gameDate < b.gameDate ? -1 : 1;
       return (DAY_ORDER[a.gameDay] ?? 9) - (DAY_ORDER[b.gameDay] ?? 9);
     });
@@ -163,15 +206,29 @@ export function PickemView({
   const mostPoints = sorted[0] ?? null;
   const fewestPoints = sorted[sorted.length - 1] ?? null;
 
-  // Group by date for day headers
-  const byDate: { date: string; day: string; games: PickemGame[] }[] = [];
+  // Group by ET date, then by kickoff time slot within each day
+  type TimeSlot = { timeLabel: string; games: PickemGame[] };
+  type DateGroup = { date: string; day: string; slots: TimeSlot[] };
+  const byDate: DateGroup[] = [];
+
   for (const g of games) {
-    const last = byDate[byDate.length - 1];
-    if (last && last.date === g.gameDate) {
-      last.games.push(g);
-    } else {
-      byDate.push({ date: g.gameDate, day: g.gameDay || g.gameDate, games: [g] });
+    const et = g.gameTime ? utcToEt(g.gameTime) : { date: g.gameDate, day: g.gameDay, timeLabel: "" };
+    const groupDate = et.date || g.gameDate;
+    const dayLabel = g.gameDay || et.day || groupDate;
+
+    let dateGroup = byDate.find((d) => d.date === groupDate);
+    if (!dateGroup) {
+      dateGroup = { date: groupDate, day: dayLabel, slots: [] };
+      byDate.push(dateGroup);
     }
+
+    const slotLabel = et.timeLabel;
+    let slot = dateGroup.slots.find((s) => s.timeLabel === slotLabel);
+    if (!slot) {
+      slot = { timeLabel: slotLabel, games: [] };
+      dateGroup.slots.push(slot);
+    }
+    slot.games.push(g);
   }
 
   return (
@@ -184,23 +241,34 @@ export function PickemView({
       <div className="pickem-tiebreakers">
         <div className="pickem-tb most">
           <span className="tb-label">Most Points</span>
-          <strong className="tb-team">{mostPoints?.tla ?? "—"}</strong>
+          <div className="tb-pick">
+            {mostPoints?.tla && <img src={teamLogos[mostPoints.tla]} alt={mostPoints.tla} className="tb-logo" />}
+            <strong className="tb-team">{mostPoints?.tla ?? "—"}</strong>
+          </div>
           <span className="tb-implied">{mostPoints ? `${mostPoints.implied.toFixed(1)} pts implied` : ""}</span>
           <span className="tb-matchup">{mostPoints?.gameKey ?? ""}</span>
         </div>
         <div className="pickem-tb fewest">
           <span className="tb-label">Fewest Points</span>
-          <strong className="tb-team">{fewestPoints?.tla ?? "—"}</strong>
+          <div className="tb-pick">
+            {fewestPoints?.tla && <img src={teamLogos[fewestPoints.tla]} alt={fewestPoints.tla} className="tb-logo" />}
+            <strong className="tb-team">{fewestPoints?.tla ?? "—"}</strong>
+          </div>
           <span className="tb-implied">{fewestPoints ? `${fewestPoints.implied.toFixed(1)} pts implied` : ""}</span>
           <span className="tb-matchup">{fewestPoints?.gameKey ?? ""}</span>
         </div>
       </div>
 
-      {byDate.map(({ date, day, games: dayGames }) => (
+      {byDate.map(({ date, day, slots }) => (
         <div key={date} className="pickem-day-group">
           <div className="pickem-day-label">{day} · {date}</div>
-          <div className="pickem-grid">
-            {dayGames.map((g) => {
+          {slots.map(({ timeLabel, games: slotGames }) => (
+            <div key={timeLabel || "slot"} className="pickem-time-slot">
+              {slots.length > 1 && timeLabel && (
+                <div className="pickem-time-label">{timeLabel} ET</div>
+              )}
+              <div className="pickem-grid">
+              {slotGames.map((g) => {
               const myPick = g.modelPickSide === "HOME" ? g.homeTla : g.modelPickSide === "AWAY" ? g.awayTla : null;
               const modelFadesVegas = myPick && myPick !== g.favTla;
               const tag = classTag(g.classification);
@@ -233,10 +301,13 @@ export function PickemView({
 
                   <div className="pickem-su">
                     <span className="pk-su-label">SU pick</span>
-                    <strong className="pk-su-team">{g.favTla ?? "Pick'em"}</strong>
-                    {warpsFavWinPct !== null && (
-                      <span className="pk-win-prob">{warpsFavWinPct}%</span>
-                    )}
+                    <div className="pk-su-pick">
+                      {g.favTla && <img src={teamLogos[g.favTla]} alt={g.favTla} className="pk-su-logo" />}
+                      <strong className="pk-su-team">{g.favTla ?? "Pick'em"}</strong>
+                      {warpsFavWinPct !== null && (
+                        <span className="pk-win-prob">{warpsFavWinPct}%</span>
+                      )}
+                    </div>
                   </div>
 
                   {g.warpsFairHomeSpread !== null && (
@@ -265,7 +336,9 @@ export function PickemView({
                 </div>
               );
             })}
-          </div>
+              </div>
+            </div>
+          ))}
         </div>
       ))}
 

@@ -88,7 +88,7 @@ export const gameSchedule: Record<number, Record<string, string>> = {
 export const teamLogos: Record<string, string> = Object.fromEntries(
   ["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAX", "KC", "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SF", "SEA", "TB", "TEN"]
     .map((team) => [team, `https://a.espncdn.com/i/teamlogos/nfl/500/${team.toLowerCase()}.png`])
-    .concat([["WAS", "https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png"]])
+    .concat([["WAS", "https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png"], ["WSH", "https://a.espncdn.com/i/teamlogos/nfl/500/wsh.png"]])
 );
 
 // Historical preseason Vegas win totals by season.
