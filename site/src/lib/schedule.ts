@@ -46,15 +46,22 @@ export function flagEmoji(code: string | null) {
   return String.fromCodePoint(base + code.charCodeAt(0) - 65, base + code.charCodeAt(1) - 65);
 }
 
-export function internationalCode(team: string, week: number, opponent: string) {
+function findIntlMatch(team: string, week: number, opponent: string) {
   const cleanTeam = cleanOpponent(team);
   const cleanOpp = cleanOpponent(opponent);
-  const match = (intlGames[week] || []).find(([left, right]) => {
+  return (intlGames[week] || []).find(([left, right]) => {
     const a = cleanOpponent(left);
     const b = cleanOpponent(right);
     return (cleanTeam === a && cleanOpp === b) || (cleanTeam === b && cleanOpp === a);
   });
-  return match?.[3] || null; // returns venueId; use intlVenue[venueId].countryCode for flag
+}
+
+export function internationalCode(team: string, week: number, opponent: string) {
+  return findIntlMatch(team, week, opponent)?.[3] || null; // venueId
+}
+
+export function internationalBroadcaster(team: string, week: number, opponent: string) {
+  return findIntlMatch(team, week, opponent)?.[4] || null;
 }
 
 export function isDivisionGame(team: string, opponent: string) {
