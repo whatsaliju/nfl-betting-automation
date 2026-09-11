@@ -1,4 +1,4 @@
-import { AlertTriangle, BadgeCheck, Brain, ClipboardList, Crosshair, Gauge, Route, ShieldCheck, Target } from "lucide-react";
+import { AlertTriangle, BadgeCheck, ClipboardList, Crosshair, Gauge, ListChecks, Route, ShieldCheck, Target } from "lucide-react";
 import { teamLogos } from "../data/nflData";
 import survivorPayload from "../data/survivorRecommendations2026.json";
 import type { EdgeBoardGame, EngineFeed, WarpsMarketOverlay, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
@@ -135,7 +135,7 @@ export function CommandCenterView({
   edgeGames: EdgeBoardGame[];
   warpsRows: WarpsMarketOverlay[];
   scoutAlerts?: { spots: number; traps: number; upsets: number; total: number };
-  onNavigate: (view: "card" | "edges" | "survivor" | "warps" | "scout") => void;
+  onNavigate: (view: "card" | "edges" | "survivor" | "warps" | "scout" | "pickem") => void;
   onFocusCard?: (matchupKey: string) => void;
 }) {
   const command = engineFeed?.weekly_command_center;
@@ -185,14 +185,14 @@ export function CommandCenterView({
       onClick: () => onNavigate("scout"),
     },
     {
-      icon: <Brain size={14} />,
-      label: isPreseason ? `WARPS (${planningWeekLabel})` : "WARPS · Win Prob",
+      icon: <ListChecks size={14} />,
+      label: "Pick'em",
       value: warpsTop[0] ? pct(warpsTop[0].winProb) : "n/a",
       detail: warpsTop[0]
-        ? `${warpsTop[0].team} · ${warpsTop[0].fairMl || "n/a"} fair line`
-        : "No model data loaded",
+        ? `${warpsTop[0].team} top win prob · ${planningWeekLabel}`
+        : "Weekly picks & win probabilities",
       state: "research",
-      onClick: () => onNavigate("warps"),
+      onClick: () => onNavigate("pickem"),
     },
     {
       icon: <Gauge size={14} />,
@@ -337,16 +337,16 @@ export function CommandCenterView({
               <h3><BadgeCheck size={15} /> Win Probability Watch</h3>
               <p>Highest modeled win prob for {planningWeekLabel} — click any row to open.</p>
             </div>
-            <button className="text-button" onClick={() => onNavigate("warps")}>Open →</button>
+            <button className="text-button" onClick={() => onNavigate("pickem")}>Open →</button>
           </div>
           {warpsTop.length ? warpsTop.map((row) => (
             <div
               className="command-warps-row"
               key={`${row.matchup}-${row.team}`}
-              onClick={() => onNavigate("warps")}
+              onClick={() => onNavigate("pickem")}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && onNavigate("warps")}
+              onKeyDown={(e) => e.key === "Enter" && onNavigate("pickem")}
             >
               <TeamLogo team={row.team} />
               <strong>{row.team}</strong>
