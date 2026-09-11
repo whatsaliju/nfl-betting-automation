@@ -1,4 +1,4 @@
-import { teamColors, teamLogos } from "../data/nflData";
+import { intlVenue, teamColors, teamLogos } from "../data/nflData";
 import gameTimesData from "../data/gameTimes2026.json";
 import { cleanOpponent, flagEmoji, internationalCode } from "../lib/schedule";
 import type { EdgeBoardGame, EngineTeamCell, TeamProfile, WarpsMarketOverlay } from "../types";
@@ -84,18 +84,25 @@ export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex
           const homeEngine = engineCells.get(`${homeTeam}:W${week}`);
           const edge = edgeIndex.get(`${awayTeam}@${homeTeam}`);
           const warpsOverlay = warpsMarketIndex.get(`${awayTeam}@${homeTeam}`);
-          const flag = flagEmoji(internationalCode(homeTeam, week, game.opponent));
+          const intlCode = internationalCode(homeTeam, week, game.opponent);
+          const flag = flagEmoji(intlCode);
+          const venue = intlCode ? intlVenue[intlCode] : null;
           const homeColor = teamColors[homeTeam] || "#003594";
           const awayColor = teamColors[awayTeam] || "#64748b";
           return (
-            <article className="game-card" key={`${awayTeam}@${homeTeam}`} style={{ "--home-color": homeColor, "--away-color": awayColor } as React.CSSProperties}>
+            <article className={`game-card${venue ? " game-card-intl" : ""}`} key={`${awayTeam}@${homeTeam}`} style={{ "--home-color": homeColor, "--away-color": awayColor } as React.CSSProperties}>
               <div className="game-card-stripe" />
               <div className="game-card-top">
                 <span className="game-card-day">{game.dayOfWeek}</span>
                 {game.gameDate && <span className="game-card-date">{game.gameDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>}
                 {commence && <span className="game-card-time">{kickoffET(commence)}</span>}
-                {flag && <span>{flag}</span>}
               </div>
+              {venue && (
+                <div className="game-card-intl-badge">
+                  <span>{flag}</span>
+                  <span>{venue.city}</span>
+                </div>
+              )}
               <div className="matchup-teams">
                 <div className="matchup-team away">
                   <img src={teamLogos[awayTeam]} alt={awayTeam} />

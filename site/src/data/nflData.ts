@@ -114,14 +114,29 @@ export const historicalVegasLines: Record<string, Record<string, number>> = {
   "2026": { ARI:4.5,ATL:6.5,BAL:10.5,BUF:10.5,CAR:6.5,CHI:9.5,CIN:9.5,CLE:6.5,DAL:8.5,DEN:9.5,DET:10.5,GB:10.5,HOU:9.5,IND:8.5,JAX:9.5,KC:10.5,LAC:10.5,LAR:10.5,LV:5.5,MIA:4.5,MIN:8.5,NE:10.5,NO:7.5,NYG:7.5,NYJ:5.5,PHI:10.5,PIT:8.5,SEA:10.5,SF:10.5,TB:8.5,TEN:6.5,WAS:7.5 },
 };
 
+// 2026 NFL International Schedule (official)
+// Each week lists [teamA, teamB, countryCode] — both orderings included so
+// internationalCode() matches from either team's perspective.
 export const intlGames: Record<number, Array<[string, string, string]>> = {
-  1: [["NE", "@SEA", "AU"], ["SEA", "NE", "AU"], ["SF", "@LAR", "AU"], ["LAR", "SF", "AU"], ["KC", "@LAC", "BR"], ["LAC", "KC", "BR"]],
-  4: [["MIN", "@PIT", "IE"], ["PIT", "MIN", "IE"]],
-  6: [["NYJ", "@MIN", "GB"], ["MIN", "NYJ", "GB"]],
-  7: [["DEN", "@NYJ", "GB"], ["NYJ", "DEN", "GB"]],
-  8: [["LAR", "@JAX", "GB"], ["JAX", "LAR", "GB"]],
-  10: [["ATL", "@IND", "DE"], ["IND", "ATL", "DE"]],
-  11: [["WAS", "@MIA", "ES"], ["MIA", "WAS", "ES"]]
+  1:  [["SF", "LAR", "AU"], ["LAR", "SF", "AU"]],    // Melbourne, Australia (Sept 10)
+  3:  [["BAL", "DAL", "BR"], ["DAL", "BAL", "BR"]],  // Rio de Janeiro, Brazil (Sept 27)
+  4:  [["IND", "WAS", "GB"], ["WAS", "IND", "GB"]],  // London - Tottenham (Oct 4)
+  5:  [["PHI", "JAX", "GB"], ["JAX", "PHI", "GB"]],  // London - Tottenham (Oct 11)
+  6:  [["HOU", "JAX", "GB"], ["JAX", "HOU", "GB"]],  // London - Wembley (Oct 18)
+  7:  [["PIT", "NO", "FR"], ["NO", "PIT", "FR"]],    // Paris, France (Oct 25)
+  9:  [["CIN", "ATL", "ES"], ["ATL", "CIN", "ES"]],  // Madrid, Spain (Nov 8)
+  10: [["NE", "DET", "DE"], ["DET", "NE", "DE"]],    // Munich, Germany (Nov 15)
+  11: [["MIN", "SF", "MX"], ["SF", "MIN", "MX"]],    // Mexico City, Mexico (Nov 22)
+};
+
+export const intlVenue: Record<string, { city: string; country: string }> = {
+  AU: { city: "Melbourne", country: "Australia" },
+  BR: { city: "Rio de Janeiro", country: "Brazil" },
+  GB: { city: "London", country: "U.K." },
+  FR: { city: "Paris", country: "France" },
+  ES: { city: "Madrid", country: "Spain" },
+  DE: { city: "Munich", country: "Germany" },
+  MX: { city: "Mexico City", country: "Mexico" },
 };
 
 export const teamTimeZones: Record<string, "EST" | "CST" | "MST" | "PST"> = {

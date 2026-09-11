@@ -760,6 +760,23 @@ select {
 }
 .game-card-date { color: #64748b; }
 .game-card-time { margin-left: auto; font-weight: 600; color: #475569; }
+.game-card-intl-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 4px 10px 0;
+  padding: 3px 8px;
+  background: linear-gradient(135deg, #f59e0b22, #d9770622);
+  border: 1px solid #f59e0b66;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400e;
+  width: fit-content;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.game-card-intl { border-color: #f59e0b55; }
 .matchup-teams {
   display: flex;
   align-items: center;
@@ -5013,8 +5030,9 @@ select {
 .pickem-card.pickem-pass { border-color: #e2e8f0; }
 
 .pickem-matchup { display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 600; }
-.pk-team { color: #64748b; }
+.pk-team { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #64748b; min-width: 44px; }
 .pk-team.fav { color: #0f172a; font-weight: 800; }
+.pk-logo { width: 32px; height: 32px; object-fit: contain; }
 .pk-at { color: #94a3b8; font-size: 11px; }
 
 .pickem-lines { font-size: 11px; color: #64748b; font-family: monospace; }
@@ -5069,6 +5087,8 @@ select {
   :root:not([data-theme="light"]) .pickem-warps.warps-agree { background: #064e3b; border-color: #6ee7b7; }
   :root:not([data-theme="light"]) .pickem-warps.warps-fade { background: #451a03; border-color: #f0c37a; }
   :root:not([data-theme="light"]) .warps-fair { color: #cbd5e1; }
+  :root:not([data-theme="light"]) .game-card-intl-badge { background: linear-gradient(135deg, #78350f44, #92400e33); border-color: #f59e0b88; color: #fbbf24; }
+  :root:not([data-theme="light"]) .game-card-intl { border-color: #f59e0b44; }
 }
 :root[data-theme="dark"] .pickem-header h2 { color: #f1f5f9; }
 :root[data-theme="dark"] .pk-team.fav { color: #f1f5f9; }
@@ -5084,3 +5104,5 @@ select {
 :root[data-theme="dark"] .pickem-warps.warps-fade { background: #451a03; border-color: #f0c37a; }
 :root[data-theme="dark"] .warps-fair { color: #cbd5e1; }
 :root[data-theme="dark"] .pt-tla { color: #f1f5f9; }
+:root[data-theme="dark"] .game-card-intl-badge { background: linear-gradient(135deg, #78350f44, #92400e33); border-color: #f59e0b88; color: #fbbf24; }
+:root[data-theme="dark"] .game-card-intl { border-color: #f59e0b44; }
