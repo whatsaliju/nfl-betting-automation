@@ -1,4 +1,4 @@
-import { Activity, BarChart3, CalendarDays, ClipboardList, Crosshair, Flame, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy } from "lucide-react";
+import { Activity, BarChart3, CalendarDays, ClipboardList, Crosshair, Flame, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { BettingCardView } from "./components/BettingCardView";
 import { PickemView } from "./components/PickemView";
@@ -262,8 +262,9 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
           <button className={viewMode === "card" ? "active" : ""} onClick={() => setViewMode("card")} data-tooltip="This week's picks & confidence"><ClipboardList size={15} />Bet Card</button>
           <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")} data-tooltip="Games ranked by edge strength">{!hasEdges && <span className="tab-soon">Soon</span>}<Target size={15} />Edge Board</button>
           <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")} data-tooltip="Rest, travel & trap game alerts"><Crosshair size={15} />Scout</button>
-          <button className={viewMode === "survivor" ? "active" : ""} onClick={() => setViewMode("survivor")} data-tooltip="Survivor pool picks by win prob"><ShieldCheck size={15} />Survivor</button>
-          <button className={viewMode === "warps" ? "active" : ""} onClick={() => setViewMode("warps")} data-tooltip="Win probability rankings & model"><BarChart3 size={15} />WARPS</button>
+          <span className="view-tab-sep" aria-hidden="true" />
+          <button className={viewMode === "survivor" ? "active" : ""} onClick={() => setViewMode("survivor")} data-tooltip="Model's survivor pick suggestions by week"><ShieldCheck size={15} />Survivor</button>
+          <button className={viewMode === "pools" ? "active" : ""} onClick={() => setViewMode("pools")} data-tooltip="Your survivor pools — track picks across all weeks"><Users size={15} />My Pools</button>
           <span className="view-tab-sep" aria-hidden="true" />
           <button className={viewMode === "matrix" ? "active" : ""} onClick={() => setViewMode("matrix")} data-tooltip="Full season grid with engine ratings"><Grid3X3 size={15} />Matrix</button>
           <button className={viewMode === "week" ? "active" : ""} onClick={() => setViewMode("week")} data-tooltip="Weekly schedule & matchup view"><CalendarDays size={15} />Week</button>
@@ -404,7 +405,8 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
         <BarChart3 size={15} />
         NFL picks &amp; schedule analysis · data updates weekly during the season
         <span className="footer-links">
-          <button className="footer-link-btn" onClick={() => setViewMode("warps")}>WARPS model</button>
+          <button className="footer-link-btn" onClick={() => setViewMode("warps")}><BarChart3 size={12} />WARPS model</button>
+          <button className="footer-link-btn" onClick={() => setViewMode("pickem")}>Pick'em</button>
           {researchSummary && <button className="footer-link-btn" onClick={() => setViewMode("research")}>Research notes</button>}
         </span>
       </footer>
