@@ -1,4 +1,61 @@
-import { BarChart3, ExternalLink, FlaskConical, Trophy } from "lucide-react";
+import { Activity, CalendarDays, Crosshair, FlaskConical, ShieldCheck, Trophy } from "lucide-react";
+
+const TOOLS = [
+  {
+    icon: <Activity size={20} />,
+    goal: "What should I bet this week?",
+    title: "Weekly Picks",
+    desc: "Every Tuesday the model grades all 16 games. You get a ranked shortlist — bet, lean, or skip — with plain-English reasons and a confidence rating.",
+    link: "matrix.html#command",
+    cta: "See this week's picks",
+    accent: "blue",
+  },
+  {
+    icon: <Trophy size={20} />,
+    goal: "Who wins straight-up for my pool?",
+    title: "Pick'em",
+    desc: "Games sorted by win probability for the week. Tiebreaker guidance, time-slot grouping, and logos so you can scan and submit in under a minute.",
+    link: "matrix.html#pickem",
+    cta: "Go to Pick'em",
+    accent: "gold",
+  },
+  {
+    icon: <ShieldCheck size={20} />,
+    goal: "Which team do I pick for Survivor?",
+    title: "Survivor Pool",
+    desc: "The model recommends a pick each week and flags teams you've already used. See the safest path through the full season before you commit.",
+    link: "matrix.html#survivor",
+    cta: "Open Survivor",
+    accent: "green",
+  },
+  {
+    icon: <Crosshair size={20} />,
+    goal: "Which games have real value on the spread?",
+    title: "Edge Board",
+    desc: "All matchups ranked by edge strength across spread, total, and moneyline. Filter to plays only or browse the full slate with WARPS fair-value overlays.",
+    link: "matrix.html#edges",
+    cta: "See the Edge Board",
+    accent: "red",
+  },
+  {
+    icon: <CalendarDays size={20} />,
+    goal: "What does my team's schedule look like?",
+    title: "Schedule & Scout",
+    desc: "The full 18-week grid with rest advantages, back-to-back flags, trap game alerts, and travel context — the schedule angles Vegas already prices in.",
+    link: "matrix.html#scout",
+    cta: "View Schedule",
+    accent: "navy",
+  },
+  {
+    icon: <FlaskConical size={20} />,
+    goal: "Can I trust this model?",
+    title: "Track Record & Model",
+    desc: "26 seasons of NFL data. Win-probability model built on Pythagorean expectation (beats statistical baseline in 25 of 26 seasons). Season-by-season performance vs. Vegas.",
+    link: "warps.html",
+    cta: "See the data",
+    accent: "slate",
+  },
+];
 
 export default function LandingApp() {
   return (
@@ -6,7 +63,7 @@ export default function LandingApp() {
       <nav className="ls-nav">
         <span className="ls-logo">NFL Signal</span>
         <div className="ls-nav-links">
-          <a href="matrix.html">Edge Board</a>
+          <a href="matrix.html#command">Weekly Picks</a>
           <a href="matrix.html#pickem">Pick'em</a>
           <a href="matrix.html#survivor">Survivor</a>
           <a href="matrix.html" className="ls-nav-cta">Open the Board →</a>
@@ -14,11 +71,11 @@ export default function LandingApp() {
       </nav>
 
       <section className="ls-hero">
-        <p className="ls-eyebrow">2026 NFL Season · Now Live</p>
-        <h1 className="ls-headline">The edge your<br />picks are missing.</h1>
+        <p className="ls-eyebrow">2026 NFL Season · Week 1 Live</p>
+        <h1 className="ls-headline">Stop guessing.<br />Start picking.</h1>
         <p className="ls-sub">
-          Weekly spread, total, and moneyline analysis powered by 26 seasons of NFL data.
-          Model-backed picks, fair value analysis, survivor tools — all in one board.
+          Six tools that answer the six questions every NFL fan asks each week —
+          backed by 26 seasons of data and a model that beats Vegas year over year.
         </p>
         <div className="ls-hero-actions">
           <a href="matrix.html" className="ls-btn-primary">Open the Board</a>
@@ -41,44 +98,23 @@ export default function LandingApp() {
         </div>
       </div>
 
-      <section className="ls-features">
-        <div className="ls-feature-card">
-          <div className="ls-feature-icon"><BarChart3 size={18} /></div>
-          <h2 className="ls-feature-title">Weekly Edge Board</h2>
-          <p className="ls-feature-desc">
-            Every game rated across spread, total, and moneyline. Edge scores, referee lean,
-            schedule context, and WARPS fair-value overlays — updated each week.
-            Play / watch / pass with a reason why.
-          </p>
-          <a href="matrix.html" className="ls-feature-link">
-            Open the Board <ExternalLink size={12} />
-          </a>
+      <section className="ls-tools-section">
+        <div className="ls-tools-header">
+          <h2 className="ls-tools-title">Six questions. Six tools.</h2>
+          <p className="ls-tools-sub">Everything lives in one board — no tabs to hunt through.</p>
         </div>
-
-        <div className="ls-feature-card">
-          <div className="ls-feature-icon"><Trophy size={18} /></div>
-          <h2 className="ls-feature-title">Pick'em &amp; Survivor</h2>
-          <p className="ls-feature-desc">
-            Straight-up picks ranked by WARPS win probability and implied totals.
-            Survivor manager tracks multiple pools, surfaces already-used teams,
-            and maps optimal season paths.
-          </p>
-          <a href="matrix.html#pickem" className="ls-feature-link">
-            Open Pick'em <ExternalLink size={12} />
-          </a>
-        </div>
-
-        <div className="ls-feature-card">
-          <div className="ls-feature-icon"><FlaskConical size={18} /></div>
-          <h2 className="ls-feature-title">WARPS-NFL™</h2>
-          <p className="ls-feature-desc">
-            Preseason win-total model built on 26 seasons of NFL data. A 75%
-            Pythagorean + 25% point differential blend beats the statistical
-            baseline in 25 of 26 seasons (MAE 2.374, p &lt; 0.0001).
-          </p>
-          <a href="warps.html" className="ls-feature-link">
-            Open WARPS <ExternalLink size={12} />
-          </a>
+        <div className="ls-tools-grid">
+          {TOOLS.map((tool) => (
+            <a key={tool.title} href={tool.link} className={`ls-tool-card ls-tool-${tool.accent}`}>
+              <div className="ls-tool-top">
+                <div className="ls-tool-icon">{tool.icon}</div>
+                <span className="ls-tool-goal">{tool.goal}</span>
+              </div>
+              <h3 className="ls-tool-title">{tool.title}</h3>
+              <p className="ls-tool-desc">{tool.desc}</p>
+              <span className="ls-tool-cta">{tool.cta} →</span>
+            </a>
+          ))}
         </div>
       </section>
 

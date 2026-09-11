@@ -5040,6 +5040,12 @@ select {
 .pickem-card.pickem-lean { border-color: #93c5fd; background: #eff6ff; }
 .pickem-card.pickem-fade { border-color: #fca5a5; background: #fff5f5; }
 .pickem-card.pickem-pass { border-color: #e2e8f0; }
+.pickem-card.pickem-final { border-color: #cbd5e1; background: #f8fafc; opacity: 0.82; }
+.pk-final-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #64748b; background: #e2e8f0; border-radius: 4px; padding: 2px 7px; align-self: flex-start; }
+.pk-score { font-weight: 800; font-size: 15px; margin-left: 4px; color: #0f172a; }
+.pk-team.pk-winner .pk-score { color: #059669; }
+.pk-team.pk-loser { opacity: 0.55; }
+.pk-team.pk-loser .pk-score { color: #64748b; }
 
 .pickem-matchup { display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: 600; }
 .pk-team { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #64748b; min-width: 44px; }
@@ -5093,6 +5099,9 @@ select {
   :root:not([data-theme="light"]) .pk-team.fav { color: #f1f5f9; }
   :root:not([data-theme="light"]) .pk-su-team { color: #f1f5f9; }
   :root:not([data-theme="light"]) .pickem-card { background: #1e293b; border-color: #334155; }
+  :root:not([data-theme="light"]) .pickem-card.pickem-final { background: #0f172a; border-color: #1e293b; }
+  :root:not([data-theme="light"]) .pk-final-badge { background: #1e293b; color: #94a3b8; }
+  :root:not([data-theme="light"]) .pk-score { color: #f1f5f9; }
   :root:not([data-theme="light"]) .pickem-tb.most { background: #064e3b; border-color: #6ee7b7; }
   :root:not([data-theme="light"]) .pickem-tb.fewest { background: #450a0a; border-color: #fca5a5; }
   :root:not([data-theme="light"]) .pt-row { background: #1e293b; }
@@ -5110,6 +5119,9 @@ select {
 :root[data-theme="dark"] .pk-team.fav { color: #f1f5f9; }
 :root[data-theme="dark"] .pk-su-team { color: #f1f5f9; }
 :root[data-theme="dark"] .pickem-card { background: #1e293b; border-color: #334155; }
+:root[data-theme="dark"] .pickem-card.pickem-final { background: #0f172a; border-color: #1e293b; }
+:root[data-theme="dark"] .pk-final-badge { background: #1e293b; color: #94a3b8; }
+:root[data-theme="dark"] .pk-score { color: #f1f5f9; }
 :root[data-theme="dark"] .pickem-tb.most { background: #064e3b; border-color: #6ee7b7; }
 :root[data-theme="dark"] .pickem-tb.fewest { background: #450a0a; border-color: #fca5a5; }
 :root[data-theme="dark"] .pt-row { background: #1e293b; }
