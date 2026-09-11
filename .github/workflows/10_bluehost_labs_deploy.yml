@@ -89,6 +89,13 @@ jobs:
           fi
           ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
 
+      - name: Swap personal hub as root index for Bluehost
+        run: |
+          # Cloudflare Pages serves dist/index.html as NFL Signal landing.
+          # Bluehost serves dist/index.html as lijuvarughese.com root — use the
+          # personal hub page (liju.html) there instead.
+          cp dist/liju.html dist/index.html
+
       - name: Upload static site via SSH tar
         run: |
           test -n "$BLUEHOST_TARGET_VALUE"
