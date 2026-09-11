@@ -84,9 +84,9 @@ export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex
           const homeEngine = engineCells.get(`${homeTeam}:W${week}`);
           const edge = edgeIndex.get(`${awayTeam}@${homeTeam}`);
           const warpsOverlay = warpsMarketIndex.get(`${awayTeam}@${homeTeam}`);
-          const intlCode = internationalCode(homeTeam, week, game.opponent);
-          const flag = flagEmoji(intlCode);
-          const venue = intlCode ? intlVenue[intlCode] : null;
+          const venueId = internationalCode(homeTeam, week, game.opponent);
+          const venue = venueId ? intlVenue[venueId] : null;
+          const flag = venue ? flagEmoji(venue.countryCode) : null;
           const homeColor = teamColors[homeTeam] || "#003594";
           const awayColor = teamColors[awayTeam] || "#64748b";
           return (
@@ -100,7 +100,7 @@ export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex
               {venue && (
                 <div className="game-card-intl-badge">
                   <span>{flag}</span>
-                  <span>{venue.city}</span>
+                  <span>{venue.stadium}</span>
                 </div>
               )}
               <div className="matchup-teams">

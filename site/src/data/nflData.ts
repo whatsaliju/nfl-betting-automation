@@ -115,28 +115,30 @@ export const historicalVegasLines: Record<string, Record<string, number>> = {
 };
 
 // 2026 NFL International Schedule (official)
-// Each week lists [teamA, teamB, countryCode] — both orderings included so
+// Each week lists [teamA, teamB, countryCode, venueId] — both orderings included so
 // internationalCode() matches from either team's perspective.
-export const intlGames: Record<number, Array<[string, string, string]>> = {
-  1:  [["SF", "LAR", "AU"], ["LAR", "SF", "AU"]],    // Melbourne, Australia (Sept 10)
-  3:  [["BAL", "DAL", "BR"], ["DAL", "BAL", "BR"]],  // Rio de Janeiro, Brazil (Sept 27)
-  4:  [["IND", "WAS", "GB"], ["WAS", "IND", "GB"]],  // London - Tottenham (Oct 4)
-  5:  [["PHI", "JAX", "GB"], ["JAX", "PHI", "GB"]],  // London - Tottenham (Oct 11)
-  6:  [["HOU", "JAX", "GB"], ["JAX", "HOU", "GB"]],  // London - Wembley (Oct 18)
-  7:  [["PIT", "NO", "FR"], ["NO", "PIT", "FR"]],    // Paris, France (Oct 25)
-  9:  [["CIN", "ATL", "ES"], ["ATL", "CIN", "ES"]],  // Madrid, Spain (Nov 8)
-  10: [["NE", "DET", "DE"], ["DET", "NE", "DE"]],    // Munich, Germany (Nov 15)
-  11: [["MIN", "SF", "MX"], ["SF", "MIN", "MX"]],    // Mexico City, Mexico (Nov 22)
+// countryCode drives the flag emoji; venueId keys intlVenue for city/stadium.
+export const intlGames: Record<number, Array<[string, string, string, string]>> = {
+  1:  [["SF", "LAR", "AU", "MCG"], ["LAR", "SF", "AU", "MCG"]],
+  3:  [["BAL", "DAL", "BR", "RIO"], ["DAL", "BAL", "BR", "RIO"]],
+  4:  [["IND", "WAS", "GB", "TOT"], ["WAS", "IND", "GB", "TOT"]],
+  5:  [["PHI", "JAX", "GB", "TOT"], ["JAX", "PHI", "GB", "TOT"]],
+  6:  [["HOU", "JAX", "GB", "WEM"], ["JAX", "HOU", "GB", "WEM"]],
+  7:  [["PIT", "NO", "FR", "PAR"], ["NO", "PIT", "FR", "PAR"]],
+  9:  [["CIN", "ATL", "ES", "BER"], ["ATL", "CIN", "ES", "BER"]],
+  10: [["NE", "DET", "DE", "MUN"], ["DET", "NE", "DE", "MUN"]],
+  11: [["MIN", "SF", "MX", "CDM"], ["SF", "MIN", "MX", "CDM"]],
 };
 
-export const intlVenue: Record<string, { city: string; country: string }> = {
-  AU: { city: "Melbourne", country: "Australia" },
-  BR: { city: "Rio de Janeiro", country: "Brazil" },
-  GB: { city: "London", country: "U.K." },
-  FR: { city: "Paris", country: "France" },
-  ES: { city: "Madrid", country: "Spain" },
-  DE: { city: "Munich", country: "Germany" },
-  MX: { city: "Mexico City", country: "Mexico" },
+export const intlVenue: Record<string, { city: string; stadium: string; countryCode: string }> = {
+  MCG: { city: "Melbourne", stadium: "Melbourne Cricket Ground", countryCode: "AU" },
+  RIO: { city: "Rio de Janeiro", stadium: "Maracanã Stadium", countryCode: "BR" },
+  TOT: { city: "London", stadium: "Tottenham Hotspur Stadium", countryCode: "GB" },
+  WEM: { city: "London", stadium: "Wembley Stadium", countryCode: "GB" },
+  PAR: { city: "Paris", stadium: "Stade de France", countryCode: "FR" },
+  BER: { city: "Madrid", stadium: "Bernabéu Stadium", countryCode: "ES" },
+  MUN: { city: "Munich", stadium: "FC Bayern Munich Arena", countryCode: "DE" },
+  CDM: { city: "Mexico City", stadium: "Estadio Banorte", countryCode: "MX" },
 };
 
 export const teamTimeZones: Record<string, "EST" | "CST" | "MST" | "PST"> = {
