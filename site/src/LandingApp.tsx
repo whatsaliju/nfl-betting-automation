@@ -1,6 +1,15 @@
-import { Activity, CalendarDays, Crosshair, FlaskConical, ShieldCheck, Trophy } from "lucide-react";
+import { Activity, CalendarDays, Crosshair, FlaskConical, Grid3X3, ShieldCheck, Trophy } from "lucide-react";
 
 const TOOLS = [
+  {
+    icon: <Grid3X3 size={20} />,
+    goal: "See the full 2026 season at a glance",
+    title: "Season Matrix",
+    desc: "Every team, every week — engine ratings, win probabilities, and heatmap coloring across all 18 weeks in one grid.",
+    link: "matrix.html#matrix",
+    cta: "Open the Matrix",
+    accent: "navy",
+  },
   {
     icon: <Activity size={20} />,
     goal: "What should I bet this week?",
@@ -74,7 +83,7 @@ export default function LandingApp() {
         <p className="ls-eyebrow">2026 NFL Season · Week 1 Live</p>
         <h1 className="ls-headline">Stop guessing.<br />Start picking.</h1>
         <p className="ls-sub">
-          Six tools that answer the six questions every NFL fan asks each week —
+          Seven tools that answer the seven questions every NFL fan asks each week —
           backed by 26 seasons of data and a model that beats Vegas year over year.
         </p>
         <div className="ls-hero-actions">
@@ -100,7 +109,7 @@ export default function LandingApp() {
 
       <section className="ls-tools-section">
         <div className="ls-tools-header">
-          <h2 className="ls-tools-title">Six questions. Six tools.</h2>
+          <h2 className="ls-tools-title">Seven tools. One question each.</h2>
           <p className="ls-tools-sub">Everything lives in one board — no tabs to hunt through.</p>
         </div>
         <div className="ls-tools-grid">
