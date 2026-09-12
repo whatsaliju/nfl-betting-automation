@@ -17,6 +17,7 @@ export default defineConfig({
         main: "index.html",
         matrix: "matrix.html",
         warps: "warps.html",
+        liju: "liju.html",
       },
     },
   }
