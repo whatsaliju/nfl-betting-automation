@@ -1,3 +1,43 @@
+function Sparkline() {
+  return (
+    <svg
+      className="pv-sparkline"
+      width="340"
+      height="150"
+      viewBox="0 0 340 150"
+      fill="none"
+      aria-hidden="true"
+    >
+      {/* Smooth uptrend — quant/markets */}
+      <path
+        d="M0,120 C22,114 46,105 68,94 S106,77 132,66 S172,50 202,40 S252,26 302,16 S328,10 340,7"
+        stroke="#013369"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      {/* Jagged line — sports data */}
+      <path
+        d="M0,136 L32,122 L54,130 L86,108 L114,116 L144,90 L170,100 L200,76 L228,86 L260,62 L286,70 L320,48 L340,54"
+        stroke="#013369"
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Smooth probability curve */}
+      <path
+        d="M0,143 C72,140 122,120 182,110 S272,88 340,76"
+        stroke="#013369"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      {/* Inflection dots */}
+      <circle cx="132" cy="66" r="2.5" fill="#013369" />
+      <circle cx="302" cy="16" r="2.5" fill="#013369" />
+      <circle cx="200" cy="76" r="2" fill="#013369" />
+    </svg>
+  );
+}
+
 const PROJECTS = [
   {
     category: "Sports Analytics",
@@ -54,6 +94,7 @@ export default function PersonalApp() {
           <h1 className="pv-name">Liju Varughese</h1>
           <p className="pv-title">Quantitative research · Sports analytics · Financial markets</p>
         </div>
+        <Sparkline />
       </header>
 
       <main className="pv-main">
