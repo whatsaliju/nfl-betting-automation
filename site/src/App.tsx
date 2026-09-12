@@ -15,6 +15,7 @@ import { ResultsView } from "./components/ResultsView";
 import { ScoutView } from "./components/ScoutView";
 import { SurvivorView } from "./components/SurvivorView";
 import { PoolsView } from "./components/PoolsView";
+import { OverviewView } from "./components/OverviewView";
 import { TrackRecordView } from "./components/TrackRecordView";
 import { WARPSView } from "./components/WARPSView";
 import { TeamModal } from "./components/TeamModal";
@@ -24,13 +25,13 @@ import { historicalVegasLines } from "./data/nflData";
 import warpsMarketOverlay2026 from "./data/warpsMarketOverlay2026.json";
 import type { CurrentContext, EngineFeed, Filter, LineMoveAlert, TeamProfile, WarpsMarketOverlay, WeeklyBettingCard } from "./types";
 
-type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections" | "pickem" | "pools";
+type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections" | "pickem" | "pools" | "overview";
 
 function percent(value?: number) {
   return typeof value === "number" ? `${Math.round(value * 1000) / 10}%` : "n/a";
 }
 
-const VALID_VIEWS = new Set<AppViewMode>(["command", "track", "matrix", "edges", "card", "survivor", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections", "pickem", "pools"]);
+const VALID_VIEWS = new Set<AppViewMode>(["command", "track", "matrix", "edges", "card", "survivor", "expectations", "research", "week", "compare", "results", "warps", "audit", "scout", "projections", "pickem", "pools", "overview"]);
 
 function cardForContext(card?: WeeklyBettingCard, context?: CurrentContext): WeeklyBettingCard | undefined {
   if (!card || !context) return card;
@@ -49,7 +50,8 @@ function cardForContext(card?: WeeklyBettingCard, context?: CurrentContext): Wee
 
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
-  return VALID_VIEWS.has(h) ? h : "command";
+  if (!h) return "overview";
+  return VALID_VIEWS.has(h) ? h : "overview";
 }
 
 function urlToSeason() {
@@ -214,7 +216,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="brand-block brand-home-btn" onClick={() => setViewMode("command")} title="Back to command center">
+        <div className="brand-block brand-home-btn" onClick={() => setViewMode("overview")} title="Back to overview">
           <Grid3X3 size={26} />
           <div>
             <h1>NFL Signal</h1>
@@ -326,6 +328,8 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
           onFocusCard={(key) => { setFocusedCard(key); setViewMode("card"); }}
         />
       )}
+
+      {viewMode === "overview" && <OverviewView onNavigate={(v) => setViewMode(v as AppViewMode)} />}
 
       {viewMode === "track" && <TrackRecordView />}
 

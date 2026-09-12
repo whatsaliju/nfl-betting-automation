@@ -5134,3 +5134,168 @@ select {
 :root[data-theme="dark"] .pt-tla { color: #f1f5f9; }
 :root[data-theme="dark"] .game-card-intl-badge { background: linear-gradient(135deg, #78350f44, #92400e33); border-color: #f59e0b88; color: #fbbf24; }
 :root[data-theme="dark"] .game-card-intl { border-color: #f59e0b44; }
+
+/* ─── Overview Home State ─────────────────────────────── */
+.ov-root {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 40px 20px 64px;
+}
+
+.ov-header {
+  margin-bottom: 36px;
+}
+
+.ov-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #D50A0A;
+  margin-bottom: 8px;
+}
+
+.ov-title {
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 800;
+  color: #013369;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.ov-sub {
+  font-size: 14px;
+  color: #5a6a7e;
+}
+
+.ov-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 720px) { .ov-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .ov-grid { grid-template-columns: 1fr; } }
+
+.ov-card {
+  background: #ffffff;
+  border: 1px solid #dce5f0;
+  border-top: 3px solid #013369;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.18s, transform 0.13s;
+  box-shadow: 0 1px 3px rgba(12,30,60,0.05);
+  outline: none;
+}
+
+.ov-card:hover {
+  box-shadow: 0 4px 18px rgba(12,30,60,0.13);
+  transform: translateY(-2px);
+}
+
+.ov-card:focus-visible {
+  box-shadow: 0 0 0 2px #013369;
+}
+
+.ov-card.ov-red   { border-top-color: #D50A0A; }
+.ov-card.ov-gold  { border-top-color: #B45309; }
+.ov-card.ov-green { border-top-color: #059669; }
+.ov-card.ov-slate { border-top-color: #475569; }
+
+.ov-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ov-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  background: #f0f4fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #013369;
+}
+
+.ov-card.ov-red   .ov-icon { background: #fef2f2; color: #D50A0A; }
+.ov-card.ov-gold  .ov-icon { background: #fffbeb; color: #B45309; }
+.ov-card.ov-green .ov-icon { background: #ecfdf5; color: #059669; }
+.ov-card.ov-slate .ov-icon { background: #f1f5f9; color: #475569; }
+
+.ov-goal {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #5a6a7e;
+  line-height: 1.4;
+  padding-top: 2px;
+}
+
+.ov-name {
+  font-size: 17px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #013369;
+}
+
+.ov-card.ov-red   .ov-name { color: #D50A0A; }
+.ov-card.ov-gold  .ov-name { color: #92400E; }
+.ov-card.ov-green .ov-name { color: #059669; }
+.ov-card.ov-slate .ov-name { color: #334155; }
+
+.ov-desc {
+  font-size: 12.5px;
+  color: #5a6a7e;
+  line-height: 1.65;
+  flex: 1;
+}
+
+.ov-btn {
+  display: inline-block;
+  background: #013369;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 5px;
+  width: fit-content;
+  letter-spacing: 0.01em;
+}
+
+.ov-card.ov-red   .ov-btn { background: #D50A0A; }
+.ov-card.ov-gold  .ov-btn { background: #92400E; }
+.ov-card.ov-green .ov-btn { background: #059669; }
+.ov-card.ov-slate .ov-btn { background: #475569; }
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ov-title { color: #93c5fd; }
+  :root:not([data-theme="light"]) .ov-sub   { color: #8b949e; }
+  :root:not([data-theme="light"]) .ov-card  { background: #161b22; border-color: #21262d; }
+  :root:not([data-theme="light"]) .ov-icon  { background: #1f2937; }
+  :root:not([data-theme="light"]) .ov-goal  { color: #8b949e; }
+  :root:not([data-theme="light"]) .ov-name  { color: #93c5fd; }
+  :root:not([data-theme="light"]) .ov-card.ov-red   .ov-name { color: #fca5a5; }
+  :root:not([data-theme="light"]) .ov-card.ov-gold  .ov-name { color: #fcd34d; }
+  :root:not([data-theme="light"]) .ov-card.ov-green .ov-name { color: #34d399; }
+  :root:not([data-theme="light"]) .ov-card.ov-slate .ov-name { color: #94a3b8; }
+  :root:not([data-theme="light"]) .ov-desc  { color: #8b949e; }
+}
+:root[data-theme="dark"] .ov-title { color: #93c5fd; }
+:root[data-theme="dark"] .ov-sub   { color: #8b949e; }
+:root[data-theme="dark"] .ov-card  { background: #161b22; border-color: #21262d; }
+:root[data-theme="dark"] .ov-icon  { background: #1f2937; }
+:root[data-theme="dark"] .ov-goal  { color: #8b949e; }
+:root[data-theme="dark"] .ov-name  { color: #93c5fd; }
+:root[data-theme="dark"] .ov-card.ov-red   .ov-name { color: #fca5a5; }
+:root[data-theme="dark"] .ov-card.ov-gold  .ov-name { color: #fcd34d; }
+:root[data-theme="dark"] .ov-card.ov-green .ov-name { color: #34d399; }
+:root[data-theme="dark"] .ov-card.ov-slate .ov-name { color: #94a3b8; }
+:root[data-theme="dark"] .ov-desc  { color: #8b949e; }
