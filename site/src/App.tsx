@@ -1,5 +1,5 @@
-import { Activity, BarChart3, CalendarDays, ClipboardList, Crosshair, Flame, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy, Users } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Activity, BarChart3, CalendarDays, ChevronDown, ClipboardList, Crosshair, Flame, FlaskConical, Gauge, GitBranch, Grid3X3, Home, RotateCcw, ShieldCheck, Target, Trophy, Users } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BettingCardView } from "./components/BettingCardView";
 import { PickemView } from "./components/PickemView";
 import { buildScoutGames } from "./components/ScoutView";
@@ -75,6 +75,18 @@ function App() {
   const [showResults, setShowResults] = useState(false);
   const [focusedEdgeGame, setFocusedEdgeGame] = useState<string | null>(null);
   const [focusedCard, setFocusedCard] = useState<string | null>(null);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
+        setShowMoreMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -259,24 +271,32 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
             </button>
           ))}
         </div>
-        <div className="segmented view-tabs">
-          <button className={viewMode === "command" ? "active" : ""} onClick={() => setViewMode("command")} data-tooltip="Weekly picks & decision hub"><Activity size={15} />Command</button>
-          <button className={viewMode === "card" ? "active" : ""} onClick={() => setViewMode("card")} data-tooltip="This week's picks & confidence"><ClipboardList size={15} />Bet Card</button>
-          <button className={viewMode === "edges" ? "active" : ""} onClick={() => setViewMode("edges")} data-tooltip="Games ranked by edge strength">{!hasEdges && <span className="tab-soon">Soon</span>}<Target size={15} />Edge Board</button>
-          <button className={viewMode === "scout" ? "active" : ""} onClick={() => setViewMode("scout")} data-tooltip="Rest, travel & trap game alerts"><Crosshair size={15} />Scout</button>
-          <span className="view-tab-sep" aria-hidden="true" />
-          <button className={viewMode === "survivor" ? "active" : ""} onClick={() => setViewMode("survivor")} data-tooltip="Model's survivor pick suggestions by week"><ShieldCheck size={15} />Survivor</button>
-          <button className={viewMode === "pools" ? "active" : ""} onClick={() => setViewMode("pools")} data-tooltip="Your survivor pools — track picks across all weeks"><Users size={15} />My Pools</button>
-          <span className="view-tab-sep" aria-hidden="true" />
-          <button className={viewMode === "matrix" ? "active" : ""} onClick={() => setViewMode("matrix")} data-tooltip="Full season grid with engine ratings"><Grid3X3 size={15} />Matrix</button>
-          <button className={viewMode === "week" ? "active" : ""} onClick={() => setViewMode("week")} data-tooltip="Weekly schedule & matchup view"><CalendarDays size={15} />Week</button>
-          <button className={viewMode === "compare" ? "active" : ""} onClick={() => setViewMode("compare")} data-tooltip="Compare two teams head-to-head"><GitBranch size={15} />Compare</button>
-          <button className={viewMode === "results" ? "active" : ""} onClick={() => setViewMode("results")} data-tooltip="Final scores & betting outcomes"><Trophy size={15} />Results</button>
-          <button className={["projections", "audit", "expectations"].includes(viewMode) ? "active" : ""} onClick={() => setViewMode("projections")} data-tooltip="Win-total pace vs Vegas lines">{!hasProjections && <span className="tab-soon">Soon</span>}<Gauge size={15} />Projections</button>
-          <span className="view-tab-sep" aria-hidden="true" />
-          <button className={viewMode === "track" ? "active" : ""} onClick={() => setViewMode("track")} data-tooltip="Historical accuracy vs Vegas lines"><ClipboardList size={15} />Track Record</button>
-          <button className={viewMode === "research" ? "active" : ""} onClick={() => setViewMode("research")} data-tooltip="Factor leaderboard & model research"><FlaskConical size={15} />Research</button>
-        </div>
+        <nav className="view-nav">
+          <button className={viewMode === "matrix" ? "vn-tab active" : "vn-tab"} onClick={() => setViewMode("matrix")}><Grid3X3 size={15} />Season Matrix</button>
+          <button className={viewMode === "command" ? "vn-tab active" : "vn-tab"} onClick={() => setViewMode("command")}><Activity size={15} />Weekly Picks</button>
+          <button className={viewMode === "edges" ? "vn-tab active" : "vn-tab"} onClick={() => setViewMode("edges")}>{!hasEdges && <span className="tab-soon">Soon</span>}<Target size={15} />Edge Board</button>
+          <button className={viewMode === "pickem" ? "vn-tab active" : "vn-tab"} onClick={() => setViewMode("pickem")}><Trophy size={15} />Pick'em</button>
+          <button className={viewMode === "survivor" ? "vn-tab active" : "vn-tab"} onClick={() => setViewMode("survivor")}><ShieldCheck size={15} />Survivor</button>
+          <button className={viewMode === "scout" ? "vn-tab active" : "vn-tab"} onClick={() => setViewMode("scout")}><Crosshair size={15} />Schedule & Scout</button>
+          <button className={viewMode === "track" ? "vn-tab active" : "vn-tab"} onClick={() => setViewMode("track")}><BarChart3 size={15} />Track Record</button>
+          <div className="vn-more-wrap" ref={moreMenuRef}>
+            <button
+              className={["card","pools","week","compare","results","projections","audit","expectations","research","warps"].includes(viewMode) ? "vn-tab vn-more-btn active" : "vn-tab vn-more-btn"}
+              onClick={() => setShowMoreMenu((v) => !v)}
+            >More <ChevronDown size={13} /></button>
+            {showMoreMenu && (
+              <div className="vn-dropdown">
+                <button className={viewMode === "card" ? "vn-drop-item active" : "vn-drop-item"} onClick={() => { setViewMode("card"); setShowMoreMenu(false); }}><ClipboardList size={14} />Bet Card</button>
+                <button className={viewMode === "pools" ? "vn-drop-item active" : "vn-drop-item"} onClick={() => { setViewMode("pools"); setShowMoreMenu(false); }}><Users size={14} />My Pools</button>
+                <button className={viewMode === "week" ? "vn-drop-item active" : "vn-drop-item"} onClick={() => { setViewMode("week"); setShowMoreMenu(false); }}><CalendarDays size={14} />Week View</button>
+                <button className={viewMode === "compare" ? "vn-drop-item active" : "vn-drop-item"} onClick={() => { setViewMode("compare"); setShowMoreMenu(false); }}><GitBranch size={14} />Compare</button>
+                <button className={viewMode === "results" ? "vn-drop-item active" : "vn-drop-item"} onClick={() => { setViewMode("results"); setShowMoreMenu(false); }}><Trophy size={14} />Results</button>
+                <button className={["projections","audit","expectations"].includes(viewMode) ? "vn-drop-item active" : "vn-drop-item"} onClick={() => { setViewMode("projections"); setShowMoreMenu(false); }}>{!hasProjections && <span className="tab-soon">Soon</span>}<Gauge size={14} />Projections</button>
+                <button className={viewMode === "research" ? "vn-drop-item active" : "vn-drop-item"} onClick={() => { setViewMode("research"); setShowMoreMenu(false); }}><FlaskConical size={14} />Research</button>
+              </div>
+            )}
+          </div>
+        </nav>
         <label className="toggle" data-tooltip="Color Matrix by edge score">
           <input type="checkbox" checked={showHeatmap} onChange={(event) => setShowHeatmap(event.target.checked)} />
           <Flame size={14} /> Heatmap
