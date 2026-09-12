@@ -14,9 +14,9 @@ export default function WARPSApp() {
           </div>
         </div>
         <div className="warps-header-kpis">
-          <a className="warps-home-link" href="https://lijuvarughese.com/">
+          <a className="warps-home-link" href="https://nflsignal.com/">
             <Home size={14} />
-            Main Page
+            NFL Signal
           </a>
           <div className="warps-header-kpi">
             <strong>{bootstrapStats.warpsMaeFull.toFixed(3)}</strong>
