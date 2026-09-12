@@ -5136,35 +5136,136 @@ select {
 :root[data-theme="dark"] .game-card-intl { border-color: #f59e0b44; }
 
 /* ─── Overview Home State ─────────────────────────────── */
+/* ── Overview root ── */
 .ov-root {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 40px 20px 64px;
+  padding: 0;
 }
 
-.ov-header {
-  margin-bottom: 36px;
+/* ── Hero ── */
+.ov-hero {
+  background: #013369;
+  padding: 56px 20px 52px;
+}
+
+.ov-hero-inner {
+  max-width: 960px;
+  margin: 0 auto;
 }
 
 .ov-eyebrow {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #D50A0A;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 
 .ov-title {
-  font-size: clamp(22px, 4vw, 32px);
+  font-size: clamp(30px, 5vw, 48px);
   font-weight: 800;
-  color: #013369;
-  letter-spacing: -0.01em;
-  margin-bottom: 6px;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-bottom: 16px;
+  text-wrap: balance;
 }
 
 .ov-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+  max-width: 520px;
+  margin-bottom: 28px;
+}
+
+.ov-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ov-cta-primary {
+  background: #D50A0A;
+  color: #fff;
   font-size: 14px;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+  letter-spacing: 0.01em;
+}
+.ov-cta-primary:hover { background: #b30808; transform: translateY(-1px); }
+
+.ov-cta-ghost {
+  background: transparent;
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.28);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.ov-cta-ghost:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
+
+/* ── Stats strip ── */
+.ov-stats {
+  display: flex;
+  border-bottom: 1px solid #dce5f0;
+}
+
+.ov-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px;
+  border-right: 1px solid #dce5f0;
+}
+.ov-stat:last-child { border-right: none; }
+
+.ov-stat-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: #013369;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ov-stat-label {
+  font-size: 11.5px;
+  color: #5a6a7e;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ── Tools section ── */
+.ov-tools-section {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 40px 20px 64px;
+}
+
+.ov-tools-header {
+  margin-bottom: 24px;
+}
+
+.ov-tools-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #013369;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+
+.ov-tools-sub {
+  font-size: 13.5px;
   color: #5a6a7e;
 }
 
@@ -5274,28 +5375,45 @@ select {
 .ov-card.ov-green .ov-btn { background: #059669; }
 .ov-card.ov-slate .ov-btn { background: #475569; }
 
-/* Dark mode */
+/* Dark mode — overview */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .ov-title { color: #93c5fd; }
-  :root:not([data-theme="light"]) .ov-sub   { color: #8b949e; }
-  :root:not([data-theme="light"]) .ov-card  { background: #161b22; border-color: #21262d; }
-  :root:not([data-theme="light"]) .ov-icon  { background: #1f2937; }
-  :root:not([data-theme="light"]) .ov-goal  { color: #8b949e; }
-  :root:not([data-theme="light"]) .ov-name  { color: #93c5fd; }
+  :root:not([data-theme="light"]) .ov-stats       { background: #0d1117; border-color: #21262d; }
+  :root:not([data-theme="light"]) .ov-stat        { border-color: #21262d; }
+  :root:not([data-theme="light"]) .ov-stat-num    { color: #93c5fd; }
+  :root:not([data-theme="light"]) .ov-stat-label  { color: #8b949e; }
+  :root:not([data-theme="light"]) .ov-tools-title { color: #93c5fd; }
+  :root:not([data-theme="light"]) .ov-tools-sub   { color: #8b949e; }
+  :root:not([data-theme="light"]) .ov-card        { background: #161b22; border-color: #21262d; }
+  :root:not([data-theme="light"]) .ov-icon        { background: #1f2937; }
+  :root:not([data-theme="light"]) .ov-goal        { color: #8b949e; }
+  :root:not([data-theme="light"]) .ov-name        { color: #93c5fd; }
   :root:not([data-theme="light"]) .ov-card.ov-red   .ov-name { color: #fca5a5; }
   :root:not([data-theme="light"]) .ov-card.ov-gold  .ov-name { color: #fcd34d; }
   :root:not([data-theme="light"]) .ov-card.ov-green .ov-name { color: #34d399; }
   :root:not([data-theme="light"]) .ov-card.ov-slate .ov-name { color: #94a3b8; }
-  :root:not([data-theme="light"]) .ov-desc  { color: #8b949e; }
+  :root:not([data-theme="light"]) .ov-desc        { color: #8b949e; }
 }
-:root[data-theme="dark"] .ov-title { color: #93c5fd; }
-:root[data-theme="dark"] .ov-sub   { color: #8b949e; }
-:root[data-theme="dark"] .ov-card  { background: #161b22; border-color: #21262d; }
-:root[data-theme="dark"] .ov-icon  { background: #1f2937; }
-:root[data-theme="dark"] .ov-goal  { color: #8b949e; }
-:root[data-theme="dark"] .ov-name  { color: #93c5fd; }
+:root[data-theme="dark"] .ov-stats       { background: #0d1117; border-color: #21262d; }
+:root[data-theme="dark"] .ov-stat        { border-color: #21262d; }
+:root[data-theme="dark"] .ov-stat-num    { color: #93c5fd; }
+:root[data-theme="dark"] .ov-stat-label  { color: #8b949e; }
+:root[data-theme="dark"] .ov-tools-title { color: #93c5fd; }
+:root[data-theme="dark"] .ov-tools-sub   { color: #8b949e; }
+:root[data-theme="dark"] .ov-card        { background: #161b22; border-color: #21262d; }
+:root[data-theme="dark"] .ov-icon        { background: #1f2937; }
+:root[data-theme="dark"] .ov-goal        { color: #8b949e; }
+:root[data-theme="dark"] .ov-name        { color: #93c5fd; }
 :root[data-theme="dark"] .ov-card.ov-red   .ov-name { color: #fca5a5; }
 :root[data-theme="dark"] .ov-card.ov-gold  .ov-name { color: #fcd34d; }
 :root[data-theme="dark"] .ov-card.ov-green .ov-name { color: #34d399; }
 :root[data-theme="dark"] .ov-card.ov-slate .ov-name { color: #94a3b8; }
-:root[data-theme="dark"] .ov-desc  { color: #8b949e; }
+:root[data-theme="dark"] .ov-desc        { color: #8b949e; }
+
+/* Mobile — overview */
+@media (max-width: 720px) {
+  .ov-hero { padding: 40px 20px 36px; }
+  .ov-stats { flex-direction: column; }
+  .ov-stat { border-right: none; border-bottom: 1px solid #dce5f0; padding: 18px 20px; flex-direction: row; justify-content: space-between; align-items: center; }
+  .ov-stat:last-child { border-bottom: none; }
+  .ov-stat-label { text-align: right; }
+}
