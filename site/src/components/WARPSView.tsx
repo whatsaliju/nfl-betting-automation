@@ -1800,13 +1800,13 @@ function PaperTab() {
         are clearly labeled. All data and code are open source.
       </ExplainerBanner>
       <div className="paper-meta">
-        <strong>Liju Varughese</strong> · Independent Research · June 2026 ·{" "}
+        <strong>NFL Signal Research</strong> · Independent Research · June 2026 ·{" "}
         <a href="https://github.com/whatsaliju/nfl-betting-automation" target="_blank" rel="noreferrer">
-          github.com/whatsaliju/nfl-betting-automation
+          View source
         </a>
       </div>
       <div className="paper-rights">
-        <span>© 2026 Liju Varughese.</span>
+        <span>© 2026 NFL Signal Research.</span>
         {" "}
         <span>
           Licensed under{" "}
@@ -1818,8 +1818,8 @@ function PaperTab() {
         {" "}
         <span>
           <strong>"WARPS"</strong> and <strong>"Win Average Regression Predictive Score"</strong> are
-          original terminology by Liju Varughese. Commercial use of the WARPS name requires written permission.{" "}
-          <a href="mailto:lvarughese@gmail.com" style={{ color: "#1d4ed8" }}>Contact for licensing inquiries.</a>
+          original terminology by NFL Signal Research. Commercial use of the WARPS name requires written permission.{" "}
+          <a href="https://nflsignal.com" style={{ color: "#1d4ed8" }}>Contact for licensing inquiries.</a>
         </span>
       </div>
 
@@ -3180,7 +3180,7 @@ export function WARPSView({ hashNav = false }: { hashNav?: boolean }) {
       <p className="warps-citation">
         <FileText size={12} />{" "}
         <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6926058" target="_blank" rel="noopener noreferrer">
-          Varughese (2026) — SSRN 6926058
+          NFL Signal Research (2026) — SSRN 6926058
         </a>
         {" · "}
         <a href="https://github.com/whatsaliju/nfl-betting-automation" target="_blank" rel="noopener noreferrer">

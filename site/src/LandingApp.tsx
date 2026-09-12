@@ -128,7 +128,10 @@ export default function LandingApp() {
       </section>
 
       <footer className="ls-footer">
-        © 2026 NFL Signal
+        <div>© 2026 NFL Signal Research</div>
+        <div className="ls-disclaimer">
+          For entertainment purposes only. Not financial advice. Sports betting involves financial risk — only bet what you can afford to lose. Must be 21+ and in a jurisdiction where sports betting is legal.
+        </div>
       </footer>
     </div>
   );

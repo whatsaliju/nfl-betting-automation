@@ -236,9 +236,9 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
           </div>
         </div>
         <div className="status-row">
-          <a className="site-home-link" href="https://lijuvarughese.com/">
+          <a className="site-home-link" href="https://nflsignal.com/">
             <Home size={14} />
-            Main Page
+            Home
           </a>
           <span className={engineError ? "status-pill warning" : "status-pill ok"}>
             <ShieldCheck size={14} />
@@ -434,6 +434,9 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
           {researchSummary && <button className="footer-link-btn" onClick={() => setViewMode("research")}>Research notes</button>}
         </span>
       </footer>
+      <div className="disclaimer-strip">
+        For entertainment purposes only. Not financial advice. Sports betting involves financial risk — only bet what you can afford to lose. Must be 21+ and in a jurisdiction where sports betting is legal. © 2026 NFL Signal Research.
+      </div>
 
       {modalTeam && <TeamModal team={modalTeam} engineCells={engineCells} expectation={teamExpectations[modalTeam.name]} metricLabel={metricMeta.label} onClose={() => setModalTeam(null)} />}
     </div>
