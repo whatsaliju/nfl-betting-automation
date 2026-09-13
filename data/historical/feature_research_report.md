@@ -23,7 +23,7 @@
 - no_pick: 45 games
 
 ### market_expectation_pick_alignment
-- aligned: 1 games
+- conflict: 1 games
 - no_pick: 45 games
 
 ### overperformance_pick_alignment

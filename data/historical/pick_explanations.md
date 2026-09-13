@@ -5,16 +5,16 @@
 | WPRE1 DEN@ATL | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 GB@PIT | play | play | spread | HOME | standard | Selector isolated spread HOME; Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE3 SEA@KC | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| W1 ATL@PIT | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp; WARPS fair-line prior conflicts toward AWAY; WARPS moneyline overlay: AWAY +3.6% EV; Promoted factors matched: 3 |
+| W1 DEN@KC | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp; WARPS fair-line prior agrees with the spread side (+0.7 pts); WARPS moneyline overlay: AWAY -1.5% EV; Promoted factors matched: 3 |
 | WPRE3 ATL@MIA | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 KC@TB | pass | pass |  |  | none | No isolated selector edge |
 | WPRE3 CHI@TEN | pass | pass |  |  | none | No isolated selector edge |
-| W1 BAL@IND | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +37.4% EV; Promoted factors matched: 1 |
+| W1 ATL@PIT | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +30.5% EV; Promoted factors matched: 2 |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | Promoted factors matched: 1 |
-| W1 CHI@CAR | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +19.6% EV; Promoted factors matched: 1 |
-| W1 DEN@KC | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +0.3% EV; Promoted factors matched: 3 |
-| W1 GB@MIN | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +2.9% EV |
+| W1 BAL@IND | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +37.4% EV; Promoted factors matched: 1 |
+| W1 CHI@CAR | pass | pass |  |  | none | WARPS moneyline overlay: HOME +21.6% EV |
+| W1 GB@MIN | pass | pass |  |  | none | WARPS moneyline overlay: HOME +0.1% EV |
 | W10 ARI@SEA | lean | watch |  |  | watch | Signals: injury; Promoted factors matched: 3; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W10 BUF@MIA | lean | watch |  |  | watch | Signals: injury; Promoted factors matched: 2; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 NYJ@PIT | pass | pass |  |  | none | Promoted factors matched: 1 |
@@ -58,15 +58,15 @@
 | WPRE3 TB@JAX | pass | pass |  |  | none | Promoted factors matched: 2 |
 | WPRE3 WAS@BAL | pass | pass |  |  | none | Promoted factors matched: 2 |
 | W1 ARI@LAC | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +80.6% EV; Promoted factors matched: 2 |
-| W1 BUF@HOU | pass | pass |  |  | none | WARPS moneyline overlay: HOME +16.2% EV; Promoted factors matched: 1 |
+| W1 BUF@HOU | pass | pass |  |  | none | WARPS moneyline overlay: HOME +15.1% EV; Promoted factors matched: 1 |
 | W1 CLE@JAX | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +39.9% EV; Promoted factors matched: 1 |
 | W1 DAL@NYG | pass | pass |  |  | none | WARPS moneyline overlay: HOME +35.9% EV |
 | W1 MIA@LV | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +20.3% EV; Promoted factors matched: 2 |
 | W1 NE@SEA | pass | pass |  |  | none | Promoted factors matched: 2 |
-| W1 NO@DET | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +17.6% EV; Promoted factors matched: 1 |
-| W1 NYJ@TEN | pass | pass |  |  | none | WARPS moneyline overlay: HOME +7.6% EV; Promoted factors matched: 2 |
-| W1 SF@LAR | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +1.2% EV; Promoted factors matched: 5 |
-| W1 TB@CIN | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +24.3% EV; Promoted factors matched: 2 |
+| W1 NO@DET | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +24.3% EV; Promoted factors matched: 1 |
+| W1 NYJ@TEN | pass | pass |  |  | none | WARPS moneyline overlay: HOME +8.8% EV; Promoted factors matched: 2 |
+| W1 SF@LAR | pass | pass |  |  | none | Promoted factors matched: 5 |
+| W1 TB@CIN | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +27.1% EV; Promoted factors matched: 2 |
 | W1 WSH@PHI | pass | pass |  |  | none | Promoted factors matched: 1 |
 | W10 ATL@IND | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W10 BAL@MIN | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |

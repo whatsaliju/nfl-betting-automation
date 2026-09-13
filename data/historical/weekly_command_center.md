@@ -16,16 +16,15 @@
 
 ## Betting Card
 
-- Plays: 2
+- Plays: 1
 - Watch: 2
-- Passes: 12
+- Passes: 13
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | ATL@PIT | play | spread | HOME | 3.0 |
-| DEN@KC | play | n/a | n/a | 1.0 |
-| CHI@CAR | watch | n/a | n/a | 3.0 |
-| NO@DET | watch | n/a | n/a | 3.0 |
+| CHI@CAR | watch | n/a | n/a | 2.0 |
+| DEN@KC | watch | n/a | n/a | 2.0 |
 
 ## Survivor
 
