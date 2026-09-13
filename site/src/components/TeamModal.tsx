@@ -10,13 +10,14 @@ interface Props {
   expectation?: TeamExpectation;
   metricLabel: string;
   onClose: () => void;
+  onNavigateToGame?: (matchupKey: string) => void;
 }
 
 function format(value?: number | null) {
   return typeof value === "number" ? value.toFixed(1) : "n/a";
 }
 
-export function TeamModal({ team, engineCells, expectation, metricLabel, onClose }: Props) {
+export function TeamModal({ team, engineCells, expectation, metricLabel, onClose, onNavigateToGame }: Props) {
   const homeGames = team.weeks.filter((game) => game.opponent && game.opponent !== "BYE" && !game.opponent.startsWith("@")).length;
   const awayGames = team.weeks.filter((game) => game.opponent.startsWith("@")).length;
 
@@ -53,13 +54,25 @@ export function TeamModal({ team, engineCells, expectation, metricLabel, onClose
               const engine = engineCells.get(`${team.name}:W${game.week}`);
               const opponent = cleanOpponent(game.opponent);
               const flag = flagEmoji(internationalCode(team.name, game.week, game.opponent));
+              const isBye = game.opponent === "BYE";
+              const matchupKey = isBye ? null : game.opponent.startsWith("@")
+                ? `${team.name}@${opponent}`
+                : `${opponent}@${team.name}`;
+              const canNavigate = !isBye && !!onNavigateToGame && !!matchupKey;
               return (
-                <div className="modal-game" key={game.week}>
+                <div
+                  className={`modal-game${canNavigate ? " modal-game-clickable" : ""}`}
+                  key={game.week}
+                  onClick={canNavigate ? () => { onNavigateToGame!(matchupKey!); onClose(); } : undefined}
+                  role={canNavigate ? "button" : undefined}
+                  tabIndex={canNavigate ? 0 : undefined}
+                  onKeyDown={canNavigate ? (e) => e.key === "Enter" && (onNavigateToGame!(matchupKey!), onClose()) : undefined}
+                >
                   <div className="modal-game-top">
                     <strong>W{game.week}</strong>
                     <span>{game.opponent}</span>
                   </div>
-                  {game.opponent !== "BYE" && (
+                  {!isBye && (
                     <div className="mini-flags">
                       {game.dayOfWeek !== "Sun" && <span>{game.dayOfWeek}</span>}
                       {game.daysRest !== null && game.daysRest !== 7 && <span>{game.daysRest}d</span>}
@@ -69,6 +82,7 @@ export function TeamModal({ team, engineCells, expectation, metricLabel, onClose
                     </div>
                   )}
                   <EngineBadge cell={engine} />
+                  {canNavigate && <span className="modal-game-cta">View matchup →</span>}
                 </div>
               );
             })}

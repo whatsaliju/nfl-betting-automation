@@ -438,7 +438,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
         For entertainment purposes only. Not financial advice. Sports betting involves financial risk — only bet what you can afford to lose. Must be 21+ and in a jurisdiction where sports betting is legal. © 2026 NFL Signal Research.
       </div>
 
-      {modalTeam && <TeamModal team={modalTeam} engineCells={engineCells} expectation={teamExpectations[modalTeam.name]} metricLabel={metricMeta.label} onClose={() => setModalTeam(null)} />}
+      {modalTeam && <TeamModal team={modalTeam} engineCells={engineCells} expectation={teamExpectations[modalTeam.name]} metricLabel={metricMeta.label} onClose={() => setModalTeam(null)} onNavigateToGame={(key) => { setFocusedEdgeGame(key); setViewMode("edges"); setModalTeam(null); }} />}
     </div>
   );
 }
