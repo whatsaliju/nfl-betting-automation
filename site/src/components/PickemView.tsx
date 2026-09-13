@@ -201,14 +201,20 @@ export function PickemView({
       return (DAY_ORDER[a.gameDay] ?? 9) - (DAY_ORDER[b.gameDay] ?? 9);
     });
 
-  // Tiebreakers — exclude completed games (no live lines)
-  const teamImplied: { tla: string; implied: number; gameKey: string; role: "fav" | "dog" }[] = [];
+  // Tiebreakers — actual scores for completed games, implied totals for upcoming
+  const teamImplied: { tla: string; implied: number; gameKey: string; role: "fav" | "dog"; isActual: boolean }[] = [];
   for (const g of games) {
-    if (g.isCompleted) continue;
-    if (g.awayImplied !== null)
-      teamImplied.push({ tla: g.awayTla, implied: g.awayImplied, gameKey: g.matchupKey, role: g.favTla === g.awayTla ? "fav" : "dog" });
-    if (g.homeImplied !== null)
-      teamImplied.push({ tla: g.homeTla, implied: g.homeImplied, gameKey: g.matchupKey, role: g.favTla === g.homeTla ? "fav" : "dog" });
+    if (g.isCompleted) {
+      if (g.awayScore !== null)
+        teamImplied.push({ tla: g.awayTla, implied: g.awayScore, gameKey: g.matchupKey, role: g.favTla === g.awayTla ? "fav" : "dog", isActual: true });
+      if (g.homeScore !== null)
+        teamImplied.push({ tla: g.homeTla, implied: g.homeScore, gameKey: g.matchupKey, role: g.favTla === g.homeTla ? "fav" : "dog", isActual: true });
+    } else {
+      if (g.awayImplied !== null)
+        teamImplied.push({ tla: g.awayTla, implied: g.awayImplied, gameKey: g.matchupKey, role: g.favTla === g.awayTla ? "fav" : "dog", isActual: false });
+      if (g.homeImplied !== null)
+        teamImplied.push({ tla: g.homeTla, implied: g.homeImplied, gameKey: g.matchupKey, role: g.favTla === g.homeTla ? "fav" : "dog", isActual: false });
+    }
   }
   const sorted = [...teamImplied].sort((a, b) => b.implied - a.implied);
   const mostPoints = sorted[0] ?? null;
@@ -253,7 +259,7 @@ export function PickemView({
             {mostPoints?.tla && <img src={teamLogos[mostPoints.tla]} alt={mostPoints.tla} className="tb-logo" />}
             <strong className="tb-team">{mostPoints?.tla ?? "—"}</strong>
           </div>
-          <span className="tb-implied">{mostPoints ? `${mostPoints.implied.toFixed(1)} pts implied` : ""}</span>
+          <span className="tb-implied">{mostPoints ? `${mostPoints.isActual ? Math.round(mostPoints.implied) : mostPoints.implied.toFixed(1)} pts ${mostPoints.isActual ? "scored" : "implied"}` : ""}</span>
           <span className="tb-matchup">{mostPoints?.gameKey ?? ""}</span>
         </div>
         <div className="pickem-tb fewest">
@@ -262,7 +268,7 @@ export function PickemView({
             {fewestPoints?.tla && <img src={teamLogos[fewestPoints.tla]} alt={fewestPoints.tla} className="tb-logo" />}
             <strong className="tb-team">{fewestPoints?.tla ?? "—"}</strong>
           </div>
-          <span className="tb-implied">{fewestPoints ? `${fewestPoints.implied.toFixed(1)} pts implied` : ""}</span>
+          <span className="tb-implied">{fewestPoints ? `${fewestPoints.isActual ? Math.round(fewestPoints.implied) : fewestPoints.implied.toFixed(1)} pts ${fewestPoints.isActual ? "scored" : "implied"}` : ""}</span>
           <span className="tb-matchup">{fewestPoints?.gameKey ?? ""}</span>
         </div>
       </div>
@@ -361,15 +367,15 @@ export function PickemView({
       ))}
 
       <div className="pickem-totals-section">
-        <h3>All Implied Totals (tiebreaker reference)</h3>
+        <h3>All Team Totals (tiebreaker reference)</h3>
         <div className="pickem-totals-table">
           {sorted.map((row, i) => (
             <div key={row.tla} className={`pt-row ${i === 0 ? "pt-most" : i === sorted.length - 1 ? "pt-fewest" : ""}`}>
               <span className="pt-rank">{i + 1}</span>
               <span className="pt-tla">{row.tla}</span>
-              <span className="pt-implied">{row.implied.toFixed(1)}</span>
+              <span className="pt-implied">{row.isActual ? Math.round(row.implied) : row.implied.toFixed(1)}</span>
               <span className="pt-matchup">{row.gameKey}</span>
-              <span className="pt-role">{row.role === "fav" ? "fav" : "dog"}</span>
+              <span className="pt-role">{row.isActual ? "final" : row.role === "fav" ? "fav" : "dog"}</span>
             </div>
           ))}
         </div>
