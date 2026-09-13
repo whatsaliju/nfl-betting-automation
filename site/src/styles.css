@@ -1921,6 +1921,31 @@ select {
   margin-bottom: 6px;
 }
 
+.modal-game-clickable {
+  cursor: pointer;
+  transition: background 0.13s, border-color 0.13s;
+}
+.modal-game-clickable:hover {
+  background: #f0f4fa;
+  border-color: #b8cce0;
+}
+.modal-game-clickable:focus-visible {
+  outline: 2px solid #013369;
+  outline-offset: 1px;
+}
+
+.modal-game-cta {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #013369;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  transition: opacity 0.12s;
+  margin-top: 2px;
+  display: block;
+}
+.modal-game-clickable:hover .modal-game-cta { opacity: 1; }
+
 .survivor-panel .panel-toolbar { align-items: flex-start; }
 .survivor-controls {
   display: grid;
