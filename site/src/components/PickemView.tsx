@@ -87,7 +87,14 @@ function parseGame(
   warps: WarpsMarketOverlay | undefined,
   kickoffTime: string | undefined
 ): PickemGame {
-  const isCompleted = g.away_score != null && g.home_score != null;
+  const hasScores = g.away_score != null && g.home_score != null;
+  const kickoffMs = kickoffTime ? new Date(kickoffTime).getTime() : 0;
+  // Treat as completed only if scores are real (non-zero) or kickoff was 4+ hours ago
+  const isCompleted = hasScores && (
+    (g.away_score ?? 0) > 0 ||
+    (g.home_score ?? 0) > 0 ||
+    (kickoffMs > 0 && Date.now() > kickoffMs + 4 * 3600 * 1000)
+  );
   const lat = g.latest as Record<string, string | null>;
   const spreadLine = lat.sharp_spread_line ?? "";
   const totalLine = lat.sharp_total_line ?? "";
@@ -201,14 +208,20 @@ export function PickemView({
       return (DAY_ORDER[a.gameDay] ?? 9) - (DAY_ORDER[b.gameDay] ?? 9);
     });
 
-  // Tiebreakers — exclude completed games (no live lines)
-  const teamImplied: { tla: string; implied: number; gameKey: string; role: "fav" | "dog" }[] = [];
+  // Tiebreakers — actual scores for completed games, implied totals for upcoming
+  const teamImplied: { tla: string; implied: number; gameKey: string; role: "fav" | "dog"; isActual: boolean }[] = [];
   for (const g of games) {
-    if (g.isCompleted) continue;
-    if (g.awayImplied !== null)
-      teamImplied.push({ tla: g.awayTla, implied: g.awayImplied, gameKey: g.matchupKey, role: g.favTla === g.awayTla ? "fav" : "dog" });
-    if (g.homeImplied !== null)
-      teamImplied.push({ tla: g.homeTla, implied: g.homeImplied, gameKey: g.matchupKey, role: g.favTla === g.homeTla ? "fav" : "dog" });
+    if (g.isCompleted) {
+      if (g.awayScore !== null)
+        teamImplied.push({ tla: g.awayTla, implied: g.awayScore, gameKey: g.matchupKey, role: g.favTla === g.awayTla ? "fav" : "dog", isActual: true });
+      if (g.homeScore !== null)
+        teamImplied.push({ tla: g.homeTla, implied: g.homeScore, gameKey: g.matchupKey, role: g.favTla === g.homeTla ? "fav" : "dog", isActual: true });
+    } else {
+      if (g.awayImplied !== null)
+        teamImplied.push({ tla: g.awayTla, implied: g.awayImplied, gameKey: g.matchupKey, role: g.favTla === g.awayTla ? "fav" : "dog", isActual: false });
+      if (g.homeImplied !== null)
+        teamImplied.push({ tla: g.homeTla, implied: g.homeImplied, gameKey: g.matchupKey, role: g.favTla === g.homeTla ? "fav" : "dog", isActual: false });
+    }
   }
   const sorted = [...teamImplied].sort((a, b) => b.implied - a.implied);
   const mostPoints = sorted[0] ?? null;
@@ -253,7 +266,7 @@ export function PickemView({
             {mostPoints?.tla && <img src={teamLogos[mostPoints.tla]} alt={mostPoints.tla} className="tb-logo" />}
             <strong className="tb-team">{mostPoints?.tla ?? "—"}</strong>
           </div>
-          <span className="tb-implied">{mostPoints ? `${mostPoints.implied.toFixed(1)} pts implied` : ""}</span>
+          <span className="tb-implied">{mostPoints ? `${mostPoints.isActual ? Math.round(mostPoints.implied) : mostPoints.implied.toFixed(1)} pts ${mostPoints.isActual ? "scored" : "implied"}` : ""}</span>
           <span className="tb-matchup">{mostPoints?.gameKey ?? ""}</span>
         </div>
         <div className="pickem-tb fewest">
@@ -262,7 +275,7 @@ export function PickemView({
             {fewestPoints?.tla && <img src={teamLogos[fewestPoints.tla]} alt={fewestPoints.tla} className="tb-logo" />}
             <strong className="tb-team">{fewestPoints?.tla ?? "—"}</strong>
           </div>
-          <span className="tb-implied">{fewestPoints ? `${fewestPoints.implied.toFixed(1)} pts implied` : ""}</span>
+          <span className="tb-implied">{fewestPoints ? `${fewestPoints.isActual ? Math.round(fewestPoints.implied) : fewestPoints.implied.toFixed(1)} pts ${fewestPoints.isActual ? "scored" : "implied"}` : ""}</span>
           <span className="tb-matchup">{fewestPoints?.gameKey ?? ""}</span>
         </div>
       </div>
@@ -307,50 +320,49 @@ export function PickemView({
                     </div>
                   </div>
 
-                  {!g.isCompleted && (
-                    <>
-                      <div className="pickem-lines">
-                        {g.awaySpread !== null && (
-                          <span className="pk-line">{g.awayTla} {signed(g.awaySpread)} · O/U {g.ou?.toFixed(1) ?? "—"}</span>
+                  {/* Always show pre-game picks — dimmed after final so you can compare model vs result */}
+                  <div className={g.isCompleted ? "pk-pregame-frozen" : undefined}>
+                    <div className="pickem-lines">
+                      {g.awaySpread !== null && (
+                        <span className="pk-line">{g.awayTla} {signed(g.awaySpread)} · O/U {g.ou?.toFixed(1) ?? "—"}</span>
+                      )}
+                    </div>
+
+                    <div className="pickem-su">
+                      <span className="pk-su-label">SU pick</span>
+                      <div className="pk-su-pick">
+                        {g.favTla && <img src={teamLogos[g.favTla]} alt={g.favTla} className="pk-su-logo" />}
+                        <strong className="pk-su-team">{g.favTla ?? "Pick'em"}</strong>
+                        {warpsFavWinPct !== null && (
+                          <span className="pk-win-prob">{warpsFavWinPct}%</span>
                         )}
                       </div>
+                    </div>
 
-                      <div className="pickem-su">
-                        <span className="pk-su-label">SU pick</span>
-                        <div className="pk-su-pick">
-                          {g.favTla && <img src={teamLogos[g.favTla]} alt={g.favTla} className="pk-su-logo" />}
-                          <strong className="pk-su-team">{g.favTla ?? "Pick'em"}</strong>
-                          {warpsFavWinPct !== null && (
-                            <span className="pk-win-prob">{warpsFavWinPct}%</span>
-                          )}
-                        </div>
+                    {g.warpsFairHomeSpread !== null && (
+                      <div className={`pickem-warps ${warpsAgreesWithFav ? "warps-agree" : "warps-fade"}`}>
+                        <span className="warps-label">WARPS</span>
+                        <span className="warps-fair">fair {g.favTla === g.homeTla ? signed(-g.warpsFairHomeSpread) : signed(g.warpsFairHomeSpread)} {g.favTla}</span>
+                        {g.warpsOverlayEdge !== null && (
+                          <span className="warps-edge">{warpsAgreesWithFav ? "▲" : "▼"} {g.warpsOverlayEdge.toFixed(1)}pt edge</span>
+                        )}
                       </div>
+                    )}
 
-                      {g.warpsFairHomeSpread !== null && (
-                        <div className={`pickem-warps ${warpsAgreesWithFav ? "warps-agree" : "warps-fade"}`}>
-                          <span className="warps-label">WARPS</span>
-                          <span className="warps-fair">fair {g.favTla === g.homeTla ? signed(-g.warpsFairHomeSpread) : signed(g.warpsFairHomeSpread)} {g.favTla}</span>
-                          {g.warpsOverlayEdge !== null && (
-                            <span className="warps-edge">{warpsAgreesWithFav ? "▲" : "▼"} {g.warpsOverlayEdge.toFixed(1)}pt edge</span>
-                          )}
-                        </div>
-                      )}
-
-                      {myPick && (
-                        <div className={`pickem-model ${modelFadesVegas ? "model-fade" : "model-agree"}`}>
-                          {modelFadesVegas ? `Model fades → ${myPick}` : `Model: ${myPick} ✓`}
-                          {g.modelPickMarket && g.modelPickMarket !== "none" && (
-                            <span className="pk-market"> ({g.modelPickMarket})</span>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="pickem-implied">
-                        {g.awayImplied !== null && <span>{g.awayTla}: {g.awayImplied.toFixed(1)}</span>}
-                        {g.homeImplied !== null && <span>{g.homeTla}: {g.homeImplied.toFixed(1)}</span>}
+                    {myPick && (
+                      <div className={`pickem-model ${modelFadesVegas ? "model-fade" : "model-agree"}`}>
+                        {modelFadesVegas ? `Model fades → ${myPick}` : `Model: ${myPick} ✓`}
+                        {g.modelPickMarket && g.modelPickMarket !== "none" && (
+                          <span className="pk-market"> ({g.modelPickMarket})</span>
+                        )}
                       </div>
-                    </>
-                  )}
+                    )}
+
+                    <div className="pickem-implied">
+                      {g.awayImplied !== null && <span>{g.awayTla}: {g.awayImplied.toFixed(1)}</span>}
+                      {g.homeImplied !== null && <span>{g.homeTla}: {g.homeImplied.toFixed(1)}</span>}
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -361,15 +373,15 @@ export function PickemView({
       ))}
 
       <div className="pickem-totals-section">
-        <h3>All Implied Totals (tiebreaker reference)</h3>
+        <h3>All Team Totals (tiebreaker reference)</h3>
         <div className="pickem-totals-table">
           {sorted.map((row, i) => (
             <div key={row.tla} className={`pt-row ${i === 0 ? "pt-most" : i === sorted.length - 1 ? "pt-fewest" : ""}`}>
               <span className="pt-rank">{i + 1}</span>
               <span className="pt-tla">{row.tla}</span>
-              <span className="pt-implied">{row.implied.toFixed(1)}</span>
+              <span className="pt-implied">{row.isActual ? Math.round(row.implied) : row.implied.toFixed(1)}</span>
               <span className="pt-matchup">{row.gameKey}</span>
-              <span className="pt-role">{row.role === "fav" ? "fav" : "dog"}</span>
+              <span className="pt-role">{row.isActual ? "final" : row.role === "fav" ? "fav" : "dog"}</span>
             </div>
           ))}
         </div>
