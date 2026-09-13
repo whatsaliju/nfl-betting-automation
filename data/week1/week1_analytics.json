@@ -1,46 +1,38 @@
 [
   {
-    "matchup": "Denver Broncos @ Kansas City Chiefs",
-    "matchup_key": "DEN@KC",
-    "away": "Denver Broncos",
-    "home": "Kansas City Chiefs",
-    "away_tla": "DEN",
-    "home_tla": "KC",
-    "game_time": "Mon 9/14, 8:15 PM ET",
-    "classification": "\ud83d\udcca LEAN",
-    "classification_label": "SLIGHT EDGE",
+    "matchup": "Atlanta Falcons @ Pittsburgh Steelers",
+    "matchup_key": "ATL@PIT",
+    "away": "Atlanta Falcons",
+    "home": "Pittsburgh Steelers",
+    "away_tla": "ATL",
+    "home_tla": "PIT",
+    "game_time": "END 2ND",
+    "classification": "\u26a0\ufe0f PASS",
+    "classification_label": "PASS",
     "signal_classification": "\ud83c\udfaf TARGETED PLAY",
     "signal_classification_label": "SOLID EDGE",
     "signal_tier_score": 10,
-    "recommendation": "\ud83d\udc40 LEAN: Denver Broncos +2.5 (proceed with caution)",
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "pick_metadata": {
-      "market": "spread",
-      "side": "AWAY",
-      "score": 2,
-      "reasons": [
-        "sharp spread edge"
-      ],
-      "spread_score": 2,
-      "total_score": -2,
+      "market": "none",
+      "reason": "no market cleared threshold",
+      "spread_score": 3,
+      "total_score": -1,
       "trace": {
         "selector_version": "2026.1",
         "market_candidates": {
           "spread": {
             "market": "spread",
-            "side": "AWAY",
-            "score": 2,
-            "threshold": 1.5,
+            "side": "HOME",
+            "score": 3,
+            "threshold": 3.5,
             "threshold_adjustments": [
               {
-                "reason": "near-consensus AWAY (0.7pt WARPS edge), early REG wk 1-6 \u2014 63.3% ATS historically",
-                "delta": -1.0
-              },
-              {
-                "reason": "slight home favorite (-2.5) AWAY fade, early REG wk 1-6 \u2014 66.4% ATS historically",
-                "delta": -0.5
+                "reason": "market ML implies 75% win prob for pick side: overconfidence zone",
+                "delta": 0.5
               }
             ],
-            "cleared_threshold": true,
+            "cleared_threshold": false,
             "requires_sharp_edge": true,
             "has_sharp_edge": true,
             "blocked": false,
@@ -48,9 +40,9 @@
             "signals": [
               {
                 "source": "sharp",
-                "side": "AWAY",
-                "score": 2,
-                "impact": 2,
+                "side": "HOME",
+                "score": -3,
+                "impact": 3,
                 "status": "aligned"
               }
             ],
@@ -62,12 +54,20 @@
           "total": {
             "market": "total",
             "side": "UNDER",
-            "score": -2,
+            "score": -1,
             "threshold": 4,
             "cleared_threshold": false,
             "blocked": false,
             "blockers": [],
-            "signals": [],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "UNDER",
+                "score": -1,
+                "impact": 1,
+                "status": "aligned"
+              }
+            ],
             "conflicts": [
               {
                 "source": "ref_weather_context",
@@ -81,15 +81,15 @@
               }
             ],
             "reasons": [
+              "sharp total edge",
               "ref/weather total context conflicts"
             ]
           }
         },
         "final_decision": {
-          "market": "spread",
-          "side": "AWAY",
-          "score": 2,
-          "reason": "spread candidate cleared threshold and ranked highest"
+          "market": "none",
+          "side": null,
+          "reason": "no market cleared threshold"
         },
         "source_policy": {
           "status": "OK",
@@ -104,20 +104,16 @@
       "market_candidates": {
         "spread": {
           "market": "spread",
-          "side": "AWAY",
-          "score": 2,
-          "threshold": 1.5,
+          "side": "HOME",
+          "score": 3,
+          "threshold": 3.5,
           "threshold_adjustments": [
             {
-              "reason": "near-consensus AWAY (0.7pt WARPS edge), early REG wk 1-6 \u2014 63.3% ATS historically",
-              "delta": -1.0
-            },
-            {
-              "reason": "slight home favorite (-2.5) AWAY fade, early REG wk 1-6 \u2014 66.4% ATS historically",
-              "delta": -0.5
+              "reason": "market ML implies 75% win prob for pick side: overconfidence zone",
+              "delta": 0.5
             }
           ],
-          "cleared_threshold": true,
+          "cleared_threshold": false,
           "requires_sharp_edge": true,
           "has_sharp_edge": true,
           "blocked": false,
@@ -125,9 +121,9 @@
           "signals": [
             {
               "source": "sharp",
-              "side": "AWAY",
-              "score": 2,
-              "impact": 2,
+              "side": "HOME",
+              "score": -3,
+              "impact": 3,
               "status": "aligned"
             }
           ],
@@ -139,12 +135,20 @@
         "total": {
           "market": "total",
           "side": "UNDER",
-          "score": -2,
+          "score": -1,
           "threshold": 4,
           "cleared_threshold": false,
           "blocked": false,
           "blockers": [],
-          "signals": [],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "UNDER",
+              "score": -1,
+              "impact": 1,
+              "status": "aligned"
+            }
+          ],
           "conflicts": [
             {
               "source": "ref_weather_context",
@@ -158,15 +162,15 @@
             }
           ],
           "reasons": [
+            "sharp total edge",
             "ref/weather total context conflicts"
           ]
         }
       },
       "final_decision": {
-        "market": "spread",
-        "side": "AWAY",
-        "score": 2,
-        "reason": "spread candidate cleared threshold and ranked highest"
+        "market": "none",
+        "side": null,
+        "reason": "no market cleared threshold"
       },
       "source_policy": {
         "status": "OK",
@@ -176,53 +180,51 @@
       }
     },
     "model_version": "2026.1",
-    "tier_score": 5,
-    "total_score": 10.3,
-    "confidence": 10.3,
+    "tier_score": 3,
+    "total_score": 9.5,
+    "confidence": 9.5,
     "sharp_analysis": {
       "spread": {
-        "differential": 11.0,
-        "score": 2,
-        "direction": "AWAY",
-        "bets_pct": 72.0,
-        "money_pct": 83.0,
-        "line": "+2.5 (-103) | -2.5 (+100)",
-        "description": "AWAY (+11.0% edge)"
-      },
-      "total": {
-        "differential": -1.0,
-        "score": 0,
-        "direction": "UNDER",
-        "bets_pct": 21.0,
-        "money_pct": 20.0,
-        "line": "o43.5 (-104) | u43.5 (+100)",
-        "description": "UNDER (-1.0% edge)"
-      },
-      "moneyline": {
-        "differential": -32.0,
+        "differential": -22.0,
         "score": -3,
         "direction": "HOME",
         "bets_pct": 37.0,
-        "money_pct": 5.0,
-        "line": "+122 | -127",
-        "description": "HOME (-32.0% edge)"
+        "money_pct": 15.0,
+        "line": "+7.5 (-113) | -7.5 (+108)",
+        "description": "HOME (-22.0% edge)"
+      },
+      "total": {
+        "differential": -5.0,
+        "score": -1,
+        "direction": "UNDER",
+        "bets_pct": 24.0,
+        "money_pct": 19.0,
+        "line": "o39.5 (+104) | u40.5 (-108)",
+        "description": "UNDER (-5.0% edge)"
+      },
+      "moneyline": {
+        "differential": -1.0,
+        "score": 0,
+        "direction": "HOME",
+        "bets_pct": 9.0,
+        "money_pct": 8.0,
+        "line": "+376 | -295",
+        "description": "HOME (-1.0% edge)"
       }
     },
     "weather_analysis": {
-      "score": 1,
-      "factors": [
-        "Hot weather (88\u00b0F)"
-      ],
-      "description": "Hot weather (88\u00b0F)"
+      "score": 0,
+      "factors": [],
+      "description": "Good conditions"
     },
     "referee_analysis": {
-      "ats_pct": 27.6,
-      "ou_pct": 69.0,
-      "ats_score": -2,
+      "ats_pct": 44.7,
+      "ou_pct": 61.5,
+      "ats_score": 0,
       "ou_score": 2,
       "ats_tendency": "DOG-FRIENDLY",
       "ou_tendency": "OVER TENDENCY",
-      "referee": "Clay Martin",
+      "referee": "Brad Rogers",
       "factors": []
     },
     "injury_analysis": {
@@ -241,20 +243,19 @@
       "description": "No significant situational factors"
     },
     "statistical_analysis": {
-      "score": 3,
+      "score": 2,
       "factors": [
-        "Strong statistical edge to Denver Broncos (5.0 pts)"
+        "Strong statistical edge to Atlanta Falcons (3.4 pts)"
       ],
-      "description": "Strong statistical edge to Denver Broncos (5.0 pts)"
+      "description": "Strong statistical edge to Atlanta Falcons (3.4 pts)"
     },
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market inefficiency detected (+11.0% sharp edge)",
-        "STEAM MOVE: Sharps heavily against public",
-        "High contrarian value (fade the public)"
+        "Market inefficiency detected (-22.0% sharp edge)",
+        "Potential steam move developing"
       ],
-      "description": "Market inefficiency detected (+11.0% sharp edge), STEAM MOVE: Sharps heavily against public, High contrarian value (fade the public)"
+      "description": "Market inefficiency detected (-22.0% sharp edge), Potential steam move developing"
     },
     "schedule_analysis": {
       "score": 0,
@@ -264,8 +265,9 @@
       "description": "Week W1 not found. Available: []..."
     },
     "sharp_stories": [
-      "\u26a0\ufe0f DIVERGENCE: Sharps on away team but UNDER - expect low-scoring road win",
-      "\ud83d\udea8 TRAP ALERT: Public hammering home, sharps quietly on away"
+      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on home team across markets",
+      "\u26a0\ufe0f DIVERGENCE: Sharps on home team but UNDER - expect defensive grind",
+      "\u26a0\ufe0f SHARP CONFLICT: -22.0% sharp money on HOME team"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -335,13 +337,13 @@
     }
   },
   {
-    "matchup": "Atlanta Falcons @ Pittsburgh Steelers",
-    "matchup_key": "ATL@PIT",
-    "away": "Atlanta Falcons",
-    "home": "Pittsburgh Steelers",
-    "away_tla": "ATL",
-    "home_tla": "PIT",
-    "game_time": "1:00 PM ET",
+    "matchup": "Denver Broncos @ Kansas City Chiefs",
+    "matchup_key": "DEN@KC",
+    "away": "Denver Broncos",
+    "home": "Kansas City Chiefs",
+    "away_tla": "DEN",
+    "home_tla": "KC",
+    "game_time": "Mon 9/14, 8:15 PM ET",
     "classification": "\u26a0\ufe0f PASS",
     "classification_label": "PASS",
     "signal_classification": "\ud83c\udfaf TARGETED PLAY",
@@ -351,20 +353,24 @@
     "pick_metadata": {
       "market": "none",
       "reason": "no market cleared threshold",
-      "spread_score": 3,
-      "total_score": -2,
+      "spread_score": 1,
+      "total_score": 2,
       "trace": {
         "selector_version": "2026.1",
         "market_candidates": {
           "spread": {
             "market": "spread",
-            "side": "HOME",
-            "score": 3,
-            "threshold": 3.5,
+            "side": "AWAY",
+            "score": 1,
+            "threshold": 1.5,
             "threshold_adjustments": [
               {
-                "reason": "market ML implies 73% win prob for pick side: overconfidence zone",
-                "delta": 0.5
+                "reason": "near-consensus AWAY (0.7pt WARPS edge), early REG wk 1-6 \u2014 63.3% ATS historically",
+                "delta": -1.0
+              },
+              {
+                "reason": "slight home favorite (-2.5) AWAY fade, early REG wk 1-6 \u2014 66.4% ATS historically",
+                "delta": -0.5
               }
             ],
             "cleared_threshold": false,
@@ -375,9 +381,9 @@
             "signals": [
               {
                 "source": "sharp",
-                "side": "HOME",
-                "score": -3,
-                "impact": 3,
+                "side": "AWAY",
+                "score": 1,
+                "impact": 1,
                 "status": "aligned"
               }
             ],
@@ -388,27 +394,343 @@
           },
           "total": {
             "market": "total",
-            "side": "UNDER",
-            "score": -2,
+            "side": "OVER",
+            "score": 2,
             "threshold": 4,
             "cleared_threshold": false,
             "blocked": false,
             "blockers": [],
-            "signals": [],
-            "conflicts": [
+            "signals": [
               {
                 "source": "ref_weather_context",
                 "side": "OVER",
                 "score": 2,
-                "impact": -2,
-                "status": "conflict",
+                "impact": 2,
+                "status": "aligned",
                 "reasons": [
                   "referee over trend"
                 ]
               }
             ],
+            "conflicts": [],
             "reasons": [
-              "ref/weather total context conflicts"
+              "referee over trend"
+            ]
+          }
+        },
+        "final_decision": {
+          "market": "none",
+          "side": null,
+          "reason": "no market cleared threshold"
+        },
+        "source_policy": {
+          "status": "OK",
+          "blocked": false,
+          "unsafe_sources": [],
+          "critical_warnings": []
+        }
+      }
+    },
+    "recommendation_trace": {
+      "selector_version": "2026.1",
+      "market_candidates": {
+        "spread": {
+          "market": "spread",
+          "side": "AWAY",
+          "score": 1,
+          "threshold": 1.5,
+          "threshold_adjustments": [
+            {
+              "reason": "near-consensus AWAY (0.7pt WARPS edge), early REG wk 1-6 \u2014 63.3% ATS historically",
+              "delta": -1.0
+            },
+            {
+              "reason": "slight home favorite (-2.5) AWAY fade, early REG wk 1-6 \u2014 66.4% ATS historically",
+              "delta": -0.5
+            }
+          ],
+          "cleared_threshold": false,
+          "requires_sharp_edge": true,
+          "has_sharp_edge": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "AWAY",
+              "score": 1,
+              "impact": 1,
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge"
+          ]
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 2,
+          "threshold": 4,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "source": "ref_weather_context",
+              "side": "OVER",
+              "score": 2,
+              "impact": 2,
+              "status": "aligned",
+              "reasons": [
+                "referee over trend"
+              ]
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "referee over trend"
+          ]
+        }
+      },
+      "final_decision": {
+        "market": "none",
+        "side": null,
+        "reason": "no market cleared threshold"
+      },
+      "source_policy": {
+        "status": "OK",
+        "blocked": false,
+        "unsafe_sources": [],
+        "critical_warnings": []
+      }
+    },
+    "model_version": "2026.1",
+    "tier_score": 3,
+    "total_score": 8.8,
+    "confidence": 8.8,
+    "sharp_analysis": {
+      "spread": {
+        "differential": 9.0,
+        "score": 1,
+        "direction": "AWAY",
+        "bets_pct": 73.0,
+        "money_pct": 82.0,
+        "line": "+2.5 (-103) | -2.5 (+100)",
+        "description": "AWAY (+9.0% edge)"
+      },
+      "total": {
+        "differential": 2.0,
+        "score": 0,
+        "direction": "OVER",
+        "bets_pct": 20.0,
+        "money_pct": 22.0,
+        "line": "o43.5 (+100) | u43.5 (-104)",
+        "description": "OVER (+2.0% edge)"
+      },
+      "moneyline": {
+        "differential": -32.0,
+        "score": -3,
+        "direction": "HOME",
+        "bets_pct": 37.0,
+        "money_pct": 5.0,
+        "line": "+122 | -127",
+        "description": "HOME (-32.0% edge)"
+      }
+    },
+    "weather_analysis": {
+      "score": 1,
+      "factors": [
+        "Hot weather (87\u00b0F)"
+      ],
+      "description": "Hot weather (87\u00b0F)"
+    },
+    "referee_analysis": {
+      "ats_pct": 27.6,
+      "ou_pct": 69.0,
+      "ats_score": -2,
+      "ou_score": 2,
+      "ats_tendency": "DOG-FRIENDLY",
+      "ou_tendency": "OVER TENDENCY",
+      "referee": "Clay Martin",
+      "factors": []
+    },
+    "injury_analysis": {
+      "away_injuries": [],
+      "home_injuries": [],
+      "away_impact": 0,
+      "home_impact": 0,
+      "score": 0,
+      "edge": "NO EDGE",
+      "description": "Found 0 high-impact injuries",
+      "factors": []
+    },
+    "situational_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "No significant situational factors"
+    },
+    "statistical_analysis": {
+      "score": 3,
+      "factors": [
+        "Strong statistical edge to Denver Broncos (5.0 pts)"
+      ],
+      "description": "Strong statistical edge to Denver Broncos (5.0 pts)"
+    },
+    "game_theory_analysis": {
+      "score": 0,
+      "factors": [
+        "Market mispricing possible (+9.0% edge)",
+        "STEAM MOVE: Sharps heavily against public",
+        "High contrarian value (fade the public)"
+      ],
+      "description": "Market mispricing possible (+9.0% edge), STEAM MOVE: Sharps heavily against public, High contrarian value (fade the public)"
+    },
+    "schedule_analysis": {
+      "score": 0,
+      "factors": [
+        "Week W1 not found. Available: []..."
+      ],
+      "description": "Week W1 not found. Available: []..."
+    },
+    "sharp_stories": [
+      "\ud83d\udcc8 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing"
+    ],
+    "season_type": "REG",
+    "data_quality": {
+      "status": "OK",
+      "target_date": "",
+      "sources": {
+        "queries": {
+          "name": "queries",
+          "path": "data/week1/week1_queries.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "file_week": 1
+        },
+        "referee_trends": {
+          "name": "referee_trends",
+          "path": "data/historical/sdql_results.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": []
+        },
+        "action_markets": {
+          "name": "action_markets",
+          "path": "data/action_all_markets_2026-09-13_.csv",
+          "rows": 48,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-09-13",
+          "fetched_date": "2026-09-13"
+        },
+        "action_injuries": {
+          "name": "action_injuries",
+          "path": "data/action_injuries_2026-09-13_.csv",
+          "rows": 13,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-09-13"
+        },
+        "action_weather": {
+          "name": "action_weather",
+          "path": "data/action_weather_2026-09-13_.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-09-13"
+        },
+        "rotowire": {
+          "name": "rotowire",
+          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
+          "rows": 4,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-01-18",
+          "fetched_date": "2026-01-18"
+        }
+      },
+      "warnings": [],
+      "critical_warnings": [],
+      "degraded_sources": [],
+      "unsafe_sources": []
+    }
+  },
+  {
+    "matchup": "Buffalo Bills @ Houston Texans",
+    "matchup_key": "BUF@HOU",
+    "away": "Buffalo Bills",
+    "home": "Houston Texans",
+    "away_tla": "BUF",
+    "home_tla": "HOU",
+    "game_time": "3RD 13:19",
+    "classification": "\u26a0\ufe0f PASS",
+    "classification_label": "PASS",
+    "signal_classification": "\ud83d\udcca LEAN",
+    "signal_classification_label": "SLIGHT EDGE",
+    "signal_tier_score": 5,
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+    "pick_metadata": {
+      "market": "none",
+      "reason": "no market cleared threshold",
+      "spread_score": 1,
+      "total_score": 3,
+      "trace": {
+        "selector_version": "2026.1",
+        "market_candidates": {
+          "spread": {
+            "market": "spread",
+            "side": "HOME",
+            "score": 1,
+            "threshold": 4,
+            "threshold_adjustments": [],
+            "cleared_threshold": false,
+            "requires_sharp_edge": true,
+            "has_sharp_edge": true,
+            "blocked": false,
+            "blockers": [],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "HOME",
+                "score": -1,
+                "impact": 1,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "sharp spread edge"
+            ]
+          },
+          "total": {
+            "market": "total",
+            "side": "OVER",
+            "score": 3,
+            "threshold": 4,
+            "cleared_threshold": false,
+            "blocked": false,
+            "blockers": [],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "OVER",
+                "score": 3,
+                "impact": 3,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "sharp total edge"
             ]
           }
         },
@@ -431,14 +753,9 @@
         "spread": {
           "market": "spread",
           "side": "HOME",
-          "score": 3,
-          "threshold": 3.5,
-          "threshold_adjustments": [
-            {
-              "reason": "market ML implies 73% win prob for pick side: overconfidence zone",
-              "delta": 0.5
-            }
-          ],
+          "score": 1,
+          "threshold": 4,
+          "threshold_adjustments": [],
           "cleared_threshold": false,
           "requires_sharp_edge": true,
           "has_sharp_edge": true,
@@ -448,8 +765,8 @@
             {
               "source": "sharp",
               "side": "HOME",
-              "score": -3,
-              "impact": 3,
+              "score": -1,
+              "impact": 1,
               "status": "aligned"
             }
           ],
@@ -460,27 +777,24 @@
         },
         "total": {
           "market": "total",
-          "side": "UNDER",
-          "score": -2,
+          "side": "OVER",
+          "score": 3,
           "threshold": 4,
           "cleared_threshold": false,
           "blocked": false,
           "blockers": [],
-          "signals": [],
-          "conflicts": [
+          "signals": [
             {
-              "source": "ref_weather_context",
+              "source": "sharp",
               "side": "OVER",
-              "score": 2,
-              "impact": -2,
-              "status": "conflict",
-              "reasons": [
-                "referee over trend"
-              ]
+              "score": 3,
+              "impact": 3,
+              "status": "aligned"
             }
           ],
+          "conflicts": [],
           "reasons": [
-            "ref/weather total context conflicts"
+            "sharp total edge"
           ]
         }
       },
@@ -498,50 +812,52 @@
     },
     "model_version": "2026.1",
     "tier_score": 3,
-    "total_score": 9.5,
-    "confidence": 9.5,
+    "total_score": 5.1,
+    "confidence": 5.1,
     "sharp_analysis": {
       "spread": {
-        "differential": -25.0,
-        "score": -3,
+        "differential": -7.0,
+        "score": -1,
         "direction": "HOME",
-        "bets_pct": 40.0,
-        "money_pct": 15.0,
-        "line": "+6.5 (-105) | -6.5 (+104)",
-        "description": "HOME (-25.0% edge)"
+        "bets_pct": 55.0,
+        "money_pct": 48.0,
+        "line": "-1 (-108) | +2.5 (+117)",
+        "description": "HOME (-7.0% edge)"
       },
       "total": {
-        "differential": -3.0,
-        "score": 0,
-        "direction": "UNDER",
-        "bets_pct": 23.0,
-        "money_pct": 20.0,
-        "line": "o40.5 (-104) | u40.5 (+100)",
-        "description": "UNDER (-3.0% edge)"
+        "differential": 45.0,
+        "score": 3,
+        "direction": "OVER",
+        "bets_pct": 17.0,
+        "money_pct": 62.0,
+        "line": "o44.5 (-110) | u68.5 (-122)",
+        "description": "OVER (+45.0% edge)"
       },
       "moneyline": {
         "differential": -2.0,
         "score": 0,
         "direction": "HOME",
-        "bets_pct": 11.0,
-        "money_pct": 9.0,
-        "line": "+245 | -265",
+        "bets_pct": 73.0,
+        "money_pct": 71.0,
+        "line": "-110 | +150",
         "description": "HOME (-2.0% edge)"
       }
     },
     "weather_analysis": {
       "score": 0,
-      "factors": [],
-      "description": "Good conditions"
+      "factors": [
+        "Dome"
+      ],
+      "description": "Dome - no weather impact"
     },
     "referee_analysis": {
-      "ats_pct": 44.7,
-      "ou_pct": 61.5,
-      "ats_score": 0,
-      "ou_score": 2,
+      "ats_pct": 25.0,
+      "ou_pct": 50.0,
+      "ats_score": -2,
+      "ou_score": 0,
       "ats_tendency": "DOG-FRIENDLY",
-      "ou_tendency": "OVER TENDENCY",
-      "referee": "Brad Rogers",
+      "ou_tendency": "NEUTRAL TOTAL",
+      "referee": "Alex Moore",
       "factors": []
     },
     "injury_analysis": {
@@ -562,16 +878,16 @@
     "statistical_analysis": {
       "score": 2,
       "factors": [
-        "Strong statistical edge to Atlanta Falcons (3.4 pts)"
+        "Strong statistical edge to Buffalo Bills (3.5 pts)"
       ],
-      "description": "Strong statistical edge to Atlanta Falcons (3.4 pts)"
+      "description": "Strong statistical edge to Buffalo Bills (3.5 pts)"
     },
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market inefficiency detected (-25.0% sharp edge)"
+        "Market mispricing possible (-7.0% edge)"
       ],
-      "description": "Market inefficiency detected (-25.0% sharp edge)"
+      "description": "Market mispricing possible (-7.0% edge)"
     },
     "schedule_analysis": {
       "score": 0,
@@ -582,8 +898,7 @@
     },
     "sharp_stories": [
       "\ud83c\udfaf SHARP CONSENSUS: Full alignment on home team across markets",
-      "\u26a0\ufe0f DIVERGENCE: Sharps on home team but UNDER - expect defensive grind",
-      "\u26a0\ufe0f SHARP CONFLICT: -25.0% sharp money on HOME team"
+      "\ud83d\udcb0 MASSIVE EDGE: +45.0% sharp money on OVER"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -714,13 +1029,13 @@
     "confidence": 4.7,
     "sharp_analysis": {
       "spread": {
-        "differential": -5.0,
+        "differential": -7.0,
         "score": -1,
         "direction": "HOME",
-        "bets_pct": 52.0,
-        "money_pct": 47.0,
-        "line": "+1.5 (+104) | -1.5 (-108)",
-        "description": "HOME (-5.0% edge)"
+        "bets_pct": 55.0,
+        "money_pct": 48.0,
+        "line": "+2.5 (-104) | -2.5 (+100)",
+        "description": "HOME (-7.0% edge)"
       },
       "total": {
         "differential": 3.0,
@@ -728,17 +1043,17 @@
         "direction": "OVER",
         "bets_pct": 9.0,
         "money_pct": 12.0,
-        "line": "o45.5 (-108) | u45.5 (+104)",
+        "line": "o45.5 (-104) | u45.5 (+100)",
         "description": "OVER (+3.0% edge)"
       },
       "moneyline": {
-        "differential": -15.0,
+        "differential": -18.0,
         "score": -3,
         "direction": "HOME",
-        "bets_pct": 43.0,
-        "money_pct": 28.0,
-        "line": "+117 | -122",
-        "description": "HOME (-15.0% edge)"
+        "bets_pct": 42.0,
+        "money_pct": 24.0,
+        "line": "+122 | -122",
+        "description": "HOME (-18.0% edge)"
       }
     },
     "weather_analysis": {
@@ -783,9 +1098,9 @@
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market mispricing possible (-5.0% edge)"
+        "Market mispricing possible (-7.0% edge)"
       ],
-      "description": "Market mispricing possible (-5.0% edge)"
+      "description": "Market mispricing possible (-7.0% edge)"
     },
     "schedule_analysis": {
       "score": 0,
@@ -865,34 +1180,79 @@
     }
   },
   {
-    "matchup": "Buffalo Bills @ Houston Texans",
-    "matchup_key": "BUF@HOU",
-    "away": "Buffalo Bills",
-    "home": "Houston Texans",
-    "away_tla": "BUF",
-    "home_tla": "HOU",
-    "game_time": "1:00 PM ET",
+    "matchup": "Chicago Bears @ Carolina Panthers",
+    "matchup_key": "CHI@CAR",
+    "away": "Chicago Bears",
+    "home": "Carolina Panthers",
+    "away_tla": "CHI",
+    "home_tla": "CAR",
+    "game_time": "HALF",
     "classification": "\u26a0\ufe0f PASS",
     "classification_label": "PASS",
-    "signal_classification": "\u26a0\ufe0f LANDMINE",
-    "signal_classification_label": "PASS",
-    "signal_tier_score": 3,
-    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "signal_classification": "\ud83d\udea8 TRAP GAME",
+    "signal_classification_label": "FADE PUBLIC",
+    "signal_tier_score": 4,
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "pick_metadata": {
       "market": "none",
-      "reason": "landmine classification",
-      "spread_score": null,
-      "total_score": null,
+      "reason": "no market cleared threshold",
+      "spread_score": 2,
+      "total_score": 3,
       "trace": {
         "selector_version": "2026.1",
         "market_candidates": {
-          "spread": {},
-          "total": {}
+          "spread": {
+            "market": "spread",
+            "side": "HOME",
+            "score": 2,
+            "threshold": 4,
+            "threshold_adjustments": [],
+            "cleared_threshold": false,
+            "requires_sharp_edge": true,
+            "has_sharp_edge": true,
+            "blocked": false,
+            "blockers": [],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "HOME",
+                "score": -2,
+                "impact": 2,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "sharp spread edge"
+            ]
+          },
+          "total": {
+            "market": "total",
+            "side": "OVER",
+            "score": 3,
+            "threshold": 4,
+            "cleared_threshold": false,
+            "blocked": false,
+            "blockers": [],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "OVER",
+                "score": 3,
+                "impact": 3,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "sharp total edge"
+            ]
+          }
         },
         "final_decision": {
           "market": "none",
           "side": null,
-          "reason": "signal classification was LANDMINE"
+          "reason": "no market cleared threshold"
         },
         "source_policy": {
           "status": "OK",
@@ -905,13 +1265,58 @@
     "recommendation_trace": {
       "selector_version": "2026.1",
       "market_candidates": {
-        "spread": {},
-        "total": {}
+        "spread": {
+          "market": "spread",
+          "side": "HOME",
+          "score": 2,
+          "threshold": 4,
+          "threshold_adjustments": [],
+          "cleared_threshold": false,
+          "requires_sharp_edge": true,
+          "has_sharp_edge": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "HOME",
+              "score": -2,
+              "impact": 2,
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge"
+          ]
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 3,
+          "threshold": 4,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "OVER",
+              "score": 3,
+              "impact": 3,
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp total edge"
+          ]
+        }
       },
       "final_decision": {
         "market": "none",
         "side": null,
-        "reason": "signal classification was LANDMINE"
+        "reason": "no market cleared threshold"
       },
       "source_policy": {
         "status": "OK",
@@ -922,52 +1327,52 @@
     },
     "model_version": "2026.1",
     "tier_score": 3,
-    "total_score": 3.6,
-    "confidence": 3.6,
+    "total_score": 3.5,
+    "confidence": 3.5,
     "sharp_analysis": {
       "spread": {
-        "differential": -4.0,
-        "score": 0,
+        "differential": -14.0,
+        "score": -2,
         "direction": "HOME",
-        "bets_pct": 55.0,
-        "money_pct": 51.0,
-        "line": "-1.5 (+100) | +1.5 (-104)",
-        "description": "HOME (-4.0% edge)"
+        "bets_pct": 67.0,
+        "money_pct": 53.0,
+        "line": "-3 (-105) | +5.5 (+100)",
+        "description": "HOME (-14.0% edge)"
       },
       "total": {
-        "differential": 4.0,
-        "score": 0,
+        "differential": 41.0,
+        "score": 3,
         "direction": "OVER",
-        "bets_pct": 17.0,
-        "money_pct": 21.0,
-        "line": "o44.5 (+100) | u44.5 (-104)",
-        "description": "OVER (+4.0% edge)"
+        "bets_pct": 11.0,
+        "money_pct": 52.0,
+        "line": "o47 (-108) | u47 (-108)",
+        "description": "OVER (+41.0% edge)"
       },
       "moneyline": {
-        "differential": 8.0,
+        "differential": 5.0,
         "score": 1,
         "direction": "AWAY",
-        "bets_pct": 72.0,
-        "money_pct": 80.0,
-        "line": "-112 | +108",
-        "description": "AWAY (+8.0% edge)"
+        "bets_pct": 89.0,
+        "money_pct": 94.0,
+        "line": "-160 | +270",
+        "description": "AWAY (+5.0% edge)"
       }
     },
     "weather_analysis": {
-      "score": 0,
+      "score": 1,
       "factors": [
-        "Dome"
+        "Hot weather (87\u00b0F)"
       ],
-      "description": "Dome - no weather impact"
+      "description": "Hot weather (87\u00b0F)"
     },
     "referee_analysis": {
-      "ats_pct": 25.0,
+      "ats_pct": 41.4,
       "ou_pct": 50.0,
-      "ats_score": -2,
+      "ats_score": 0,
       "ou_score": 0,
       "ats_tendency": "DOG-FRIENDLY",
       "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "Alex Moore",
+      "referee": "Brad Allen",
       "factors": []
     },
     "injury_analysis": {
@@ -986,16 +1391,16 @@
       "description": "No significant situational factors"
     },
     "statistical_analysis": {
-      "score": 2,
-      "factors": [
-        "Strong statistical edge to Buffalo Bills (3.5 pts)"
-      ],
-      "description": "Strong statistical edge to Buffalo Bills (3.5 pts)"
+      "score": 0,
+      "factors": [],
+      "description": "No significant statistical edge"
     },
     "game_theory_analysis": {
       "score": 0,
-      "factors": [],
-      "description": "Standard market dynamics"
+      "factors": [
+        "Market inefficiency detected (-14.0% sharp edge)"
+      ],
+      "description": "Market inefficiency detected (-14.0% sharp edge)"
     },
     "schedule_analysis": {
       "score": 0,
@@ -1005,7 +1410,8 @@
       "description": "Week W1 not found. Available: []..."
     },
     "sharp_stories": [
-      "Sharp action relatively balanced across markets"
+      "\ud83d\udea8 TRAP ALERT: Public hammering away, sharps quietly on home",
+      "\ud83d\udcb0 MASSIVE EDGE: +41.0% sharp money on OVER"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -1075,34 +1481,69 @@
     }
   },
   {
-    "matchup": "Miami Dolphins @ Las Vegas Raiders",
-    "matchup_key": "MIA@LV",
-    "away": "Miami Dolphins",
-    "home": "Las Vegas Raiders",
-    "away_tla": "MIA",
-    "home_tla": "LV",
-    "game_time": "4:25 PM ET",
+    "matchup": "Baltimore Ravens @ Indianapolis Colts",
+    "matchup_key": "BAL@IND",
+    "away": "Baltimore Ravens",
+    "home": "Indianapolis Colts",
+    "away_tla": "BAL",
+    "home_tla": "IND",
+    "game_time": "HALF",
     "classification": "\u26a0\ufe0f PASS",
     "classification_label": "PASS",
-    "signal_classification": "\u26a0\ufe0f LANDMINE",
-    "signal_classification_label": "PASS",
-    "signal_tier_score": 3,
-    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "signal_classification": "\ud83d\udea8 TRAP GAME",
+    "signal_classification_label": "FADE PUBLIC",
+    "signal_tier_score": 4,
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "pick_metadata": {
       "market": "none",
-      "reason": "landmine classification",
-      "spread_score": null,
-      "total_score": null,
+      "reason": "no market cleared threshold",
+      "spread_score": 3,
+      "total_score": 0,
       "trace": {
         "selector_version": "2026.1",
         "market_candidates": {
-          "spread": {},
-          "total": {}
+          "spread": {
+            "market": "spread",
+            "side": "HOME",
+            "score": 3,
+            "threshold": 4,
+            "threshold_adjustments": [],
+            "cleared_threshold": false,
+            "requires_sharp_edge": true,
+            "has_sharp_edge": true,
+            "blocked": false,
+            "blockers": [],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "HOME",
+                "score": -3,
+                "impact": 3,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "sharp spread edge"
+            ]
+          },
+          "total": {
+            "market": "total",
+            "side": "OVER",
+            "score": 0,
+            "threshold": 4,
+            "cleared_threshold": false,
+            "blocked": false,
+            "blockers": [],
+            "signals": [],
+            "conflicts": [],
+            "reasons": []
+          }
         },
         "final_decision": {
           "market": "none",
           "side": null,
-          "reason": "signal classification was LANDMINE"
+          "reason": "no market cleared threshold"
         },
         "source_policy": {
           "status": "OK",
@@ -1115,13 +1556,48 @@
     "recommendation_trace": {
       "selector_version": "2026.1",
       "market_candidates": {
-        "spread": {},
-        "total": {}
+        "spread": {
+          "market": "spread",
+          "side": "HOME",
+          "score": 3,
+          "threshold": 4,
+          "threshold_adjustments": [],
+          "cleared_threshold": false,
+          "requires_sharp_edge": true,
+          "has_sharp_edge": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "HOME",
+              "score": -3,
+              "impact": 3,
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge"
+          ]
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 0,
+          "threshold": 4,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [],
+          "conflicts": [],
+          "reasons": []
+        }
       },
       "final_decision": {
         "market": "none",
         "side": null,
-        "reason": "signal classification was LANDMINE"
+        "reason": "no market cleared threshold"
       },
       "source_policy": {
         "status": "OK",
@@ -1136,30 +1612,30 @@
     "confidence": 2.7,
     "sharp_analysis": {
       "spread": {
-        "differential": 18.0,
-        "score": 3,
-        "direction": "AWAY",
-        "bets_pct": 47.0,
-        "money_pct": 65.0,
-        "line": "+3.5 (-117) | -3.5 (+113)",
-        "description": "AWAY (+18.0% edge)"
+        "differential": -31.0,
+        "score": -3,
+        "direction": "HOME",
+        "bets_pct": 68.0,
+        "money_pct": 37.0,
+        "line": "-3 (-108) | +17.5 (+113)",
+        "description": "HOME (-31.0% edge)"
       },
       "total": {
-        "differential": -3.0,
+        "differential": 1.0,
         "score": 0,
-        "direction": "UNDER",
-        "bets_pct": 29.0,
-        "money_pct": 26.0,
-        "line": "o40.5 (+104) | u40.5 (-108)",
-        "description": "UNDER (-3.0% edge)"
+        "direction": "OVER",
+        "bets_pct": 13.0,
+        "money_pct": 14.0,
+        "line": "o48.5 (-102) | u69.5 (-133)",
+        "description": "OVER (+1.0% edge)"
       },
       "moneyline": {
         "differential": 5.0,
         "score": 1,
         "direction": "AWAY",
-        "bets_pct": 14.0,
-        "money_pct": 19.0,
-        "line": "+145 | -159",
+        "bets_pct": 91.0,
+        "money_pct": 96.0,
+        "line": "-160 | +1567",
         "description": "AWAY (+5.0% edge)"
       }
     },
@@ -1171,13 +1647,13 @@
       "description": "Dome - no weather impact"
     },
     "referee_analysis": {
-      "ats_pct": 52.3,
-      "ou_pct": 51.1,
+      "ats_pct": 50.0,
+      "ou_pct": 45.2,
       "ats_score": 0,
       "ou_score": 0,
       "ats_tendency": "NEUTRAL",
       "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "Clete Blakeman",
+      "referee": "Scott Novak",
       "factors": []
     },
     "injury_analysis": {
@@ -1198,16 +1674,16 @@
     "statistical_analysis": {
       "score": -1,
       "factors": [
-        "Statistical edge to Las Vegas Raiders (2.0 pts)"
+        "Statistical edge to Indianapolis Colts (2.0 pts)"
       ],
-      "description": "Statistical edge to Las Vegas Raiders (2.0 pts)"
+      "description": "Statistical edge to Indianapolis Colts (2.0 pts)"
     },
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market inefficiency detected (+18.0% sharp edge)"
+        "Market inefficiency detected (-31.0% sharp edge)"
       ],
-      "description": "Market inefficiency detected (+18.0% sharp edge)"
+      "description": "Market inefficiency detected (-31.0% sharp edge)"
     },
     "schedule_analysis": {
       "score": 0,
@@ -1217,9 +1693,8 @@
       "description": "Week W1 not found. Available: []..."
     },
     "sharp_stories": [
-      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
-      "\u26a0\ufe0f DIVERGENCE: Sharps on away team but UNDER - expect low-scoring road win",
-      "\ud83d\udcb0 MASSIVE EDGE: +18.0% sharp money on AWAY team"
+      "\ud83d\udea8 TRAP ALERT: Public hammering away, sharps quietly on home",
+      "\u26a0\ufe0f SHARP CONFLICT: -31.0% sharp money on HOME team"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -1350,31 +1825,31 @@
     "confidence": 2.7,
     "sharp_analysis": {
       "spread": {
-        "differential": 24.0,
+        "differential": 15.0,
         "score": 3,
         "direction": "AWAY",
-        "bets_pct": 51.0,
-        "money_pct": 75.0,
-        "line": "-3.5 (+117) | +3.5 (-122)",
-        "description": "AWAY (+24.0% edge)"
+        "bets_pct": 55.0,
+        "money_pct": 70.0,
+        "line": "-3.5 (+113) | +3.5 (-117)",
+        "description": "AWAY (+15.0% edge)"
       },
       "total": {
-        "differential": 5.0,
+        "differential": 6.0,
         "score": 1,
         "direction": "OVER",
         "bets_pct": 13.0,
-        "money_pct": 18.0,
+        "money_pct": 19.0,
         "line": "o47.5 (-104) | u47.5 (+100)",
-        "description": "OVER (+5.0% edge)"
+        "description": "OVER (+6.0% edge)"
       },
       "moneyline": {
-        "differential": 2.0,
+        "differential": 1.0,
         "score": 0,
         "direction": "AWAY",
         "bets_pct": 89.0,
-        "money_pct": 91.0,
+        "money_pct": 90.0,
         "line": "-156 | +150",
-        "description": "AWAY (+2.0% edge)"
+        "description": "AWAY (+1.0% edge)"
       }
     },
     "weather_analysis": {
@@ -1417,9 +1892,9 @@
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market inefficiency detected (+24.0% sharp edge)"
+        "Market inefficiency detected (+15.0% sharp edge)"
       ],
-      "description": "Market inefficiency detected (+24.0% sharp edge)"
+      "description": "Market inefficiency detected (+15.0% sharp edge)"
     },
     "schedule_analysis": {
       "score": 0,
@@ -1431,7 +1906,7 @@
     "sharp_stories": [
       "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
       "\ud83d\udcc8 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing",
-      "\ud83d\udcb0 MASSIVE EDGE: +24.0% sharp money on AWAY team"
+      "\ud83d\udcb0 MASSIVE EDGE: +15.0% sharp money on AWAY team"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -1507,7 +1982,7 @@
     "home": "Detroit Lions",
     "away_tla": "NO",
     "home_tla": "DET",
-    "game_time": "1:00 PM ET",
+    "game_time": "3RD 14:07",
     "classification": "\u26a0\ufe0f PASS",
     "classification_label": "PASS",
     "signal_classification": "\u26a0\ufe0f LANDMINE",
@@ -1562,22 +2037,22 @@
     "confidence": 2.6,
     "sharp_analysis": {
       "spread": {
-        "differential": -10.0,
+        "differential": -11.0,
         "score": -2,
         "direction": "HOME",
-        "bets_pct": 42.0,
-        "money_pct": 32.0,
-        "line": "+6.5 (+100) | -7.5 (+117)",
-        "description": "HOME (-10.0% edge)"
+        "bets_pct": 38.0,
+        "money_pct": 27.0,
+        "line": "+9.5 (-108) | -7 (-105)",
+        "description": "HOME (-11.0% edge)"
       },
       "total": {
-        "differential": 39.0,
+        "differential": 52.0,
         "score": 3,
         "direction": "OVER",
-        "bets_pct": 13.0,
-        "money_pct": 52.0,
-        "line": "o49.5 (-108) | u49.5 (+104)",
-        "description": "OVER (+39.0% edge)"
+        "bets_pct": 14.0,
+        "money_pct": 66.0,
+        "line": "o50 (-108) | u50 (-110)",
+        "description": "OVER (+52.0% edge)"
       },
       "moneyline": {
         "differential": -2.0,
@@ -1585,7 +2060,7 @@
         "direction": "HOME",
         "bets_pct": 4.0,
         "money_pct": 2.0,
-        "line": "+285 | -300",
+        "line": "+525 | -325",
         "description": "HOME (-2.0% edge)"
       }
     },
@@ -1631,9 +2106,10 @@
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market inefficiency detected (-10.0% sharp edge)"
+        "Market inefficiency detected (-11.0% sharp edge)",
+        "Potential steam move developing"
       ],
-      "description": "Market inefficiency detected (-10.0% sharp edge)"
+      "description": "Market inefficiency detected (-11.0% sharp edge), Potential steam move developing"
     },
     "schedule_analysis": {
       "score": 0,
@@ -1644,7 +2120,7 @@
     },
     "sharp_stories": [
       "\ud83c\udfaf SHARP CONSENSUS: Full alignment on home team across markets",
-      "\ud83d\udcb0 MASSIVE EDGE: +39.0% sharp money on OVER"
+      "\ud83d\udcb0 MASSIVE EDGE: +52.0% sharp money on OVER"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -1720,7 +2196,7 @@
     "home": "Tennessee Titans",
     "away_tla": "NYJ",
     "home_tla": "TEN",
-    "game_time": "1:00 PM ET",
+    "game_time": "3RD 9:41",
     "classification": "\u26a0\ufe0f PASS",
     "classification_label": "PASS",
     "signal_classification": "\u26a0\ufe0f LANDMINE",
@@ -1775,39 +2251,39 @@
     "confidence": 1.6,
     "sharp_analysis": {
       "spread": {
-        "differential": 9.0,
+        "differential": 8.0,
         "score": 1,
         "direction": "AWAY",
-        "bets_pct": 41.0,
-        "money_pct": 50.0,
-        "line": "+1.5 (-108) | -1.5 (+104)",
-        "description": "AWAY (+9.0% edge)"
+        "bets_pct": 44.0,
+        "money_pct": 52.0,
+        "line": "+1.5 (-113) | +6.5 (-104)",
+        "description": "AWAY (+8.0% edge)"
       },
       "total": {
-        "differential": -1.0,
+        "differential": 3.0,
         "score": 0,
-        "direction": "UNDER",
+        "direction": "OVER",
         "bets_pct": 39.0,
-        "money_pct": 38.0,
-        "line": "o38.5 (-108) | u38.5 (+104)",
-        "description": "UNDER (-1.0% edge)"
+        "money_pct": 42.0,
+        "line": "o32.5 (+113) | u39.5 (-108)",
+        "description": "OVER (+3.0% edge)"
       },
       "moneyline": {
-        "differential": -4.0,
+        "differential": -3.0,
         "score": 0,
         "direction": "HOME",
-        "bets_pct": 26.0,
-        "money_pct": 22.0,
-        "line": "+104 | -108",
-        "description": "HOME (-4.0% edge)"
+        "bets_pct": 27.0,
+        "money_pct": 24.0,
+        "line": "+100 | +300",
+        "description": "HOME (-3.0% edge)"
       }
     },
     "weather_analysis": {
       "score": 1,
       "factors": [
-        "Hot weather (88\u00b0F)"
+        "Hot weather (92\u00b0F)"
       ],
-      "description": "Hot weather (88\u00b0F)"
+      "description": "Hot weather (92\u00b0F)"
     },
     "referee_analysis": {
       "ats_pct": 37.5,
@@ -1844,9 +2320,9 @@
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market mispricing possible (+9.0% edge)"
+        "Market mispricing possible (+8.0% edge)"
       ],
-      "description": "Market mispricing possible (+9.0% edge)"
+      "description": "Market mispricing possible (+8.0% edge)"
     },
     "schedule_analysis": {
       "score": 0,
@@ -1856,217 +2332,6 @@
       "description": "Week W1 not found. Available: []..."
     },
     "sharp_stories": [
-      "\u26a0\ufe0f DIVERGENCE: Sharps on away team but UNDER - expect low-scoring road win"
-    ],
-    "season_type": "REG",
-    "data_quality": {
-      "status": "OK",
-      "target_date": "",
-      "sources": {
-        "queries": {
-          "name": "queries",
-          "path": "data/week1/week1_queries.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "file_week": 1
-        },
-        "referee_trends": {
-          "name": "referee_trends",
-          "path": "data/historical/sdql_results.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": []
-        },
-        "action_markets": {
-          "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-13_.csv",
-          "rows": 48,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-13",
-          "fetched_date": "2026-09-13"
-        },
-        "action_injuries": {
-          "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-13_.csv",
-          "rows": 13,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-13"
-        },
-        "action_weather": {
-          "name": "action_weather",
-          "path": "data/action_weather_2026-09-13_.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-13"
-        },
-        "rotowire": {
-          "name": "rotowire",
-          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
-          "rows": 4,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-01-18",
-          "fetched_date": "2026-01-18"
-        }
-      },
-      "warnings": [],
-      "critical_warnings": [],
-      "degraded_sources": [],
-      "unsafe_sources": []
-    }
-  },
-  {
-    "matchup": "Tampa Bay Buccaneers @ Cincinnati Bengals",
-    "matchup_key": "TB@CIN",
-    "away": "Tampa Bay Buccaneers",
-    "home": "Cincinnati Bengals",
-    "away_tla": "TB",
-    "home_tla": "CIN",
-    "game_time": "1:00 PM ET",
-    "classification": "\u26a0\ufe0f PASS",
-    "classification_label": "PASS",
-    "signal_classification": "\u26a0\ufe0f LANDMINE",
-    "signal_classification_label": "PASS",
-    "signal_tier_score": 3,
-    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
-    "pick_metadata": {
-      "market": "none",
-      "reason": "landmine classification",
-      "spread_score": null,
-      "total_score": null,
-      "trace": {
-        "selector_version": "2026.1",
-        "market_candidates": {
-          "spread": {},
-          "total": {}
-        },
-        "final_decision": {
-          "market": "none",
-          "side": null,
-          "reason": "signal classification was LANDMINE"
-        },
-        "source_policy": {
-          "status": "OK",
-          "blocked": false,
-          "unsafe_sources": [],
-          "critical_warnings": []
-        }
-      }
-    },
-    "recommendation_trace": {
-      "selector_version": "2026.1",
-      "market_candidates": {
-        "spread": {},
-        "total": {}
-      },
-      "final_decision": {
-        "market": "none",
-        "side": null,
-        "reason": "signal classification was LANDMINE"
-      },
-      "source_policy": {
-        "status": "OK",
-        "blocked": false,
-        "unsafe_sources": [],
-        "critical_warnings": []
-      }
-    },
-    "model_version": "2026.1",
-    "tier_score": 3,
-    "total_score": 1.2,
-    "confidence": 1.2,
-    "sharp_analysis": {
-      "spread": {
-        "differential": 11.0,
-        "score": 2,
-        "direction": "AWAY",
-        "bets_pct": 57.0,
-        "money_pct": 68.0,
-        "line": "+3.5 (+100) | -3.5 (-104)",
-        "description": "AWAY (+11.0% edge)"
-      },
-      "total": {
-        "differential": 12.0,
-        "score": 2,
-        "direction": "OVER",
-        "bets_pct": 9.0,
-        "money_pct": 21.0,
-        "line": "o49.5 (-108) | u49.5 (+104)",
-        "description": "OVER (+12.0% edge)"
-      },
-      "moneyline": {
-        "differential": 2.0,
-        "score": 0,
-        "direction": "AWAY",
-        "bets_pct": 14.0,
-        "money_pct": 16.0,
-        "line": "+176 | -178",
-        "description": "AWAY (+2.0% edge)"
-      }
-    },
-    "weather_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "Good conditions"
-    },
-    "referee_analysis": {
-      "ats_pct": 52.1,
-      "ou_pct": 54.0,
-      "ats_score": 0,
-      "ou_score": 0,
-      "ats_tendency": "NEUTRAL",
-      "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "John Hussey",
-      "factors": []
-    },
-    "injury_analysis": {
-      "away_injuries": [],
-      "home_injuries": [],
-      "away_impact": 0,
-      "home_impact": 0,
-      "score": 0,
-      "edge": "NO EDGE",
-      "description": "Found 0 high-impact injuries",
-      "factors": []
-    },
-    "situational_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "No significant situational factors"
-    },
-    "statistical_analysis": {
-      "score": -1,
-      "factors": [
-        "Statistical edge to Cincinnati Bengals (2.0 pts)"
-      ],
-      "description": "Statistical edge to Cincinnati Bengals (2.0 pts)"
-    },
-    "game_theory_analysis": {
-      "score": 0,
-      "factors": [
-        "Market inefficiency detected (+11.0% sharp edge)"
-      ],
-      "description": "Market inefficiency detected (+11.0% sharp edge)"
-    },
-    "schedule_analysis": {
-      "score": 0,
-      "factors": [
-        "Week W1 not found. Available: []..."
-      ],
-      "description": "Week W1 not found. Available: []..."
-    },
-    "sharp_stories": [
-      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
       "\ud83d\udcc8 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing"
     ],
     "season_type": "REG",
@@ -2137,298 +2402,12 @@
     }
   },
   {
-    "matchup": "Baltimore Ravens @ Indianapolis Colts",
-    "matchup_key": "BAL@IND",
-    "away": "Baltimore Ravens",
-    "home": "Indianapolis Colts",
-    "away_tla": "BAL",
-    "home_tla": "IND",
-    "game_time": "1:00 PM ET",
-    "classification": "\u26a0\ufe0f PASS",
-    "classification_label": "PASS",
-    "signal_classification": "\ud83d\udea8 TRAP GAME",
-    "signal_classification_label": "FADE PUBLIC",
-    "signal_tier_score": 4,
-    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
-    "pick_metadata": {
-      "market": "none",
-      "reason": "no market cleared threshold",
-      "spread_score": 2,
-      "total_score": 0,
-      "trace": {
-        "selector_version": "2026.1",
-        "market_candidates": {
-          "spread": {
-            "market": "spread",
-            "side": "HOME",
-            "score": 2,
-            "threshold": 4,
-            "threshold_adjustments": [],
-            "cleared_threshold": false,
-            "requires_sharp_edge": true,
-            "has_sharp_edge": true,
-            "blocked": false,
-            "blockers": [],
-            "signals": [
-              {
-                "source": "sharp",
-                "side": "HOME",
-                "score": -2,
-                "impact": 2,
-                "status": "aligned"
-              }
-            ],
-            "conflicts": [],
-            "reasons": [
-              "sharp spread edge"
-            ]
-          },
-          "total": {
-            "market": "total",
-            "side": "NEUTRAL",
-            "score": 0,
-            "threshold": 4,
-            "cleared_threshold": false,
-            "blocked": true,
-            "blockers": [
-              "no sharp total side"
-            ],
-            "signals": [],
-            "conflicts": [],
-            "reasons": []
-          }
-        },
-        "final_decision": {
-          "market": "none",
-          "side": null,
-          "reason": "no market cleared threshold"
-        },
-        "source_policy": {
-          "status": "OK",
-          "blocked": false,
-          "unsafe_sources": [],
-          "critical_warnings": []
-        }
-      }
-    },
-    "recommendation_trace": {
-      "selector_version": "2026.1",
-      "market_candidates": {
-        "spread": {
-          "market": "spread",
-          "side": "HOME",
-          "score": 2,
-          "threshold": 4,
-          "threshold_adjustments": [],
-          "cleared_threshold": false,
-          "requires_sharp_edge": true,
-          "has_sharp_edge": true,
-          "blocked": false,
-          "blockers": [],
-          "signals": [
-            {
-              "source": "sharp",
-              "side": "HOME",
-              "score": -2,
-              "impact": 2,
-              "status": "aligned"
-            }
-          ],
-          "conflicts": [],
-          "reasons": [
-            "sharp spread edge"
-          ]
-        },
-        "total": {
-          "market": "total",
-          "side": "NEUTRAL",
-          "score": 0,
-          "threshold": 4,
-          "cleared_threshold": false,
-          "blocked": true,
-          "blockers": [
-            "no sharp total side"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "reasons": []
-        }
-      },
-      "final_decision": {
-        "market": "none",
-        "side": null,
-        "reason": "no market cleared threshold"
-      },
-      "source_policy": {
-        "status": "OK",
-        "blocked": false,
-        "unsafe_sources": [],
-        "critical_warnings": []
-      }
-    },
-    "model_version": "2026.1",
-    "tier_score": 3,
-    "total_score": 1.2,
-    "confidence": 1.2,
-    "sharp_analysis": {
-      "spread": {
-        "differential": -12.0,
-        "score": -2,
-        "direction": "HOME",
-        "bets_pct": 66.0,
-        "money_pct": 54.0,
-        "line": "-3.5 (+117) | +3.5 (-115)",
-        "description": "HOME (-12.0% edge)"
-      },
-      "total": {
-        "differential": 0.0,
-        "score": 0,
-        "direction": "NEUTRAL",
-        "bets_pct": 12.0,
-        "money_pct": 12.0,
-        "line": "o47.5 (-108) | u47.5 (+104)",
-        "description": "NEUTRAL (+0.0% edge)"
-      },
-      "moneyline": {
-        "differential": 4.0,
-        "score": 0,
-        "direction": "AWAY",
-        "bets_pct": 91.0,
-        "money_pct": 95.0,
-        "line": "-156 | +150",
-        "description": "AWAY (+4.0% edge)"
-      }
-    },
-    "weather_analysis": {
-      "score": 0,
-      "factors": [
-        "Dome"
-      ],
-      "description": "Dome - no weather impact"
-    },
-    "referee_analysis": {
-      "ats_pct": 50.0,
-      "ou_pct": 45.2,
-      "ats_score": 0,
-      "ou_score": 0,
-      "ats_tendency": "NEUTRAL",
-      "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "Scott Novak",
-      "factors": []
-    },
-    "injury_analysis": {
-      "away_injuries": [],
-      "home_injuries": [],
-      "away_impact": 0,
-      "home_impact": 0,
-      "score": 0,
-      "edge": "NO EDGE",
-      "description": "Found 0 high-impact injuries",
-      "factors": []
-    },
-    "situational_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "No significant situational factors"
-    },
-    "statistical_analysis": {
-      "score": -1,
-      "factors": [
-        "Statistical edge to Indianapolis Colts (2.0 pts)"
-      ],
-      "description": "Statistical edge to Indianapolis Colts (2.0 pts)"
-    },
-    "game_theory_analysis": {
-      "score": 0,
-      "factors": [
-        "Market inefficiency detected (-12.0% sharp edge)"
-      ],
-      "description": "Market inefficiency detected (-12.0% sharp edge)"
-    },
-    "schedule_analysis": {
-      "score": 0,
-      "factors": [
-        "Week W1 not found. Available: []..."
-      ],
-      "description": "Week W1 not found. Available: []..."
-    },
-    "sharp_stories": [
-      "\ud83d\udea8 TRAP ALERT: Public hammering away, sharps quietly on home"
-    ],
-    "season_type": "REG",
-    "data_quality": {
-      "status": "OK",
-      "target_date": "",
-      "sources": {
-        "queries": {
-          "name": "queries",
-          "path": "data/week1/week1_queries.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "file_week": 1
-        },
-        "referee_trends": {
-          "name": "referee_trends",
-          "path": "data/historical/sdql_results.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": []
-        },
-        "action_markets": {
-          "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-13_.csv",
-          "rows": 48,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-13",
-          "fetched_date": "2026-09-13"
-        },
-        "action_injuries": {
-          "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-13_.csv",
-          "rows": 13,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-13"
-        },
-        "action_weather": {
-          "name": "action_weather",
-          "path": "data/action_weather_2026-09-13_.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-13"
-        },
-        "rotowire": {
-          "name": "rotowire",
-          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
-          "rows": 4,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-01-18",
-          "fetched_date": "2026-01-18"
-        }
-      },
-      "warnings": [],
-      "critical_warnings": [],
-      "degraded_sources": [],
-      "unsafe_sources": []
-    }
-  },
-  {
-    "matchup": "Arizona Cardinals @ Los Angeles Chargers",
-    "matchup_key": "ARI@LAC",
-    "away": "Arizona Cardinals",
-    "home": "Los Angeles Chargers",
-    "away_tla": "ARI",
-    "home_tla": "LAC",
+    "matchup": "Miami Dolphins @ Las Vegas Raiders",
+    "matchup_key": "MIA@LV",
+    "away": "Miami Dolphins",
+    "home": "Las Vegas Raiders",
+    "away_tla": "MIA",
+    "home_tla": "LV",
     "game_time": "4:25 PM ET",
     "classification": "\u26a0\ufe0f PASS",
     "classification_label": "PASS",
@@ -2480,50 +2459,52 @@
     },
     "model_version": "2026.1",
     "tier_score": 3,
-    "total_score": -1.0,
-    "confidence": 1.0,
+    "total_score": 1.2,
+    "confidence": 1.2,
     "sharp_analysis": {
       "spread": {
-        "differential": -13.0,
-        "score": -2,
-        "direction": "HOME",
-        "bets_pct": 37.0,
-        "money_pct": 24.0,
-        "line": "+9.5 (-105) | -9.5 (+104)",
-        "description": "HOME (-13.0% edge)"
+        "differential": 14.0,
+        "score": 2,
+        "direction": "AWAY",
+        "bets_pct": 46.0,
+        "money_pct": 60.0,
+        "line": "+3.5 (-122) | -3.5 (+117)",
+        "description": "AWAY (+14.0% edge)"
       },
       "total": {
-        "differential": 2.0,
+        "differential": 1.0,
         "score": 0,
         "direction": "OVER",
-        "bets_pct": 9.0,
-        "money_pct": 11.0,
-        "line": "o47.5 (+104) | u47.5 (-108)",
-        "description": "OVER (+2.0% edge)"
+        "bets_pct": 29.0,
+        "money_pct": 30.0,
+        "line": "o40.5 (+100) | u40.5 (-104)",
+        "description": "OVER (+1.0% edge)"
       },
       "moneyline": {
-        "differential": -2.0,
-        "score": 0,
-        "direction": "HOME",
-        "bets_pct": 3.0,
-        "money_pct": 1.0,
-        "line": "+426 | -426",
-        "description": "HOME (-2.0% edge)"
+        "differential": 5.0,
+        "score": 1,
+        "direction": "AWAY",
+        "bets_pct": 15.0,
+        "money_pct": 20.0,
+        "line": "+142 | -159",
+        "description": "AWAY (+5.0% edge)"
       }
     },
     "weather_analysis": {
       "score": 0,
-      "factors": [],
-      "description": "Good conditions"
+      "factors": [
+        "Dome"
+      ],
+      "description": "Dome - no weather impact"
     },
     "referee_analysis": {
-      "ats_pct": 50.0,
-      "ou_pct": 38.2,
+      "ats_pct": 52.3,
+      "ou_pct": 51.1,
       "ats_score": 0,
-      "ou_score": -2,
+      "ou_score": 0,
       "ats_tendency": "NEUTRAL",
-      "ou_tendency": "UNDER TENDENCY",
-      "referee": "Ron Torbert",
+      "ou_tendency": "NEUTRAL TOTAL",
+      "referee": "Clete Blakeman",
       "factors": []
     },
     "injury_analysis": {
@@ -2542,19 +2523,18 @@
       "description": "No significant situational factors"
     },
     "statistical_analysis": {
-      "score": -3,
+      "score": -1,
       "factors": [
-        "Strong statistical edge to Los Angeles Chargers (5.0 pts)"
+        "Statistical edge to Las Vegas Raiders (2.0 pts)"
       ],
-      "description": "Strong statistical edge to Los Angeles Chargers (5.0 pts)"
+      "description": "Statistical edge to Las Vegas Raiders (2.0 pts)"
     },
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market inefficiency detected (-13.0% sharp edge)",
-        "Potential steam move developing"
+        "Market inefficiency detected (+14.0% sharp edge)"
       ],
-      "description": "Market inefficiency detected (-13.0% sharp edge), Potential steam move developing"
+      "description": "Market inefficiency detected (+14.0% sharp edge)"
     },
     "schedule_analysis": {
       "score": 0,
@@ -2564,7 +2544,8 @@
       "description": "Week W1 not found. Available: []..."
     },
     "sharp_stories": [
-      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on home team across markets"
+      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
+      "\ud83d\udcc8 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -2779,6 +2760,222 @@
       "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
       "\ud83d\udcc8 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing",
       "\ud83d\udcb0 MASSIVE EDGE: +16.0% sharp money on AWAY team"
+    ],
+    "season_type": "REG",
+    "data_quality": {
+      "status": "OK",
+      "target_date": "",
+      "sources": {
+        "queries": {
+          "name": "queries",
+          "path": "data/week1/week1_queries.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "file_week": 1
+        },
+        "referee_trends": {
+          "name": "referee_trends",
+          "path": "data/historical/sdql_results.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": []
+        },
+        "action_markets": {
+          "name": "action_markets",
+          "path": "data/action_all_markets_2026-09-13_.csv",
+          "rows": 48,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-09-13",
+          "fetched_date": "2026-09-13"
+        },
+        "action_injuries": {
+          "name": "action_injuries",
+          "path": "data/action_injuries_2026-09-13_.csv",
+          "rows": 13,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-09-13"
+        },
+        "action_weather": {
+          "name": "action_weather",
+          "path": "data/action_weather_2026-09-13_.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-09-13"
+        },
+        "rotowire": {
+          "name": "rotowire",
+          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
+          "rows": 4,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-01-18",
+          "fetched_date": "2026-01-18"
+        }
+      },
+      "warnings": [],
+      "critical_warnings": [],
+      "degraded_sources": [],
+      "unsafe_sources": []
+    }
+  },
+  {
+    "matchup": "Tampa Bay Buccaneers @ Cincinnati Bengals",
+    "matchup_key": "TB@CIN",
+    "away": "Tampa Bay Buccaneers",
+    "home": "Cincinnati Bengals",
+    "away_tla": "TB",
+    "home_tla": "CIN",
+    "game_time": "3RD 10:03",
+    "classification": "\u26a0\ufe0f PASS",
+    "classification_label": "PASS",
+    "signal_classification": "\u26a0\ufe0f LANDMINE",
+    "signal_classification_label": "PASS",
+    "signal_tier_score": 3,
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "pick_metadata": {
+      "market": "none",
+      "reason": "landmine classification",
+      "spread_score": null,
+      "total_score": null,
+      "trace": {
+        "selector_version": "2026.1",
+        "market_candidates": {
+          "spread": {},
+          "total": {}
+        },
+        "final_decision": {
+          "market": "none",
+          "side": null,
+          "reason": "signal classification was LANDMINE"
+        },
+        "source_policy": {
+          "status": "OK",
+          "blocked": false,
+          "unsafe_sources": [],
+          "critical_warnings": []
+        }
+      }
+    },
+    "recommendation_trace": {
+      "selector_version": "2026.1",
+      "market_candidates": {
+        "spread": {},
+        "total": {}
+      },
+      "final_decision": {
+        "market": "none",
+        "side": null,
+        "reason": "signal classification was LANDMINE"
+      },
+      "source_policy": {
+        "status": "OK",
+        "blocked": false,
+        "unsafe_sources": [],
+        "critical_warnings": []
+      }
+    },
+    "model_version": "2026.1",
+    "tier_score": 3,
+    "total_score": -0.8,
+    "confidence": 0.8,
+    "sharp_analysis": {
+      "spread": {
+        "differential": 5.0,
+        "score": 1,
+        "direction": "AWAY",
+        "bets_pct": 54.0,
+        "money_pct": 59.0,
+        "line": "+13.5 (-113) | -3.5 (-105)",
+        "description": "AWAY (+5.0% edge)"
+      },
+      "total": {
+        "differential": 15.0,
+        "score": 3,
+        "direction": "OVER",
+        "bets_pct": 10.0,
+        "money_pct": 25.0,
+        "line": "o49.5 (-113) | u57.5 (+117)",
+        "description": "OVER (+15.0% edge)"
+      },
+      "moneyline": {
+        "differential": 3.0,
+        "score": 0,
+        "direction": "AWAY",
+        "bets_pct": 13.0,
+        "money_pct": 16.0,
+        "line": "+1011 | -190",
+        "description": "AWAY (+3.0% edge)"
+      }
+    },
+    "weather_analysis": {
+      "score": 1,
+      "factors": [
+        "Hot weather (87\u00b0F)"
+      ],
+      "description": "Hot weather (87\u00b0F)"
+    },
+    "referee_analysis": {
+      "ats_pct": 52.1,
+      "ou_pct": 54.0,
+      "ats_score": 0,
+      "ou_score": 0,
+      "ats_tendency": "NEUTRAL",
+      "ou_tendency": "NEUTRAL TOTAL",
+      "referee": "John Hussey",
+      "factors": []
+    },
+    "injury_analysis": {
+      "away_injuries": [],
+      "home_injuries": [],
+      "away_impact": 0,
+      "home_impact": 0,
+      "score": 0,
+      "edge": "NO EDGE",
+      "description": "Found 0 high-impact injuries",
+      "factors": []
+    },
+    "situational_analysis": {
+      "score": -1,
+      "factors": [
+        "Double-digit spread (13.5) - blowout risk"
+      ],
+      "description": "Double-digit spread (13.5) - blowout risk"
+    },
+    "statistical_analysis": {
+      "score": -1,
+      "factors": [
+        "Statistical edge to Cincinnati Bengals (2.0 pts)"
+      ],
+      "description": "Statistical edge to Cincinnati Bengals (2.0 pts)"
+    },
+    "game_theory_analysis": {
+      "score": 0,
+      "factors": [
+        "Market mispricing possible (+5.0% edge)"
+      ],
+      "description": "Market mispricing possible (+5.0% edge)"
+    },
+    "schedule_analysis": {
+      "score": 0,
+      "factors": [
+        "Week W1 not found. Available: []..."
+      ],
+      "description": "Week W1 not found. Available: []..."
+    },
+    "sharp_stories": [
+      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
+      "\ud83d\udcc8 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing",
+      "\ud83d\udcb0 MASSIVE EDGE: +15.0% sharp money on OVER"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -3120,31 +3317,31 @@
     "confidence": 0.6,
     "sharp_analysis": {
       "spread": {
-        "differential": -13.0,
+        "differential": -10.0,
         "score": -2,
         "direction": "HOME",
-        "bets_pct": 39.0,
-        "money_pct": 26.0,
-        "line": "+5.5 (+104) | -5.5 (-108)",
-        "description": "HOME (-13.0% edge)"
+        "bets_pct": 35.0,
+        "money_pct": 25.0,
+        "line": "+5.5 (+104) | -6 (-102)",
+        "description": "HOME (-10.0% edge)"
       },
       "total": {
-        "differential": 2.0,
+        "differential": 4.0,
         "score": 0,
         "direction": "OVER",
-        "bets_pct": 13.0,
-        "money_pct": 15.0,
-        "line": "o44.5 (+113) | u44.5 (-112)",
-        "description": "OVER (+2.0% edge)"
+        "bets_pct": 14.0,
+        "money_pct": 18.0,
+        "line": "o44.5 (+113) | u44 (-108)",
+        "description": "OVER (+4.0% edge)"
       },
       "moneyline": {
-        "differential": -2.0,
+        "differential": -1.0,
         "score": 0,
         "direction": "HOME",
         "bets_pct": 4.0,
-        "money_pct": 2.0,
-        "line": "+212 | -212",
-        "description": "HOME (-2.0% edge)"
+        "money_pct": 3.0,
+        "line": "+233 | -233",
+        "description": "HOME (-1.0% edge)"
       }
     },
     "weather_analysis": {
@@ -3187,10 +3384,10 @@
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market inefficiency detected (-13.0% sharp edge)",
+        "Market inefficiency detected (-10.0% sharp edge)",
         "Potential steam move developing"
       ],
-      "description": "Market inefficiency detected (-13.0% sharp edge), Potential steam move developing"
+      "description": "Market inefficiency detected (-10.0% sharp edge), Potential steam move developing"
     },
     "schedule_analysis": {
       "score": 0,
@@ -3270,13 +3467,13 @@
     }
   },
   {
-    "matchup": "Chicago Bears @ Carolina Panthers",
-    "matchup_key": "CHI@CAR",
-    "away": "Chicago Bears",
-    "home": "Carolina Panthers",
-    "away_tla": "CHI",
-    "home_tla": "CAR",
-    "game_time": "1:00 PM ET",
+    "matchup": "Cleveland Browns @ Jacksonville Jaguars",
+    "matchup_key": "CLE@JAX",
+    "away": "Cleveland Browns",
+    "home": "Jacksonville Jaguars",
+    "away_tla": "CLE",
+    "home_tla": "JAX",
+    "game_time": "3RD 8:31",
     "classification": "\u26a0\ufe0f PASS",
     "classification_label": "PASS",
     "signal_classification": "\u26a0\ufe0f LANDMINE",
@@ -3327,52 +3524,52 @@
     },
     "model_version": "2026.1",
     "tier_score": 3,
-    "total_score": 0.5,
-    "confidence": 0.5,
+    "total_score": -0.4,
+    "confidence": 0.4,
     "sharp_analysis": {
       "spread": {
-        "differential": -3.0,
-        "score": 0,
+        "differential": -18.0,
+        "score": -3,
         "direction": "HOME",
-        "bets_pct": 68.0,
-        "money_pct": 65.0,
-        "line": "-2.5 (-122) | +2.5 (+117)",
-        "description": "HOME (-3.0% edge)"
+        "bets_pct": 36.0,
+        "money_pct": 18.0,
+        "line": "+9 (-105) | -8.5 (-108)",
+        "description": "HOME (-18.0% edge)"
       },
       "total": {
-        "differential": 10.0,
-        "score": 2,
-        "direction": "OVER",
-        "bets_pct": 10.0,
-        "money_pct": 20.0,
-        "line": "o46.5 (-108) | u46.5 (+104)",
-        "description": "OVER (+10.0% edge)"
+        "differential": 0.0,
+        "score": 0,
+        "direction": "NEUTRAL",
+        "bets_pct": 31.0,
+        "money_pct": 31.0,
+        "line": "o40.5 (-102) | u41.5 (+100)",
+        "description": "NEUTRAL (+0.0% edge)"
       },
       "moneyline": {
-        "differential": 5.0,
-        "score": 1,
+        "differential": 1.0,
+        "score": 0,
         "direction": "AWAY",
-        "bets_pct": 89.0,
-        "money_pct": 94.0,
-        "line": "-150 | +150",
-        "description": "AWAY (+5.0% edge)"
+        "bets_pct": 6.0,
+        "money_pct": 7.0,
+        "line": "+9900 | -450",
+        "description": "AWAY (+1.0% edge)"
       }
     },
     "weather_analysis": {
       "score": 1,
       "factors": [
-        "Hot weather (86\u00b0F)"
+        "Hot weather (91\u00b0F)"
       ],
-      "description": "Hot weather (86\u00b0F)"
+      "description": "Hot weather (91\u00b0F)"
     },
     "referee_analysis": {
-      "ats_pct": 41.4,
-      "ou_pct": 50.0,
+      "ats_pct": 42.6,
+      "ou_pct": 40.7,
       "ats_score": 0,
       "ou_score": 0,
       "ats_tendency": "DOG-FRIENDLY",
-      "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "Brad Allen",
+      "ou_tendency": "UNDER TENDENCY",
+      "referee": "Craig Wrolstad",
       "factors": []
     },
     "injury_analysis": {
@@ -3391,14 +3588,19 @@
       "description": "No significant situational factors"
     },
     "statistical_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "No significant statistical edge"
+      "score": -3,
+      "factors": [
+        "Strong statistical edge to Jacksonville Jaguars (5.0 pts)"
+      ],
+      "description": "Strong statistical edge to Jacksonville Jaguars (5.0 pts)"
     },
     "game_theory_analysis": {
       "score": 0,
-      "factors": [],
-      "description": "Standard market dynamics"
+      "factors": [
+        "Market inefficiency detected (-18.0% sharp edge)",
+        "Potential steam move developing"
+      ],
+      "description": "Market inefficiency detected (-18.0% sharp edge), Potential steam move developing"
     },
     "schedule_analysis": {
       "score": 0,
@@ -3408,7 +3610,7 @@
       "description": "Week W1 not found. Available: []..."
     },
     "sharp_stories": [
-      "Sharp action relatively balanced across markets"
+      "\u26a0\ufe0f SHARP CONFLICT: -18.0% sharp money on HOME team"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -3478,22 +3680,22 @@
     }
   },
   {
-    "matchup": "Cleveland Browns @ Jacksonville Jaguars",
-    "matchup_key": "CLE@JAX",
-    "away": "Cleveland Browns",
-    "home": "Jacksonville Jaguars",
-    "away_tla": "CLE",
-    "home_tla": "JAX",
-    "game_time": "1:00 PM ET",
-    "classification": "\u26a0\ufe0f PASS",
-    "classification_label": "PASS",
-    "signal_classification": "\u26a0\ufe0f LANDMINE",
-    "signal_classification_label": "PASS",
-    "signal_tier_score": 3,
-    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "matchup": "Arizona Cardinals @ Los Angeles Chargers",
+    "matchup_key": "ARI@LAC",
+    "away": "Arizona Cardinals",
+    "home": "Los Angeles Chargers",
+    "away_tla": "ARI",
+    "home_tla": "LAC",
+    "game_time": "4:25 PM ET",
+    "classification": "\u274c FADE",
+    "classification_label": "AVOID",
+    "signal_classification": "\u274c FADE",
+    "signal_classification_label": "AVOID",
+    "signal_tier_score": 2,
+    "recommendation": "\u274c AVOID: Multiple negative factors align",
     "pick_metadata": {
       "market": "none",
-      "reason": "landmine classification",
+      "reason": "fade classification",
       "spread_score": null,
       "total_score": null,
       "trace": {
@@ -3505,7 +3707,7 @@
         "final_decision": {
           "market": "none",
           "side": null,
-          "reason": "signal classification was LANDMINE"
+          "reason": "signal classification was FADE"
         },
         "source_policy": {
           "status": "OK",
@@ -3524,7 +3726,7 @@
       "final_decision": {
         "market": "none",
         "side": null,
-        "reason": "signal classification was LANDMINE"
+        "reason": "signal classification was FADE"
       },
       "source_policy": {
         "status": "OK",
@@ -3534,53 +3736,51 @@
       }
     },
     "model_version": "2026.1",
-    "tier_score": 3,
-    "total_score": -0.4,
-    "confidence": 0.4,
+    "tier_score": 2,
+    "total_score": -2.5,
+    "confidence": 2.5,
     "sharp_analysis": {
       "spread": {
-        "differential": -18.0,
-        "score": -3,
+        "differential": -8.0,
+        "score": -1,
         "direction": "HOME",
-        "bets_pct": 38.0,
-        "money_pct": 20.0,
+        "bets_pct": 31.0,
+        "money_pct": 23.0,
         "line": "+9.5 (-108) | -9.5 (+104)",
-        "description": "HOME (-18.0% edge)"
+        "description": "HOME (-8.0% edge)"
       },
       "total": {
-        "differential": 0.0,
-        "score": 0,
-        "direction": "NEUTRAL",
-        "bets_pct": 31.0,
-        "money_pct": 31.0,
-        "line": "o40.5 (+104) | u40.5 (-108)",
-        "description": "NEUTRAL (+0.0% edge)"
+        "differential": 5.0,
+        "score": 1,
+        "direction": "OVER",
+        "bets_pct": 10.0,
+        "money_pct": 15.0,
+        "line": "o47.5 (+104) | u47.5 (-108)",
+        "description": "OVER (+5.0% edge)"
       },
       "moneyline": {
-        "differential": 2.0,
+        "differential": -1.0,
         "score": 0,
-        "direction": "AWAY",
-        "bets_pct": 6.0,
-        "money_pct": 8.0,
-        "line": "+376 | -376",
-        "description": "AWAY (+2.0% edge)"
+        "direction": "HOME",
+        "bets_pct": 3.0,
+        "money_pct": 2.0,
+        "line": "+426 | -426",
+        "description": "HOME (-1.0% edge)"
       }
     },
     "weather_analysis": {
-      "score": 1,
-      "factors": [
-        "Hot weather (89\u00b0F)"
-      ],
-      "description": "Hot weather (89\u00b0F)"
+      "score": 0,
+      "factors": [],
+      "description": "Good conditions"
     },
     "referee_analysis": {
-      "ats_pct": 42.6,
-      "ou_pct": 40.7,
+      "ats_pct": 50.0,
+      "ou_pct": 38.2,
       "ats_score": 0,
-      "ou_score": 0,
-      "ats_tendency": "DOG-FRIENDLY",
+      "ou_score": -2,
+      "ats_tendency": "NEUTRAL",
       "ou_tendency": "UNDER TENDENCY",
-      "referee": "Craig Wrolstad",
+      "referee": "Ron Torbert",
       "factors": []
     },
     "injury_analysis": {
@@ -3601,17 +3801,17 @@
     "statistical_analysis": {
       "score": -3,
       "factors": [
-        "Strong statistical edge to Jacksonville Jaguars (5.0 pts)"
+        "Strong statistical edge to Los Angeles Chargers (5.0 pts)"
       ],
-      "description": "Strong statistical edge to Jacksonville Jaguars (5.0 pts)"
+      "description": "Strong statistical edge to Los Angeles Chargers (5.0 pts)"
     },
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market inefficiency detected (-18.0% sharp edge)",
+        "Market mispricing possible (-8.0% edge)",
         "Potential steam move developing"
       ],
-      "description": "Market inefficiency detected (-18.0% sharp edge), Potential steam move developing"
+      "description": "Market mispricing possible (-8.0% edge), Potential steam move developing"
     },
     "schedule_analysis": {
       "score": 0,
@@ -3621,7 +3821,7 @@
       "description": "Week W1 not found. Available: []..."
     },
     "sharp_stories": [
-      "\u26a0\ufe0f SHARP CONFLICT: -18.0% sharp money on HOME team"
+      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on home team across markets"
     ],
     "season_type": "REG",
     "data_quality": {

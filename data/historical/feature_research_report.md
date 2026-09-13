@@ -11,24 +11,19 @@
 ## Factor Groups
 
 ### best_edge_market
-- NONE: 45 games
-- spread: 1 games
+- NONE: 46 games
 
 ### pythagorean_pick_alignment
-- missing: 1 games
-- no_pick: 45 games
+- no_pick: 46 games
 
 ### value_gap_pick_alignment
-- missing: 1 games
-- no_pick: 45 games
+- no_pick: 46 games
 
 ### market_expectation_pick_alignment
-- conflict: 1 games
-- no_pick: 45 games
+- no_pick: 46 games
 
 ### overperformance_pick_alignment
-- missing: 1 games
-- no_pick: 45 games
+- no_pick: 46 games
 
 ### division_game
 - false: 19 games
