@@ -87,7 +87,14 @@ function parseGame(
   warps: WarpsMarketOverlay | undefined,
   kickoffTime: string | undefined
 ): PickemGame {
-  const isCompleted = g.away_score != null && g.home_score != null;
+  const hasScores = g.away_score != null && g.home_score != null;
+  const kickoffMs = kickoffTime ? new Date(kickoffTime).getTime() : 0;
+  // Treat as completed only if scores are real (non-zero) or kickoff was 4+ hours ago
+  const isCompleted = hasScores && (
+    (g.away_score ?? 0) > 0 ||
+    (g.home_score ?? 0) > 0 ||
+    (kickoffMs > 0 && Date.now() > kickoffMs + 4 * 3600 * 1000)
+  );
   const lat = g.latest as Record<string, string | null>;
   const spreadLine = lat.sharp_spread_line ?? "";
   const totalLine = lat.sharp_total_line ?? "";
