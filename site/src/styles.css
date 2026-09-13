@@ -5164,6 +5164,7 @@ select {
 /* ── Overview root ── */
 .ov-root {
   padding: 0;
+  background: #f6f8fc;
 }
 
 /* ── Hero ── */
@@ -5241,6 +5242,7 @@ select {
 .ov-stats {
   display: flex;
   border-bottom: 1px solid #dce5f0;
+  background: #ffffff;
 }
 
 .ov-stat {
@@ -5400,39 +5402,7 @@ select {
 .ov-card.ov-green .ov-btn { background: #059669; }
 .ov-card.ov-slate .ov-btn { background: #475569; }
 
-/* Dark mode — overview */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .ov-stats       { background: #0d1117; border-color: #21262d; }
-  :root:not([data-theme="light"]) .ov-stat        { border-color: #21262d; }
-  :root:not([data-theme="light"]) .ov-stat-num    { color: #93c5fd; }
-  :root:not([data-theme="light"]) .ov-stat-label  { color: #8b949e; }
-  :root:not([data-theme="light"]) .ov-tools-title { color: #93c5fd; }
-  :root:not([data-theme="light"]) .ov-tools-sub   { color: #8b949e; }
-  :root:not([data-theme="light"]) .ov-card        { background: #161b22; border-color: #21262d; }
-  :root:not([data-theme="light"]) .ov-icon        { background: #1f2937; }
-  :root:not([data-theme="light"]) .ov-goal        { color: #8b949e; }
-  :root:not([data-theme="light"]) .ov-name        { color: #93c5fd; }
-  :root:not([data-theme="light"]) .ov-card.ov-red   .ov-name { color: #fca5a5; }
-  :root:not([data-theme="light"]) .ov-card.ov-gold  .ov-name { color: #fcd34d; }
-  :root:not([data-theme="light"]) .ov-card.ov-green .ov-name { color: #34d399; }
-  :root:not([data-theme="light"]) .ov-card.ov-slate .ov-name { color: #94a3b8; }
-  :root:not([data-theme="light"]) .ov-desc        { color: #8b949e; }
-}
-:root[data-theme="dark"] .ov-stats       { background: #0d1117; border-color: #21262d; }
-:root[data-theme="dark"] .ov-stat        { border-color: #21262d; }
-:root[data-theme="dark"] .ov-stat-num    { color: #93c5fd; }
-:root[data-theme="dark"] .ov-stat-label  { color: #8b949e; }
-:root[data-theme="dark"] .ov-tools-title { color: #93c5fd; }
-:root[data-theme="dark"] .ov-tools-sub   { color: #8b949e; }
-:root[data-theme="dark"] .ov-card        { background: #161b22; border-color: #21262d; }
-:root[data-theme="dark"] .ov-icon        { background: #1f2937; }
-:root[data-theme="dark"] .ov-goal        { color: #8b949e; }
-:root[data-theme="dark"] .ov-name        { color: #93c5fd; }
-:root[data-theme="dark"] .ov-card.ov-red   .ov-name { color: #fca5a5; }
-:root[data-theme="dark"] .ov-card.ov-gold  .ov-name { color: #fcd34d; }
-:root[data-theme="dark"] .ov-card.ov-green .ov-name { color: #34d399; }
-:root[data-theme="dark"] .ov-card.ov-slate .ov-name { color: #94a3b8; }
-:root[data-theme="dark"] .ov-desc        { color: #8b949e; }
+/* Overview section always renders in light mode — mirrors landing page */
 
 /* Mobile — overview */
 @media (max-width: 720px) {
