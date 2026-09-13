@@ -320,50 +320,49 @@ export function PickemView({
                     </div>
                   </div>
 
-                  {!g.isCompleted && (
-                    <>
-                      <div className="pickem-lines">
-                        {g.awaySpread !== null && (
-                          <span className="pk-line">{g.awayTla} {signed(g.awaySpread)} · O/U {g.ou?.toFixed(1) ?? "—"}</span>
+                  {/* Always show pre-game picks — dimmed after final so you can compare model vs result */}
+                  <div className={g.isCompleted ? "pk-pregame-frozen" : undefined}>
+                    <div className="pickem-lines">
+                      {g.awaySpread !== null && (
+                        <span className="pk-line">{g.awayTla} {signed(g.awaySpread)} · O/U {g.ou?.toFixed(1) ?? "—"}</span>
+                      )}
+                    </div>
+
+                    <div className="pickem-su">
+                      <span className="pk-su-label">SU pick</span>
+                      <div className="pk-su-pick">
+                        {g.favTla && <img src={teamLogos[g.favTla]} alt={g.favTla} className="pk-su-logo" />}
+                        <strong className="pk-su-team">{g.favTla ?? "Pick'em"}</strong>
+                        {warpsFavWinPct !== null && (
+                          <span className="pk-win-prob">{warpsFavWinPct}%</span>
                         )}
                       </div>
+                    </div>
 
-                      <div className="pickem-su">
-                        <span className="pk-su-label">SU pick</span>
-                        <div className="pk-su-pick">
-                          {g.favTla && <img src={teamLogos[g.favTla]} alt={g.favTla} className="pk-su-logo" />}
-                          <strong className="pk-su-team">{g.favTla ?? "Pick'em"}</strong>
-                          {warpsFavWinPct !== null && (
-                            <span className="pk-win-prob">{warpsFavWinPct}%</span>
-                          )}
-                        </div>
+                    {g.warpsFairHomeSpread !== null && (
+                      <div className={`pickem-warps ${warpsAgreesWithFav ? "warps-agree" : "warps-fade"}`}>
+                        <span className="warps-label">WARPS</span>
+                        <span className="warps-fair">fair {g.favTla === g.homeTla ? signed(-g.warpsFairHomeSpread) : signed(g.warpsFairHomeSpread)} {g.favTla}</span>
+                        {g.warpsOverlayEdge !== null && (
+                          <span className="warps-edge">{warpsAgreesWithFav ? "▲" : "▼"} {g.warpsOverlayEdge.toFixed(1)}pt edge</span>
+                        )}
                       </div>
+                    )}
 
-                      {g.warpsFairHomeSpread !== null && (
-                        <div className={`pickem-warps ${warpsAgreesWithFav ? "warps-agree" : "warps-fade"}`}>
-                          <span className="warps-label">WARPS</span>
-                          <span className="warps-fair">fair {g.favTla === g.homeTla ? signed(-g.warpsFairHomeSpread) : signed(g.warpsFairHomeSpread)} {g.favTla}</span>
-                          {g.warpsOverlayEdge !== null && (
-                            <span className="warps-edge">{warpsAgreesWithFav ? "▲" : "▼"} {g.warpsOverlayEdge.toFixed(1)}pt edge</span>
-                          )}
-                        </div>
-                      )}
-
-                      {myPick && (
-                        <div className={`pickem-model ${modelFadesVegas ? "model-fade" : "model-agree"}`}>
-                          {modelFadesVegas ? `Model fades → ${myPick}` : `Model: ${myPick} ✓`}
-                          {g.modelPickMarket && g.modelPickMarket !== "none" && (
-                            <span className="pk-market"> ({g.modelPickMarket})</span>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="pickem-implied">
-                        {g.awayImplied !== null && <span>{g.awayTla}: {g.awayImplied.toFixed(1)}</span>}
-                        {g.homeImplied !== null && <span>{g.homeTla}: {g.homeImplied.toFixed(1)}</span>}
+                    {myPick && (
+                      <div className={`pickem-model ${modelFadesVegas ? "model-fade" : "model-agree"}`}>
+                        {modelFadesVegas ? `Model fades → ${myPick}` : `Model: ${myPick} ✓`}
+                        {g.modelPickMarket && g.modelPickMarket !== "none" && (
+                          <span className="pk-market"> ({g.modelPickMarket})</span>
+                        )}
                       </div>
-                    </>
-                  )}
+                    )}
+
+                    <div className="pickem-implied">
+                      {g.awayImplied !== null && <span>{g.awayTla}: {g.awayImplied.toFixed(1)}</span>}
+                      {g.homeImplied !== null && <span>{g.homeTla}: {g.homeImplied.toFixed(1)}</span>}
+                    </div>
+                  </div>
                 </div>
               );
             })}
