@@ -54,9 +54,10 @@ jobs:
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK="${{ github.event.inputs.week }}"
           else
-            # Priority 2: current_week.json — canonical pointer written by Workflow 4.5 on every run.
-            # Season-gated so a stale pointer from a prior year is ignored.
-            if [ -f "data/current_week.json" ]; then
+            # Priority 2: ESPN live scoreboard — advances automatically each week without needing current_week.json
+            WEEK=$(python3 scripts/detect_current_week.py 2>/dev/null || echo "")
+            # Priority 3: current_week.json — fallback when ESPN is unreachable
+            if [ -z "$WEEK" ] && [ -f "data/current_week.json" ]; then
               CW_SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
               CW_WEEK=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('week',''))" 2>/dev/null || echo "")
               [ "$CW_SEASON" = "$SEASON" ] && WEEK="$CW_WEEK"
