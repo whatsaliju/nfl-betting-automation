@@ -80,8 +80,8 @@ export default function LandingApp() {
       </nav>
 
       <section className="ls-hero">
-        <p className="ls-eyebrow">2026 NFL Season · Week 1 Live</p>
-        <h1 className="ls-headline">Stop guessing.<br />Start picking.</h1>
+        <p className="ls-eyebrow">2026 NFL Season · Live</p>
+        <h1 className="ls-headline">NFL analysis.<br />26 seasons deep.</h1>
         <p className="ls-sub">
           Seven tools that answer the seven questions every NFL fan asks each week —
           backed by 26 seasons of data and a model that beats Vegas year over year.

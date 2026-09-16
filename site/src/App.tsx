@@ -149,13 +149,13 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
   const modelStages = [
     {
       label: "This Week's Pick",
-      value: currentBettingCard?.plays ? `${currentBettingCard.plays} live` : "None yet",
+      value: currentBettingCard?.plays ? `${currentBettingCard.plays} live` : "No plays this week",
       detail: currentContext?.has_betting_card ? "Weekly betting card is live" : "Waiting for weekly data",
       status: currentBettingCard?.plays ? "ready" : "hold",
     },
     {
       label: "Watch List",
-      value: currentBettingCard?.watch ? `${currentBettingCard.watch} games` : "Empty",
+      value: currentBettingCard?.watch ? `${currentBettingCard.watch} games` : "None this week",
       detail: "Games to monitor — not quite a bet yet",
       status: currentBettingCard?.watch ? "watch" : "hold",
     },
