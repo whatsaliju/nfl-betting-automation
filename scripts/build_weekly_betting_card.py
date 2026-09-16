@@ -198,6 +198,14 @@ def action_for(game, explanation, flags):
         action = explanation.get("quality_action")
         if action == "play" and any("source health" in flag or "data quality" in flag for flag in flags):
             return "watch"
+        # Stale DEGRADED guard: explanation.quality_action may have been set to "pass"
+        # when source data was degraded at analysis time.  If the current game-level
+        # source/data health is OK (only stale explanation flags remain) and the
+        # selector's best_edge is a play, upgrade to "watch" rather than silently passing.
+        if action == "pass" and best.get("status") == "play":
+            live_health_flags = [f for f in flags if "source health" in f or "data quality" in f]
+            if not live_health_flags:
+                return "watch"
         return action
     if best.get("status") == "play":
         return "watch" if flags else "play"
