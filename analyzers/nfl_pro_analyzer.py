@@ -32,7 +32,7 @@ def _load_schedule_rest(season):
         mod = importlib.import_module(f"data.schedule_rest_{season}")
         return getattr(mod, f"SCHEDULE_REST_DATA_{season}", {})
     except (ImportError, AttributeError):
-        # Module doesn't exist yet for this season — return empty dict
+        print(f"⚠️  data/schedule_rest_{season}.py not found — rest-day features disabled. Run scripts/generate_schedule_rest.py to generate it.")
         return {}
 
 from analyzers.nfl_common import get_current_season as _get_current_season
