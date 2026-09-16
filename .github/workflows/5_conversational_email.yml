@@ -28,9 +28,9 @@ jobs:
         id: gate
         run: |
           STAGE="${{ github.event.client_payload.stage }}"
-          if [ "$STAGE" = "initial" ]; then
+          if [ "$STAGE" = "opening" ]; then
             echo "SKIP=true" >> $GITHUB_OUTPUT
-            echo "⏭️  SKIP: stage=initial — nfl_reporter.py already sent the initial email. This workflow only runs for update/final stages."
+            echo "⏭️  SKIP: stage=opening — nfl_reporter.py already sent the opening email. This workflow only runs for update/final/pre_mnf stages."
           else
             echo "SKIP=false" >> $GITHUB_OUTPUT
           fi

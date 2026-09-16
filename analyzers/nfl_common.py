@@ -156,6 +156,8 @@ def normalize_season_type(season_type=None, week=None):
     if value in POSTSEASON_GAME_TYPES:
         return "POST"
     if week is not None:
+        if str(week).upper() in POSTSEASON_GAME_TYPES:
+            return "POST"
         try:
             if int(week) > 18:
                 return "POST"
