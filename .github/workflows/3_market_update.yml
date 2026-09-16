@@ -429,7 +429,7 @@ jobs:
               baseline.to_csv(baseline_queries_path, index=False)
 
               if trend_builder_available:
-                  build_referee_trends(int(week))
+                  build_referee_trends(int(week) if week.isdigit() else week)
                   print(f"✅ Updated referee trend context for {flip_count} flipped games")
               else:
                   print("⚠️ Referee trend context was not refreshed because the trend builder was unavailable")

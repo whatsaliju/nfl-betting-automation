@@ -64,7 +64,14 @@ jobs:
               [ "$PRE_WEEK" -gt 4 ] && PRE_WEEK=4
               WEEK="PRE${PRE_WEEK}"
             else
-              WEEK=$(python3 -c "from datetime import datetime; s=datetime.strptime('$START_DATE','%Y-%m-%d'); d=(datetime.now()-s).days; print(max(1,min(d//7+1+(1 if datetime.now().weekday()>=1 else 0),18)))")
+              WEEK=$(python3 -c "
+from datetime import datetime
+s = datetime.strptime('$START_DATE', '%Y-%m-%d')
+d = (datetime.now() - s).days
+raw = d // 7 + 1 + (1 if datetime.now().weekday() >= 1 else 0)
+playoff_map = {19: 'WC', 20: 'DIV', 21: 'CONF'}
+print(playoff_map.get(raw, 'SB') if raw > 18 else max(1, min(raw, 18)))
+")
             fi
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
