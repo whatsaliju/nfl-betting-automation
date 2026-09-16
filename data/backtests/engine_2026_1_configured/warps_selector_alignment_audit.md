@@ -7,26 +7,24 @@ It is a quality-gate study, not an ROI calculation.
 
 - Status: MONITOR_ONLY
 - Recommendation: Sample is still thin; keep WARPS as an explanation and conflict tag.
-- Baseline win rate: 0.7778
-- Aligned win rate: 0.8
-- Conflict win rate: 0.7143
+- Baseline win rate: None
+- Aligned win rate: None
+- Conflict win rate: None
 
 ## Alignment Buckets
 
 | Bucket | Plays | W-L-P | Win Rate |
 |---|---:|---:|---:|
-| aligned | 5 | 4-1-0 | 0.8 |
-| conflict | 7 | 5-2-0 | 0.7143 |
 
 ## Policy Simulations
 
 | Policy | Plays | W-L-P | Win Rate | Removed W-L-P | Delta |
 |---|---:|---:|---:|---:|---:|
-| baseline | 18 | 14-4-0 | 0.7778 | 0-0-0 | 0.0 |
-| warps_no_conflict | 11 | 9-2-0 | 0.8182 | 5-2-0 | 0.0404 |
-| warps_aligned_only | 11 | 9-2-0 | 0.8182 | 5-2-0 | 0.0404 |
-| warps_min_1pt_no_conflict | 11 | 9-2-0 | 0.8182 | 5-2-0 | 0.0404 |
-| warps_min_2pt_aligned | 10 | 8-2-0 | 0.8 | 6-2-0 | 0.0222 |
+| baseline | 0 | 0-0-0 | None | 0-0-0 | None |
+| warps_no_conflict | 0 | 0-0-0 | None | 0-0-0 | None |
+| warps_aligned_only | 0 | 0-0-0 | None | 0-0-0 | None |
+| warps_min_1pt_no_conflict | 0 | 0-0-0 | None | 0-0-0 | None |
+| warps_min_2pt_aligned | 0 | 0-0-0 | None | 0-0-0 | None |
 
 ## Notes
 

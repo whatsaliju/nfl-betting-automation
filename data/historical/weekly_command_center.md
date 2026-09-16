@@ -17,16 +17,14 @@
 ## Betting Card
 
 - Plays: 1
-- Watch: 4
-- Passes: 11
+- Watch: 2
+- Passes: 13
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| ATL@PIT | play | n/a | n/a | 3.0 |
-| BAL@IND | watch | n/a | n/a | 2.0 |
-| CHI@CAR | watch | n/a | n/a | 2.0 |
-| DEN@KC | watch | spread | AWAY | 2.0 |
-| GB@MIN | watch | n/a | n/a | 2.0 |
+| DEN@KC | play | n/a | n/a | 2.0 |
+| ATL@PIT | watch | n/a | n/a | 3.0 |
+| BAL@IND | watch | n/a | n/a | 3.0 |
 
 ## Survivor
 
