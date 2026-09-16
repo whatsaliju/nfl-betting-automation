@@ -54,16 +54,9 @@ jobs:
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK="${{ github.event.inputs.week }}"
           else
-            # Priority 2: ESPN live scoreboard — advances automatically each week without needing current_week.json
-            WEEK=$(python3 scripts/detect_current_week.py 2>/dev/null || echo "")
-            # Priority 3: current_week.json — fallback when ESPN is unreachable
-            if [ -z "$WEEK" ] && [ -f "data/current_week.json" ]; then
-              CW_SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
-              CW_WEEK=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('week',''))" 2>/dev/null || echo "")
-              [ "$CW_SEASON" = "$SEASON" ] && WEEK="$CW_WEEK"
-            fi
-          fi
-          if [ -z "$WEEK" ]; then
+            # Date-based formula: Wednesday prep targets the UPCOMING week, not the completed one.
+            # ESPN lags — it reports the most recently played week until TNF kicks off Thursday.
+            # The formula adds +1 week on Tue/Wed/Thu/Fri so Wednesday always targets next weekend.
             IS_PRESEASON=$(python3 -c "from datetime import datetime; print('yes' if datetime.now() < datetime.strptime('$START_DATE','%Y-%m-%d') else 'no')")
             if [ "$IS_PRESEASON" = "yes" ]; then
               PRE_DAYS=$(python3 -c "from datetime import datetime; print(max(0,(datetime.now()-datetime.strptime('$PRE_START_DATE','%Y-%m-%d')).days))")
