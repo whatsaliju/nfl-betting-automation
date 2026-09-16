@@ -4,7 +4,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { teamLogos } from "../data/nflData";
 import { AuthGate } from "./AuthGate";
-import consensusRaw from "../data/survivorConsensus2026.json";
+import consensusRaw from "../data/survivorConsensus.json";
 
 const ALL_TEAMS = Object.keys(teamLogos).sort();
 const WEEKS = Array.from({ length: 18 }, (_, i) => i + 1);

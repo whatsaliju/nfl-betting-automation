@@ -59,8 +59,7 @@ jobs:
           import json
           from pathlib import Path
 
-          season = json.loads(Path("data/current_week.json").read_text()).get("season", 2026) if Path("data/current_week.json").exists() else 2026
-          path = Path(f"site/src/data/warpsMarketOverlay{season}.json")
+          path = Path("site/src/data/warpsMarketOverlay.json")
           rows = json.loads(path.read_text())
           if len(rows) < 200:
               raise SystemExit(f"Overlay suspiciously small: only {len(rows)} rows (expected ~272 for a full season)")
@@ -73,8 +72,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season', 2026))" 2>/dev/null || echo 2026)
-          git add data/historical/warps_${SEASON}_market_overlay.csv site/src/data/warpsMarketOverlay${SEASON}.json
-          git add data/historical/survivor_recommendations_${SEASON}.csv data/historical/survivor_recommendations_${SEASON}.json data/historical/survivor_recommendations_${SEASON}.md site/src/data/survivorRecommendations${SEASON}.json
+          git add data/historical/warps_${SEASON}_market_overlay.csv site/src/data/warpsMarketOverlay.json
+          git add data/historical/survivor_recommendations_${SEASON}.csv data/historical/survivor_recommendations_${SEASON}.json data/historical/survivor_recommendations_${SEASON}.md site/src/data/survivorRecommendations.json
           test -f data/current_odds_api.json && git add data/current_odds_api.json
           test -f data/historical/current_market_odds.csv && git add data/historical/current_market_odds.csv
           if git diff --cached --quiet; then

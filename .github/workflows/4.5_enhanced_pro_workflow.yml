@@ -23,9 +23,9 @@ on:
         type: choice
         options: [auto, PRE, REG, POST]
       season:
-        description: 'Season year'
+        description: 'Season year (auto = detect from current_week.json)'
         required: false
-        default: '2026'
+        default: 'auto'
         type: string
 
 jobs:
@@ -50,10 +50,11 @@ jobs:
         id: info
         run: |
           SEASON="${{ github.event.inputs.season }}"
+          [ "$SEASON" = "auto" ] && SEASON=""
           [ -z "$SEASON" ] && SEASON="${{ github.event.client_payload.season }}"
           [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
           [ -z "$SEASON" ] && SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
-          [ -z "$SEASON" ] && SEASON="2026"
+          [ -z "$SEASON" ] && SEASON=$(python3 -c "import datetime; t=datetime.date.today(); print(t.year if t.month>=9 else t.year-1)")
 
           # Resolve week: explicit input (non-auto) > repository_dispatch payload > auto-detect from data files
           INPUT_WEEK="${{ github.event.inputs.week }}"

@@ -1,5 +1,5 @@
 import { intlVenue, teamColors, teamLogos } from "../data/nflData";
-import gameTimesData from "../data/gameTimes2026.json";
+import gameTimesData from "../data/gameTimes.json";
 import { cleanOpponent, flagEmoji, internationalBroadcaster, internationalCode } from "../lib/schedule";
 import type { EdgeBoardGame, EngineTeamCell, TeamProfile, WarpsMarketOverlay } from "../types";
 import { EngineBadge } from "./EngineBadge";

@@ -10,11 +10,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SCHEDULE = ROOT / "site" / "src" / "data" / "seasonSchedules.json"
-DEFAULT_WARPS = ROOT / "site" / "src" / "data" / "warpsMarketOverlay2026.json"
+DEFAULT_WARPS = ROOT / "site" / "src" / "data" / "warpsMarketOverlay.json"
 DEFAULT_JSON = ROOT / "data" / "historical" / "survivor_recommendations_2026.json"
 DEFAULT_CSV = ROOT / "data" / "historical" / "survivor_recommendations_2026.csv"
 DEFAULT_MD = ROOT / "data" / "historical" / "survivor_recommendations_2026.md"
-DEFAULT_SITE_JSON = ROOT / "site" / "src" / "data" / "survivorRecommendations2026.json"
+DEFAULT_SITE_JSON = ROOT / "site" / "src" / "data" / "survivorRecommendations.json"
 POOL_SIZES = (25, 100, 500)
 PAYOUT_STYLES = ("top_heavy", "winner_take_all")
 PUBLIC_PICK_SOURCE_CONTRACT = {

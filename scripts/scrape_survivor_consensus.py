@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Scrape survivor pool consensus data from survivorgrid.com/picks
-Outputs site/src/data/survivorConsensus2026.json
+Outputs site/src/data/survivorConsensus.json
 
 Data fields per team per week:
   w  - win probability (W%)
@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup
 
 PICKS_URL = "https://www.survivorgrid.com/picks"
 GRID_URL = "https://www.survivorgrid.com/"
-OUT_PATH = Path(__file__).parent.parent / "site" / "src" / "data" / "survivorConsensus2026.json"
+OUT_PATH = Path(__file__).parent.parent / "site" / "src" / "data" / "survivorConsensus.json"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; nflsignal-bot/1.0; +https://nflsignal.com)",

@@ -73,7 +73,7 @@ def main() -> None:
     if args.csv_output is None:
         args.csv_output = ROOT / "data" / "historical" / f"warps_{season}_market_overlay.csv"
     if args.json_output is None:
-        args.json_output = ROOT / "site" / "src" / "data" / f"warpsMarketOverlay{season}.json"
+        args.json_output = ROOT / "site" / "src" / "data" / "warpsMarketOverlay.json"
 
     current_odds_path: Path | None = None
     if args.fetch_odds_api:

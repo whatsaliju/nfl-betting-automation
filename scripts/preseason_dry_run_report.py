@@ -63,7 +63,7 @@ def build_report(season, week):
     dry_run = ROOT / ".github" / "workflows" / "12_preseason_dry_run.yml"
     contracts = ROOT / ".github" / "workflows" / "0_engine_contracts.yml"
     command = ROOT / "site" / "src" / "components" / "CommandCenterView.tsx"
-    survivor = ROOT / "site" / "src" / "data" / "survivorRecommendations2026.json"
+    survivor = ROOT / "site" / "src" / "data" / "survivorRecommendations.json"
     card = ROOT / "data" / "historical" / "weekly_betting_card.json"
 
     check(file_contains(enhanced, "season_type", "NFL_SEASON_TYPE"), "enhanced workflow PRE env", str(enhanced), rows)
