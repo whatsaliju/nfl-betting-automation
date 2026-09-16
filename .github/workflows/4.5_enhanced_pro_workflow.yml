@@ -11,11 +11,11 @@ on:
         default: 'auto'
         type: string
       analysis_type:
-        description: 'final = game-day picks (default); initial = early-week first look'
+        description: 'Stage: opening (Wed), pre_tnf (Thu), update (Sat), final (Sun), pre_mnf (Mon)'
         required: false
         default: 'final'
         type: choice
-        options: [final, initial]
+        options: [final, opening, pre_tnf, update, pre_mnf, initial]
       season_type:
         description: 'Season type — "auto" infers from week label'
         required: false
@@ -101,17 +101,29 @@ jobs:
           [ -z "$TYPE" ] && TYPE="final"
 
           case "$TYPE" in
-            "initial")
-              STAGE="initial"
-              PREFIX="🏈 Initial"
+            "opening")
+              STAGE="opening"
+              PREFIX="📋 Opening"
+              ;;
+            "pre_tnf")
+              STAGE="pre_tnf"
+              PREFIX="🔔 Pre-TNF"
               ;;
             "update")
               STAGE="update"
               PREFIX="🔄 Update"
               ;;
+            "pre_mnf")
+              STAGE="pre_mnf"
+              PREFIX="🌙 Pre-MNF"
+              ;;
             "lock")
               STAGE="lock"
               PREFIX="🔒 Locked Picks"
+              ;;
+            "initial")
+              STAGE="opening"
+              PREFIX="📋 Opening"
               ;;
             *)
               STAGE="final"

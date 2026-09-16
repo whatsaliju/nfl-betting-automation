@@ -2,14 +2,16 @@ name: 3. Market Update (with Line-Flip Detection)
 
 on:
   schedule:
-    # Wednesday 2:00 PM UTC (10am ET) - lines open mid-week, catch early sharp moves
+    # Wednesday 2:00 PM UTC (Wed 10am ET) - opening: first look at the week's lines
     - cron: '0 14 * 8-12,1-2 3'
-    # Thursday 6:00 PM UTC (Thu 2pm ET) - initial line snapshot well before TNF kickoff (~8:20pm ET)
+    # Thursday 6:00 PM UTC (Thu 2pm ET) - pre_tnf: snapshot before TNF kickoff (~8:20pm ET)
     - cron: '0 18 * 8-12,1-2 4'
-    # Sunday 1:00 AM UTC (Sat 9pm ET) - Saturday night line snapshot
+    # Sunday 1:00 AM UTC (Sat 9pm ET) - update: Saturday night line snapshot
     - cron: '0 1 * 8-12,1-2 0'
-    # Sunday 5:00 PM UTC (Sun 1pm ET) - game-day line check before early kickoffs
+    # Sunday 4:30 PM UTC (Sun 12:30pm ET) - final: game-day check before early kickoffs
     - cron: '30 16 * 8-12,1-2 0'
+    # Monday 10:00 PM UTC (Mon 6pm ET) - pre_mnf: snapshot before Monday Night Football (~8:15pm ET)
+    - cron: '0 22 * 8-12,1-2 1'
   workflow_dispatch:
     inputs:
       week:
@@ -197,18 +199,21 @@ jobs:
               # cron: '0 1 * * 0'   # Sunday 1:00 AM UTC (Sat 8:00 PM ET)  
               # cron: '30 16 * * 0' # Sunday 5:00 PM UTC (Sun 1:00 PM ET)
               
-              if day_utc == 2 and hour_utc == 14:  # Wednesday 2:00 PM UTC = Wed 10 AM ET
-                  analysis_type_output = "update"
-                  print("📅 Detected: UPDATE analysis (Wednesday 10 AM ET)")
+              if day_utc == 2 and hour_utc == 14:    # Wednesday 2:00 PM UTC = Wed 10 AM ET
+                  analysis_type_output = "opening"
+                  print("📅 Detected: OPENING analysis (Wednesday 10 AM ET — first look of the week)")
               elif day_utc == 3 and hour_utc == 18:  # Thursday 6:00 PM UTC = Thu 2 PM ET
-                  analysis_type_output = "initial"
-                  print("📅 Detected: INITIAL analysis (Thursday 2 PM ET)")
-              elif day_utc == 6 and hour_utc == 1:  # Sunday 1:00 AM UTC = Sat 9 PM ET
+                  analysis_type_output = "pre_tnf"
+                  print("📅 Detected: PRE-TNF analysis (Thursday 2 PM ET — before Thursday Night Football)")
+              elif day_utc == 6 and hour_utc == 1:   # Sunday 1:00 AM UTC = Sat 9 PM ET
                   analysis_type_output = "update"
-                  print("📅 Detected: UPDATE analysis (Saturday 9 PM ET)")
+                  print("📅 Detected: UPDATE analysis (Saturday 9 PM ET — pre-weekend games)")
               elif day_utc == 6 and hour_utc == 16:  # Sunday 4:30 PM UTC = Sun 12:30 PM ET
                   analysis_type_output = "final"
-                  print("📅 Detected: FINAL analysis (Sunday 12:30 PM ET)")
+                  print("📅 Detected: FINAL analysis (Sunday 12:30 PM ET — game-day before main slate)")
+              elif day_utc == 1 and hour_utc == 22:  # Monday 10:00 PM UTC = Mon 6 PM ET
+                  analysis_type_output = "pre_mnf"
+                  print("📅 Detected: PRE-MNF analysis (Monday 6 PM ET — before Monday Night Football)")
               else:
                   # Fallback for manual runs without explicit type
                   analysis_type_output = "update"
