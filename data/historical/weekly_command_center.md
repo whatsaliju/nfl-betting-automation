@@ -1,9 +1,9 @@
 # Weekly Command Center
 
-- Context: 2026 W1 · live
-- Recommended action: **PLAY**
-- Confidence tier: **A**
-- Reason: At least one selector play cleared the current command gate.
+- Context: 2026 W2 · live
+- Recommended action: **PASS**
+- Confidence tier: **X**
+- Reason: No playable or watchlist edges are active.
 
 ## Source Gates
 
@@ -16,35 +16,33 @@
 
 ## Betting Card
 
-- Plays: 1
-- Watch: 2
-- Passes: 13
-
-| Game | Action | Market | Side | Score |
-|---|---|---|---|---:|
-| DEN@KC | play | n/a | n/a | 2.0 |
-| ATL@PIT | watch | n/a | n/a | 3.0 |
-| BAL@IND | watch | n/a | n/a | 3.0 |
+- Plays: 0
+- Watch: 0
+- Passes: 0
 
 ## Survivor
 
-- Primary: JAX vs CLE (68.9%)
-- Safest: JAX vs CLE (68.9%)
-- Path pick: PHI vs WAS (67.0%)
+- Primary: LAC vs LV (67.3%)
+- Safest: LAR vs NYG (68.3%)
+- Path pick: LAC vs LV (67.3%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | JAX vs CLE (68.9%) | JAX vs CLE (68.9%) | JAX vs CLE (68.9%) |
-| 100 | JAX vs CLE (68.9%) | JAX vs CLE (68.9%) | JAX vs CLE (68.9%) |
-| 500 | JAX vs CLE (68.9%) | PHI vs WAS (67.0%) | PHI vs WAS (67.0%) |
+| 25 | LAR vs NYG (68.3%) | LAC vs LV (67.3%) | LAC vs LV (67.3%) |
+| 100 | LAR vs NYG (68.3%) | LAC vs LV (67.3%) | LAC vs LV (67.3%) |
+| 500 | LAR vs NYG (68.3%) | SF vs MIA (66.2%) | SF vs MIA (66.2%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| JAX | vs CLE | 68.9% | -222 |
-| PHI | vs WAS | 67.0% | -203 |
-| DET | vs NO | 66.4% | -198 |
-| LAC | vs ARI | 62.4% | -166 |
-| SEA | vs NE | 61.1% | -157 |
-| LAR | vs SF | 61.1% | -157 |
+| LAR | vs NYG | 68.3% | -215 |
+| LAC | vs LV | 67.3% | -206 |
+| HOU | vs CIN | 66.8% | -201 |
+| SF | vs MIA | 66.2% | -196 |
+| BAL | vs NO | 63.2% | -172 |
+| TB | vs CLE | 62.5% | -167 |
+
+## Warnings
+
+- No actionable betting plays or watchlist spots are active.

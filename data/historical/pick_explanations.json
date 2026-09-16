@@ -31,15 +31,16 @@
       "candidate unavailable"
     ],
     "alignment": {
-      "pythagorean": "missing",
+      "pythagorean": "conflict",
       "market_expectation": "aligned",
-      "value_gap": "missing",
-      "overperformance": "missing",
+      "value_gap": "conflict",
+      "overperformance": "aligned",
       "warps_spread": "",
       "warps_moneyline": ""
     },
     "reasons": [
       "Selector isolated spread AWAY",
+      "Value-gap alignment conflicts with the side",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -65,26 +66,7 @@
     "recommendation": "\ud83d\udc40 LEAN: Pittsburgh Steelers +1.5 (proceed with caution)",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_pick_alignment=conflict",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 5,
-        "losses": 1,
-        "lift": 0.0555
-      },
-      {
-        "factor": "best_edge_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -96,16 +78,16 @@
       "candidate unavailable"
     ],
     "alignment": {
-      "pythagorean": "missing",
+      "pythagorean": "aligned",
       "market_expectation": "conflict",
-      "value_gap": "missing",
-      "overperformance": "missing",
+      "value_gap": "aligned",
+      "overperformance": "conflict",
       "warps_spread": "",
       "warps_moneyline": ""
     },
     "reasons": [
       "Selector isolated spread HOME",
-      "Promoted factors matched: 2",
+      "Value-gap alignment supports the side",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -143,16 +125,67 @@
     "market_conflicts": [],
     "market_blockers": [],
     "alignment": {
-      "pythagorean": "missing",
+      "pythagorean": "conflict",
       "market_expectation": "neutral",
-      "value_gap": "missing",
-      "overperformance": "missing",
+      "value_gap": "conflict",
+      "overperformance": "aligned",
       "warps_spread": "",
       "warps_moneyline": ""
     },
     "reasons": [
       "Selector isolated spread AWAY",
       "Signals: sharp",
+      "Value-gap alignment conflicts with the side",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "MIN@CHI:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "MIN@CHI",
+    "away_tla": "MIN",
+    "home_tla": "CHI",
+    "stage": "initial",
+    "raw_action": "play",
+    "quality_action": "play",
+    "quality_gate": "warn",
+    "confidence": "standard",
+    "market": "spread",
+    "side": "HOME",
+    "selector_score": "3.0",
+    "label": "\ud83d\udcca LEAN",
+    "recommendation": "\ud83d\udc40 LEAN: Chicago Bears -5.5 (proceed with caution)",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [
+      "sharp"
+    ],
+    "market_conflicts": [],
+    "market_blockers": [],
+    "alignment": {
+      "pythagorean": "conflict",
+      "market_expectation": "aligned",
+      "value_gap": "conflict",
+      "overperformance": "aligned",
+      "warps_spread": "conflict",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "Selector isolated spread HOME",
+      "Signals: sharp",
+      "Value-gap alignment conflicts with the side",
+      "WARPS fair-line prior conflicts toward AWAY",
+      "WARPS moneyline overlay: AWAY +34.0% EV",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -262,26 +295,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -298,7 +312,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -323,26 +337,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [
@@ -359,9 +354,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "Signals: sharp",
-      "WARPS moneyline overlay: AWAY +38.6% EV",
-      "Promoted factors matched: 2"
+      "Signals: sharp"
     ],
     "result": "",
     "margin_to_line": ""
@@ -386,44 +379,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [
@@ -440,9 +396,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "Signals: sharp",
-      "WARPS moneyline overlay: HOME +32.4% EV",
-      "Promoted factors matched: 4"
+      "Signals: sharp"
     ],
     "result": "",
     "margin_to_line": ""
@@ -467,71 +421,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "total_score_bin=0_to_3.5",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "pythagorean_wins_delta_bin=abs2_to_4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [
@@ -548,9 +438,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "Signals: sharp",
-      "WARPS moneyline overlay: HOME +11.9% EV",
-      "Promoted factors matched: 7"
+      "Signals: sharp"
     ],
     "result": "",
     "margin_to_line": ""
@@ -575,53 +463,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "total_score_bin=0_to_3.5",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [
@@ -638,9 +480,54 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
+      "Signals: sharp"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "DET@BUF:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "DET@BUF",
+    "away_tla": "DET",
+    "home_tla": "BUF",
+    "stage": "initial",
+    "raw_action": "lean",
+    "quality_action": "watch",
+    "quality_gate": "warn",
+    "confidence": "watch",
+    "market": "",
+    "side": "",
+    "selector_score": "3.0",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [
+      "sharp"
+    ],
+    "market_conflicts": [],
+    "market_blockers": [],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
       "Signals: sharp",
-      "WARPS moneyline overlay: HOME +21.6% EV",
-      "Promoted factors matched: 5"
+      "WARPS moneyline overlay: AWAY +25.7% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
     "margin_to_line": ""
@@ -707,17 +594,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -734,7 +611,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -759,35 +636,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "total_score_bin=0_to_3.5",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [
@@ -804,9 +653,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "Signals: sharp",
-      "WARPS moneyline overlay: HOME -3.9% EV",
-      "Promoted factors matched: 3"
+      "Signals: sharp"
     ],
     "result": "",
     "margin_to_line": ""
@@ -848,7 +695,53 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "WARPS moneyline overlay: HOME +0.1% EV"
+      "No isolated selector edge"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "SEA@ARI:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "SEA@ARI",
+    "away_tla": "SEA",
+    "home_tla": "ARI",
+    "stage": "initial",
+    "raw_action": "lean",
+    "quality_action": "watch",
+    "quality_gate": "warn",
+    "confidence": "watch",
+    "market": "",
+    "side": "",
+    "selector_score": "2.0",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "sharp spread edge required"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: HOME +9.3% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
     "margin_to_line": ""
@@ -873,35 +766,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "total_score_bin=0_to_3.5",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -925,7 +790,6 @@
     },
     "reasons": [
       "Signals: injury",
-      "Promoted factors matched: 3",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -951,26 +815,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "total_score_bin=0_to_3.5",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -994,7 +839,6 @@
     },
     "reasons": [
       "Signals: injury",
-      "Promoted factors matched: 2",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1020,44 +864,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "pythagorean_wins_delta_bin=abs2_to_4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -1074,7 +881,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 4"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -1099,26 +906,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1138,7 +926,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1164,35 +951,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "pythagorean_wins_delta_bin=abs2_to_4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1212,7 +971,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1238,17 +996,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1268,7 +1016,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1294,26 +1041,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1333,7 +1061,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1359,26 +1086,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1398,7 +1106,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1424,17 +1131,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1454,7 +1151,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1480,35 +1176,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1528,7 +1196,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1554,17 +1221,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1584,7 +1241,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1610,17 +1266,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1640,7 +1286,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1666,17 +1311,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1696,7 +1331,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1722,17 +1356,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1752,7 +1376,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1778,26 +1401,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1817,7 +1421,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1843,26 +1446,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1882,7 +1466,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1908,44 +1491,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -1965,7 +1511,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 4",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -1991,26 +1536,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2027,7 +1553,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2052,35 +1578,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2098,7 +1596,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2123,17 +1621,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2150,7 +1638,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2175,26 +1663,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2211,7 +1680,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2236,17 +1705,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2263,7 +1722,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2288,26 +1747,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2324,7 +1764,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2349,35 +1789,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2394,7 +1806,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2461,17 +1873,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2488,7 +1890,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2513,35 +1915,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2559,7 +1933,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2626,17 +2000,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2653,7 +2017,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2678,26 +2042,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2714,7 +2059,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2739,26 +2084,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2775,7 +2101,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2800,35 +2126,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2845,7 +2143,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2870,17 +2168,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2898,7 +2186,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2923,17 +2211,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -2951,7 +2229,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -2976,26 +2254,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3012,7 +2271,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3037,35 +2296,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3083,7 +2314,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3108,17 +2339,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3135,7 +2356,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3202,44 +2423,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "pythagorean_wins_delta_bin=abs2_to_4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3256,7 +2440,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 4"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3281,17 +2465,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3309,7 +2483,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3334,44 +2508,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3388,7 +2525,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 4"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3413,26 +2550,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3449,7 +2567,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3474,26 +2592,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3510,8 +2609,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "WARPS moneyline overlay: AWAY +80.6% EV",
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3536,35 +2634,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3581,8 +2651,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "WARPS moneyline overlay: AWAY +43.0% EV",
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3624,7 +2693,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "WARPS moneyline overlay: HOME +38.2% EV"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3649,26 +2718,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3685,8 +2735,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "WARPS moneyline overlay: AWAY +20.3% EV",
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3711,26 +2760,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3747,7 +2777,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3772,35 +2802,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3817,8 +2819,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "WARPS moneyline overlay: AWAY +21.0% EV",
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3843,53 +2844,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3906,8 +2861,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "WARPS moneyline overlay: HOME +10.4% EV",
-      "Promoted factors matched: 5"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -3932,53 +2886,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -3995,7 +2903,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "Promoted factors matched: 5"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -4020,44 +2928,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -4074,8 +2945,7 @@
       "warps_moneyline": "research_only"
     },
     "reasons": [
-      "WARPS moneyline overlay: AWAY +27.1% EV",
-      "Promoted factors matched: 4"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -4100,17 +2970,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "OK",
     "data_quality_status": "OK",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -4127,7 +2987,604 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "CAR@ATL:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "CAR@ATL",
+    "away_tla": "CAR",
+    "home_tla": "ATL",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u274c FADE",
+    "recommendation": "\u274c AVOID: Multiple negative factors align",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: HOME +36.9% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "CIN@HOU:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "CIN@HOU",
+    "away_tla": "CIN",
+    "home_tla": "HOU",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u274c FADE",
+    "recommendation": "\u274c AVOID: Multiple negative factors align",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: HOME +13.8% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "CLE@TB:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "CLE@TB",
+    "away_tla": "CLE",
+    "home_tla": "TB",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: AWAY +57.6% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "GB@NYJ:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "GB@NYJ",
+    "away_tla": "GB",
+    "home_tla": "NYJ",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: HOME +11.5% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "IND@KC:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "IND@KC",
+    "away_tla": "IND",
+    "home_tla": "KC",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: AWAY +55.0% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "JAX@DEN:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "JAX@DEN",
+    "away_tla": "JAX",
+    "home_tla": "DEN",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: AWAY +1.8% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "LV@LAC:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "LV@LAC",
+    "away_tla": "LV",
+    "home_tla": "LAC",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: AWAY +14.5% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "MIA@SF:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "MIA@SF",
+    "away_tla": "MIA",
+    "home_tla": "SF",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u274c FADE",
+    "recommendation": "\u274c AVOID: Multiple negative factors align",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: AWAY +145.0% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "NO@BAL:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "NO@BAL",
+    "away_tla": "NO",
+    "home_tla": "BAL",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: AWAY +54.4% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "NYG@LAR:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "NYG@LAR",
+    "away_tla": "NYG",
+    "home_tla": "LAR",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u274c FADE",
+    "recommendation": "\u274c AVOID: Multiple negative factors align",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: AWAY +20.5% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "PHI@TEN:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "PHI@TEN",
+    "away_tla": "PHI",
+    "home_tla": "TEN",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: HOME +43.7% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "PIT@NE:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "PIT@NE",
+    "away_tla": "PIT",
+    "home_tla": "NE",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u274c FADE",
+    "recommendation": "\u274c AVOID: Multiple negative factors align",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "no_spread_pick",
+      "warps_moneyline": "research_only"
+    },
+    "reasons": [
+      "WARPS moneyline overlay: AWAY +17.4% EV",
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+    ],
+    "result": "",
+    "margin_to_line": ""
+  },
+  {
+    "key": "WSH@DAL:initial",
+    "season": "2026",
+    "season_type": "REG",
+    "week": "2",
+    "matchup_key": "WSH@DAL",
+    "away_tla": "WAS",
+    "home_tla": "DAL",
+    "stage": "initial",
+    "raw_action": "pass",
+    "quality_action": "pass",
+    "quality_gate": "warn",
+    "confidence": "none",
+    "market": "",
+    "side": "",
+    "selector_score": "",
+    "label": "\u26a0\ufe0f PASS",
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "source_health_status": "DEGRADED",
+    "data_quality_status": "DEGRADED",
+    "promoted_matches": [],
+    "source_blockers": [],
+    "source_warnings": [
+      "source_health_status=DEGRADED",
+      "data_quality_status=DEGRADED"
+    ],
+    "market_signals": [],
+    "market_conflicts": [],
+    "market_blockers": [
+      "candidate unavailable"
+    ],
+    "alignment": {
+      "pythagorean": "no_pick",
+      "market_expectation": "no_pick",
+      "value_gap": "no_pick",
+      "overperformance": "no_pick",
+      "warps_spread": "",
+      "warps_moneyline": ""
+    },
+    "reasons": [
+      "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
     "margin_to_line": ""
@@ -4152,26 +3609,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -4191,7 +3629,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -4262,35 +3699,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -4310,7 +3719,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -4385,26 +3793,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -4424,7 +3813,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -4450,35 +3838,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -4498,7 +3858,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -4524,26 +3883,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -4563,7 +3903,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -4589,44 +3928,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -4647,7 +3949,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 4",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -4673,26 +3974,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -4716,7 +3998,6 @@
     },
     "reasons": [
       "Signals: injury",
-      "Promoted factors matched: 2",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -4742,17 +4023,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -4772,7 +4043,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -4843,17 +4113,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "DEGRADED",
     "data_quality_status": "DEGRADED",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [
       "source_health_status=DEGRADED",
@@ -4873,7 +4133,6 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1",
       "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
     ],
     "result": "",
@@ -4899,26 +4158,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -4935,7 +4175,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -4960,17 +4200,7 @@
     "recommendation": "\ud83d\udc40 LEAN: Baltimore Ravens -3.5 (proceed with caution)",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -4987,7 +4217,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5012,53 +4242,7 @@
     "recommendation": "\ud83d\udc40 LEAN: Carolina Panthers +2.5 (proceed with caution)",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5075,7 +4259,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 5"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5100,35 +4284,7 @@
     "recommendation": "\ud83c\udfaf TARGETED PLAY: Cleveland Browns +7.5",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5145,7 +4301,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5212,44 +4368,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5266,7 +4385,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 4"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5333,35 +4452,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5378,7 +4469,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5403,17 +4494,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5430,7 +4511,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5455,17 +4536,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5482,7 +4553,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5507,26 +4578,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5543,7 +4595,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5568,17 +4620,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "pythagorean_wins_delta_bin=abs2_to_4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5595,7 +4637,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5620,53 +4662,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "pythagorean_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      },
-      {
-        "factor": "value_gap_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 10,
-        "wins": 8,
-        "losses": 2,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5683,7 +4679,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 5"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5708,26 +4704,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5744,7 +4721,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 2"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5769,35 +4746,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5814,7 +4763,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5839,17 +4788,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "market_expectation_side=HOME",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 6,
-        "wins": 6,
-        "losses": 0,
-        "lift": 0.2222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5866,7 +4805,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5891,35 +4830,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      },
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5936,7 +4847,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -5961,17 +4872,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -5988,7 +4889,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -6013,17 +4914,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -6040,7 +4931,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -6065,17 +4956,7 @@
     "recommendation": "\u274c AVOID: Multiple negative factors align",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 5,
-        "wins": 4,
-        "losses": 1,
-        "lift": 0.0222
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -6092,7 +4973,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 1"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
@@ -6117,35 +4998,7 @@
     "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
     "source_health_status": "",
     "data_quality_status": "",
-    "promoted_matches": [
-      {
-        "factor": "vegas_win_total_delta_bin=abs>=4",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 4,
-        "wins": 4,
-        "losses": 0,
-        "lift": 0.2222
-      },
-      {
-        "factor": "overperformance_side=AWAY",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 7,
-        "wins": 6,
-        "losses": 1,
-        "lift": 0.0793
-      },
-      {
-        "factor": "actual_vs_pythagorean_delta_bin=abs0.5_to_2",
-        "status": "monitor",
-        "allowed": false,
-        "plays": 11,
-        "wins": 9,
-        "losses": 2,
-        "lift": 0.0404
-      }
-    ],
+    "promoted_matches": [],
     "source_blockers": [],
     "source_warnings": [],
     "market_signals": [],
@@ -6162,7 +5015,7 @@
       "warps_moneyline": ""
     },
     "reasons": [
-      "Promoted factors matched: 3"
+      "No isolated selector edge"
     ],
     "result": "",
     "margin_to_line": ""
