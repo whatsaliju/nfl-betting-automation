@@ -2,7 +2,7 @@ import { Activity, BarChart3, BookOpen, ChevronDown, ChevronUp, Crosshair, FileT
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { teamColors, teamLogos } from "../data/nflData";
 import { type QBAdjResult, QB_TIER_LABEL, getQbAdjustment, qbChanges2026 } from "../data/qbData";
-import bettingCardPayload from "../data/warpsBettingCard2026.json";
+import bettingCardPayload from "../data/warpsBettingCard.json";
 import monteCarloPayload from "../data/warpsMonteCarlo.json";
 import { bootstrapStats, byYearData, calibrationData, consensusData, historicalTeamData, linesMetadata, metricRanking, pnlByYear, profitabilityData, residualHistogram, trajectoryData, type ConsensusRow } from "../data/warpsData";
 

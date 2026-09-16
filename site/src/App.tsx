@@ -22,7 +22,7 @@ import { TeamModal } from "./components/TeamModal";
 import { WeekView } from "./components/WeekView";
 import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDisplayTeamStats, getSeasonResults, getSeasonSchedule, indexEdgeBoard, indexEngineCells, loadEngineFeed, postseasonCells } from "./lib/schedule";
 import { historicalVegasLines } from "./data/nflData";
-import warpsMarketOverlay2026 from "./data/warpsMarketOverlay2026.json";
+import warpsMarketOverlay from "./data/warpsMarketOverlay.json";
 import type { CurrentContext, EngineFeed, Filter, LineMoveAlert, TeamProfile, WarpsMarketOverlay, WeeklyBettingCard } from "./types";
 
 type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections" | "pickem" | "pools" | "overview";
@@ -122,7 +122,7 @@ function App() {
   const warpsMarketIndex = useMemo(() => {
     const map = new Map<string, WarpsMarketOverlay>();
     if (selectedSeason !== 2026) return map;
-    for (const row of warpsMarketOverlay2026 as WarpsMarketOverlay[]) {
+    for (const row of warpsMarketOverlay as WarpsMarketOverlay[]) {
       map.set(row.matchup_key, row);
     }
     return map;
@@ -342,7 +342,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
           engineFeed={engineFeed}
           bettingCard={currentBettingCard}
           edgeGames={edgeGames}
-          warpsRows={warpsMarketOverlay2026 as WarpsMarketOverlay[]}
+          warpsRows={warpsMarketOverlay as WarpsMarketOverlay[]}
           onNavigate={setViewMode}
           scoutAlerts={scoutAlerts}
           onFocusCard={(key) => { setFocusedCard(key); setViewMode("card"); }}
@@ -377,7 +377,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
         </>
       )}
 
-      {viewMode === "edges" && <EdgeBoardView games={edgeGames} warpsRows={warpsMarketOverlay2026 as WarpsMarketOverlay[]} focusGame={focusedEdgeGame} onFocusClear={() => setFocusedEdgeGame(null)} lineMoveAlert={lineMoveAlert} />}
+      {viewMode === "edges" && <EdgeBoardView games={edgeGames} warpsRows={warpsMarketOverlay as WarpsMarketOverlay[]} focusGame={focusedEdgeGame} onFocusClear={() => setFocusedEdgeGame(null)} lineMoveAlert={lineMoveAlert} />}
 
       {viewMode === "card" && <BettingCardView card={currentBettingCard} context={currentContext} focusCard={focusedCard} onFocusClear={() => setFocusedCard(null)} onViewAnalysis={(key) => { setFocusedEdgeGame(key); setViewMode("edges"); }} lineMoveAlert={lineMoveAlert} />}
 
@@ -407,7 +407,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
 
       {viewMode === "results" && <ResultsView results={seasonResults} loading={false} error={seasonSchedule.hasResults ? null : `${selectedSeason} results are not available yet.`} />}
 
-      {viewMode === "pickem" && <PickemView feed={engineFeed} warpsRows={warpsMarketOverlay2026 as WarpsMarketOverlay[]} />}
+      {viewMode === "pickem" && <PickemView feed={engineFeed} warpsRows={warpsMarketOverlay as WarpsMarketOverlay[]} />}
 
       {viewMode === "warps" && <WARPSView />}
 
