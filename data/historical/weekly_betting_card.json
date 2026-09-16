@@ -2,9 +2,9 @@
   "feed_version": "2026.1",
   "source": "matrix_engine_feed edge_board",
   "card_count": 16,
-  "plays": 0,
-  "watch": 1,
-  "passes": 15,
+  "plays": 1,
+  "watch": 2,
+  "passes": 13,
   "cards": [
     {
       "key": "2026:2:MIN@CHI",
@@ -14,43 +14,45 @@
       "matchup_key": "MIN@CHI",
       "away_tla": "MIN",
       "home_tla": "CHI",
-      "action": "watch",
-      "market": "spread",
-      "side": "HOME",
-      "pick_label": "CHI -5.5",
-      "confidence": "watch",
+      "action": "play",
+      "market": null,
+      "side": null,
+      "pick_label": null,
+      "confidence": "standard",
       "selector_score": 3.0,
-      "classification": "\ud83d\udcca LEAN",
-      "recommendation": "\ud83d\udc40 LEAN: Chicago Bears -5.5 (proceed with caution)",
-      "required_line": "Prefer HOME at a better number than WARPS fair -1.3",
+      "classification": "\u26a0\ufe0f PASS",
+      "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+      "required_line": "Spread ref: +5.5 (-104) | -4.5 (-102)",
       "current_line": "+5.5 (-104) | -4.5 (-102)",
-      "warps_alignment": "conflict",
+      "warps_alignment": "no_spread_pick",
       "warps_side": "AWAY",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
-        "\ud83d\udc40 LEAN: Chicago Bears -5.5 (proceed with caution)"
+        "Selector isolated spread HOME",
+        "Signals: sharp",
+        "Value-gap alignment conflicts with the side",
+        "WARPS fair-line prior conflicts toward AWAY"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "WARPS spread conflict",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
-      "market_status": "playable",
-      "spread_status": "playable",
+      "market_status": null,
+      "spread_status": "lean",
       "total_status": "lean",
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
-      "route_selected_market": "spread",
-      "route_reason": "spread routed as best available market with status playable; WARPS conflict keeps risk elevated",
+      "route_selected_market": null,
+      "route_reason": "Watchlist only; no final market selected.",
       "market_options": [
         {
           "market": "spread",
           "side": "HOME",
-          "status": "playable",
+          "status": "lean",
           "score": 3.0,
-          "threshold": 3.0,
+          "threshold": 4.0,
           "blockers": [],
           "signals": [
             {
@@ -62,10 +64,10 @@
             }
           ],
           "conflicts": [],
-          "warps_alignment": "conflict",
+          "warps_alignment": "no_spread_pick",
           "warps_side": "AWAY",
           "warps_team": "MIN",
-          "edge_value": 4.2
+          "edge_value": 3.2
         },
         {
           "market": "total",
@@ -97,7 +99,7 @@
           "side": "AWAY",
           "status": "research_only",
           "promotion_status": "not_promoted",
-          "score": 13.1,
+          "score": 12.0,
           "threshold": 5.0,
           "blockers": [
             "moneyline selector not promoted",
@@ -108,276 +110,7 @@
           "warps_alignment": "research_only",
           "warps_side": "AWAY",
           "warps_team": "MIN",
-          "edge_value": 0.3404
-        }
-      ]
-    },
-    {
-      "key": "2026:2:CAR@ATL",
-      "season": 2026,
-      "season_type": "REG",
-      "week": "2",
-      "matchup_key": "CAR@ATL",
-      "away_tla": "CAR",
-      "home_tla": "ATL",
-      "action": "pass",
-      "market": null,
-      "side": null,
-      "pick_label": null,
-      "confidence": "none",
-      "selector_score": null,
-      "classification": null,
-      "recommendation": null,
-      "required_line": "No bet",
-      "current_line": "-2.5 (-104) | +2.5 (+106)",
-      "warps_alignment": "no_spread_pick",
-      "warps_side": "HOME",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
-      "main_reasons": [
-        "Selector did not clear an actionable market threshold"
-      ],
-      "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
-      ],
-      "market_status": null,
-      "spread_status": "blocked",
-      "total_status": "blocked",
-      "moneyline_status": "research_only",
-      "moneyline_promotion_status": "not_promoted",
-      "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
-      "market_options": [
-        {
-          "market": "spread",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": "no_spread_pick",
-          "warps_side": "HOME",
-          "warps_team": "ATL",
-          "edge_value": 5.7
-        },
-        {
-          "market": "total",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": null,
-          "warps_side": null,
-          "warps_team": null,
-          "edge_value": null
-        },
-        {
-          "market": "moneyline",
-          "side": "HOME",
-          "status": "research_only",
-          "promotion_status": "not_promoted",
-          "score": 17.8,
-          "threshold": 5.0,
-          "blockers": [
-            "moneyline selector not promoted",
-            "underdog ML not predictive (32% win rate historically, all edge levels)"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": "research_only",
-          "warps_side": "HOME",
-          "warps_team": "ATL",
-          "edge_value": 0.369
-        }
-      ]
-    },
-    {
-      "key": "2026:2:CIN@HOU",
-      "season": 2026,
-      "season_type": "REG",
-      "week": "2",
-      "matchup_key": "CIN@HOU",
-      "away_tla": "CIN",
-      "home_tla": "HOU",
-      "action": "pass",
-      "market": null,
-      "side": null,
-      "pick_label": null,
-      "confidence": "none",
-      "selector_score": null,
-      "classification": null,
-      "recommendation": null,
-      "required_line": "No bet",
-      "current_line": "+2.5 (+111) | -2.5 (-111)",
-      "warps_alignment": "no_spread_pick",
-      "warps_side": "HOME",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
-      "main_reasons": [
-        "Selector did not clear an actionable market threshold"
-      ],
-      "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
-      ],
-      "market_status": null,
-      "spread_status": "blocked",
-      "total_status": "blocked",
-      "moneyline_status": "research_only",
-      "moneyline_promotion_status": "not_promoted",
-      "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
-      "market_options": [
-        {
-          "market": "spread",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": "no_spread_pick",
-          "warps_side": "HOME",
-          "warps_team": "HOU",
-          "edge_value": 3.3
-        },
-        {
-          "market": "total",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": null,
-          "warps_side": null,
-          "warps_team": null,
-          "edge_value": null
-        },
-        {
-          "market": "moneyline",
-          "side": "HOME",
-          "status": "research_only",
-          "promotion_status": "not_promoted",
-          "score": 10.4,
-          "threshold": 5.0,
-          "blockers": [
-            "moneyline selector not promoted"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": "research_only",
-          "warps_side": "HOME",
-          "warps_team": "HOU",
-          "edge_value": 0.1384
-        }
-      ]
-    },
-    {
-      "key": "2026:2:CLE@TB",
-      "season": 2026,
-      "season_type": "REG",
-      "week": "2",
-      "matchup_key": "CLE@TB",
-      "away_tla": "CLE",
-      "home_tla": "TB",
-      "action": "pass",
-      "market": null,
-      "side": null,
-      "pick_label": null,
-      "confidence": "none",
-      "selector_score": null,
-      "classification": null,
-      "recommendation": null,
-      "required_line": "No bet",
-      "current_line": "+8.5 (-102) | -8.5 (+102)",
-      "warps_alignment": "no_spread_pick",
-      "warps_side": "AWAY",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
-      "main_reasons": [
-        "Selector did not clear an actionable market threshold"
-      ],
-      "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
-      ],
-      "market_status": null,
-      "spread_status": "blocked",
-      "total_status": "blocked",
-      "moneyline_status": "research_only",
-      "moneyline_promotion_status": "not_promoted",
-      "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
-      "market_options": [
-        {
-          "market": "spread",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": "no_spread_pick",
-          "warps_side": "AWAY",
-          "warps_team": "CLE",
-          "edge_value": 4.2
-        },
-        {
-          "market": "total",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": null,
-          "warps_side": null,
-          "warps_team": null,
-          "edge_value": null
-        },
-        {
-          "market": "moneyline",
-          "side": "AWAY",
-          "status": "research_only",
-          "promotion_status": "not_promoted",
-          "score": 14.7,
-          "threshold": 5.0,
-          "blockers": [
-            "moneyline selector not promoted",
-            "underdog ML not predictive (32% win rate historically, all edge levels)"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": "research_only",
-          "warps_side": "AWAY",
-          "warps_team": "CLE",
-          "edge_value": 0.5758
+          "edge_value": 0.2942
         }
       ]
     },
@@ -389,27 +122,29 @@
       "matchup_key": "DET@BUF",
       "away_tla": "DET",
       "home_tla": "BUF",
-      "action": "pass",
+      "action": "watch",
       "market": null,
       "side": null,
       "pick_label": null,
-      "confidence": "none",
-      "selector_score": null,
-      "classification": null,
-      "recommendation": null,
-      "required_line": "No bet",
-      "current_line": "+4.5 (+102) | -4.5 (-102)",
+      "confidence": "watch",
+      "selector_score": 3.0,
+      "classification": "\u26a0\ufe0f PASS",
+      "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+      "required_line": "Spread ref: +4.5 (+106) | -4.5 (-104)",
+      "current_line": "+4.5 (+106) | -4.5 (-104)",
       "warps_alignment": "no_spread_pick",
       "warps_side": "AWAY",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
-        "Selector did not clear an actionable market threshold"
+        "Signals: sharp",
+        "WARPS moneyline overlay: AWAY +25.7% EV",
+        "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
       "spread_status": "lean",
@@ -417,7 +152,7 @@
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Watchlist only; no final market selected.",
       "market_options": [
         {
           "market": "spread",
@@ -479,7 +214,7 @@
           "side": "AWAY",
           "status": "research_only",
           "promotion_status": "not_promoted",
-          "score": 10.6,
+          "score": 11.8,
           "threshold": 5.0,
           "blockers": [
             "moneyline selector not promoted",
@@ -490,7 +225,441 @@
           "warps_alignment": "research_only",
           "warps_side": "AWAY",
           "warps_team": "DET",
-          "edge_value": 0.2566
+          "edge_value": 0.3015
+        }
+      ]
+    },
+    {
+      "key": "2026:2:SEA@ARI",
+      "season": 2026,
+      "season_type": "REG",
+      "week": "2",
+      "matchup_key": "SEA@ARI",
+      "away_tla": "SEA",
+      "home_tla": "ARI",
+      "action": "watch",
+      "market": null,
+      "side": null,
+      "pick_label": null,
+      "confidence": "watch",
+      "selector_score": 2.0,
+      "classification": "\u26a0\ufe0f PASS",
+      "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+      "required_line": "Spread ref: -3.5 (-102) | +3.5 (+102)",
+      "current_line": "-3.5 (-102) | +3.5 (+102)",
+      "warps_alignment": "no_spread_pick",
+      "warps_side": "AWAY",
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
+      "main_reasons": [
+        "WARPS moneyline overlay: HOME +9.3% EV",
+        "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+      ],
+      "risk_flags": [
+        "thin expectation sample",
+        "quality gate warn"
+      ],
+      "market_status": null,
+      "spread_status": "blocked",
+      "total_status": "lean",
+      "moneyline_status": "research_only",
+      "moneyline_promotion_status": "not_promoted",
+      "route_selected_market": null,
+      "route_reason": "Watchlist only; no final market selected.",
+      "market_options": [
+        {
+          "market": "spread",
+          "side": "AWAY",
+          "status": "blocked",
+          "score": 0.0,
+          "threshold": 3.5,
+          "blockers": [
+            "team-rating conflict"
+          ],
+          "signals": [],
+          "conflicts": [
+            {
+              "score": 2,
+              "side": "HOME",
+              "source": "team_rating",
+              "status": "conflict"
+            }
+          ],
+          "warps_alignment": "no_spread_pick",
+          "warps_side": "AWAY",
+          "warps_team": "SEA",
+          "edge_value": 0.5
+        },
+        {
+          "market": "total",
+          "side": "UNDER",
+          "status": "lean",
+          "score": 2.0,
+          "threshold": 4.0,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": -2,
+              "side": "UNDER",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "warps_alignment": null,
+          "warps_side": null,
+          "warps_team": null,
+          "edge_value": null
+        },
+        {
+          "market": "moneyline",
+          "side": "HOME",
+          "status": "research_only",
+          "promotion_status": "not_promoted",
+          "score": 4.1,
+          "threshold": 5.0,
+          "blockers": [
+            "moneyline selector not promoted",
+            "underdog ML not predictive (32% win rate historically, all edge levels)"
+          ],
+          "signals": [],
+          "conflicts": [],
+          "warps_alignment": "research_only",
+          "warps_side": "HOME",
+          "warps_team": "ARI",
+          "edge_value": 0.0744
+        }
+      ]
+    },
+    {
+      "key": "2026:2:CAR@ATL",
+      "season": 2026,
+      "season_type": "REG",
+      "week": "2",
+      "matchup_key": "CAR@ATL",
+      "away_tla": "CAR",
+      "home_tla": "ATL",
+      "action": "pass",
+      "market": null,
+      "side": null,
+      "pick_label": null,
+      "confidence": "none",
+      "selector_score": null,
+      "classification": null,
+      "recommendation": null,
+      "required_line": "No bet",
+      "current_line": "-2.5 (-102) | +2.5 (+102)",
+      "warps_alignment": "no_spread_pick",
+      "warps_side": "HOME",
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
+      "main_reasons": [
+        "Selector did not clear an actionable market threshold"
+      ],
+      "risk_flags": [
+        "thin expectation sample",
+        "quality gate warn"
+      ],
+      "market_status": null,
+      "spread_status": "blocked",
+      "total_status": "playable",
+      "moneyline_status": "research_only",
+      "moneyline_promotion_status": "not_promoted",
+      "route_selected_market": null,
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
+      "market_options": [
+        {
+          "market": "spread",
+          "side": "AWAY",
+          "status": "blocked",
+          "score": 0.0,
+          "threshold": 4.0,
+          "blockers": [
+            "team-rating conflict"
+          ],
+          "signals": [
+            {
+              "impact": 1,
+              "score": 1,
+              "side": "AWAY",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [
+            {
+              "score": 2,
+              "side": "HOME",
+              "source": "team_rating",
+              "status": "conflict"
+            }
+          ],
+          "warps_alignment": "no_spread_pick",
+          "warps_side": "HOME",
+          "warps_team": "ATL",
+          "edge_value": 5.7
+        },
+        {
+          "market": "total",
+          "side": "OVER",
+          "status": "playable",
+          "score": 5.0,
+          "threshold": 4.0,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 3,
+              "score": 3,
+              "side": "OVER",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "reasons": [
+                "referee over trend"
+              ],
+              "score": 2,
+              "side": "OVER",
+              "source": "ref_weather_context",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "warps_alignment": null,
+          "warps_side": null,
+          "warps_team": null,
+          "edge_value": null
+        },
+        {
+          "market": "moneyline",
+          "side": "HOME",
+          "status": "research_only",
+          "promotion_status": "not_promoted",
+          "score": 16.7,
+          "threshold": 5.0,
+          "blockers": [
+            "moneyline selector not promoted",
+            "underdog ML not predictive (32% win rate historically, all edge levels)"
+          ],
+          "signals": [],
+          "conflicts": [],
+          "warps_alignment": "research_only",
+          "warps_side": "HOME",
+          "warps_team": "ATL",
+          "edge_value": 0.3332
+        }
+      ]
+    },
+    {
+      "key": "2026:2:CIN@HOU",
+      "season": 2026,
+      "season_type": "REG",
+      "week": "2",
+      "matchup_key": "CIN@HOU",
+      "away_tla": "CIN",
+      "home_tla": "HOU",
+      "action": "pass",
+      "market": null,
+      "side": null,
+      "pick_label": null,
+      "confidence": "none",
+      "selector_score": null,
+      "classification": null,
+      "recommendation": null,
+      "required_line": "No bet",
+      "current_line": "+2.5 (+111) | -2.5 (-111)",
+      "warps_alignment": "no_spread_pick",
+      "warps_side": "HOME",
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
+      "main_reasons": [
+        "Selector did not clear an actionable market threshold"
+      ],
+      "risk_flags": [
+        "thin expectation sample",
+        "quality gate warn"
+      ],
+      "market_status": null,
+      "spread_status": "blocked",
+      "total_status": "blocked",
+      "moneyline_status": "research_only",
+      "moneyline_promotion_status": "not_promoted",
+      "route_selected_market": null,
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
+      "market_options": [
+        {
+          "market": "spread",
+          "side": null,
+          "status": "blocked",
+          "score": null,
+          "threshold": null,
+          "blockers": [
+            "candidate unavailable"
+          ],
+          "signals": [],
+          "conflicts": [],
+          "warps_alignment": "no_spread_pick",
+          "warps_side": "HOME",
+          "warps_team": "HOU",
+          "edge_value": 2.8
+        },
+        {
+          "market": "total",
+          "side": null,
+          "status": "blocked",
+          "score": null,
+          "threshold": null,
+          "blockers": [
+            "candidate unavailable"
+          ],
+          "signals": [],
+          "conflicts": [],
+          "warps_alignment": null,
+          "warps_side": null,
+          "warps_team": null,
+          "edge_value": null
+        },
+        {
+          "market": "moneyline",
+          "side": "HOME",
+          "status": "research_only",
+          "promotion_status": "not_promoted",
+          "score": 9.6,
+          "threshold": 5.0,
+          "blockers": [
+            "moneyline selector not promoted"
+          ],
+          "signals": [],
+          "conflicts": [],
+          "warps_alignment": "research_only",
+          "warps_side": "HOME",
+          "warps_team": "HOU",
+          "edge_value": 0.1194
+        }
+      ]
+    },
+    {
+      "key": "2026:2:CLE@TB",
+      "season": 2026,
+      "season_type": "REG",
+      "week": "2",
+      "matchup_key": "CLE@TB",
+      "away_tla": "CLE",
+      "home_tla": "TB",
+      "action": "pass",
+      "market": null,
+      "side": null,
+      "pick_label": null,
+      "confidence": "none",
+      "selector_score": null,
+      "classification": null,
+      "recommendation": null,
+      "required_line": "No bet",
+      "current_line": "+8.5 (-104) | -8.5 (+106)",
+      "warps_alignment": "conflict",
+      "warps_side": "AWAY",
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
+      "main_reasons": [
+        "Selector did not clear an actionable market threshold"
+      ],
+      "risk_flags": [
+        "WARPS spread conflict",
+        "thin expectation sample",
+        "quality gate warn"
+      ],
+      "market_status": null,
+      "spread_status": "playable",
+      "total_status": "lean",
+      "moneyline_status": "research_only",
+      "moneyline_promotion_status": "not_promoted",
+      "route_selected_market": null,
+      "route_reason": "Blocked by risk/source flags: WARPS spread conflict, thin expectation sample, quality gate warn",
+      "market_options": [
+        {
+          "market": "spread",
+          "side": "HOME",
+          "status": "playable",
+          "score": 4.0,
+          "threshold": 3.5,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": -2,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "HOME",
+              "source": "team_rating",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "warps_alignment": "conflict",
+          "warps_side": "AWAY",
+          "warps_team": "CLE",
+          "edge_value": 4.2
+        },
+        {
+          "market": "total",
+          "side": "OVER",
+          "status": "lean",
+          "score": 3.0,
+          "threshold": 4.0,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 1,
+              "score": 1,
+              "side": "OVER",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "reasons": [
+                "referee over trend"
+              ],
+              "score": 2,
+              "side": "OVER",
+              "source": "ref_weather_context",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "warps_alignment": null,
+          "warps_side": null,
+          "warps_team": null,
+          "edge_value": null
+        },
+        {
+          "market": "moneyline",
+          "side": "AWAY",
+          "status": "research_only",
+          "promotion_status": "not_promoted",
+          "score": 14.1,
+          "threshold": 5.0,
+          "blockers": [
+            "moneyline selector not promoted",
+            "underdog ML not predictive (32% win rate historically, all edge levels)"
+          ],
+          "signals": [],
+          "conflicts": [],
+          "warps_alignment": "research_only",
+          "warps_side": "AWAY",
+          "warps_team": "CLE",
+          "edge_value": 0.5383
         }
       ]
     },
@@ -514,34 +683,47 @@
       "current_line": "-3.5 (+106) | +4.5 (-120)",
       "warps_alignment": "no_spread_pick",
       "warps_side": "HOME",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
         "Selector did not clear an actionable market threshold"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
-      "spread_status": "blocked",
-      "total_status": "blocked",
+      "spread_status": "lean",
+      "total_status": "lean",
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
       "market_options": [
         {
           "market": "spread",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
+          "side": "HOME",
+          "status": "lean",
+          "score": 3.0,
+          "threshold": 4.0,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 1,
+              "score": -1,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "HOME",
+              "source": "team_rating",
+              "status": "aligned"
+            }
           ],
-          "signals": [],
           "conflicts": [],
           "warps_alignment": "no_spread_pick",
           "warps_side": "HOME",
@@ -550,13 +732,11 @@
         },
         {
           "market": "total",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
-          ],
+          "side": "OVER",
+          "status": "lean",
+          "score": 0.0,
+          "threshold": 4.0,
+          "blockers": [],
           "signals": [],
           "conflicts": [],
           "warps_alignment": null,
@@ -602,52 +782,72 @@
       "recommendation": null,
       "required_line": "No bet",
       "current_line": "+6.5 (+100) | -6.5 (+100)",
-      "warps_alignment": "no_spread_pick",
+      "warps_alignment": "conflict",
       "warps_side": "AWAY",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
         "Selector did not clear an actionable market threshold"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "WARPS spread conflict",
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
-      "spread_status": "blocked",
-      "total_status": "blocked",
+      "spread_status": "playable",
+      "total_status": "lean",
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Blocked by risk/source flags: WARPS spread conflict, thin expectation sample, quality gate warn",
       "market_options": [
         {
           "market": "spread",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
+          "side": "HOME",
+          "status": "playable",
+          "score": 4.0,
+          "threshold": 3.5,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": -2,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "HOME",
+              "source": "team_rating",
+              "status": "aligned"
+            }
           ],
-          "signals": [],
           "conflicts": [],
-          "warps_alignment": "no_spread_pick",
+          "warps_alignment": "conflict",
           "warps_side": "AWAY",
           "warps_team": "IND",
           "edge_value": 4.8
         },
         {
           "market": "total",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
+          "side": "OVER",
+          "status": "lean",
+          "score": 2.0,
+          "threshold": 4.0,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "OVER",
+              "source": "sharp",
+              "status": "aligned"
+            }
           ],
-          "signals": [],
           "conflicts": [],
           "warps_alignment": null,
           "warps_side": null,
@@ -659,7 +859,7 @@
           "side": "AWAY",
           "status": "research_only",
           "promotion_status": "not_promoted",
-          "score": 17.1,
+          "score": 15.9,
           "threshold": 5.0,
           "blockers": [
             "moneyline selector not promoted",
@@ -670,7 +870,7 @@
           "warps_alignment": "research_only",
           "warps_side": "AWAY",
           "warps_team": "IND",
-          "edge_value": 0.5497
+          "edge_value": 0.4824
         }
       ]
     },
@@ -692,52 +892,71 @@
       "recommendation": null,
       "required_line": "No bet",
       "current_line": "+2.5 (+113) | -2.5 (-111)",
-      "warps_alignment": "no_spread_pick",
+      "warps_alignment": "aligned",
       "warps_side": "AWAY",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
         "Selector did not clear an actionable market threshold"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
-      "spread_status": "blocked",
-      "total_status": "blocked",
+      "spread_status": "playable",
+      "total_status": "lean",
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
       "market_options": [
         {
           "market": "spread",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
+          "side": "AWAY",
+          "status": "playable",
+          "score": 4.0,
+          "threshold": 1.5,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "AWAY",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "AWAY",
+              "source": "team_rating",
+              "status": "aligned"
+            }
           ],
-          "signals": [],
           "conflicts": [],
-          "warps_alignment": "no_spread_pick",
+          "warps_alignment": "aligned",
           "warps_side": "AWAY",
           "warps_team": "JAX",
           "edge_value": 1.7
         },
         {
           "market": "total",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
+          "side": "OVER",
+          "status": "lean",
+          "score": 3.0,
+          "threshold": 4.0,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 3,
+              "score": 3,
+              "side": "OVER",
+              "source": "sharp",
+              "status": "aligned"
+            }
           ],
-          "signals": [],
           "conflicts": [],
           "warps_alignment": null,
           "warps_side": null,
@@ -749,7 +968,7 @@
           "side": "AWAY",
           "status": "research_only",
           "promotion_status": "not_promoted",
-          "score": 2.7,
+          "score": 4.8,
           "threshold": 5.0,
           "blockers": [
             "moneyline selector not promoted",
@@ -760,7 +979,7 @@
           "warps_alignment": "research_only",
           "warps_side": "AWAY",
           "warps_team": "JAX",
-          "edge_value": 0.0178
+          "edge_value": 0.0653
         }
       ]
     },
@@ -784,51 +1003,75 @@
       "current_line": "+6.5 (+104) | -6.5 (-102)",
       "warps_alignment": "no_spread_pick",
       "warps_side": "AWAY",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
         "Selector did not clear an actionable market threshold"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
       "spread_status": "blocked",
-      "total_status": "blocked",
+      "total_status": "lean",
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
       "market_options": [
         {
           "market": "spread",
-          "side": null,
+          "side": "HOME",
           "status": "blocked",
-          "score": null,
-          "threshold": null,
+          "score": 0.0,
+          "threshold": 4.5,
           "blockers": [
-            "candidate unavailable"
+            "team-rating conflict"
           ],
-          "signals": [],
-          "conflicts": [],
+          "signals": [
+            {
+              "impact": 1,
+              "score": -1,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [
+            {
+              "score": 2,
+              "side": "AWAY",
+              "source": "team_rating",
+              "status": "conflict"
+            }
+          ],
           "warps_alignment": "no_spread_pick",
           "warps_side": "AWAY",
           "warps_team": "LV",
-          "edge_value": 1.0
+          "edge_value": 0.5
         },
         {
           "market": "total",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
-          ],
+          "side": "OVER",
+          "status": "lean",
+          "score": -2.0,
+          "threshold": 4.0,
+          "blockers": [],
           "signals": [],
-          "conflicts": [],
+          "conflicts": [
+            {
+              "impact": -2,
+              "reasons": [
+                "referee under trend"
+              ],
+              "score": -2,
+              "side": "UNDER",
+              "source": "ref_weather_context",
+              "status": "conflict"
+            }
+          ],
           "warps_alignment": null,
           "warps_side": null,
           "warps_team": null,
@@ -839,7 +1082,7 @@
           "side": "AWAY",
           "status": "research_only",
           "promotion_status": "not_promoted",
-          "score": 5.3,
+          "score": 4.5,
           "threshold": 5.0,
           "blockers": [
             "moneyline selector not promoted",
@@ -850,7 +1093,7 @@
           "warps_alignment": "research_only",
           "warps_side": "AWAY",
           "warps_team": "LV",
-          "edge_value": 0.1448
+          "edge_value": 0.1121
         }
       ]
     },
@@ -871,18 +1114,18 @@
       "classification": null,
       "recommendation": null,
       "required_line": "No bet",
-      "current_line": "+13.5 (-102) | -13.5 (+104)",
+      "current_line": "+13.5 (-108) | -12.5 (+102)",
       "warps_alignment": "no_spread_pick",
       "warps_side": "AWAY",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
         "Selector did not clear an actionable market threshold"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
       "spread_status": "blocked",
@@ -890,7 +1133,7 @@
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
       "market_options": [
         {
           "market": "spread",
@@ -929,7 +1172,7 @@
           "side": "AWAY",
           "status": "research_only",
           "promotion_status": "not_promoted",
-          "score": 20.6,
+          "score": 21.4,
           "threshold": 5.0,
           "blockers": [
             "moneyline selector not promoted",
@@ -940,7 +1183,7 @@
           "warps_alignment": "research_only",
           "warps_side": "AWAY",
           "warps_team": "MIA",
-          "edge_value": 1.4505
+          "edge_value": 1.6195
         }
       ]
     },
@@ -961,37 +1204,50 @@
       "classification": null,
       "recommendation": null,
       "required_line": "No bet",
-      "current_line": "+7.5 (+104) | -7.5 (-104)",
+      "current_line": "+8.5 (+102) | -8.5 (+104)",
       "warps_alignment": "no_spread_pick",
       "warps_side": "AWAY",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
         "Selector did not clear an actionable market threshold"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
-      "spread_status": "blocked",
-      "total_status": "blocked",
+      "spread_status": "lean",
+      "total_status": "lean",
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
       "market_options": [
         {
           "market": "spread",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
+          "side": "HOME",
+          "status": "lean",
+          "score": 3.0,
+          "threshold": 4.5,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 1,
+              "score": -1,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "HOME",
+              "source": "team_rating",
+              "status": "aligned"
+            }
           ],
-          "signals": [],
           "conflicts": [],
           "warps_alignment": "no_spread_pick",
           "warps_side": "AWAY",
@@ -1000,14 +1256,20 @@
         },
         {
           "market": "total",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
+          "side": "OVER",
+          "status": "lean",
+          "score": 3.0,
+          "threshold": 4.0,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 3,
+              "score": 3,
+              "side": "OVER",
+              "source": "sharp",
+              "status": "aligned"
+            }
           ],
-          "signals": [],
           "conflicts": [],
           "warps_alignment": null,
           "warps_side": null,
@@ -1019,7 +1281,7 @@
           "side": "AWAY",
           "status": "research_only",
           "promotion_status": "not_promoted",
-          "score": 13.9,
+          "score": 13.3,
           "threshold": 5.0,
           "blockers": [
             "moneyline selector not promoted",
@@ -1030,7 +1292,7 @@
           "warps_alignment": "research_only",
           "warps_side": "AWAY",
           "warps_team": "NO",
-          "edge_value": 0.5435
+          "edge_value": 0.5068
         }
       ]
     },
@@ -1054,15 +1316,15 @@
       "current_line": "+6.5 (+113) | -7.5 (+115)",
       "warps_alignment": "no_spread_pick",
       "warps_side": "AWAY",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
         "Selector did not clear an actionable market threshold"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
       "spread_status": "blocked",
@@ -1070,7 +1332,7 @@
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
       "market_options": [
         {
           "market": "spread",
@@ -1141,18 +1403,18 @@
       "classification": null,
       "recommendation": null,
       "required_line": "No bet",
-      "current_line": "-7.5 (+115) | +7.5 (-113)",
+      "current_line": "-7.5 (+115) | +7 (-102)",
       "warps_alignment": "no_spread_pick",
       "warps_side": "HOME",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
         "Selector did not clear an actionable market threshold"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
       "spread_status": "blocked",
@@ -1160,7 +1422,7 @@
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
       "market_options": [
         {
           "market": "spread",
@@ -1199,7 +1461,7 @@
           "side": "HOME",
           "status": "research_only",
           "promotion_status": "not_promoted",
-          "score": 13.9,
+          "score": 15.0,
           "threshold": 5.0,
           "blockers": [
             "moneyline selector not promoted",
@@ -1210,7 +1472,7 @@
           "warps_alignment": "research_only",
           "warps_side": "HOME",
           "warps_team": "TEN",
-          "edge_value": 0.4366
+          "edge_value": 0.499
         }
       ]
     },
@@ -1234,35 +1496,50 @@
       "current_line": "+5.5 (-106) | -5.5 (+106)",
       "warps_alignment": "no_spread_pick",
       "warps_side": "AWAY",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
         "Selector did not clear an actionable market threshold"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
       "spread_status": "blocked",
-      "total_status": "blocked",
+      "total_status": "lean",
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
       "market_options": [
         {
           "market": "spread",
-          "side": null,
+          "side": "HOME",
           "status": "blocked",
-          "score": null,
-          "threshold": null,
+          "score": 0.0,
+          "threshold": 3.0,
           "blockers": [
-            "candidate unavailable"
+            "team-rating conflict"
           ],
-          "signals": [],
-          "conflicts": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": -2,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [
+            {
+              "score": 2,
+              "side": "AWAY",
+              "source": "team_rating",
+              "status": "conflict"
+            }
+          ],
           "warps_alignment": "no_spread_pick",
           "warps_side": "AWAY",
           "warps_team": "PIT",
@@ -1270,13 +1547,11 @@
         },
         {
           "market": "total",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
-          ],
+          "side": "UNDER",
+          "status": "lean",
+          "score": 0.0,
+          "threshold": 4.0,
+          "blockers": [],
           "signals": [],
           "conflicts": [],
           "warps_alignment": null,
@@ -1289,7 +1564,7 @@
           "side": "AWAY",
           "status": "research_only",
           "promotion_status": "not_promoted",
-          "score": 7.3,
+          "score": 6.2,
           "threshold": 5.0,
           "blockers": [
             "moneyline selector not promoted",
@@ -1300,103 +1575,7 @@
           "warps_alignment": "research_only",
           "warps_side": "AWAY",
           "warps_team": "PIT",
-          "edge_value": 0.1741
-        }
-      ]
-    },
-    {
-      "key": "2026:2:SEA@ARI",
-      "season": 2026,
-      "season_type": "REG",
-      "week": "2",
-      "matchup_key": "SEA@ARI",
-      "away_tla": "SEA",
-      "home_tla": "ARI",
-      "action": "pass",
-      "market": null,
-      "side": null,
-      "pick_label": null,
-      "confidence": "none",
-      "selector_score": null,
-      "classification": null,
-      "recommendation": null,
-      "required_line": "No bet",
-      "current_line": "-3.5 (-102) | +3.5 (+102)",
-      "warps_alignment": "no_spread_pick",
-      "warps_side": "HOME",
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
-      "main_reasons": [
-        "Selector did not clear an actionable market threshold"
-      ],
-      "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
-      ],
-      "market_status": null,
-      "spread_status": "blocked",
-      "total_status": "lean",
-      "moneyline_status": "research_only",
-      "moneyline_promotion_status": "not_promoted",
-      "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
-      "market_options": [
-        {
-          "market": "spread",
-          "side": "HOME",
-          "status": "blocked",
-          "score": 0.0,
-          "threshold": 4.0,
-          "blockers": [
-            "sharp spread edge required"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": "no_spread_pick",
-          "warps_side": "HOME",
-          "warps_team": "ARI",
-          "edge_value": 0.5
-        },
-        {
-          "market": "total",
-          "side": "UNDER",
-          "status": "lean",
-          "score": 2.0,
-          "threshold": 4.0,
-          "blockers": [],
-          "signals": [
-            {
-              "impact": 2,
-              "score": -2,
-              "side": "UNDER",
-              "source": "sharp",
-              "status": "aligned"
-            }
-          ],
-          "conflicts": [],
-          "warps_alignment": null,
-          "warps_side": null,
-          "warps_team": null,
-          "edge_value": null
-        },
-        {
-          "market": "moneyline",
-          "side": "HOME",
-          "status": "research_only",
-          "promotion_status": "not_promoted",
-          "score": 4.7,
-          "threshold": 5.0,
-          "blockers": [
-            "moneyline selector not promoted",
-            "underdog ML not predictive (32% win rate historically, all edge levels)"
-          ],
-          "signals": [],
-          "conflicts": [],
-          "warps_alignment": "research_only",
-          "warps_side": "HOME",
-          "warps_team": "ARI",
-          "edge_value": 0.0935
+          "edge_value": 0.1343
         }
       ]
     },
@@ -1420,35 +1599,50 @@
       "current_line": "+4.5 (-102) | -4.5 (+104)",
       "warps_alignment": null,
       "warps_side": null,
-      "source_health": "DEGRADED",
-      "data_quality": "DEGRADED",
-      "quality_gate": null,
+      "source_health": "OK",
+      "data_quality": "OK",
+      "quality_gate": "warn",
       "main_reasons": [
         "Selector did not clear an actionable market threshold"
       ],
       "risk_flags": [
-        "source warning DEGRADED",
-        "thin expectation sample"
+        "thin expectation sample",
+        "quality gate warn"
       ],
       "market_status": null,
       "spread_status": "blocked",
-      "total_status": "blocked",
+      "total_status": "lean",
       "moneyline_status": "research_only",
       "moneyline_promotion_status": "not_promoted",
       "route_selected_market": null,
-      "route_reason": "Blocked by risk/source flags: source warning DEGRADED, thin expectation sample",
+      "route_reason": "Blocked by risk/source flags: thin expectation sample, quality gate warn",
       "market_options": [
         {
           "market": "spread",
-          "side": null,
+          "side": "HOME",
           "status": "blocked",
-          "score": null,
-          "threshold": null,
+          "score": 0.0,
+          "threshold": 4.0,
           "blockers": [
-            "candidate unavailable"
+            "team-rating conflict"
           ],
-          "signals": [],
-          "conflicts": [],
+          "signals": [
+            {
+              "impact": 1,
+              "score": -1,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [
+            {
+              "score": 2,
+              "side": "AWAY",
+              "source": "team_rating",
+              "status": "conflict"
+            }
+          ],
           "warps_alignment": null,
           "warps_side": null,
           "warps_team": null,
@@ -1456,13 +1650,11 @@
         },
         {
           "market": "total",
-          "side": null,
-          "status": "blocked",
-          "score": null,
-          "threshold": null,
-          "blockers": [
-            "candidate unavailable"
-          ],
+          "side": "OVER",
+          "status": "lean",
+          "score": 0.0,
+          "threshold": 4.0,
+          "blockers": [],
           "signals": [],
           "conflicts": [],
           "warps_alignment": null,

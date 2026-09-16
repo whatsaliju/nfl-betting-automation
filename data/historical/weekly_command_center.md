@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W2 · live
-- Recommended action: **PASS**
-- Confidence tier: **X**
-- Reason: No playable or watchlist edges are active.
+- Recommended action: **WATCH**
+- Confidence tier: **C**
+- Reason: No plays cleared, but watchlist spots exist.
 
 ## Source Gates
 
@@ -17,8 +17,12 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 0
-- Passes: 0
+- Watch: 1
+- Passes: 15
+
+| Game | Action | Market | Side | Score |
+|---|---|---|---|---:|
+| MIN@CHI | watch | spread | HOME | 3.0 |
 
 ## Survivor
 
@@ -42,7 +46,3 @@
 | SF | vs MIA | 66.2% | -196 |
 | BAL | vs NO | 63.2% | -172 |
 | TB | vs CLE | 62.5% | -167 |
-
-## Warnings
-
-- No actionable betting plays or watchlist spots are active.

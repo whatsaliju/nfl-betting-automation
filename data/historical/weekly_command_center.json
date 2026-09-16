@@ -13,81 +13,205 @@
     "message": "Current active engine context from current_week.json."
   },
   "decision_mode": "live",
-  "recommended_action": "PASS",
-  "confidence_tier": "X",
-  "action_reason": "No playable or watchlist edges are active.",
+  "recommended_action": "WATCH",
+  "confidence_tier": "C",
+  "action_reason": "No plays cleared, but watchlist spots exist.",
   "source_gates": {
     "live_betting_card": "PASS",
     "preseason_dry_run": "PASS",
     "warps_priors": "PASS",
     "survivor_recommendations": "PASS"
   },
-  "do_nothing_warning": true,
-  "warnings": [
-    "No actionable betting plays or watchlist spots are active."
-  ],
+  "do_nothing_warning": false,
+  "warnings": [],
   "betting_card": {
     "available": true,
     "plays": 0,
-    "watch": 0,
-    "passes": 0,
-    "top_cards": []
+    "watch": 1,
+    "passes": 15,
+    "top_cards": [
+      {
+        "key": "2026:2:MIN@CHI",
+        "season": 2026,
+        "season_type": "REG",
+        "week": "2",
+        "matchup_key": "MIN@CHI",
+        "away_tla": "MIN",
+        "home_tla": "CHI",
+        "action": "watch",
+        "market": "spread",
+        "side": "HOME",
+        "pick_label": "CHI -5.5",
+        "confidence": "watch",
+        "selector_score": 3.0,
+        "classification": "\ud83d\udcca LEAN",
+        "recommendation": "\ud83d\udc40 LEAN: Chicago Bears -5.5 (proceed with caution)",
+        "required_line": "Prefer HOME at a better number than WARPS fair -1.3",
+        "current_line": "+5.5 (-104) | -4.5 (-102)",
+        "warps_alignment": "conflict",
+        "warps_side": "AWAY",
+        "source_health": "DEGRADED",
+        "data_quality": "DEGRADED",
+        "quality_gate": null,
+        "main_reasons": [
+          "\ud83d\udc40 LEAN: Chicago Bears -5.5 (proceed with caution)"
+        ],
+        "risk_flags": [
+          "source warning DEGRADED",
+          "WARPS spread conflict",
+          "thin expectation sample"
+        ],
+        "market_status": "playable",
+        "spread_status": "playable",
+        "total_status": "lean",
+        "moneyline_status": "research_only",
+        "moneyline_promotion_status": "not_promoted",
+        "route_selected_market": "spread",
+        "route_reason": "spread routed as best available market with status playable; WARPS conflict keeps risk elevated",
+        "market_options": [
+          {
+            "market": "spread",
+            "side": "HOME",
+            "status": "playable",
+            "score": 3.0,
+            "threshold": 3.0,
+            "blockers": [],
+            "signals": [
+              {
+                "impact": 3,
+                "score": -3,
+                "side": "HOME",
+                "source": "sharp",
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "warps_alignment": "conflict",
+            "warps_side": "AWAY",
+            "warps_team": "MIN",
+            "edge_value": 4.2
+          },
+          {
+            "market": "total",
+            "side": "OVER",
+            "status": "lean",
+            "score": 2.0,
+            "threshold": 4.0,
+            "blockers": [],
+            "signals": [
+              {
+                "impact": 2,
+                "reasons": [
+                  "referee over trend"
+                ],
+                "score": 2,
+                "side": "OVER",
+                "source": "ref_weather_context",
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "warps_alignment": null,
+            "warps_side": null,
+            "warps_team": null,
+            "edge_value": null
+          },
+          {
+            "market": "moneyline",
+            "side": "AWAY",
+            "status": "research_only",
+            "promotion_status": "not_promoted",
+            "score": 13.1,
+            "threshold": 5.0,
+            "blockers": [
+              "moneyline selector not promoted",
+              "underdog ML not predictive (32% win rate historically, all edge levels)"
+            ],
+            "signals": [],
+            "conflicts": [],
+            "warps_alignment": "research_only",
+            "warps_side": "AWAY",
+            "warps_team": "MIN",
+            "edge_value": 0.3404
+          }
+        ],
+        "referee": "Land Clark",
+        "referee_stats": null
+      }
+    ]
   },
   "best_edges": [
     {
       "season": 2026,
       "season_type": "REG",
       "week": "2",
-      "matchup_key": "MIN@CHI",
-      "game": "Minnesota Vikings @ Chicago Bears",
-      "away_team": "Minnesota Vikings",
-      "home_team": "Chicago Bears",
-      "away_tla": "MIN",
-      "home_tla": "CHI",
-      "stage": "initial",
+      "matchup_key": "CAR@ATL",
+      "game": "Carolina Panthers @ Atlanta Falcons",
+      "away_team": "Carolina Panthers",
+      "home_team": "Atlanta Falcons",
+      "away_tla": "CAR",
+      "home_tla": "ATL",
+      "stage": "update",
       "analysis_available": true,
       "best_edge": {
-        "market": "spread",
-        "side": "HOME",
-        "score": 3.0,
-        "label": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: Chicago Bears -5.5 (proceed with caution)",
+        "market": "total",
+        "side": "OVER",
+        "score": 5.0,
+        "label": "\ud83c\udfaf TARGETED PLAY",
+        "recommendation": "\ud83c\udfaf TARGETED PLAY: OVER 43.5",
         "status": "play"
       },
       "markets": {
         "spread": {
           "market": "spread",
-          "side": "HOME",
-          "score": 3.0,
-          "threshold": 3.0,
+          "side": "AWAY",
+          "score": 0.0,
+          "threshold": 4.0,
+          "cleared_threshold": false,
+          "blocked": true,
+          "blockers": [
+            "team-rating conflict"
+          ],
+          "signals": [
+            {
+              "impact": 1,
+              "score": 1,
+              "side": "AWAY",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [
+            {
+              "score": 2,
+              "side": "HOME",
+              "source": "team_rating",
+              "status": "conflict"
+            }
+          ],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge conflicts"
+          ],
+          "status": "blocked",
+          "line": "-2.5 (-102) | +2.5 (+102)"
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 5.0,
+          "threshold": 4.0,
           "cleared_threshold": true,
           "blocked": false,
           "blockers": [],
           "signals": [
             {
               "impact": 3,
-              "score": -3,
-              "side": "HOME",
+              "score": 3,
+              "side": "OVER",
               "source": "sharp",
               "status": "aligned"
-            }
-          ],
-          "conflicts": [],
-          "reasons": [
-            "sharp spread edge"
-          ],
-          "status": "playable",
-          "line": "+5.5 (-104) | -4.5 (-102)"
-        },
-        "total": {
-          "market": "total",
-          "side": "OVER",
-          "score": 2.0,
-          "threshold": 4.0,
-          "cleared_threshold": false,
-          "blocked": false,
-          "blockers": [],
-          "signals": [
+            },
             {
               "impact": 2,
               "reasons": [
@@ -101,15 +225,16 @@
           ],
           "conflicts": [],
           "reasons": [
+            "sharp total edge",
             "referee over trend"
           ],
-          "status": "lean",
-          "line": "o48.5 (+106) | u48.5 (-106)"
+          "status": "playable",
+          "line": "o43.5 (-108) | u43.5 (+111)"
         },
         "moneyline": {
           "market": "moneyline",
-          "side": "AWAY",
-          "score": 13.1,
+          "side": "HOME",
+          "score": 16.7,
           "threshold": 5.0,
           "cleared_threshold": false,
           "status": "blocked",
@@ -117,18 +242,316 @@
           "blockers": [
             "underdog ML not predictive (32% win rate historically, all edge levels)"
           ],
-          "line": "+208 | -208",
+          "line": "-132 | +135",
           "reason": "WARPS ML EV"
         }
       },
-      "referee": "Land Clark",
+      "referee": "Alex Moore",
       "referee_stats": null,
       "factor_summary": [
         {
           "market": "spread",
           "source": "sharp",
-          "side": "HOME",
+          "side": "AWAY",
+          "impact": 1,
+          "status": "aligned"
+        },
+        {
+          "market": "total",
+          "source": "sharp",
+          "side": "OVER",
           "impact": 3,
+          "status": "aligned"
+        },
+        {
+          "market": "total",
+          "source": "ref_weather_context",
+          "side": "OVER",
+          "impact": 2,
+          "status": "aligned"
+        }
+      ],
+      "warps_market_overlay": {
+        "available": true,
+        "status": "priced",
+        "source": "WARPS v2.3 game prior + supplied current odds",
+        "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
+        "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
+        "away_tla": "CAR",
+        "home_tla": "ATL",
+        "away_warps_wins": 7.02,
+        "home_warps_wins": 7.99,
+        "fair_home_spread": -3.2,
+        "fair_away_spread": 3.2,
+        "home_win_prob": 0.5952,
+        "away_win_prob": 0.4048,
+        "home_fair_moneyline": "-147",
+        "away_fair_moneyline": "+147",
+        "market_home_spread": 2.5,
+        "market_away_spread": -2.5,
+        "market_home_moneyline": 124.0,
+        "market_away_moneyline": -148.0,
+        "spread_side": "HOME",
+        "spread_team": "ATL",
+        "spread_edge_points": 5.7,
+        "spread_pick_alignment": "no_spread_pick",
+        "fair_spread_side": "HOME",
+        "ml_side": "HOME",
+        "ml_team": "ATL",
+        "ml_edge_prob": 0.1673,
+        "ml_ev": 0.3332,
+        "ml_pick_alignment": "research_only"
+      },
+      "schedule_context": {
+        "division_game": true,
+        "conference_game": true,
+        "away_division": "NFC South",
+        "home_division": "NFC South"
+      },
+      "expectation_context": {
+        "away_team": "CAR",
+        "home_team": "ATL",
+        "away": {
+          "team": "CAR",
+          "conference": "NFC",
+          "division": "NFC South",
+          "games_tracked": 3,
+          "actual_wins": 0,
+          "actual_losses": 1,
+          "points_for": 37.0,
+          "points_against": 59.0,
+          "vegas_win_total": 7.5,
+          "actual_win_pct": 0.0,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.2486,
+          "pythagorean_wins_tracked": 0.75,
+          "pythagorean_wins_17_game_pace": 4.23,
+          "actual_vs_pythagorean": -0.75,
+          "pythagorean_pace_vs_vegas": -3.27,
+          "actual_pace_vs_vegas": -7.5,
+          "expectation_band": "in_line"
+        },
+        "home": {
+          "team": "ATL",
+          "conference": "NFC",
+          "division": "NFC South",
+          "games_tracked": 3,
+          "actual_wins": 0,
+          "actual_losses": 1,
+          "points_for": 13.0,
+          "points_against": 20.0,
+          "vegas_win_total": 7.5,
+          "actual_win_pct": 0.0,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.2648,
+          "pythagorean_wins_tracked": 0.79,
+          "pythagorean_wins_17_game_pace": 4.5,
+          "actual_vs_pythagorean": -0.79,
+          "pythagorean_pace_vs_vegas": -3.0,
+          "actual_pace_vs_vegas": -7.5,
+          "expectation_band": "in_line"
+        },
+        "games_tracked_min": 3,
+        "pythagorean_wins_delta": -0.27,
+        "vegas_win_total_delta": 0.0,
+        "pythagorean_vs_vegas_delta": -0.27,
+        "actual_vs_pythagorean_delta": 0.04,
+        "pythagorean_side": "NEUTRAL",
+        "market_expectation_side": "NEUTRAL",
+        "value_gap_side": "NEUTRAL",
+        "overperformance_side": "NEUTRAL",
+        "sample_warning": true
+      },
+      "source_health_status": "OK",
+      "data_quality_status": "OK",
+      "result": {
+        "away_score": 0,
+        "home_score": 0,
+        "final_margin": 0,
+        "final_total": 0
+      },
+      "explanation": {
+        "key": "CAR@ATL:initial",
+        "season": "2026",
+        "season_type": "REG",
+        "week": "2",
+        "matchup_key": "CAR@ATL",
+        "away_tla": "CAR",
+        "home_tla": "ATL",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u274c FADE",
+        "recommendation": "\u274c AVOID: Multiple negative factors align",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "no_spread_pick",
+          "warps_moneyline": "research_only"
+        },
+        "reasons": [
+          "WARPS moneyline overlay: HOME +36.9% EV",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
+    },
+    {
+      "season": 2026,
+      "season_type": "REG",
+      "week": "2",
+      "matchup_key": "CLE@TB",
+      "game": "Cleveland Browns @ Tampa Bay Buccaneers",
+      "away_team": "Cleveland Browns",
+      "home_team": "Tampa Bay Buccaneers",
+      "away_tla": "CLE",
+      "home_tla": "TB",
+      "stage": "update",
+      "analysis_available": true,
+      "best_edge": {
+        "market": "spread",
+        "side": "HOME",
+        "score": 4.0,
+        "label": "\ud83c\udfaf TARGETED PLAY",
+        "recommendation": "\ud83c\udfaf TARGETED PLAY: Tampa Bay Buccaneers -8.5",
+        "status": "play"
+      },
+      "markets": {
+        "spread": {
+          "market": "spread",
+          "side": "HOME",
+          "score": 4.0,
+          "threshold": 3.5,
+          "cleared_threshold": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": -2,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "HOME",
+              "source": "team_rating",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge aligns"
+          ],
+          "status": "playable",
+          "line": "+8.5 (-104) | -8.5 (+106)"
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 3.0,
+          "threshold": 4.0,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 1,
+              "score": 1,
+              "side": "OVER",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "reasons": [
+                "referee over trend"
+              ],
+              "score": 2,
+              "side": "OVER",
+              "source": "ref_weather_context",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp total edge",
+            "referee over trend"
+          ],
+          "status": "lean",
+          "line": "o41.5 (+100) | u41.5 (+100)"
+        },
+        "moneyline": {
+          "market": "moneyline",
+          "side": "AWAY",
+          "score": 14.1,
+          "threshold": 5.0,
+          "cleared_threshold": false,
+          "status": "blocked",
+          "promotion_status": "not_promoted",
+          "blockers": [
+            "underdog ML not predictive (32% win rate historically, all edge levels)"
+          ],
+          "line": "+388 | -376",
+          "reason": "WARPS ML EV"
+        }
+      },
+      "referee": "Brad Rogers",
+      "referee_stats": {
+        "su_record": "23-17",
+        "su_pct": 57.5,
+        "ats_record": "18-21-1",
+        "ats_pct": 46.2,
+        "ou_record": "24-16",
+        "ou_pct": 60.0,
+        "sample_size": 40,
+        "game_type": "NDIV",
+        "favorite": "HF"
+      },
+      "factor_summary": [
+        {
+          "market": "spread",
+          "source": "sharp",
+          "side": "HOME",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "team_rating",
+          "side": "HOME",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "total",
+          "source": "sharp",
+          "side": "OVER",
+          "impact": 1,
           "status": "aligned"
         },
         {
@@ -152,100 +575,705 @@
         "source": "WARPS v2.3 game prior + supplied current odds",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
-        "away_tla": "MIN",
-        "home_tla": "CHI",
-        "away_warps_wins": 9.03,
-        "home_warps_wins": 8.44,
-        "fair_home_spread": -1.3,
-        "fair_away_spread": 1.3,
-        "home_win_prob": 0.5378,
-        "away_win_prob": 0.4622,
-        "home_fair_moneyline": "-116",
-        "away_fair_moneyline": "+116",
-        "market_home_spread": -5.5,
-        "market_away_spread": 5.5,
-        "market_home_moneyline": -230.0,
-        "market_away_moneyline": 190.0,
+        "away_tla": "CLE",
+        "home_tla": "TB",
+        "away_warps_wins": 6.76,
+        "home_warps_wins": 8.56,
+        "fair_home_spread": -4.3,
+        "fair_away_spread": 4.3,
+        "home_win_prob": 0.6248,
+        "away_win_prob": 0.3752,
+        "home_fair_moneyline": "-167",
+        "away_fair_moneyline": "+167",
+        "market_home_spread": -8.5,
+        "market_away_spread": 8.5,
+        "market_home_moneyline": -395.0,
+        "market_away_moneyline": 310.0,
         "spread_side": "AWAY",
-        "spread_team": "MIN",
+        "spread_team": "CLE",
         "spread_edge_points": 4.2,
         "spread_pick_alignment": "conflict",
         "fair_spread_side": "HOME",
         "ml_side": "AWAY",
-        "ml_team": "MIN",
-        "ml_edge_prob": 0.1312,
-        "ml_ev": 0.3404,
+        "ml_team": "CLE",
+        "ml_edge_prob": 0.1411,
+        "ml_ev": 0.5383,
         "ml_pick_alignment": "research_only"
       },
       "schedule_context": {
-        "division_game": true,
-        "conference_game": true,
-        "away_division": "NFC North",
-        "home_division": "NFC North"
+        "division_game": false,
+        "conference_game": false,
+        "away_division": "AFC North",
+        "home_division": "NFC South"
       },
       "expectation_context": {
-        "away_team": "MIN",
-        "home_team": "CHI",
+        "away_team": "CLE",
+        "home_team": "TB",
         "away": {
-          "team": "MIN",
-          "conference": "NFC",
-          "division": "NFC North",
+          "team": "CLE",
+          "conference": "AFC",
+          "division": "AFC North",
           "games_tracked": 3,
-          "actual_wins": 1,
-          "actual_losses": 0,
-          "points_for": 39.0,
-          "points_against": 22.0,
-          "vegas_win_total": 8.5,
-          "actual_win_pct": 0.3333,
+          "actual_wins": 0,
+          "actual_losses": 1,
+          "points_for": 10.0,
+          "points_against": 34.0,
+          "vegas_win_total": 6.5,
+          "actual_win_pct": 0.0,
           "pythagorean_exponent": 2.37,
-          "pythagorean_win_pct": 0.7953,
-          "pythagorean_wins_tracked": 2.39,
-          "pythagorean_wins_17_game_pace": 13.52,
-          "actual_vs_pythagorean": -1.39,
-          "pythagorean_pace_vs_vegas": 5.02,
-          "actual_pace_vs_vegas": -2.83,
-          "expectation_band": "underperforming"
+          "pythagorean_win_pct": 0.0521,
+          "pythagorean_wins_tracked": 0.16,
+          "pythagorean_wins_17_game_pace": 0.89,
+          "actual_vs_pythagorean": -0.16,
+          "pythagorean_pace_vs_vegas": -5.61,
+          "actual_pace_vs_vegas": -6.5,
+          "expectation_band": "in_line"
         },
         "home": {
-          "team": "CHI",
+          "team": "TB",
           "conference": "NFC",
-          "division": "NFC North",
+          "division": "NFC South",
           "games_tracked": 2,
-          "actual_wins": 1,
-          "actual_losses": 0,
-          "points_for": 59.0,
-          "points_against": 37.0,
-          "vegas_win_total": 9.5,
-          "actual_win_pct": 0.5,
+          "actual_wins": 0,
+          "actual_losses": 1,
+          "points_for": 27.0,
+          "points_against": 33.0,
+          "vegas_win_total": 8.5,
+          "actual_win_pct": 0.0,
           "pythagorean_exponent": 2.37,
-          "pythagorean_win_pct": 0.7514,
-          "pythagorean_wins_tracked": 1.5,
-          "pythagorean_wins_17_game_pace": 12.77,
-          "actual_vs_pythagorean": -0.5,
-          "pythagorean_pace_vs_vegas": 3.27,
-          "actual_pace_vs_vegas": -1.0,
+          "pythagorean_win_pct": 0.3833,
+          "pythagorean_wins_tracked": 0.77,
+          "pythagorean_wins_17_game_pace": 6.52,
+          "actual_vs_pythagorean": -0.77,
+          "pythagorean_pace_vs_vegas": -1.98,
+          "actual_pace_vs_vegas": -8.5,
           "expectation_band": "in_line"
         },
         "games_tracked_min": 2,
-        "pythagorean_wins_delta": 0.75,
-        "vegas_win_total_delta": -1.0,
-        "pythagorean_vs_vegas_delta": 1.75,
-        "actual_vs_pythagorean_delta": -0.89,
-        "pythagorean_side": "AWAY",
+        "pythagorean_wins_delta": -5.63,
+        "vegas_win_total_delta": -2.0,
+        "pythagorean_vs_vegas_delta": -3.63,
+        "actual_vs_pythagorean_delta": 0.61,
+        "pythagorean_side": "HOME",
         "market_expectation_side": "HOME",
-        "value_gap_side": "AWAY",
-        "overperformance_side": "HOME",
+        "value_gap_side": "HOME",
+        "overperformance_side": "AWAY",
         "sample_warning": true
       },
-      "source_health_status": "DEGRADED",
-      "data_quality_status": "DEGRADED",
+      "source_health_status": "OK",
+      "data_quality_status": "OK",
       "result": {
         "away_score": 0,
         "home_score": 0,
         "final_margin": 0,
         "final_total": 0
       },
-      "explanation": null
+      "explanation": {
+        "key": "CLE@TB:initial",
+        "season": "2026",
+        "season_type": "REG",
+        "week": "2",
+        "matchup_key": "CLE@TB",
+        "away_tla": "CLE",
+        "home_tla": "TB",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "no_spread_pick",
+          "warps_moneyline": "research_only"
+        },
+        "reasons": [
+          "WARPS moneyline overlay: AWAY +57.6% EV",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
+    },
+    {
+      "season": 2026,
+      "season_type": "REG",
+      "week": "2",
+      "matchup_key": "IND@KC",
+      "game": "Indianapolis Colts @ Kansas City Chiefs",
+      "away_team": "Indianapolis Colts",
+      "home_team": "Kansas City Chiefs",
+      "away_tla": "IND",
+      "home_tla": "KC",
+      "stage": "update",
+      "analysis_available": true,
+      "best_edge": {
+        "market": "spread",
+        "side": "HOME",
+        "score": 4.0,
+        "label": "\ud83c\udfaf TARGETED PLAY",
+        "recommendation": "\ud83c\udfaf TARGETED PLAY: Kansas City Chiefs -6.5",
+        "status": "play"
+      },
+      "markets": {
+        "spread": {
+          "market": "spread",
+          "side": "HOME",
+          "score": 4.0,
+          "threshold": 3.5,
+          "cleared_threshold": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": -2,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "HOME",
+              "source": "team_rating",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge aligns"
+          ],
+          "status": "playable",
+          "line": "+6.5 (+100) | -6.5 (+100)"
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 2.0,
+          "threshold": 4.0,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "OVER",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp total edge"
+          ],
+          "status": "lean",
+          "line": "o46.5 (+106) | u46.5 (-106)"
+        },
+        "moneyline": {
+          "market": "moneyline",
+          "side": "AWAY",
+          "score": 15.9,
+          "threshold": 5.0,
+          "cleared_threshold": false,
+          "status": "blocked",
+          "promotion_status": "not_promoted",
+          "blockers": [
+            "underdog ML not predictive (32% win rate historically, all edge levels)"
+          ],
+          "line": "+277 | -277",
+          "reason": "WARPS ML EV"
+        }
+      },
+      "referee": "Craig Wrolstad",
+      "referee_stats": {
+        "su_record": "34-21",
+        "su_pct": 61.8,
+        "ats_record": "24-31",
+        "ats_pct": 43.6,
+        "ou_record": "23-32",
+        "ou_pct": 41.8,
+        "sample_size": 55,
+        "game_type": "C",
+        "favorite": "HF"
+      },
+      "factor_summary": [
+        {
+          "market": "spread",
+          "source": "sharp",
+          "side": "HOME",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "team_rating",
+          "side": "HOME",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "total",
+          "source": "sharp",
+          "side": "OVER",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "WARPS fair-line prior",
+          "side": "AWAY",
+          "impact": 4.8,
+          "status": "conflict"
+        }
+      ],
+      "warps_market_overlay": {
+        "available": true,
+        "status": "priced",
+        "source": "WARPS v2.3 game prior + supplied current odds",
+        "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
+        "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
+        "away_tla": "IND",
+        "home_tla": "KC",
+        "away_warps_wins": 9.56,
+        "home_warps_wins": 9.32,
+        "fair_home_spread": -1.7,
+        "fair_away_spread": 1.7,
+        "home_win_prob": 0.5508,
+        "away_win_prob": 0.4492,
+        "home_fair_moneyline": "-123",
+        "away_fair_moneyline": "+123",
+        "market_home_spread": -6.5,
+        "market_away_spread": 6.5,
+        "market_home_moneyline": -285.0,
+        "market_away_moneyline": 230.0,
+        "spread_side": "AWAY",
+        "spread_team": "IND",
+        "spread_edge_points": 4.8,
+        "spread_pick_alignment": "conflict",
+        "fair_spread_side": "HOME",
+        "ml_side": "AWAY",
+        "ml_team": "IND",
+        "ml_edge_prob": 0.1587,
+        "ml_ev": 0.4824,
+        "ml_pick_alignment": "research_only"
+      },
+      "schedule_context": {
+        "division_game": false,
+        "conference_game": true,
+        "away_division": "AFC South",
+        "home_division": "AFC West"
+      },
+      "expectation_context": {
+        "away_team": "IND",
+        "home_team": "KC",
+        "away": {
+          "team": "IND",
+          "conference": "AFC",
+          "division": "AFC South",
+          "games_tracked": 3,
+          "actual_wins": 0,
+          "actual_losses": 1,
+          "points_for": 23.0,
+          "points_against": 41.0,
+          "vegas_win_total": 7.5,
+          "actual_win_pct": 0.0,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.2026,
+          "pythagorean_wins_tracked": 0.61,
+          "pythagorean_wins_17_game_pace": 3.44,
+          "actual_vs_pythagorean": -0.61,
+          "pythagorean_pace_vs_vegas": -4.06,
+          "actual_pace_vs_vegas": -7.5,
+          "expectation_band": "in_line"
+        },
+        "home": {
+          "team": "KC",
+          "conference": "AFC",
+          "division": "AFC West",
+          "games_tracked": 3,
+          "actual_wins": 1,
+          "actual_losses": 0,
+          "points_for": 31.0,
+          "points_against": 10.0,
+          "vegas_win_total": 10.5,
+          "actual_win_pct": 0.3333,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.9359,
+          "pythagorean_wins_tracked": 2.81,
+          "pythagorean_wins_17_game_pace": 15.91,
+          "actual_vs_pythagorean": -1.81,
+          "pythagorean_pace_vs_vegas": 5.41,
+          "actual_pace_vs_vegas": -4.83,
+          "expectation_band": "underperforming"
+        },
+        "games_tracked_min": 3,
+        "pythagorean_wins_delta": -12.47,
+        "vegas_win_total_delta": -3.0,
+        "pythagorean_vs_vegas_delta": -9.47,
+        "actual_vs_pythagorean_delta": 1.2,
+        "pythagorean_side": "HOME",
+        "market_expectation_side": "HOME",
+        "value_gap_side": "HOME",
+        "overperformance_side": "AWAY",
+        "sample_warning": true
+      },
+      "source_health_status": "OK",
+      "data_quality_status": "OK",
+      "result": {
+        "away_score": 0,
+        "home_score": 0,
+        "final_margin": 0,
+        "final_total": 0
+      },
+      "explanation": {
+        "key": "IND@KC:initial",
+        "season": "2026",
+        "season_type": "REG",
+        "week": "2",
+        "matchup_key": "IND@KC",
+        "away_tla": "IND",
+        "home_tla": "KC",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "no_spread_pick",
+          "warps_moneyline": "research_only"
+        },
+        "reasons": [
+          "WARPS moneyline overlay: AWAY +55.0% EV",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
+    },
+    {
+      "season": 2026,
+      "season_type": "REG",
+      "week": "2",
+      "matchup_key": "JAX@DEN",
+      "game": "Jacksonville Jaguars @ Denver Broncos",
+      "away_team": "Jacksonville Jaguars",
+      "home_team": "Denver Broncos",
+      "away_tla": "JAX",
+      "home_tla": "DEN",
+      "stage": "update",
+      "analysis_available": true,
+      "best_edge": {
+        "market": "spread",
+        "side": "AWAY",
+        "score": 4.0,
+        "label": "\ud83c\udfaf TARGETED PLAY",
+        "recommendation": "\ud83c\udfaf TARGETED PLAY: Jacksonville Jaguars +2.5",
+        "status": "play"
+      },
+      "markets": {
+        "spread": {
+          "market": "spread",
+          "side": "AWAY",
+          "score": 4.0,
+          "threshold": 1.5,
+          "cleared_threshold": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "AWAY",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "AWAY",
+              "source": "team_rating",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge aligns"
+          ],
+          "status": "playable",
+          "line": "+2.5 (+113) | -2.5 (-111)"
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 3.0,
+          "threshold": 4.0,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 3,
+              "score": 3,
+              "side": "OVER",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp total edge"
+          ],
+          "status": "lean",
+          "line": "o44.5 (-104) | u45.5 (-104)"
+        },
+        "moneyline": {
+          "market": "moneyline",
+          "side": "AWAY",
+          "score": 4.8,
+          "threshold": 5.0,
+          "cleared_threshold": false,
+          "status": "blocked",
+          "promotion_status": "not_promoted",
+          "blockers": [
+            "underdog ML not predictive (32% win rate historically, all edge levels)"
+          ],
+          "line": "+135 | -135",
+          "reason": "WARPS ML EV"
+        }
+      },
+      "referee": "John Hussey",
+      "referee_stats": {
+        "su_record": "35-16",
+        "su_pct": 68.6,
+        "ats_record": "26-23-2",
+        "ats_pct": 53.1,
+        "ou_record": "28-23",
+        "ou_pct": 54.9,
+        "sample_size": 51,
+        "game_type": "C",
+        "favorite": "HF"
+      },
+      "factor_summary": [
+        {
+          "market": "spread",
+          "source": "sharp",
+          "side": "AWAY",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "team_rating",
+          "side": "AWAY",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "total",
+          "source": "sharp",
+          "side": "OVER",
+          "impact": 3,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "WARPS fair-line prior",
+          "side": "AWAY",
+          "impact": 1.7,
+          "status": "aligned"
+        }
+      ],
+      "warps_market_overlay": {
+        "available": true,
+        "status": "priced",
+        "source": "WARPS v2.3 game prior + supplied current odds",
+        "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
+        "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
+        "away_tla": "JAX",
+        "home_tla": "DEN",
+        "away_warps_wins": 10.47,
+        "home_warps_wins": 9.52,
+        "fair_home_spread": -0.8,
+        "fair_away_spread": 0.8,
+        "home_win_prob": 0.5244,
+        "away_win_prob": 0.4756,
+        "home_fair_moneyline": "-110",
+        "away_fair_moneyline": "+110",
+        "market_home_spread": -2.5,
+        "market_away_spread": 2.5,
+        "market_home_moneyline": -148.0,
+        "market_away_moneyline": 124.0,
+        "spread_side": "AWAY",
+        "spread_team": "JAX",
+        "spread_edge_points": 1.7,
+        "spread_pick_alignment": "aligned",
+        "fair_spread_side": "HOME",
+        "ml_side": "AWAY",
+        "ml_team": "JAX",
+        "ml_edge_prob": 0.0477,
+        "ml_ev": 0.0653,
+        "ml_pick_alignment": "research_only"
+      },
+      "schedule_context": {
+        "division_game": false,
+        "conference_game": true,
+        "away_division": "AFC South",
+        "home_division": "AFC West"
+      },
+      "expectation_context": {
+        "away_team": "JAX",
+        "home_team": "DEN",
+        "away": {
+          "team": "JAX",
+          "conference": "AFC",
+          "division": "AFC South",
+          "games_tracked": 3,
+          "actual_wins": 1,
+          "actual_losses": 0,
+          "points_for": 34.0,
+          "points_against": 10.0,
+          "vegas_win_total": 9.5,
+          "actual_win_pct": 0.3333,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.9479,
+          "pythagorean_wins_tracked": 2.84,
+          "pythagorean_wins_17_game_pace": 16.11,
+          "actual_vs_pythagorean": -1.84,
+          "pythagorean_pace_vs_vegas": 6.61,
+          "actual_pace_vs_vegas": -3.83,
+          "expectation_band": "underperforming"
+        },
+        "home": {
+          "team": "DEN",
+          "conference": "AFC",
+          "division": "AFC West",
+          "games_tracked": 2,
+          "actual_wins": 0,
+          "actual_losses": 1,
+          "points_for": 10.0,
+          "points_against": 31.0,
+          "vegas_win_total": 9.5,
+          "actual_win_pct": 0.0,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.0641,
+          "pythagorean_wins_tracked": 0.13,
+          "pythagorean_wins_17_game_pace": 1.09,
+          "actual_vs_pythagorean": -0.13,
+          "pythagorean_pace_vs_vegas": -8.41,
+          "actual_pace_vs_vegas": -9.5,
+          "expectation_band": "in_line"
+        },
+        "games_tracked_min": 2,
+        "pythagorean_wins_delta": 15.02,
+        "vegas_win_total_delta": 0.0,
+        "pythagorean_vs_vegas_delta": 15.02,
+        "actual_vs_pythagorean_delta": -1.71,
+        "pythagorean_side": "AWAY",
+        "market_expectation_side": "NEUTRAL",
+        "value_gap_side": "AWAY",
+        "overperformance_side": "HOME",
+        "sample_warning": true
+      },
+      "source_health_status": "OK",
+      "data_quality_status": "OK",
+      "result": {
+        "away_score": 0,
+        "home_score": 0,
+        "final_margin": 0,
+        "final_total": 0
+      },
+      "explanation": {
+        "key": "JAX@DEN:initial",
+        "season": "2026",
+        "season_type": "REG",
+        "week": "2",
+        "matchup_key": "JAX@DEN",
+        "away_tla": "JAX",
+        "home_tla": "DEN",
+        "stage": "initial",
+        "raw_action": "pass",
+        "quality_action": "pass",
+        "quality_gate": "warn",
+        "confidence": "none",
+        "market": "",
+        "side": "",
+        "selector_score": "",
+        "label": "\u26a0\ufe0f PASS",
+        "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+        "source_health_status": "DEGRADED",
+        "data_quality_status": "DEGRADED",
+        "promoted_matches": [],
+        "source_blockers": [],
+        "source_warnings": [
+          "source_health_status=DEGRADED",
+          "data_quality_status=DEGRADED"
+        ],
+        "market_signals": [],
+        "market_conflicts": [],
+        "market_blockers": [
+          "candidate unavailable"
+        ],
+        "alignment": {
+          "pythagorean": "no_pick",
+          "market_expectation": "no_pick",
+          "value_gap": "no_pick",
+          "overperformance": "no_pick",
+          "warps_spread": "no_spread_pick",
+          "warps_moneyline": "research_only"
+        },
+        "reasons": [
+          "WARPS moneyline overlay: AWAY +1.8% EV",
+          "Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED"
+        ],
+        "result": "",
+        "margin_to_line": ""
+      }
     }
   ],
   "survivor": {
