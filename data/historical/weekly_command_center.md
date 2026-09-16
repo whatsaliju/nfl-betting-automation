@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W2 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Recommended action: **PLAY**
+- Confidence tier: **A**
+- Reason: At least one selector play cleared the current command gate.
 
 ## Source Gates
 
@@ -16,13 +16,18 @@
 
 ## Betting Card
 
-- Plays: 0
-- Watch: 1
-- Passes: 15
+- Plays: 1
+- Watch: 6
+- Passes: 9
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| MIN@CHI | watch | spread | HOME | 3.0 |
+| MIN@CHI | play | n/a | n/a | 3.0 |
+| CAR@ATL | watch | total | OVER | 5.0 |
+| CLE@TB | watch | spread | HOME | 4.0 |
+| IND@KC | watch | spread | HOME | 4.0 |
+| JAX@DEN | watch | spread | AWAY | 4.0 |
+| DET@BUF | watch | n/a | n/a | 3.0 |
 
 ## Survivor
 

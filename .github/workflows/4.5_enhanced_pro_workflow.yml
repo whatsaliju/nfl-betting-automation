@@ -289,6 +289,11 @@ jobs:
         run: |
           python3 builders/build_matrix_engine_feed.py
           python3 scripts/build_weekly_betting_card.py
+          # Second pass: embed the fresh betting card into the engine feed.
+          # build_weekly_betting_card.py reads edge_board FROM the feed (pass 1),
+          # writes weekly_betting_card.json, then this re-embeds it so the board
+          # and email both see the current week's card rather than the prior week's.
+          python3 builders/build_matrix_engine_feed.py
           python3 builders/build_game_feature_table.py
           python3 scripts/audit_game_features.py
           python3 scripts/generate_feature_research_report.py \
