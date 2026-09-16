@@ -95,5 +95,5 @@ def generate_referee_digest(week):
 
 if __name__ == "__main__":
     import sys
-    week = int(sys.argv[1]) if len(sys.argv) > 1 else 11
+    week = (int(sys.argv[1]) if sys.argv[1].isdigit() else sys.argv[1]) if len(sys.argv) > 1 else 11
     generate_referee_digest(week)

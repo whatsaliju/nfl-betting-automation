@@ -2,8 +2,6 @@ name: 6. Enhanced Performance Tracker
 on:
   schedule:
     - cron: '0 12 * * 2'  # Tuesday noon UTC (8am ET) — after Monday night games finish
-  repository_dispatch:
-    types: [grade-ready]
   workflow_dispatch:
     inputs:
       week:
@@ -213,7 +211,8 @@ jobs:
         from email import encoders
         from datetime import datetime
         
-        week = int('${{ github.event.inputs.week }}')
+        week_val = '${{ steps.resolve.outputs.week }}'
+        week = int(week_val) if week_val.isdigit() else week_val
         action = '${{ github.event.inputs.action }}'
         
         # Read the performance report

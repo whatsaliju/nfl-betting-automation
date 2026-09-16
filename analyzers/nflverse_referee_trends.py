@@ -170,7 +170,7 @@ def build_referee_trends(
     if week_str.isdigit():
         season_type = normalize_season_type(season_type, int(week_str))
     else:
-        season_type = season_type or "REG"
+        season_type = normalize_season_type(season_type, week_str)
     queries_path = f"data/week{week}/week{week}_queries.csv"
     if not os.path.exists(queries_path):
         print(f"⚠️ No queries file at {queries_path}. Skipping referee trends (no data posted yet).")
