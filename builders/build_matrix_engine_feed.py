@@ -13,6 +13,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+from analyzers.nfl_common import get_current_season as _get_current_season
+ACTIVE_SEASON = _get_current_season()
+CURRENT_SEASON = ACTIVE_SEASON
 
 
 def week_to_int(week):
@@ -40,29 +43,27 @@ OUTPUT_JSON = HISTORICAL_DIR / "matrix_engine_feed.json"
 OUTPUT_CSV = HISTORICAL_DIR / "matrix_engine_feed.csv"
 WEEKLY_COMMAND_CENTER = HISTORICAL_DIR / "weekly_command_center.json"
 WEEKLY_COMMAND_CENTER_MD = HISTORICAL_DIR / "weekly_command_center.md"
-READINESS_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "model_readiness_report.json"
-FEATURE_RESEARCH_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "feature_research_report.json"
-FEATURE_POLICY_SIMULATION = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "feature_policy_simulation.json"
-FACTOR_LEADERBOARD = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_leaderboard.json"
-FACTOR_PROMOTION_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_promotion_report.json"
-PROMOTION_OVERLAY_SIMULATION = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "promotion_overlay_simulation.json"
-SOURCE_RELIABILITY_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "source_reliability_report.json"
-WARPS_SELECTOR_ALIGNMENT_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "warps_selector_alignment_audit.json"
-MARKET_ROUTER_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "market_router_audit.json"
-CLV_AUDIT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "clv_audit.json"
-BACKTEST_COVERAGE_REPORT = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "backtest_coverage_report.json"
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{ACTIVE_SEASON}_1_configured"
+READINESS_REPORT = _ENGINE_DIR / "model_readiness_report.json"
+FEATURE_RESEARCH_REPORT = _ENGINE_DIR / "feature_research_report.json"
+FEATURE_POLICY_SIMULATION = _ENGINE_DIR / "feature_policy_simulation.json"
+FACTOR_LEADERBOARD = _ENGINE_DIR / "factor_leaderboard.json"
+FACTOR_PROMOTION_REPORT = _ENGINE_DIR / "factor_promotion_report.json"
+PROMOTION_OVERLAY_SIMULATION = _ENGINE_DIR / "promotion_overlay_simulation.json"
+SOURCE_RELIABILITY_REPORT = _ENGINE_DIR / "source_reliability_report.json"
+WARPS_SELECTOR_ALIGNMENT_AUDIT = _ENGINE_DIR / "warps_selector_alignment_audit.json"
+MARKET_ROUTER_AUDIT = _ENGINE_DIR / "market_router_audit.json"
+CLV_AUDIT = _ENGINE_DIR / "clv_audit.json"
+BACKTEST_COVERAGE_REPORT = _ENGINE_DIR / "backtest_coverage_report.json"
 PICK_EXPLANATIONS = HISTORICAL_DIR / "pick_explanations.json"
 WEEKLY_BETTING_CARD = HISTORICAL_DIR / "weekly_betting_card.json"
 PRESEASON_DRY_RUN_REPORT = HISTORICAL_DIR / "preseason_dry_run_report.json"
 SURVIVOR_BACKTEST_REPORT = HISTORICAL_DIR / "survivor_backtest_report.json"
 SURVIVOR_POOL_EV_BACKTEST = HISTORICAL_DIR / "survivor_pool_ev_backtest.json"
-SURVIVOR_RECOMMENDATIONS = HISTORICAL_DIR / "survivor_recommendations_2026.json"
-WARPS_MARKET_OVERLAY = HISTORICAL_DIR / "warps_2026_market_overlay.csv"
+SURVIVOR_RECOMMENDATIONS = HISTORICAL_DIR / f"survivor_recommendations_{ACTIVE_SEASON}.json"
+WARPS_MARKET_OVERLAY = HISTORICAL_DIR / f"warps_{ACTIVE_SEASON}_market_overlay.csv"
 STAGES = ("initial", "update", "lock", "final")
-from analyzers.nfl_common import get_current_season as _get_current_season
-ACTIVE_SEASON = _get_current_season()
 PYTHAGOREAN_EXPONENT = 2.37
-CURRENT_SEASON = _get_current_season()
 
 
 def _load_vegas_win_totals(season):

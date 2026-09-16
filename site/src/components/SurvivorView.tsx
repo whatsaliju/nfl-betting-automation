@@ -1,7 +1,7 @@
 import { BadgeCheck, CalendarDays, CircleSlash, Route, ShieldAlert, SlidersHorizontal, Star, Trophy } from "lucide-react";
 import { useMemo, useState } from "react";
 import { teamLogos } from "../data/nflData";
-import survivorPayload from "../data/survivorRecommendations2026.json";
+import survivorPayload from "../data/survivorRecommendations.json";
 
 type SurvivorTier = "primary" | "secondary" | "deep_pool" | "avoid" | string;
 

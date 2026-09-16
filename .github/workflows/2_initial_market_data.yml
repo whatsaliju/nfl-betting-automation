@@ -10,9 +10,9 @@ on:
         required: true
         type: string
       season:
-        description: 'NFL season'
+        description: 'NFL season year (auto = detect from current_week.json)'
         required: false
-        default: '2026'
+        default: 'auto'
         type: string
 
 jobs:
@@ -58,9 +58,11 @@ jobs:
         id: get_week
         run: |
           SEASON="${{ github.event.inputs.season }}"
+          [ "$SEASON" = "auto" ] && SEASON=""
           [ -z "$SEASON" ] && SEASON="${{ github.event.client_payload.season }}"
           [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
-          [ -z "$SEASON" ] && SEASON="2026"
+          [ -z "$SEASON" ] && SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
+          [ -z "$SEASON" ] && SEASON=$(python3 -c "import datetime; t=datetime.date.today(); print(t.year if t.month>=9 else t.year-1)")
           if [ -n "${{ github.event.inputs.week }}" ]; then
             WEEK=${{ github.event.inputs.week }}
           elif [ -n "${{ github.event.client_payload.week }}" ]; then

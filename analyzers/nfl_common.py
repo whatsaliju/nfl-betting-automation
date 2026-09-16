@@ -29,11 +29,12 @@ TEAM_MAP = {
 FULL_NAME_TO_TLA = {full.lower(): tla for tla, full in TEAM_MAP.items()}
 
 
-def get_current_season(fallback=2026):
+def get_current_season(fallback=None):
     """Return the active NFL season year from data/current_week.json.
 
-    Falls back to `fallback` if the file is absent or unreadable.  Any script
-    that previously hardcoded a season year should call this instead.
+    Falls back to `fallback` if provided, otherwise computes from the current
+    date: NFL season year = calendar year of the fall start; before Sep 1 still
+    means the previous season.
     """
     import json as _json
     for path in ("data/current_week.json", "../data/current_week.json"):
@@ -44,7 +45,12 @@ def get_current_season(fallback=2026):
                 return int(val)
         except Exception:
             pass
-    return fallback
+    if fallback is not None:
+        return fallback
+    # NFL season year = calendar year of the fall start; before Sep 1 still previous season
+    from datetime import date as _date
+    today = _date.today()
+    return today.year if today.month >= 9 else today.year - 1
 
 
 def canonical_team(team_raw):
@@ -195,15 +201,20 @@ def espn_week(season_type=None, week=None):
     return max(1, week - 18)
 
 
-_WEEK1_SUNDAY = {
+_WEEK1_SUNDAY_OVERRIDES = {
     2025: date(2025, 9, 7),   # Season opened Fri 2025-09-05; Week 1 Sunday two days later
     2026: date(2026, 9, 6),   # Season opens Thu 2026-09-03; Week 1 Sunday three days later
 }
 
+def _compute_week1_sunday(season):
+    """First Thursday of September + 3 days = Week 1 Sunday (holds for all modern NFL seasons)."""
+    d = date(season, 9, 1)
+    days_until_thu = (3 - d.weekday()) % 7
+    first_thu = d + timedelta(days=days_until_thu)
+    return first_thu + timedelta(days=3)
+
 def regular_season_sunday(season, week):
-    anchor = _WEEK1_SUNDAY.get(season)
-    if anchor is None:
-        raise ValueError(f"regular_season_sunday: no Week 1 anchor for season {season}. Add it to _WEEK1_SUNDAY.")
+    anchor = _WEEK1_SUNDAY_OVERRIDES.get(season) or _compute_week1_sunday(season)
     return anchor + timedelta(days=(week - 1) * 7)
 
 
@@ -224,6 +235,11 @@ def _week_num(week) -> int:
         return 0
 
 
+_POST_ANCHORS = {
+    2025: {19: date(2026, 1, 11), 20: date(2026, 1, 18), 21: date(2026, 1, 25), 22: date(2026, 2, 8)},
+    2026: {19: date(2027, 1, 10), 20: date(2027, 1, 17), 21: date(2027, 1, 24), 22: date(2027, 2, 7)},
+}
+
 def week_anchor_date(season, week, season_type=None):
     season_type = normalize_season_type(season_type, week)
     week_num = _week_num(week)
@@ -231,14 +247,15 @@ def week_anchor_date(season, week, season_type=None):
         # Approximate first preseason Sunday. Exact dry-run dates should come
         # from schedule data once preseason markets are available.
         return date(season, 8, 3) + timedelta(days=(week_num - 1) * 7)
-    _POST_ANCHORS = {
-        2025: {19: date(2026, 1, 11), 20: date(2026, 1, 18), 21: date(2026, 1, 25), 22: date(2026, 2, 8)},
-        2026: {19: date(2027, 1, 10), 20: date(2027, 1, 17), 21: date(2027, 1, 24), 22: date(2027, 2, 7)},
-    }
-    if season_type == "POST" and season in _POST_ANCHORS:
-        anchors = _POST_ANCHORS[season]
+    if season_type == "POST":
+        anchors = _POST_ANCHORS.get(season, {})
         if week_num in anchors:
             return anchors[week_num]
+        # Algorithmic fallback: WC=Week18+7, DIV=+14, CONF=+21, SB=+35
+        w18 = regular_season_sunday(season, 18)
+        playoff_offsets = {19: 7, 20: 14, 21: 21, 22: 35}
+        if week_num in playoff_offsets:
+            return w18 + timedelta(days=playoff_offsets[week_num])
     return regular_season_sunday(season, week_num)
 
 

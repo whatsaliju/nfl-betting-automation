@@ -1,5 +1,5 @@
 import { teamLogos } from "../data/nflData";
-import gameTimesData from "../data/gameTimes2026.json";
+import gameTimesData from "../data/gameTimes.json";
 import type { EngineFeed, WarpsMarketOverlay } from "../types";
 
 const gameTimes = (gameTimesData as { weeks: Record<string, Record<string, string>> }).weeks;

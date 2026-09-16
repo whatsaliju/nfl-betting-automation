@@ -1,6 +1,6 @@
 import { AlertTriangle, BadgeCheck, ClipboardList, Crosshair, Gauge, ListChecks, Route, ShieldCheck, Target } from "lucide-react";
 import { teamLogos } from "../data/nflData";
-import survivorPayload from "../data/survivorRecommendations2026.json";
+import survivorPayload from "../data/survivorRecommendations.json";
 import type { EdgeBoardGame, EngineFeed, WarpsMarketOverlay, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
 
 type SurvivorCandidate = {

@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
 IN_PATH = ROOT / "data" / "current_odds_api.json"
-OUT_PATH = ROOT / "site" / "src" / "data" / "gameTimes2026.json"
+OUT_PATH = ROOT / "site" / "src" / "data" / "gameTimes.json"
 
 TEAM_MAP = {
     "Arizona Cardinals": "ARI", "Atlanta Falcons": "ATL", "Baltimore Ravens": "BAL",

@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PRIORS = ROOT / "warps_2026_game_priors.csv"
 DEFAULT_CSV = ROOT / "data" / "historical" / "warps_2026_market_overlay.csv"
-DEFAULT_JSON = ROOT / "site" / "src" / "data" / "warpsMarketOverlay2026.json"
+DEFAULT_JSON = ROOT / "site" / "src" / "data" / "warpsMarketOverlay.json"
 
 
 def parse_float(value) -> float | None:
