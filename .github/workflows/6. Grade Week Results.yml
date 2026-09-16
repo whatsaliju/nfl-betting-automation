@@ -67,6 +67,7 @@ jobs:
       - name: Refresh Week Master and Matrix Feed
         env:
           BACKTEST_DIR: ${{ steps.resolve.outputs.backtest_dir }}
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           python3 builders/build_week_master_table.py \
             --season ${{ steps.resolve.outputs.season }} \
