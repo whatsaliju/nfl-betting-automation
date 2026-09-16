@@ -197,15 +197,18 @@ jobs:
               # cron: '0 1 * * 0'   # Sunday 1:00 AM UTC (Sat 8:00 PM ET)  
               # cron: '30 16 * * 0' # Sunday 5:00 PM UTC (Sun 1:00 PM ET)
               
-              if day_utc == 4 and hour_utc == 0:  # Friday 12:00 AM UTC = Thu 7 PM ET
-                  analysis_type_output = "initial"
-                  print("📅 Detected: INITIAL analysis (Thursday 7 PM ET)")
-              elif day_utc == 6 and hour_utc == 1:  # Sunday 1:00 AM UTC = Sat 8 PM ET
+              if day_utc == 2 and hour_utc == 14:  # Wednesday 2:00 PM UTC = Wed 10 AM ET
                   analysis_type_output = "update"
-                  print("📅 Detected: UPDATE analysis (Saturday 8 PM ET)")
-              elif day_utc == 6 and hour_utc == 16:  # Sunday 5:00 PM UTC = Sun 1 PM ET
+                  print("📅 Detected: UPDATE analysis (Wednesday 10 AM ET)")
+              elif day_utc == 3 and hour_utc == 18:  # Thursday 6:00 PM UTC = Thu 2 PM ET
+                  analysis_type_output = "initial"
+                  print("📅 Detected: INITIAL analysis (Thursday 2 PM ET)")
+              elif day_utc == 6 and hour_utc == 1:  # Sunday 1:00 AM UTC = Sat 9 PM ET
+                  analysis_type_output = "update"
+                  print("📅 Detected: UPDATE analysis (Saturday 9 PM ET)")
+              elif day_utc == 6 and hour_utc == 16:  # Sunday 4:30 PM UTC = Sun 12:30 PM ET
                   analysis_type_output = "final"
-                  print("📅 Detected: FINAL analysis (Sunday 1 PM ET)")
+                  print("📅 Detected: FINAL analysis (Sunday 12:30 PM ET)")
               else:
                   # Fallback for manual runs without explicit type
                   analysis_type_output = "update"
@@ -447,11 +450,127 @@ jobs:
               f.write(f"analysis_type={analysis_type_output}\n")
           PYTHON_EOF
       
+      - name: Append Line Movement Log
+        run: |
+          python3 << 'PYTHON_EOF'
+          import pandas as pd
+          import datetime
+          import os
+          import glob
+          import re
+
+          week = "${{ steps.get_week.outputs.week }}"
+          season = "${{ steps.get_week.outputs.season }}"
+          run_stage = "${{ steps.line_flips.outputs.analysis_type }}"
+          log_path = f'data/week{week}/line_movement_log.csv'
+
+          TEAM_FULL_TO_ABBR = {
+              'Arizona Cardinals': 'ARI', 'Atlanta Falcons': 'ATL', 'Baltimore Ravens': 'BAL',
+              'Buffalo Bills': 'BUF', 'Carolina Panthers': 'CAR', 'Chicago Bears': 'CHI',
+              'Cincinnati Bengals': 'CIN', 'Cleveland Browns': 'CLE', 'Dallas Cowboys': 'DAL',
+              'Denver Broncos': 'DEN', 'Detroit Lions': 'DET', 'Green Bay Packers': 'GB',
+              'Houston Texans': 'HOU', 'Indianapolis Colts': 'IND', 'Jacksonville Jaguars': 'JAX',
+              'Kansas City Chiefs': 'KC', 'Las Vegas Raiders': 'LV', 'Los Angeles Chargers': 'LAC',
+              'Los Angeles Rams': 'LAR', 'Miami Dolphins': 'MIA', 'Minnesota Vikings': 'MIN',
+              'New England Patriots': 'NE', 'New Orleans Saints': 'NO', 'New York Giants': 'NYG',
+              'New York Jets': 'NYJ', 'Philadelphia Eagles': 'PHI', 'Pittsburgh Steelers': 'PIT',
+              'San Francisco 49ers': 'SF', 'Seattle Seahawks': 'SEA', 'Tampa Bay Buccaneers': 'TB',
+              'Tennessee Titans': 'TEN', 'Washington Commanders': 'WAS'
+          }
+
+          def parse_spread(line_str):
+              s = str(line_str).strip().upper()
+              if 'PICK' in s:
+                  return 0.0
+              m = re.search(r'([+-]?\d+\.?\d*)', s)
+              return float(m.group(1)) if m else 0.0
+
+          # Latest Action Network markets file — prefer week dir, fall back to data/
+          week_dir = f'data/week{week}'
+          candidates = (
+              sorted(glob.glob(f'{week_dir}/action_all_markets_*.csv'), reverse=True) +
+              sorted(glob.glob('data/action_all_markets_*.csv'), reverse=True)
+          )
+          if not candidates:
+              print("⚠️ No Action Network market file found — skipping line movement log")
+              exit(0)
+          latest_file = candidates[0]
+          print(f"📊 Snapshotting spreads from {latest_file}")
+
+          df = pd.read_csv(latest_file)
+          spreads = df[df['Market'] == 'Spread'].copy()
+
+          # Load previous log for delta computation
+          if os.path.exists(log_path):
+              prev_log = pd.read_csv(log_path)
+              prev_latest = (
+                  prev_log.sort_values('captured_at')
+                  .groupby(['away', 'home']).last().reset_index()
+              )
+          else:
+              prev_log = pd.DataFrame()
+              prev_latest = pd.DataFrame()
+
+          captured_at = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+          rows = []
+          for _, row in spreads.iterrows():
+              parts = str(row.get('Matchup', '')).split('@')
+              if len(parts) != 2:
+                  continue
+              away_full, home_full = parts[0].strip(), parts[1].strip()
+              away = TEAM_FULL_TO_ABBR.get(away_full, away_full[:3].upper())
+              home = TEAM_FULL_TO_ABBR.get(home_full, home_full[:3].upper())
+              fav_full = str(row.get('Team', ''))
+              spread_raw = parse_spread(row.get('Line', '0'))
+              # Canonical: negative spread_away = away team is favored
+              spread_away = spread_raw if fav_full == away_full else -spread_raw
+
+              prev_spread = None
+              delta = None
+              if not prev_latest.empty:
+                  mask = (prev_latest['away'] == away) & (prev_latest['home'] == home)
+                  if mask.any():
+                      prev_spread = float(prev_latest.loc[mask, 'spread_away'].iloc[0])
+                      delta = round(spread_away - prev_spread, 1)
+
+              rows.append({
+                  'captured_at': captured_at,
+                  'run_stage': run_stage,
+                  'week': week,
+                  'season': season,
+                  'away': away,
+                  'home': home,
+                  'spread_away': spread_away,
+                  'prev_spread_away': prev_spread,
+                  'spread_delta': delta,
+              })
+
+          if not rows:
+              print("⚠️ No spread rows parsed — skipping")
+              exit(0)
+
+          new_df = pd.DataFrame(rows)
+          if prev_log.empty:
+              new_df.to_csv(log_path, index=False)
+              print(f"✅ Created {log_path} with {len(rows)} games")
+          else:
+              new_df.to_csv(log_path, mode='a', header=False, index=False)
+              print(f"✅ Appended {len(rows)} snapshots to {log_path}")
+
+          moved = new_df[new_df['spread_delta'].notna() & (new_df['spread_delta'] != 0)]
+          if not moved.empty:
+              print(f"\n📈 Line moves this snapshot ({len(moved)} games):")
+              for _, r in moved.iterrows():
+                  print(f"  {r['away']} @ {r['home']}: {r['prev_spread_away']:+.1f} → {r['spread_away']:+.1f} (Δ{r['spread_delta']:+.1f})")
+          else:
+              print("📊 No spread movement since last snapshot")
+          PYTHON_EOF
+
       - name: Commit Updated Data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           FILES_TO_ADD=(
             "data/action_all_markets_*.csv"
             "data/action_injuries_*.csv"
@@ -459,6 +578,7 @@ jobs:
             "data/rotowire_lineups_*.csv"
             "data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv"
             "data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv"
+            "data/week${{ steps.get_week.outputs.week }}/line_movement_log.csv"
             "data/historical/sdql_results.csv"
           )
 
