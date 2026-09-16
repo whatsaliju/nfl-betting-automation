@@ -253,6 +253,10 @@ jobs:
           EOF
 
       - name: Send Enhanced Professional Email
+        # Only send for the opening stage — Workflow 5 handles update/final/pre_mnf
+        # to avoid duplicate emails (nfl_reporter.py reads raw analytics while
+        # send_betting_card_email.py reads the freshly-built engine feed)
+        if: steps.info.outputs.stage == 'opening'
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
