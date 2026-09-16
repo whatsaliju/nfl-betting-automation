@@ -581,7 +581,6 @@ jobs:
             "data/action_injuries_*.csv"
             "data/action_weather_*.csv"
             "data/rotowire_lineups_*.csv"
-            "data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv"
             "data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv"
             "data/week${{ steps.get_week.outputs.week }}/line_movement_log.csv"
             "data/historical/sdql_results.csv"
@@ -629,5 +628,4 @@ jobs:
                     data/action_injuries_*.csv \
                     data/action_weather_*.csv \
                     data/rotowire_lineups_*.csv \
-                    data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_queries.csv \
                     data/historical/sdql_results.csv 2>/dev/null | tail -10
