@@ -3905,17 +3905,16 @@ def analyze_week(week):
     
     # Load data
     print("📥 Loading data sources...")
-    queries = safe_load_csv(f"data/week{week}/week{week}_queries.csv", required=True)
+    queries = safe_load_csv(f"data/week{week}/week{week}_queries.csv", required=False)
+    if queries is None or queries.empty:
+        print("⚠️ No games found — queries file missing or empty (Workflow 1 may not have run yet)")
+        return
     queries["away_std"] = queries["away"].apply(canonical)
     queries["home_std"] = queries["home"].apply(canonical)
     queries["normalized_matchup"] = queries["matchup"].apply(normalize_matchup)
 
     referee_trends_file = os.getenv("REFEREE_TRENDS_FILE", "data/historical/sdql_results.csv")
     referee_trends = safe_load_csv(referee_trends_file)
-
-    if queries.empty:
-        print("❌ No games found")
-        return
 
     # Load Action Network data
     action_file_path = exact_file_or_latest("ACTION_MARKETS_FILE", "action_all_markets_")

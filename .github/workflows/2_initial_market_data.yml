@@ -67,7 +67,7 @@ jobs:
             WEEK=${{ github.event.client_payload.week }}
           else
             # Detect from existing files
-            WEEK=$(ls data/week*/week*_referees.csv 2>/dev/null | grep -oP 'week\K[0-9]+' | sort -n | tail -1)
+            WEEK=$(ls -t data/week*/week*_referees.csv 2>/dev/null | head -1 | grep -oP 'week\K[A-Za-z0-9]+')
           fi
           echo "week=$WEEK" >> $GITHUB_OUTPUT
           echo "season=$SEASON" >> $GITHUB_OUTPUT
@@ -80,9 +80,9 @@ jobs:
           WEEK=${{ steps.get_week.outputs.week }}
           # Allow force-rerun via workflow_dispatch; guard only cron/dispatch chains
           TRIGGER="${{ github.event_name }}"
-          if [ "$TRIGGER" != "workflow_dispatch" ] && [ -f "data/week${WEEK}/initial.json" ]; then
+          if [ "$TRIGGER" != "workflow_dispatch" ] && [ -f "data/week${WEEK}/opening.json" ]; then
             echo "SKIP=true" >> $GITHUB_OUTPUT
-            echo "⏭️  SKIP: data/week${WEEK}/initial.json already exists — initial analysis already complete for Week ${WEEK}."
+            echo "⏭️  SKIP: data/week${WEEK}/opening.json already exists — initial analysis already complete for Week ${WEEK}."
             echo "    To force a re-run, use workflow_dispatch."
           else
             echo "SKIP=false" >> $GITHUB_OUTPUT
