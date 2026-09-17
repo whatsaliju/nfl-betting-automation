@@ -14,12 +14,17 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_LEDGER = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "market_edge_ledger.csv"
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
+
+DEFAULT_LEDGER = _ENGINE_DIR / "market_edge_ledger.csv"
 DEFAULT_MARKET_SPINE = ROOT / "data" / "historical" / "nfl_market_spine.csv"
-DEFAULT_JSON = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "clv_audit.json"
-DEFAULT_CSV = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "clv_ledger.csv"
-DEFAULT_BUCKETS = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "clv_audit_buckets.csv"
-DEFAULT_MD = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "clv_audit.md"
+DEFAULT_JSON = _ENGINE_DIR / "clv_audit.json"
+DEFAULT_CSV = _ENGINE_DIR / "clv_ledger.csv"
+DEFAULT_BUCKETS = _ENGINE_DIR / "clv_audit_buckets.csv"
+DEFAULT_MD = _ENGINE_DIR / "clv_audit.md"
 
 
 def load_csv(path):

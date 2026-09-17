@@ -8,10 +8,14 @@ from collections import defaultdict
 from pathlib import Path
 
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT = Path("/private/tmp/nflverse_games.csv")
 OUTPUT = ROOT / "site" / "src" / "data" / "seasonSchedules.json"
-SEASONS = range(2015, 2027)
+SEASONS = range(2015, _get_current_season() + 1)
 TEAMS = [
     "ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE",
     "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAX", "KC",
@@ -157,7 +161,7 @@ def build_season(rows, season):
             })
 
     wins = season_win_totals(rows, season)
-    baseline = season_win_totals(rows, season - 1) if season == 2026 else wins
+    baseline = season_win_totals(rows, season - 1) if season >= _get_current_season() else wins
     sos = sos_ranks(season_games, baseline)
     team_stats = {
         team: {

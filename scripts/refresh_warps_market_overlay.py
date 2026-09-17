@@ -17,7 +17,7 @@ import json
 import os
 from pathlib import Path
 
-from build_2026_warps_market_overlay import DEFAULT_PRIORS, build_overlay, load_current_odds, read_csv, write_csv
+from build_2026_warps_market_overlay import DEFAULT_PRIORS as _DEFAULT_PRIORS_2026, build_overlay, load_current_odds, read_csv, write_csv
 from fetch_current_odds_api import DEFAULT_OUTPUT as DEFAULT_RAW_ODDS, fetch_odds
 from normalize_current_market_odds import DEFAULT_OUTPUT as DEFAULT_NORMALIZED_ODDS, normalize_input, write_csv as write_odds_csv
 
@@ -63,13 +63,15 @@ def main() -> None:
     parser.add_argument("--odds-format", default="american")
     parser.add_argument("--raw-output", type=Path, default=DEFAULT_RAW_ODDS)
     parser.add_argument("--normalized-output", type=Path, default=DEFAULT_NORMALIZED_ODDS)
-    parser.add_argument("--priors", type=Path, default=DEFAULT_PRIORS)
+    parser.add_argument("--priors", type=Path, default=None)
     parser.add_argument("--csv-output", type=Path, default=None)
     parser.add_argument("--json-output", type=Path, default=None)
     args = parser.parse_args()
 
     season = get_season(args.season)
 
+    if args.priors is None:
+        args.priors = ROOT / f"warps_{season}_game_priors.csv"
     if args.csv_output is None:
         args.csv_output = ROOT / "data" / "historical" / f"warps_{season}_market_overlay.csv"
     if args.json_output is None:

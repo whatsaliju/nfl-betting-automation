@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
-"""Build a 2026 NFL survivor-pool recommendation board from WARPS game priors."""
+"""Build NFL survivor-pool recommendation board from WARPS game priors."""
 
 import argparse
 import csv
 import json
 import math
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season
 
 ROOT = Path(__file__).resolve().parents[1]
+_SEASON = get_current_season()
 DEFAULT_SCHEDULE = ROOT / "site" / "src" / "data" / "seasonSchedules.json"
 DEFAULT_WARPS = ROOT / "site" / "src" / "data" / "warpsMarketOverlay.json"
-DEFAULT_JSON = ROOT / "data" / "historical" / "survivor_recommendations_2026.json"
-DEFAULT_CSV = ROOT / "data" / "historical" / "survivor_recommendations_2026.csv"
-DEFAULT_MD = ROOT / "data" / "historical" / "survivor_recommendations_2026.md"
+DEFAULT_JSON = ROOT / "data" / "historical" / f"survivor_recommendations_{_SEASON}.json"
+DEFAULT_CSV = ROOT / "data" / "historical" / f"survivor_recommendations_{_SEASON}.csv"
+DEFAULT_MD = ROOT / "data" / "historical" / f"survivor_recommendations_{_SEASON}.md"
 DEFAULT_SITE_JSON = ROOT / "site" / "src" / "data" / "survivorRecommendations.json"
 POOL_SIZES = (25, 100, 500)
 PAYOUT_STYLES = ("top_heavy", "winner_take_all")
@@ -428,7 +432,7 @@ def write_csv(path, rows):
 
 def write_md(path, payload):
     lines = [
-        "# 2026 Survivor Recommendations",
+        f"# {payload['metadata']['season']} Survivor Recommendations",
         "",
         f"- Model: {payload['metadata']['model']}",
         f"- Games scored: {payload['metadata']['candidate_count']}",
@@ -478,7 +482,7 @@ def build_payload(schedule, warps_rows):
     pool_cards = build_pool_cards(candidates)
     return {
         "metadata": {
-            "season": 2026,
+            "season": _SEASON,
             "model": "WARPS survivor intelligence v0.1",
             "source": "WARPS game priors + schedule matrix context",
             "policy": "Maximize win probability while penalizing future opportunity cost and volatility.",
@@ -513,7 +517,7 @@ def main():
     args = parser.parse_args()
 
     schedules = json.loads(args.schedule.read_text())
-    schedule = schedules["2026"]
+    schedule = schedules[str(_SEASON)]
     warps_rows = json.loads(args.warps.read_text())
     payload = build_payload(schedule, warps_rows)
 

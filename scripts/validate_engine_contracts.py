@@ -13,6 +13,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
+
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -381,7 +386,7 @@ def validate_matrix_engine_feed(path, failures):
 def main():
     parser = argparse.ArgumentParser(description="Validate core offline engine contracts")
     parser.add_argument("--config", default=str(ROOT / "config" / "model_config.json"))
-    parser.add_argument("--replay-root", default=str(ROOT / "data" / "backtests" / "engine_2026_1_configured"))
+    parser.add_argument("--replay-root", default=str(_ENGINE_DIR))
     parser.add_argument("--run-dir", default=None, help="Validate one live analyzer output directory such as data/week18")
     parser.add_argument("--stage", default="final")
     parser.add_argument("--expected-plays", type=int)

@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from analyzers.nfl_common import espn_season_type, espn_week, nflverse_game_types, normalize_season_type
+from analyzers.nfl_common import espn_season_type, espn_week, get_current_season, nflverse_game_types, normalize_season_type
 from builders.build_week_master_table import builder_season_type, espn_params_for, week_slug
 from builders.build_matrix_engine_feed import sort_master_path
 
@@ -69,7 +69,7 @@ def build_report(season, week):
     check(file_contains(enhanced, "season_type", "NFL_SEASON_TYPE"), "enhanced workflow PRE env", str(enhanced), rows)
     check(file_contains(dry_run, "Preseason Engine Dry Run", "--season-type PRE"), "preseason dry-run workflow", str(dry_run), rows)
     check(file_contains(contracts, "preseason_dry_run_report.py"), "contract compile hook", str(contracts), rows)
-    check(file_contains(command, "Weekly Command Center", "Live 2026 weekly feeds not active yet"), "command center readiness copy", str(command), rows)
+    check(file_contains(command, "Weekly Command Center", "weekly feeds not active yet"), "command center readiness copy", str(command), rows)
     check(survivor.exists(), "survivor planning artifact", str(survivor), rows)
     check(card.exists(), "weekly betting card artifact", str(card), rows)
 
@@ -114,13 +114,13 @@ def markdown(payload):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--season", type=int, default=2026)
+    parser.add_argument("--season", type=int, default=None)
     parser.add_argument("--week", type=int, default=1)
     parser.add_argument("--json-output", type=Path, default=DEFAULT_JSON)
     parser.add_argument("--md-output", type=Path, default=DEFAULT_MD)
     args = parser.parse_args()
 
-    payload = build_report(args.season, args.week)
+    payload = build_report(args.season or get_current_season(), args.week)
     args.json_output.parent.mkdir(parents=True, exist_ok=True)
     args.json_output.write_text(json.dumps(payload, indent=2) + "\n")
     args.md_output.write_text(markdown(payload))
