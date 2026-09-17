@@ -20,7 +20,9 @@ from bs4 import BeautifulSoup
 
 PICKS_URL = "https://www.survivorgrid.com/picks"
 GRID_URL = "https://www.survivorgrid.com/"
-OUT_PATH = Path(__file__).parent.parent / "site" / "src" / "data" / "survivorConsensus.json"
+ROOT = Path(__file__).parent.parent
+OUT_PATH = ROOT / "site" / "src" / "data" / "survivorConsensus.json"
+HISTORICAL_DIR = ROOT / "data" / "historical"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (compatible; nflsignal-bot/1.0; +https://nflsignal.com)",
@@ -201,6 +203,51 @@ def _extract_from_json(data: dict) -> dict:
     return weeks
 
 
+def backfill_results(weeks: dict) -> None:
+    """Set w=1/0 for completed weeks by reading week{n}_master.json final scores."""
+    import glob
+    for path in sorted(HISTORICAL_DIR.glob("week[0-9]*_master.json")):
+        m = re.match(r"week(\d+)_master\.json$", path.name)
+        if not m:
+            continue
+        week_key = m.group(1)
+        week_data = weeks.get(week_key, {})
+        if not week_data:
+            continue
+        try:
+            games = json.loads(path.read_text())
+        except Exception:
+            continue
+        if not isinstance(games, list):
+            continue
+        for game in games:
+            away = game.get("away_tla", "")
+            home = game.get("home_tla", "")
+            away_score = game.get("away_score")
+            home_score = game.get("home_score")
+            if away_score is None or home_score is None:
+                continue
+            if away_score == 0 and home_score == 0:
+                continue  # game not yet played
+            # Normalize WAS/WSH
+            away = TEAM_MAP.get(away, away)
+            home = TEAM_MAP.get(home, home)
+            if away_score > home_score:
+                winner, loser = away, home
+            elif home_score > away_score:
+                winner, loser = home, away
+            else:
+                # tie — both get 0.5 (shouldn't happen in NFL but handle gracefully)
+                for team in (away, home):
+                    if team in week_data and week_data[team].get("w") is None:
+                        week_data[team]["w"] = 0.5
+                continue
+            if winner in week_data and week_data[winner].get("w") is None:
+                week_data[winner]["w"] = 1
+            if loser in week_data and week_data[loser].get("w") is None:
+                week_data[loser]["w"] = 0
+
+
 def main() -> None:
     print(f"[scraper] Fetching {PICKS_URL}", file=sys.stderr)
     try:
@@ -224,6 +271,8 @@ def main() -> None:
     # Merge new weeks in
     for wk, wk_data in weeks.items():
         existing_weeks[wk] = wk_data
+
+    backfill_results(existing_weeks)
 
     output = {
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),

@@ -203,7 +203,7 @@ def espn_week(season_type=None, week=None):
 
 _WEEK1_SUNDAY_OVERRIDES = {
     2025: date(2025, 9, 7),   # Season opened Fri 2025-09-05; Week 1 Sunday two days later
-    2026: date(2026, 9, 6),   # Season opens Thu 2026-09-03; Week 1 Sunday three days later
+    2026: date(2026, 9, 13),  # Season opens Thu 2026-09-11; Week 1 Sunday three days later
 }
 
 def _compute_week1_sunday(season):
