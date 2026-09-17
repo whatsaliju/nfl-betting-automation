@@ -13,10 +13,15 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_LEADERBOARD = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_leaderboard.json"
-DEFAULT_JSON = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_promotion_report.json"
-DEFAULT_CSV = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_promotion_report.csv"
-DEFAULT_MD = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_promotion_report.md"
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
+
+DEFAULT_LEADERBOARD = _ENGINE_DIR / "factor_leaderboard.json"
+DEFAULT_JSON = _ENGINE_DIR / "factor_promotion_report.json"
+DEFAULT_CSV = _ENGINE_DIR / "factor_promotion_report.csv"
+DEFAULT_MD = _ENGINE_DIR / "factor_promotion_report.md"
 
 PRODUCTION_PLAYS = 40
 CANDIDATE_PLAYS = 8

@@ -8,8 +8,13 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
+
 DEFAULT_FEATURES = ROOT / "data" / "historical" / "game_features.csv"
-DEFAULT_PROMOTION = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_promotion_report.json"
+DEFAULT_PROMOTION = _ENGINE_DIR / "factor_promotion_report.json"
 DEFAULT_JSON = ROOT / "data" / "historical" / "pick_explanations.json"
 DEFAULT_CSV = ROOT / "data" / "historical" / "pick_explanations.csv"
 DEFAULT_MD = ROOT / "data" / "historical" / "pick_explanations.md"

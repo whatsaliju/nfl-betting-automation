@@ -251,7 +251,7 @@ export function SurvivorView() {
     [week, poolSize, strategy, payoutStyle, chalkPenalty]
   );
   const safestPick = useMemo(
-    () => [...weekRows].sort((a, b) => b.win_probability - a.win_probability || a.future_value_cost - b.future_value_cost)[0] || null,
+    () => [...weekRows].sort((a, b) => b.survivor_score - a.survivor_score || b.win_probability - a.win_probability)[0] || null,
     [weekRows]
   );
   const availablePick = weekRows.find((row) => !usedTeams.has(row.team) && row.tier !== "avoid") || null;

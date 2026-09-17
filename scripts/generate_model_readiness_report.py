@@ -9,10 +9,15 @@ one JSON and one Markdown model-readiness summary.
 import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 
+_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(_ROOT / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = _ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
 
-DEFAULT_REPLAY_ROOT = Path("data/backtests/engine_2026_1_configured")
+DEFAULT_REPLAY_ROOT = _ENGINE_DIR
 
 
 def load_json(path, default=None):

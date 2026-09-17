@@ -14,12 +14,17 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_FEATURES = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "game_features.csv"
-DEFAULT_DATASET_CSV = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "model_training_dataset.csv"
-DEFAULT_DATASET_JSON = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "model_training_dataset.json"
-DEFAULT_LEADERBOARD_CSV = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_leaderboard.csv"
-DEFAULT_LEADERBOARD_JSON = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_leaderboard.json"
-DEFAULT_LEADERBOARD_MD = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "factor_leaderboard.md"
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
+
+DEFAULT_FEATURES = _ENGINE_DIR / "game_features.csv"
+DEFAULT_DATASET_CSV = _ENGINE_DIR / "model_training_dataset.csv"
+DEFAULT_DATASET_JSON = _ENGINE_DIR / "model_training_dataset.json"
+DEFAULT_LEADERBOARD_CSV = _ENGINE_DIR / "factor_leaderboard.csv"
+DEFAULT_LEADERBOARD_JSON = _ENGINE_DIR / "factor_leaderboard.json"
+DEFAULT_LEADERBOARD_MD = _ENGINE_DIR / "factor_leaderboard.md"
 
 CATEGORICAL_FEATURES = [
     "best_edge_market",

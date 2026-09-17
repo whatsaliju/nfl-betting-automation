@@ -9,9 +9,14 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_FEATURES = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "game_features.csv"
-DEFAULT_CSV = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "moneyline_pricing_audit.csv"
-DEFAULT_JSON = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "moneyline_pricing_audit.json"
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
+
+DEFAULT_FEATURES = _ENGINE_DIR / "game_features.csv"
+DEFAULT_CSV = _ENGINE_DIR / "moneyline_pricing_audit.csv"
+DEFAULT_JSON = _ENGINE_DIR / "moneyline_pricing_audit.json"
 
 
 def float_value(row, key):

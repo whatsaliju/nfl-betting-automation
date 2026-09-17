@@ -12,8 +12,11 @@ Run after fetch_current_odds_api.py or whenever current_odds_api.json changes.
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season, regular_season_sunday
 
 ROOT = Path(__file__).parent.parent
 IN_PATH = ROOT / "data" / "current_odds_api.json"
@@ -33,7 +36,9 @@ TEAM_MAP = {
     "Tennessee Titans": "TEN", "Washington Commanders": "WAS",
 }
 
-SEASON_START = datetime(2026, 9, 8, tzinfo=timezone.utc)
+# Week 1 Thursday is the day before the first Sunday of the season
+_w1_sunday = regular_season_sunday(get_current_season(), 1)
+SEASON_START = datetime(_w1_sunday.year, _w1_sunday.month, _w1_sunday.day, tzinfo=timezone.utc) - timedelta(days=3)
 
 
 def week_number(commence_utc: str) -> int:

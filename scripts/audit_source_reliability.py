@@ -10,11 +10,16 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_FEATURES = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "game_features.csv"
-DEFAULT_REPLAY_ROOT = ROOT / "data" / "backtests" / "engine_2026_1_configured"
-DEFAULT_JSON = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "source_reliability_report.json"
-DEFAULT_CSV = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "source_reliability_by_source.csv"
-DEFAULT_MD = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "source_reliability_report.md"
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
+
+DEFAULT_FEATURES = _ENGINE_DIR / "game_features.csv"
+DEFAULT_REPLAY_ROOT = _ENGINE_DIR
+DEFAULT_JSON = _ENGINE_DIR / "source_reliability_report.json"
+DEFAULT_CSV = _ENGINE_DIR / "source_reliability_by_source.csv"
+DEFAULT_MD = _ENGINE_DIR / "source_reliability_report.md"
 
 
 def load_features(path):

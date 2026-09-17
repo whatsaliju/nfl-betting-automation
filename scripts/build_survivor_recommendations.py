@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
-"""Build a 2026 NFL survivor-pool recommendation board from WARPS game priors."""
+"""Build NFL survivor-pool recommendation board from WARPS game priors."""
 
 import argparse
 import csv
 import json
 import math
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season
 
 ROOT = Path(__file__).resolve().parents[1]
+_SEASON = get_current_season()
 DEFAULT_SCHEDULE = ROOT / "site" / "src" / "data" / "seasonSchedules.json"
 DEFAULT_WARPS = ROOT / "site" / "src" / "data" / "warpsMarketOverlay.json"
-DEFAULT_JSON = ROOT / "data" / "historical" / "survivor_recommendations_2026.json"
-DEFAULT_CSV = ROOT / "data" / "historical" / "survivor_recommendations_2026.csv"
-DEFAULT_MD = ROOT / "data" / "historical" / "survivor_recommendations_2026.md"
+DEFAULT_JSON = ROOT / "data" / "historical" / f"survivor_recommendations_{_SEASON}.json"
+DEFAULT_CSV = ROOT / "data" / "historical" / f"survivor_recommendations_{_SEASON}.csv"
+DEFAULT_MD = ROOT / "data" / "historical" / f"survivor_recommendations_{_SEASON}.md"
 DEFAULT_SITE_JSON = ROOT / "site" / "src" / "data" / "survivorRecommendations.json"
 POOL_SIZES = (25, 100, 500)
 PAYOUT_STYLES = ("top_heavy", "winner_take_all")
@@ -200,7 +204,10 @@ def reasons(row):
 def build_candidates(schedule, warps_rows):
     raw = []
     for game in warps_rows:
-        if game.get("season") != 2026:
+        try:
+            if int(game.get("season", 0)) < 2020:
+                continue
+        except (ValueError, TypeError):
             continue
         try:
             week = int(game["week"])
@@ -208,14 +215,16 @@ def build_candidates(schedule, warps_rows):
             continue
         away = game["away_tla"]
         home = game["home_tla"]
-        for team, opponent, prob_key, side in (
-            (home, away, "home_win_prob", "home"),
-            (away, home, "away_win_prob", "away"),
+        for team, opponent, prob_key, live_prob_key, side in (
+            (home, away, "home_win_prob", "home_ml_no_vig_prob", "home"),
+            (away, home, "away_win_prob", "away_ml_no_vig_prob", "away"),
         ):
             prob = float(game[prob_key])
+            live_prob_raw = game.get(live_prob_key, "") if game.get("status") == "priced" else ""
+            live_prob = float(live_prob_raw) if live_prob_raw else None
             context = schedule_context(schedule, week, team, opponent, side)
             raw.append({
-                "season": 2026,
+                "season": int(game.get("season", 0)),
                 "week": week,
                 "team": team,
                 "opponent": opponent,
@@ -231,6 +240,7 @@ def build_candidates(schedule, warps_rows):
                 "opponent_sos_rank": context["opponent_sos_rank"],
                 "team_has_bye_before": context["team_has_bye_before"],
                 "opponent_has_bye_before": context["opponent_has_bye_before"],
+                "_live_win_probability": live_prob,
             })
 
     by_team = {}
@@ -263,8 +273,9 @@ def build_candidates(schedule, warps_rows):
         row["tier"] = recommendation_tier(row)
         row["reasons"] = reasons(row)
         row["win_probability_source_status"] = "warps_prior_only"
-        row["live_win_probability"] = None
-        row["live_win_probability_source_status"] = "missing"
+        row["live_win_probability"] = row.get("_live_win_probability")
+        row["live_win_probability_source_status"] = "market_moneyline" if row.get("_live_win_probability") is not None else "missing"
+        row.pop("_live_win_probability", None)
         row["public_pick_source_status"] = "estimated"
         row["public_pick_pct_25"] = round(public_pick_estimate(row, 25), 2)
         row["public_pick_pct_100"] = round(public_pick_estimate(row, 100), 2)
@@ -421,7 +432,7 @@ def write_csv(path, rows):
 
 def write_md(path, payload):
     lines = [
-        "# 2026 Survivor Recommendations",
+        f"# {payload['metadata']['season']} Survivor Recommendations",
         "",
         f"- Model: {payload['metadata']['model']}",
         f"- Games scored: {payload['metadata']['candidate_count']}",
@@ -471,7 +482,7 @@ def build_payload(schedule, warps_rows):
     pool_cards = build_pool_cards(candidates)
     return {
         "metadata": {
-            "season": 2026,
+            "season": _SEASON,
             "model": "WARPS survivor intelligence v0.1",
             "source": "WARPS game priors + schedule matrix context",
             "policy": "Maximize win probability while penalizing future opportunity cost and volatility.",
@@ -506,7 +517,7 @@ def main():
     args = parser.parse_args()
 
     schedules = json.loads(args.schedule.read_text())
-    schedule = schedules["2026"]
+    schedule = schedules[str(_SEASON)]
     warps_rows = json.loads(args.warps.read_text())
     payload = build_payload(schedule, warps_rows)
 

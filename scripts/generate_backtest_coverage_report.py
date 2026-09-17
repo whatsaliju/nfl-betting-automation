@@ -8,7 +8,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_CONFIGURED = ROOT / "data" / "backtests" / "engine_2026_1_configured"
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
+
+DEFAULT_CONFIGURED = _ENGINE_DIR
 DEFAULT_ATTEMPT = ROOT / "data" / "backtests" / "engine_2026_1_full2025_attempt"
 DEFAULT_JSON = DEFAULT_CONFIGURED / "backtest_coverage_report.json"
 DEFAULT_MD = DEFAULT_CONFIGURED / "backtest_coverage_report.md"

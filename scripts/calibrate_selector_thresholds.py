@@ -14,6 +14,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
+
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -21,7 +26,7 @@ from analyzers.nfl_common import split_matchup, spread_line_for_side, total_line
 from scripts.compare_replay_to_results import grade_spread, grade_total, load_results
 
 
-DEFAULT_REPLAY_ROOT = ROOT / "data" / "backtests" / "engine_2026_1_configured"
+DEFAULT_REPLAY_ROOT = _ENGINE_DIR
 
 
 def parse_ints(value):

@@ -15,13 +15,18 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_FEATURES = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "warps_selector_alignment_rows.csv"
-FALLBACK_FEATURES = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "game_features.csv"
-DEFAULT_LEDGER_CSV = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "market_edge_ledger.csv"
-DEFAULT_LEDGER_JSON = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "market_edge_ledger.json"
-DEFAULT_AUDIT_JSON = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "market_router_audit.json"
-DEFAULT_AUDIT_CSV = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "market_router_audit.csv"
-DEFAULT_AUDIT_MD = ROOT / "data" / "backtests" / "engine_2026_1_configured" / "market_router_audit.md"
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import get_current_season as _get_current_season
+_ENGINE_DIR = ROOT / "data" / "backtests" / f"engine_{_get_current_season()}_1_configured"
+
+DEFAULT_FEATURES = _ENGINE_DIR / "warps_selector_alignment_rows.csv"
+FALLBACK_FEATURES = _ENGINE_DIR / "game_features.csv"
+DEFAULT_LEDGER_CSV = _ENGINE_DIR / "market_edge_ledger.csv"
+DEFAULT_LEDGER_JSON = _ENGINE_DIR / "market_edge_ledger.json"
+DEFAULT_AUDIT_JSON = _ENGINE_DIR / "market_router_audit.json"
+DEFAULT_AUDIT_CSV = _ENGINE_DIR / "market_router_audit.csv"
+DEFAULT_AUDIT_MD = _ENGINE_DIR / "market_router_audit.md"
 
 
 def load_csv(path):
