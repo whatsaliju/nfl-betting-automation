@@ -200,7 +200,10 @@ def reasons(row):
 def build_candidates(schedule, warps_rows):
     raw = []
     for game in warps_rows:
-        if game.get("season") != 2026:
+        try:
+            if int(game.get("season", 0)) < 2020:
+                continue
+        except (ValueError, TypeError):
             continue
         try:
             week = int(game["week"])
@@ -208,14 +211,16 @@ def build_candidates(schedule, warps_rows):
             continue
         away = game["away_tla"]
         home = game["home_tla"]
-        for team, opponent, prob_key, side in (
-            (home, away, "home_win_prob", "home"),
-            (away, home, "away_win_prob", "away"),
+        for team, opponent, prob_key, live_prob_key, side in (
+            (home, away, "home_win_prob", "home_ml_no_vig_prob", "home"),
+            (away, home, "away_win_prob", "away_ml_no_vig_prob", "away"),
         ):
             prob = float(game[prob_key])
+            live_prob_raw = game.get(live_prob_key, "") if game.get("status") == "priced" else ""
+            live_prob = float(live_prob_raw) if live_prob_raw else None
             context = schedule_context(schedule, week, team, opponent, side)
             raw.append({
-                "season": 2026,
+                "season": int(game.get("season", 0)),
                 "week": week,
                 "team": team,
                 "opponent": opponent,
@@ -231,6 +236,7 @@ def build_candidates(schedule, warps_rows):
                 "opponent_sos_rank": context["opponent_sos_rank"],
                 "team_has_bye_before": context["team_has_bye_before"],
                 "opponent_has_bye_before": context["opponent_has_bye_before"],
+                "_live_win_probability": live_prob,
             })
 
     by_team = {}
@@ -263,8 +269,9 @@ def build_candidates(schedule, warps_rows):
         row["tier"] = recommendation_tier(row)
         row["reasons"] = reasons(row)
         row["win_probability_source_status"] = "warps_prior_only"
-        row["live_win_probability"] = None
-        row["live_win_probability_source_status"] = "missing"
+        row["live_win_probability"] = row.get("_live_win_probability")
+        row["live_win_probability_source_status"] = "market_moneyline" if row.get("_live_win_probability") is not None else "missing"
+        row.pop("_live_win_probability", None)
         row["public_pick_source_status"] = "estimated"
         row["public_pick_pct_25"] = round(public_pick_estimate(row, 25), 2)
         row["public_pick_pct_100"] = round(public_pick_estimate(row, 100), 2)
