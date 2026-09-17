@@ -71,25 +71,16 @@ export default function LandingApp() {
     <div className="ls-root">
       <nav className="ls-nav">
         <span className="ls-logo">NFL Signal</span>
-        <div className="ls-nav-links">
-          <a href="matrix.html#command">Weekly Picks</a>
-          <a href="matrix.html#pickem">Pick'em</a>
-          <a href="matrix.html#survivor">Survivor</a>
-          <a href="matrix.html" className="ls-nav-cta">Open the Board →</a>
-        </div>
+        <a href="warps.html" className="ls-nav-model">About the model →</a>
       </nav>
 
       <section className="ls-hero">
         <p className="ls-eyebrow">2026 NFL Season · Live</p>
         <h1 className="ls-headline">NFL analysis.<br />26 seasons deep.</h1>
         <p className="ls-sub">
-          Seven tools that answer the seven questions every NFL fan asks each week —
-          backed by 26 seasons of data and a model that beats Vegas year over year.
+          Seven tools. Seven questions every NFL fan asks each week.
+          Pick the one you need.
         </p>
-        <div className="ls-hero-actions">
-          <a href="matrix.html" className="ls-btn-primary">Open the Board</a>
-          <a href="matrix.html#pickem" className="ls-btn-ghost">Pick'em →</a>
-        </div>
       </section>
 
       <div className="ls-stats">

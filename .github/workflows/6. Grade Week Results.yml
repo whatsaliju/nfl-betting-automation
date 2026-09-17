@@ -110,6 +110,13 @@ jobs:
               --md-output "$BACKTEST_DIR/pick_explanations.md"
           fi
 
+      - name: Log WARPS Edge Performance
+        run: |
+          python3 scripts/log_warps_edge_performance.py \
+            --season ${{ steps.resolve.outputs.season }} \
+            --week ${{ steps.resolve.outputs.week }} \
+            --season-type ${{ steps.resolve.outputs.season_type }}
+
       - name: Build Week Results JSON
         env:
           WEEK: ${{ steps.resolve.outputs.week }}
@@ -256,7 +263,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           WEEK="${{ steps.resolve.outputs.week }}"
           BACKTEST_DIR="${{ steps.resolve.outputs.backtest_dir }}"
-          git add data/historical/ data/week${WEEK}/
+          git add data/historical/ data/week${WEEK}/ site/src/data/
           [ -d "$BACKTEST_DIR" ] && git add "$BACKTEST_DIR/"
           git commit -m "📊 Grade Week ${WEEK} results" || exit 0
           git pull --rebase origin main || true
