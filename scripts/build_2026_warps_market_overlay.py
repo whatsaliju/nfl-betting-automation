@@ -84,11 +84,26 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         writer.writerows(rows)
 
 
+_TLA_ALIASES = {"WSH": "WAS", "LAR": "LA", "OAK": "LV"}
+_TLA_ALIASES_REV = {v: k for k, v in _TLA_ALIASES.items()}
+
+
+def _normalize_tla(tla: str) -> str:
+    return _TLA_ALIASES.get(tla, tla)
+
+
+def _normalize_matchup_key(key: str) -> str:
+    if "@" not in key:
+        return key
+    away, home = key.split("@", 1)
+    return f"{_normalize_tla(away)}@{_normalize_tla(home)}"
+
+
 def load_current_odds(path: Path | None) -> dict[str, dict]:
     if path is None:
         return {}
     rows = read_csv(path)
-    return {row.get("matchup_key", ""): row for row in rows if row.get("matchup_key")}
+    return {_normalize_matchup_key(row.get("matchup_key", "")): row for row in rows if row.get("matchup_key")}
 
 
 def value(value, digits: int = 4):
@@ -99,7 +114,7 @@ def build_overlay(priors: list[dict], current_odds: dict[str, dict]) -> list[dic
     rows = []
     for row in priors:
         key = row["matchup_key"]
-        odds = current_odds.get(key, {})
+        odds = current_odds.get(_normalize_matchup_key(key), {})
 
         home_spread = parse_float(odds.get("home_spread_line"))
         away_spread = parse_float(odds.get("away_spread_line"))
