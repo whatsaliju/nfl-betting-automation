@@ -301,7 +301,11 @@ def pick_for_strategy(rows, strategy, pool_size, payout_style):
     if not pool:
         return None
     if strategy == "safe":
-        return max(pool, key=lambda row: (row["win_probability"], -row["volatility_penalty"], -row["future_value_cost"], row["team"]))
+        # survivor_score = win_probability - future_value_cost - volatility; this is the
+        # holistic "safe" metric. Using raw win_probability here caused high-future-value
+        # teams (e.g. LAR) to crowd out better strategic picks (e.g. LAC) that have
+        # almost identical weekly odds but far lower opportunity cost.
+        return max(pool, key=lambda row: (row["survivor_score"], row["win_probability"], row["team"]))
     if strategy == "leverage":
         return max(pool, key=lambda row: (pool_ev_score(row, pool_size, payout_style, leverage_weight=1.25), row["win_probability"], row["team"]))
     return max(pool, key=lambda row: (pool_ev_score(row, pool_size, payout_style, leverage_weight=0.75), row["win_probability"], row["team"]))
