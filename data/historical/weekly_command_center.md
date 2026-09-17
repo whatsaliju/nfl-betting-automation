@@ -23,9 +23,9 @@
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | CAR@ATL | play | total | OVER | 5.0 |
-| CLE@TB | play | spread | HOME | 4.0 |
+| CLE@TB | play | total | OVER | 5.0 |
 | IND@KC | play | spread | HOME | 4.0 |
-| JAX@DEN | play | spread | AWAY | 4.0 |
+| JAX@DEN | play | spread | AWAY | 3.0 |
 | DET@BUF | watch | n/a | n/a | 3.0 |
 | GB@NYJ | watch | n/a | n/a | 3.0 |
 
