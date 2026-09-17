@@ -16,18 +16,18 @@
 
 ## Betting Card
 
-- Plays: 1
-- Watch: 6
-- Passes: 9
+- Plays: 4
+- Watch: 8
+- Passes: 4
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| MIN@CHI | play | n/a | n/a | 3.0 |
-| CAR@ATL | watch | total | OVER | 5.0 |
-| CLE@TB | watch | spread | HOME | 4.0 |
-| IND@KC | watch | spread | HOME | 4.0 |
-| JAX@DEN | watch | spread | AWAY | 4.0 |
+| CAR@ATL | play | total | OVER | 5.0 |
+| CLE@TB | play | spread | HOME | 4.0 |
+| IND@KC | play | spread | HOME | 4.0 |
+| JAX@DEN | play | spread | AWAY | 4.0 |
 | DET@BUF | watch | n/a | n/a | 3.0 |
+| GB@NYJ | watch | n/a | n/a | 3.0 |
 
 ## Survivor
 
@@ -37,9 +37,9 @@
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | LAR vs NYG (68.3%) | LAC vs LV (67.3%) | LAC vs LV (67.3%) |
-| 100 | LAR vs NYG (68.3%) | LAC vs LV (67.3%) | LAC vs LV (67.3%) |
-| 500 | LAR vs NYG (68.3%) | SF vs MIA (66.2%) | SF vs MIA (66.2%) |
+| 25 | LAC vs LV (67.3%) | LAC vs LV (67.3%) | LAC vs LV (67.3%) |
+| 100 | LAC vs LV (67.3%) | LAC vs LV (67.3%) | LAC vs LV (67.3%) |
+| 500 | LAC vs LV (67.3%) | SF vs MIA (66.2%) | SF vs MIA (66.2%) |
 
 ## WARPS Watch
 
