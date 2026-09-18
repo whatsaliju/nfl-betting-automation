@@ -48,7 +48,7 @@ TEAM_MAP = {
     "Seattle Seahawks": "SEA",
     "Tampa Bay Buccaneers": "TB",
     "Tennessee Titans": "TEN",
-    "Washington Commanders": "WSH",
+    "Washington Commanders": "WAS",
 }
 
 # -----------------------------
@@ -57,7 +57,7 @@ TEAM_MAP = {
 def normalize_matchup(game_str: str) -> str:
     """
     Converts 'Philadelphia Eagles @ Washington Commanders'
-    → 'PHI@WSH'
+    → 'PHI@WAS'
     """
     try:
         away, home = game_str.split(" @ ")

@@ -89,25 +89,13 @@ def espn_params_for(season: int, week, season_type: str = None):
     }
 
 
-# -----------------------------
-# MATCHUP KEY NORMALIZATION (BUILDER-ONLY)
-# -----------------------------
-MATCHUP_KEY_ALIASES = {
-    # Washington
-    "PHI@WAS": "PHI@WSH",
-    "DAL@WAS": "DAL@WSH",
-    "NYG@WAS": "NYG@WSH",
-    "WAS@PHI": "WSH@PHI",
-    "WAS@DAL": "WSH@DAL",
-    "WAS@NYG": "WSH@NYG",
-}
 STAGES = ["initial", "update", "lock", "final"]
 
 def normalize_snapshot_keys(snapshot: dict) -> dict:
     normalized = {}
 
     for key, game in snapshot.items():
-        canonical_key = MATCHUP_KEY_ALIASES.get(key, key)
+        canonical_key = normalize_matchup_key(key)
 
         # Preserve original key for audit / ML
         game = dict(game)

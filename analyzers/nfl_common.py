@@ -70,6 +70,9 @@ def canonical_team(team_raw):
         if team == lowered or team in lowered or lowered in team:
             return tla
 
+    # ESPN returns WSH; normalize to WAS (the canonical TLA everywhere else)
+    if team.upper() == "WSH":
+        return "WAS"
     return team.upper()
 
 
