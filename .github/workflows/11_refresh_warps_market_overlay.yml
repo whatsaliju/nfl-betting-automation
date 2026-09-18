@@ -53,6 +53,16 @@ jobs:
           fi
           python scripts/build_survivor_recommendations.py
 
+      - name: Patch overlay with master sharp lines
+        run: |
+          WEEK=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('week',''))" 2>/dev/null || echo "")
+          SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season', 2026))" 2>/dev/null || echo 2026)
+          if [ -n "$WEEK" ] && [ -f "data/historical/week${WEEK}_master.json" ]; then
+            python3 scripts/patch_overlay_from_master.py --week "$WEEK" --season "$SEASON"
+          else
+            echo "No master JSON for week $WEEK — skipping overlay patch"
+          fi
+
       - name: Validate generated overlay
         run: |
           python - <<'PY'
