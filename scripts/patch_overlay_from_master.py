@@ -31,8 +31,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "analyzers"))
 from nfl_common import get_current_season
 
-OVERLAY_CSV = ROOT / "data" / "historical" / "warps_2026_market_overlay.csv"
-
 # Stage preference order for extracting market lines
 STAGE_ORDER = ["lock", "update", "initial"]
 
@@ -189,6 +187,8 @@ def main():
     args = parser.parse_args()
 
     season = int(args.season) if args.season else get_current_season()
+    overlay_csv = ROOT / "data" / "historical" / f"warps_{season}_market_overlay.csv"
+
     week = args.week
     if not week:
         cw = ROOT / "data" / "current_week.json"
@@ -233,11 +233,11 @@ def main():
             sharp_lines[norm] = lines
 
     # Read overlay
-    if not OVERLAY_CSV.exists():
-        print(f"ERROR: {OVERLAY_CSV} not found", file=sys.stderr)
+    if not overlay_csv.exists():
+        print(f"ERROR: {overlay_csv} not found", file=sys.stderr)
         sys.exit(1)
 
-    with open(OVERLAY_CSV) as f:
+    with open(overlay_csv) as f:
         reader = csv.DictReader(f)
         orig_fields = reader.fieldnames or []
         rows = list(reader)
@@ -292,16 +292,16 @@ def main():
             updated += 1
 
     # Write back
-    with open(OVERLAY_CSV, "w", newline="") as f:
+    with open(overlay_csv, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=new_fields, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)
 
     print(f"Patched {updated} rows for season={season} week={week} (stage={args.stage})")
-    print(f"Wrote {OVERLAY_CSV}")
+    print(f"Wrote {overlay_csv}")
 
     # Summary of key changes
-    with open(OVERLAY_CSV) as f:
+    with open(overlay_csv) as f:
         patched = [r for r in csv.DictReader(f)
                    if str(r.get("season","")) == str(season) and str(r.get("week","")) == str(week)]
     missing_total = sum(1 for r in patched if not r.get("market_total"))

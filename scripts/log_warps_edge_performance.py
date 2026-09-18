@@ -25,7 +25,6 @@ sys.path.insert(0, str(ROOT / "analyzers"))
 from nfl_common import get_current_season
 
 LOG_PATH = ROOT / "data" / "historical" / "warps_edge_log.csv"
-OVERLAY_CSV = ROOT / "data" / "historical" / "warps_2026_market_overlay.csv"
 
 LOG_FIELDS = [
     "season", "week", "matchup_key", "away_tla", "home_tla", "game_date",
@@ -87,6 +86,8 @@ def main():
     args = parser.parse_args()
 
     season = int(args.season) if args.season else get_current_season()
+    overlay_csv = ROOT / "data" / "historical" / f"warps_{season}_market_overlay.csv"
+
     week = args.week
     if not week:
         cw_path = ROOT / "data" / "current_week.json"
@@ -105,12 +106,12 @@ def main():
     master_games = {g["matchup_key"]: g for g in json.loads(master_path.read_text())}
 
     # Load overlay CSV for WARPS edge data
-    if not OVERLAY_CSV.exists():
-        print(f"ERROR: {OVERLAY_CSV} not found", file=sys.stderr)
+    if not overlay_csv.exists():
+        print(f"ERROR: {overlay_csv} not found", file=sys.stderr)
         sys.exit(1)
 
     overlay_rows = {}
-    with open(OVERLAY_CSV) as f:
+    with open(overlay_csv) as f:
         for row in csv.DictReader(f):
             if str(row.get("season", "")) == str(season) and str(row.get("week", "")) == str(week):
                 overlay_rows[row["matchup_key"]] = row
