@@ -284,6 +284,14 @@ jobs:
             --week ${{ steps.info.outputs.week }} \
             --season-type ${{ steps.info.outputs.season_type }}
 
+      - name: Patch overlay with master sharp lines
+        run: |
+          python3 scripts/patch_overlay_from_master.py \
+            --week ${{ steps.info.outputs.week }} \
+            --season ${{ steps.info.outputs.season }} \
+            --stage ${{ steps.info.outputs.stage }} || \
+          echo "WARNING: patch_overlay_from_master.py failed — overlay lines may be stale"
+
       - name: Build Matrix Engine Feed
         env:
           PYTHONPATH: .

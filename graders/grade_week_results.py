@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from analyzers.nfl_common import espn_season_type, espn_week, normalize_season_type
+from analyzers.nfl_common import espn_season_type, espn_week, normalize_season_type, normalize_matchup_key
 
 ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 
@@ -46,7 +46,7 @@ def fetch_scores(season, week, season_type=None):
         if not away or not home:
             continue
 
-        key = away["team"]["abbreviation"] + "@" + home["team"]["abbreviation"]
+        key = normalize_matchup_key(away["team"]["abbreviation"] + "@" + home["team"]["abbreviation"])
         a = int(away.get("score", 0))
         h = int(home.get("score", 0))
 
