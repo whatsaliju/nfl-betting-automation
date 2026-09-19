@@ -2,67 +2,74 @@ import { Activity, CalendarDays, Crosshair, FlaskConical, Grid3X3, ShieldCheck, 
 
 const TOOLS = [
   {
-    icon: <Grid3X3 size={20} />,
+    icon: <Grid3X3 size={28} />,
     goal: "See the full 2026 season at a glance",
     title: "Season Matrix",
     desc: "Every team, every week — engine ratings, win probabilities, and heatmap coloring across all 18 weeks in one grid.",
     link: "matrix.html#matrix",
     cta: "Open the Matrix",
     accent: "navy",
+    num: "01",
   },
   {
-    icon: <Activity size={20} />,
+    icon: <Activity size={28} />,
     goal: "What should I bet this week?",
     title: "Weekly Picks",
     desc: "Every Tuesday the model grades all 16 games. You get a ranked shortlist — bet, lean, or skip — with plain-English reasons and a confidence rating.",
     link: "matrix.html#command",
     cta: "See this week's picks",
     accent: "blue",
+    num: "02",
   },
   {
-    icon: <Trophy size={20} />,
+    icon: <Trophy size={28} />,
     goal: "Who wins straight-up for my pool?",
     title: "Pick'em",
     desc: "Games sorted by win probability for the week. Tiebreaker guidance, time-slot grouping, and logos so you can scan and submit in under a minute.",
     link: "matrix.html#pickem",
     cta: "Go to Pick'em",
     accent: "gold",
+    num: "03",
   },
   {
-    icon: <ShieldCheck size={20} />,
+    icon: <ShieldCheck size={28} />,
     goal: "Which team do I pick for Survivor?",
     title: "Survivor Pool",
     desc: "The model recommends a pick each week and flags teams you've already used. See the safest path through the full season before you commit.",
     link: "matrix.html#survivor",
     cta: "Open Survivor",
     accent: "green",
+    num: "04",
   },
   {
-    icon: <Crosshair size={20} />,
+    icon: <Crosshair size={28} />,
     goal: "Which games have real value on the spread?",
     title: "Edge Board",
     desc: "All matchups ranked by edge strength across spread, total, and moneyline. Filter to plays only or browse the full slate with WARPS fair-value overlays.",
     link: "matrix.html#edges",
     cta: "See the Edge Board",
     accent: "red",
+    num: "05",
   },
   {
-    icon: <CalendarDays size={20} />,
+    icon: <CalendarDays size={28} />,
     goal: "What does my team's schedule look like?",
     title: "Schedule & Scout",
     desc: "The full 18-week grid with rest advantages, back-to-back flags, trap game alerts, and travel context — the schedule angles Vegas already prices in.",
     link: "matrix.html#scout",
     cta: "View Schedule",
-    accent: "navy",
+    accent: "violet",
+    num: "06",
   },
   {
-    icon: <FlaskConical size={20} />,
+    icon: <FlaskConical size={28} />,
     goal: "Can I trust this model?",
     title: "Track Record & Model",
     desc: "26 seasons of NFL data. Win-probability model built on Pythagorean expectation (beats statistical baseline in 25 of 26 seasons). Season-by-season performance vs. Vegas.",
     link: "warps.html",
     cta: "See the data",
     accent: "slate",
+    num: "07",
   },
 ];
 
@@ -104,15 +111,22 @@ export default function LandingApp() {
           <p className="ls-tools-sub">Everything lives in one board — no tabs to hunt through.</p>
         </div>
         <div className="ls-tools-grid">
-          {TOOLS.map((tool) => (
-            <a key={tool.title} href={tool.link} className={`ls-tool-card ls-tool-${tool.accent}`}>
-              <div className="ls-tool-top">
+          {TOOLS.map((tool, i) => (
+            <a
+              key={tool.title}
+              href={tool.link}
+              className={`ls-tool-card ls-tool-${tool.accent}${i === TOOLS.length - 1 ? " ls-tool-featured" : ""}`}
+            >
+              <div className="ls-card-header">
+                <span className="ls-card-num">{tool.num}</span>
                 <div className="ls-tool-icon">{tool.icon}</div>
-                <span className="ls-tool-goal">{tool.goal}</span>
               </div>
-              <h3 className="ls-tool-title">{tool.title}</h3>
-              <p className="ls-tool-desc">{tool.desc}</p>
-              <span className="ls-tool-cta">{tool.cta} →</span>
+              <div className="ls-card-body">
+                <span className="ls-tool-goal">{tool.goal}</span>
+                <h3 className="ls-tool-title">{tool.title}</h3>
+                <p className="ls-tool-desc">{tool.desc}</p>
+                <span className="ls-tool-cta">{tool.cta} →</span>
+              </div>
             </a>
           ))}
         </div>
