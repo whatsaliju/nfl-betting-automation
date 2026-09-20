@@ -208,6 +208,8 @@ def action_for(game, explanation, flags):
                 return "watch"
         return action
     if best.get("status") == "play":
+        if not best.get("market"):
+            return "watch"
         return "watch" if flags else "play"
     return "pass"
 
