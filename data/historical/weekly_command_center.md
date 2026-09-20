@@ -17,17 +17,17 @@
 ## Betting Card
 
 - Plays: 4
-- Watch: 8
-- Passes: 4
+- Watch: 6
+- Passes: 6
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | CAR@ATL | play | total | OVER | 5.0 |
 | CLE@TB | play | total | OVER | 5.0 |
-| IND@KC | play | spread | HOME | 4.0 |
-| JAX@DEN | play | spread | AWAY | 3.0 |
+| JAX@DEN | play | spread | AWAY | 5.0 |
+| IND@KC | play | n/a | n/a | 2.0 |
+| GB@NYJ | watch | spread | HOME | 5.0 |
 | DET@BUF | watch | n/a | n/a | 3.0 |
-| GB@NYJ | watch | n/a | n/a | 3.0 |
 
 ## Survivor
 

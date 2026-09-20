@@ -1,6 +1,6 @@
 # Feature Research Report
 
-- Feature rows: 116
+- Feature rows: 117
 - Graded bets: 0
 - Result: 0-0 (None)
 
@@ -11,39 +11,39 @@
 ## Factor Groups
 
 ### best_edge_market
-- NONE: 58 games
+- NONE: 59 games
 - spread: 2 games
 - total: 2 games
 
 ### pythagorean_pick_alignment
 - aligned: 2 games
-- no_pick: 58 games
+- no_pick: 59 games
 - non_side_pick: 2 games
 
 ### value_gap_pick_alignment
 - aligned: 2 games
-- no_pick: 58 games
+- no_pick: 59 games
 - non_side_pick: 2 games
 
 ### market_expectation_pick_alignment
-- aligned: 1 games
+- conflict: 1 games
 - neutral: 1 games
-- no_pick: 58 games
+- no_pick: 59 games
 - non_side_pick: 2 games
 
 ### overperformance_pick_alignment
 - conflict: 2 games
-- no_pick: 58 games
+- no_pick: 59 games
 - non_side_pick: 2 games
 
 ### division_game
 - false: 30 games
-- true: 32 games
+- true: 33 games
 
 ### data_quality_status
 - DEGRADED: 14 games
 - NONE: 16 games
-- OK: 32 games
+- OK: 33 games
 
 ## Candidate Policy
 
