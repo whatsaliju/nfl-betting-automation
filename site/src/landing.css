@@ -359,6 +359,18 @@
   .ls-tool-featured .ls-card-body { padding: 18px 20px 20px; }
   .ls-tool-featured .ls-tool-title { font-size: 21px; }
   .ls-tool-featured .ls-tool-desc { font-size: 13px; }
+
+  /* Regroup by color: navy pair → red pair → gold pair → teal
+     Current DOM order: 0=SeasonMatrix(N) 1=WeeklyPicks(R) 2=Pickem(G)
+                        3=SchedScout(N)   4=EdgeBoard(R)   5=Survivor(G)
+                        6=TrackRecord(T)                               */
+  .ls-card-0 { order: 1; }   /* Season Matrix   — navy  */
+  .ls-card-3 { order: 2; }   /* Schedule & Scout — navy  */
+  .ls-card-1 { order: 11; }  /* Weekly Picks    — red   */
+  .ls-card-4 { order: 12; }  /* Edge Board      — red   */
+  .ls-card-2 { order: 21; }  /* Pick'em         — gold  */
+  .ls-card-5 { order: 22; }  /* Survivor Pool   — gold  */
+  .ls-card-6 { order: 30; }  /* Track Record    — teal  */
 }
 
 @media (max-width: 700px) {
