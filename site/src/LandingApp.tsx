@@ -1,6 +1,9 @@
 import { Activity, CalendarDays, Crosshair, FlaskConical, Grid3X3, ShieldCheck, Trophy } from "lucide-react";
 
-// Color groups — navy = season overview, red = betting value, gold = pool games, teal = model/trust
+// Ordered col-first so same-color cards share a column: navy | red | gold (left→right)
+// Row 1: Season Matrix | Weekly Picks | Pick'em
+// Row 2: Schedule & Scout | Edge Board | Survivor Pool
+// Full: Track Record (teal, featured)
 const TOOLS = [
   {
     icon: <Grid3X3 size={28} />,
@@ -30,13 +33,13 @@ const TOOLS = [
     accent: "gold",
   },
   {
-    icon: <ShieldCheck size={28} />,
-    goal: "Which team do I pick for Survivor?",
-    title: "Survivor Pool",
-    desc: "The model recommends a pick each week and flags teams you've already used. See the safest path through the full season before you commit.",
-    link: "matrix.html#survivor",
-    cta: "Open Survivor",
-    accent: "gold",
+    icon: <CalendarDays size={28} />,
+    goal: "What does my team's schedule look like?",
+    title: "Schedule & Scout",
+    desc: "The full 18-week grid with rest advantages, back-to-back flags, trap game alerts, and travel context — the schedule angles Vegas already prices in.",
+    link: "matrix.html#scout",
+    cta: "View Schedule",
+    accent: "navy",
   },
   {
     icon: <Crosshair size={28} />,
@@ -48,13 +51,13 @@ const TOOLS = [
     accent: "red",
   },
   {
-    icon: <CalendarDays size={28} />,
-    goal: "What does my team's schedule look like?",
-    title: "Schedule & Scout",
-    desc: "The full 18-week grid with rest advantages, back-to-back flags, trap game alerts, and travel context — the schedule angles Vegas already prices in.",
-    link: "matrix.html#scout",
-    cta: "View Schedule",
-    accent: "navy",
+    icon: <ShieldCheck size={28} />,
+    goal: "Which team do I pick for Survivor?",
+    title: "Survivor Pool",
+    desc: "The model recommends a pick each week and flags teams you've already used. See the safest path through the full season before you commit.",
+    link: "matrix.html#survivor",
+    cta: "Open Survivor",
+    accent: "gold",
   },
   {
     icon: <FlaskConical size={28} />,
@@ -144,6 +147,11 @@ export default function LandingApp() {
         <div className="ls-tools-header">
           <h2 className="ls-tools-title">Seven tools. One question each.</h2>
           <p className="ls-tools-sub">Everything lives in one board — no tabs to hunt through.</p>
+        </div>
+        <div className="ls-group-labels">
+          <span className="ls-group-label ls-group-navy">Season Overview</span>
+          <span className="ls-group-label ls-group-red">Betting Value</span>
+          <span className="ls-group-label ls-group-gold">Pool Games</span>
         </div>
         <div className="ls-tools-grid">
           {TOOLS.map((tool, i) => (

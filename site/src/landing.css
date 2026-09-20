@@ -178,6 +178,26 @@
   margin: 0;
 }
 
+/* Column group labels — one per color column */
+.ls-group-labels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.ls-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding-left: 4px;
+}
+
+.ls-group-navy  { color: #013369; }
+.ls-group-red   { color: #aa1212; }
+.ls-group-gold  { color: #9b6e10; }
+
 .ls-tools-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -332,6 +352,7 @@
 /* ─── Mobile ──────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .ls-hero-grid { display: none; }
+  .ls-group-labels { display: none; }
   .ls-tools-grid { grid-template-columns: repeat(2, 1fr); }
   .ls-tool-featured { flex-direction: column; }
   .ls-tool-featured .ls-card-header { width: 100%; height: 104px; }
