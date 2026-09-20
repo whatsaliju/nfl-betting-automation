@@ -41,9 +41,27 @@
 
 /* ─── Hero ────────────────────────────────────────────────── */
 .ls-hero {
-  max-width: 920px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 88px 40px 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 40px;
+}
+
+.ls-hero-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Decorative heatmap grid */
+.ls-hero-grid {
+  flex-shrink: 0;
+  width: 299px;
+  height: 95px;
+  opacity: 0.22;
+  margin-bottom: 72px;
+  align-self: flex-end;
 }
 
 .ls-eyebrow {
@@ -80,7 +98,7 @@
   display: flex;
   border-top: 1px solid #dce5f0;
   border-bottom: 1px solid #dce5f0;
-  max-width: 920px;
+  max-width: 960px;
   margin: 0 auto;
   background: #ffffff;
 }
@@ -104,6 +122,11 @@
   font-variant-numeric: tabular-nums;
 }
 
+.ls-stat-denom {
+  font-size: 32px;
+  color: #94a3b8;
+}
+
 .ls-stat-label {
   display: block;
   font-size: 11px;
@@ -111,6 +134,21 @@
   text-transform: uppercase;
   letter-spacing: 0.09em;
   color: #94a3b8;
+}
+
+/* 25/26 progress bar */
+.ls-stat-bar-track {
+  height: 4px;
+  background: #e8eef6;
+  border-radius: 2px;
+  margin: 8px 0 10px;
+  overflow: hidden;
+}
+
+.ls-stat-bar-fill {
+  height: 100%;
+  background: #013369;
+  border-radius: 2px;
 }
 
 /* ─── Tools section ───────────────────────────────────────── */
@@ -165,28 +203,11 @@
 
 /* ─── Colored header band ──────────────────────────────────── */
 .ls-card-header {
-  position: relative;
   height: 104px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   flex-shrink: 0;
-}
-
-/* Large faint number watermark */
-.ls-card-num {
-  position: absolute;
-  right: 14px;
-  bottom: -10px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 80px;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: rgba(255, 255, 255, 0.14);
-  user-select: none;
-  pointer-events: none;
 }
 
 /* Icon bubble */
@@ -200,8 +221,6 @@
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  position: relative;
-  z-index: 1;
   flex-shrink: 0;
 }
 
@@ -215,10 +234,10 @@
 }
 
 .ls-tool-goal {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   margin-bottom: 2px;
 }
 
@@ -247,34 +266,26 @@
   margin-top: 10px;
 }
 
-/* ─── Accent variants ──────────────────────────────────────── */
+/* ─── Accent variants — 4-color discipline ─────────────────── */
+/* Navy: season overview tools */
 .ls-tool-navy  .ls-card-header { background: linear-gradient(140deg, #013369 0%, #1a4d8f 100%); }
 .ls-tool-navy  .ls-tool-goal   { color: #013369; }
 .ls-tool-navy  .ls-tool-cta    { color: #013369; }
 
-.ls-tool-blue  .ls-card-header { background: linear-gradient(140deg, #1355a8 0%, #1e7ed6 100%); }
-.ls-tool-blue  .ls-tool-goal   { color: #1355a8; }
-.ls-tool-blue  .ls-tool-cta    { color: #1355a8; }
-
-.ls-tool-gold  .ls-card-header { background: linear-gradient(140deg, #9b6e10 0%, #c8992a 100%); }
-.ls-tool-gold  .ls-tool-goal   { color: #9b6e10; }
-.ls-tool-gold  .ls-tool-cta    { color: #9b6e10; }
-
-.ls-tool-green .ls-card-header { background: linear-gradient(140deg, #14783a 0%, #1aad56 100%); }
-.ls-tool-green .ls-tool-goal   { color: #14783a; }
-.ls-tool-green .ls-tool-cta    { color: #14783a; }
-
+/* Red: betting value tools */
 .ls-tool-red   .ls-card-header { background: linear-gradient(140deg, #aa1212 0%, #D50A0A 100%); }
 .ls-tool-red   .ls-tool-goal   { color: #aa1212; }
 .ls-tool-red   .ls-tool-cta    { color: #aa1212; }
 
-.ls-tool-violet .ls-card-header { background: linear-gradient(140deg, #4c3bc7 0%, #7c3aed 100%); }
-.ls-tool-violet .ls-tool-goal   { color: #4c3bc7; }
-.ls-tool-violet .ls-tool-cta    { color: #4c3bc7; }
+/* Gold: pool competition tools */
+.ls-tool-gold  .ls-card-header { background: linear-gradient(140deg, #9b6e10 0%, #c8992a 100%); }
+.ls-tool-gold  .ls-tool-goal   { color: #9b6e10; }
+.ls-tool-gold  .ls-tool-cta    { color: #9b6e10; }
 
-.ls-tool-slate .ls-card-header { background: linear-gradient(140deg, #2d3d52 0%, #49637d 100%); }
-.ls-tool-slate .ls-tool-goal   { color: #2d3d52; }
-.ls-tool-slate .ls-tool-cta    { color: #2d3d52; }
+/* Teal: analytical / model trust */
+.ls-tool-teal  .ls-card-header { background: linear-gradient(140deg, #0d6e85 0%, #0891b2 100%); }
+.ls-tool-teal  .ls-tool-goal   { color: #0d6e85; }
+.ls-tool-teal  .ls-tool-cta    { color: #0d6e85; }
 
 /* ─── Featured card (7th — full width, horizontal) ─────────── */
 .ls-tool-featured {
@@ -285,17 +296,7 @@
 .ls-tool-featured .ls-card-header {
   width: 200px;
   height: auto;
-  flex-direction: column;
-  gap: 10px;
   flex-shrink: 0;
-}
-
-.ls-tool-featured .ls-card-num {
-  right: auto;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 60px;
 }
 
 .ls-tool-featured .ls-card-body {
@@ -303,14 +304,8 @@
   justify-content: center;
 }
 
-.ls-tool-featured .ls-tool-title {
-  font-size: 26px;
-}
-
-.ls-tool-featured .ls-tool-desc {
-  max-width: 640px;
-  font-size: 14px;
-}
+.ls-tool-featured .ls-tool-title { font-size: 26px; }
+.ls-tool-featured .ls-tool-desc  { max-width: 640px; font-size: 14px; }
 
 /* ─── Footer ──────────────────────────────────────────────── */
 .ls-footer {
@@ -336,10 +331,10 @@
 
 /* ─── Mobile ──────────────────────────────────────────────── */
 @media (max-width: 900px) {
+  .ls-hero-grid { display: none; }
   .ls-tools-grid { grid-template-columns: repeat(2, 1fr); }
   .ls-tool-featured { flex-direction: column; }
-  .ls-tool-featured .ls-card-header { width: 100%; height: 104px; flex-direction: row; gap: 0; }
-  .ls-tool-featured .ls-card-num { right: 14px; left: auto; bottom: -10px; transform: none; font-size: 80px; }
+  .ls-tool-featured .ls-card-header { width: 100%; height: 104px; }
   .ls-tool-featured .ls-card-body { padding: 18px 20px 20px; }
   .ls-tool-featured .ls-tool-title { font-size: 21px; }
   .ls-tool-featured .ls-tool-desc { font-size: 13px; }
@@ -347,8 +342,7 @@
 
 @media (max-width: 700px) {
   .ls-nav { padding: 16px 20px; }
-
-  .ls-hero { padding: 56px 20px 0; }
+  .ls-hero { padding: 56px 20px 0; flex-direction: column; gap: 0; }
   .ls-stats { flex-direction: column; }
   .ls-stat { border-right: none; border-bottom: 1px solid #dce5f0; padding: 22px 20px; }
   .ls-stat:last-child { border-bottom: none; }

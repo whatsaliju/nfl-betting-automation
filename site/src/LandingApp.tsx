@@ -1,5 +1,6 @@
 import { Activity, CalendarDays, Crosshair, FlaskConical, Grid3X3, ShieldCheck, Trophy } from "lucide-react";
 
+// Color groups — navy = season overview, red = betting value, gold = pool games, teal = model/trust
 const TOOLS = [
   {
     icon: <Grid3X3 size={28} />,
@@ -9,7 +10,6 @@ const TOOLS = [
     link: "matrix.html#matrix",
     cta: "Open the Matrix",
     accent: "navy",
-    num: "01",
   },
   {
     icon: <Activity size={28} />,
@@ -18,8 +18,7 @@ const TOOLS = [
     desc: "Every Tuesday the model grades all 16 games. You get a ranked shortlist — bet, lean, or skip — with plain-English reasons and a confidence rating.",
     link: "matrix.html#command",
     cta: "See this week's picks",
-    accent: "blue",
-    num: "02",
+    accent: "red",
   },
   {
     icon: <Trophy size={28} />,
@@ -29,7 +28,6 @@ const TOOLS = [
     link: "matrix.html#pickem",
     cta: "Go to Pick'em",
     accent: "gold",
-    num: "03",
   },
   {
     icon: <ShieldCheck size={28} />,
@@ -38,8 +36,7 @@ const TOOLS = [
     desc: "The model recommends a pick each week and flags teams you've already used. See the safest path through the full season before you commit.",
     link: "matrix.html#survivor",
     cta: "Open Survivor",
-    accent: "green",
-    num: "04",
+    accent: "gold",
   },
   {
     icon: <Crosshair size={28} />,
@@ -49,7 +46,6 @@ const TOOLS = [
     link: "matrix.html#edges",
     cta: "See the Edge Board",
     accent: "red",
-    num: "05",
   },
   {
     icon: <CalendarDays size={28} />,
@@ -58,8 +54,7 @@ const TOOLS = [
     desc: "The full 18-week grid with rest advantages, back-to-back flags, trap game alerts, and travel context — the schedule angles Vegas already prices in.",
     link: "matrix.html#scout",
     cta: "View Schedule",
-    accent: "violet",
-    num: "06",
+    accent: "navy",
   },
   {
     icon: <FlaskConical size={28} />,
@@ -68,10 +63,44 @@ const TOOLS = [
     desc: "26 seasons of NFL data. Win-probability model built on Pythagorean expectation (beats statistical baseline in 25 of 26 seasons). Season-by-season performance vs. Vegas.",
     link: "warps.html",
     cta: "See the data",
-    accent: "slate",
-    num: "07",
+    accent: "teal",
   },
 ];
+
+// Decorative mini-heatmap that evokes the Season Matrix without any real data
+const GRID_VALS = [
+  .12,.72,.28,.55,.18,.85,.38,.65,.22,.48,.78,.08,.58,
+  .65,.18,.48,.12,.75,.28,.58,.38,.88,.18,.52,.72,.32,
+  .38,.58,.82,.22,.48,.68,.12,.78,.28,.42,.62,.85,.18,
+  .52,.72,.35,.62,.48,.30,.65,.20,.75,.45,.15,.55,.82,
+];
+
+function HeroGrid() {
+  const cols = 13, rows = 4, cell = 20, gap = 3;
+  const W = cols * (cell + gap) - gap;
+  const H = rows * (cell + gap) - gap;
+  return (
+    <svg className="ls-hero-grid" viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+      {GRID_VALS.slice(0, cols * rows).map((v, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const isRed = v > 0.7 && col % 4 === row % 3;
+        return (
+          <rect
+            key={i}
+            x={col * (cell + gap)}
+            y={row * (cell + gap)}
+            width={cell}
+            height={cell}
+            rx={3}
+            fill={isRed ? "#D50A0A" : "#013369"}
+            opacity={v}
+          />
+        );
+      })}
+    </svg>
+  );
+}
 
 export default function LandingApp() {
   return (
@@ -82,12 +111,15 @@ export default function LandingApp() {
       </nav>
 
       <section className="ls-hero">
-        <p className="ls-eyebrow">2026 NFL Season · Live</p>
-        <h1 className="ls-headline">NFL analysis.<br />26 seasons deep.</h1>
-        <p className="ls-sub">
-          Seven tools. Seven questions every NFL fan asks each week.
-          Pick the one you need.
-        </p>
+        <div className="ls-hero-content">
+          <p className="ls-eyebrow">2026 NFL Season · Live</p>
+          <h1 className="ls-headline">NFL analysis.<br />26 seasons deep.</h1>
+          <p className="ls-sub">
+            Seven tools. Seven questions every NFL fan asks each week.
+            Pick the one you need.
+          </p>
+        </div>
+        <HeroGrid />
       </section>
 
       <div className="ls-stats">
@@ -99,8 +131,11 @@ export default function LandingApp() {
           <span className="ls-stat-num">32</span>
           <span className="ls-stat-label">teams · 18 weeks</span>
         </div>
-        <div className="ls-stat">
-          <span className="ls-stat-num">25/26</span>
+        <div className="ls-stat ls-stat-record">
+          <span className="ls-stat-num">25<span className="ls-stat-denom">/26</span></span>
+          <div className="ls-stat-bar-track" aria-label="25 of 26 seasons beat Vegas baseline">
+            <div className="ls-stat-bar-fill" style={{ width: `${(25/26)*100}%` }} />
+          </div>
           <span className="ls-stat-label">beats Vegas baseline</span>
         </div>
       </div>
@@ -118,7 +153,6 @@ export default function LandingApp() {
               className={`ls-tool-card ls-tool-${tool.accent}${i === TOOLS.length - 1 ? " ls-tool-featured" : ""}`}
             >
               <div className="ls-card-header">
-                <span className="ls-card-num">{tool.num}</span>
                 <div className="ls-tool-icon">{tool.icon}</div>
               </div>
               <div className="ls-card-body">
