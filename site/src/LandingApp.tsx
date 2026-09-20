@@ -158,7 +158,7 @@ export default function LandingApp() {
             <a
               key={tool.title}
               href={tool.link}
-              className={`ls-tool-card ls-tool-${tool.accent}${i === TOOLS.length - 1 ? " ls-tool-featured" : ""}`}
+              className={`ls-tool-card ls-tool-${tool.accent} ls-card-${i}${i === TOOLS.length - 1 ? " ls-tool-featured" : ""}`}
             >
               <div className="ls-card-header">
                 <div className="ls-tool-icon">{tool.icon}</div>
