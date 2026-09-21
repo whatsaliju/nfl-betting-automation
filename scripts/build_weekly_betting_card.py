@@ -198,6 +198,9 @@ def action_for(game, explanation, flags):
         action = explanation.get("quality_action")
         if action == "play" and any("source health" in flag or "data quality" in flag for flag in flags):
             return "watch"
+        # Quality says play but selector committed no market → can't execute a bet; cap at watch.
+        if action == "play" and not best.get("market"):
+            return "watch"
         # Stale DEGRADED guard: explanation.quality_action may have been set to "pass"
         # when source data was degraded at analysis time.  If the current game-level
         # source/data health is OK (only stale explanation flags remain) and the
