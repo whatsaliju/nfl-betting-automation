@@ -196,7 +196,7 @@ def action_for(game, explanation, flags):
         return "pass"
     if explanation and explanation.get("quality_action"):
         action = explanation.get("quality_action")
-        if action == "play" and any("source health" in flag or "data quality" in flag for flag in flags):
+        if action == "play" and flags:
             return "watch"
         # Quality says play but selector committed no market → can't execute a bet; cap at watch.
         if action == "play" and not best.get("market"):
