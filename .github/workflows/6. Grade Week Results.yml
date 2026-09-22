@@ -117,6 +117,116 @@ jobs:
             --week ${{ steps.resolve.outputs.week }} \
             --season-type ${{ steps.resolve.outputs.season_type }}
 
+      - name: Email Engine Results
+        env:
+          EMAIL_ADDRESS: ${{ secrets.GMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          WEEK: ${{ steps.resolve.outputs.week }}
+          SEASON: ${{ steps.resolve.outputs.season }}
+        run: |
+          python3 << 'EOF'
+          import csv, os, smtplib
+          from email.mime.text import MIMEText
+          from email.mime.multipart import MIMEMultipart
+
+          week = os.environ.get('WEEK', '')
+          season = os.environ.get('SEASON', '2026')
+          email_addr = os.environ.get('EMAIL_ADDRESS', '')
+          email_pass = os.environ.get('EMAIL_PASSWORD', '')
+
+          if not email_addr or not email_pass:
+              print("No email credentials — skipping results email")
+              exit(0)
+
+          log_path = 'data/historical/warps_edge_log.csv'
+          try:
+              with open(log_path) as f:
+                  rows = list(csv.DictReader(f))
+          except FileNotFoundError:
+              print(f"Edge log not found: {log_path}")
+              exit(0)
+
+          confirmed = [r for r in rows
+                       if r.get('week') == str(week)
+                       and r.get('season') == str(season)
+                       and r.get('engine_confirmed', '').lower() == 'true']
+
+          if not confirmed:
+              print(f"No engine-confirmed picks for Week {week} — skipping email")
+              exit(0)
+
+          lines = [f"WARPS Engine Results — Week {week}", "=" * 50, ""]
+
+          hits = misses = pushes = 0
+          for r in confirmed:
+              mk = r['matchup_key']
+              away, home = r['away_tla'], r['home_tla']
+              em = r.get('engine_market', '')
+              es = r.get('engine_side', '')
+              a_s = r.get('away_score', '')
+              h_s = r.get('home_score', '')
+              score_str = f"{away} {a_s} @ {home} {h_s}" if a_s and h_s else "score pending"
+
+              if em == 'total':
+                  line = r.get('market_total', '?')
+                  ou = r.get('ou_result', 'no_data')
+                  outcome = 'HIT ✓' if ou == 'over' else ('MISS ✗' if ou == 'under' else 'PUSH')
+                  total = (float(a_s) + float(h_s)) if a_s and h_s else None
+                  total_str = f" = {total:.0f} total" if total else ""
+                  lines.append(f"  {mk}: OVER {line} | {score_str}{total_str} | {ou.upper()} → {outcome}")
+              elif em == 'spread':
+                  # Use overlay CSV for the pick's actual line
+                  if es == 'HOME':
+                      line = r.get('market_spread', '?')
+                      # market_spread in edge log is market_home_spread; negative=home fav
+                      try:
+                          lf = float(line)
+                          line_str = f"{home} {lf:+.1f}"
+                      except Exception:
+                          line_str = f"{home} {line}"
+                  else:
+                      try:
+                          lf = -float(r.get('market_spread', 0))
+                          line_str = f"{away} {lf:+.1f}"
+                      except Exception:
+                          line_str = f"{away} ?"
+                  sr = r.get('spread_result', 'no_data')
+                  outcome = 'COVER ✓' if sr == 'cover' else ('MISS ✗' if sr == 'miss' else sr.upper())
+                  lines.append(f"  {mk}: {line_str} | {score_str} | ATS → {outcome}")
+              else:
+                  lines.append(f"  {mk}: {em} {es} | {score_str}")
+
+              sr = r.get('spread_result', '')
+              ou = r.get('ou_result', '')
+              primary = sr if em == 'spread' else (ou if em == 'total' else '')
+              if primary == 'cover' or primary == 'over':
+                  hits += 1
+              elif primary == 'miss' or primary == 'under':
+                  misses += 1
+              elif primary == 'push':
+                  pushes += 1
+
+          lines.append("")
+          record = f"Record: {hits}-{misses}" + (f"-{pushes}" if pushes else "")
+          lines.append(record)
+          body = "\n".join(lines)
+          print(body)
+
+          msg = MIMEMultipart()
+          msg['From'] = email_addr
+          msg['To'] = email_addr
+          msg['Subject'] = f"🏈 Week {week} Engine Results — {hits}-{misses}"
+          msg.attach(MIMEText(body, 'plain'))
+
+          try:
+              with smtplib.SMTP_SSL('smtp.gmail.com', 465) as s:
+                  s.login(email_addr, email_pass)
+                  s.send_message(msg)
+              print(f"Results email sent: {hits}-{misses}")
+          except Exception as e:
+              print(f"Email failed: {e}")
+          EOF
+
       - name: Build Week Results JSON
         env:
           WEEK: ${{ steps.resolve.outputs.week }}
