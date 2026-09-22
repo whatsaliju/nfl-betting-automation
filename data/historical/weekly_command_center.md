@@ -23,11 +23,11 @@
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | CAR@ATL | play | total | OVER | 5.0 |
-| CLE@TB | play | n/a | n/a | 5.0 |
 | GB@NYJ | play | spread | HOME | 5.0 |
 | JAX@DEN | play | spread | AWAY | 4.0 |
-| WAS@DAL | watch | spread | AWAY | 4.0 |
-| CIN@HOU | watch | n/a | n/a | 3.0 |
+| WAS@DAL | play | spread | AWAY | 4.0 |
+| CLE@TB | watch | total | OVER | 5.0 |
+| SEA@ARI | watch | spread | HOME | 5.0 |
 
 ## Survivor
 
