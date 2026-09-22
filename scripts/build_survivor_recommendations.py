@@ -5,6 +5,7 @@ import argparse
 import csv
 import json
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -29,10 +30,12 @@ PUBLIC_PICK_SOURCE_CONTRACT = {
     "fields": ["public_pick_pct_25", "public_pick_pct_100", "public_pick_pct"],
 }
 LIVE_WIN_PROBABILITY_CONTRACT = {
-    "status": "prior_only",
-    "active_components": ["warps_prior", "schedule_context"],
-    "missing_live_components": ["market_moneyline", "injury_qb_status", "weather", "public_survivor_pick_pct"],
-    "policy": "Use WARPS priors for offseason planning; blend live market, injury, weather, and real public-pick inputs once weekly feeds publish.",
+    "status": "warps_market_blend_when_priced",
+    "active_components": ["warps_prior", "market_moneyline_no_vig", "line_movement_penalty", "schedule_context"],
+    "missing_live_components": ["injury_qb_status", "weather", "public_survivor_pick_pct"],
+    "blend_weights": {"warps_prior": 0.35, "market_moneyline": 0.65},
+    "line_movement_policy": "Adverse line movement ≥3 pts between initial and latest stage triggers score penalty (pts * 1.2).",
+    "policy": "Blend 35% WARPS prior + 65% market ML no-vig probability when game is priced. Fall back to WARPS prior for unpriced games.",
 }
 BRAND_CHALK = {
     "BUF": 4.5,
@@ -50,6 +53,75 @@ BRAND_CHALK = {
     "NE": 2.0,
     "DEN": 1.5,
 }
+
+
+def parse_spread_home(line_str):
+    """Extract home spread number from 'away_line | home_line' string."""
+    if not line_str:
+        return None
+    parts = str(line_str).split("|")
+    if len(parts) < 2:
+        return None
+    m = re.search(r"([+-]?\d+\.?\d*)", parts[1])
+    return float(m.group(1)) if m else None
+
+
+def load_master_line_signals(data_dir, season):
+    """Return {season_week_matchup_key: {line_movement, engine_pass}} from master JSONs."""
+    signals = {}
+    for path in sorted(Path(data_dir).glob("week*_master.json")):
+        try:
+            games = json.loads(path.read_text())
+            for g in games:
+                mk = g.get("matchup_key", "")
+                week = g.get("week")
+                if not mk or week is None:
+                    continue
+                # Compute adverse line movement for each team (home/away)
+                initial_hs = parse_spread_home(g.get("initial_sharp_spread_line"))
+                latest_hs = None
+                for stage in ("lock", "update", "initial"):
+                    s = parse_spread_home(g.get(f"{stage}_sharp_spread_line"))
+                    if s is not None:
+                        latest_hs = s
+                        break
+                line_movement = None
+                if initial_hs is not None and latest_hs is not None:
+                    # positive = home became less favored (adverse for home, good for away)
+                    line_movement = latest_hs - initial_hs
+
+                # Detect if engine issued a PASS at any available stage
+                engine_pass = False
+                for stage in ("final", "lock", "update", "initial"):
+                    if not g.get(f"has_{stage}"):
+                        continue
+                    pm = g.get(f"{stage}_pick_market", "")
+                    if pm and str(pm).lower() not in ("none", ""):
+                        engine_pass = False  # PLAY found — not a pass
+                        break
+                    rec = g.get(f"{stage}_recommendation", "")
+                    if rec and "PASS" in str(rec).upper():
+                        engine_pass = True
+
+                key = f"{season}_{week}_{mk}"
+                signals[key] = {
+                    "line_movement": line_movement,
+                    "engine_pass": engine_pass,
+                }
+        except Exception:
+            continue
+    return signals
+
+
+def line_move_penalty(line_movement, side):
+    """Return score penalty for adverse line movement (≥3 pts)."""
+    if line_movement is None:
+        return 0.0
+    # positive line_movement = home got worse (adverse for home, good for away)
+    adverse = line_movement if side == "home" else -line_movement
+    if adverse < 3.0:
+        return 0.0
+    return round(adverse * 1.2, 2)
 
 
 def clean_opponent(value):
@@ -183,7 +255,18 @@ def pool_strategy_scores(row, pool_size, payout_style):
 
 def reasons(row):
     out = []
-    out.append(f"WARPS win probability {row['win_probability']:.1%}")
+    warps_wp = row.get("warps_win_probability", row["win_probability"])
+    if row.get("live_win_probability") is not None:
+        out.append(
+            f"WARPS {warps_wp:.1%} blended with market {row['live_win_probability']:.1%} → {row['win_probability']:.1%}"
+        )
+    else:
+        out.append(f"WARPS win probability {warps_wp:.1%}")
+    lm = row.get("line_move_penalty", 0.0)
+    if lm >= 3.6:
+        out.append(f"⚠️ Adverse line movement: -{lm:.1f}pt score penalty")
+    if row.get("engine_pass"):
+        out.append("⚠️ Engine issued PASS on this game")
     if row["home_away"] == "home":
         out.append("Home-field survivor spot")
     else:
@@ -198,10 +281,12 @@ def reasons(row):
         out.append("Opponent off bye")
     if row["team_has_bye_before"]:
         out.append("Team off bye")
-    return out[:5]
+    return out[:6]
 
 
-def build_candidates(schedule, warps_rows):
+def build_candidates(schedule, warps_rows, master_signals=None):
+    if master_signals is None:
+        master_signals = {}
     raw = []
     for game in warps_rows:
         try:
@@ -215,16 +300,24 @@ def build_candidates(schedule, warps_rows):
             continue
         away = game["away_tla"]
         home = game["home_tla"]
+        season_val = int(game.get("season", 0))
+        sig_key = f"{season_val}_{week}_{away}@{home}"
+        sig = master_signals.get(sig_key, {})
         for team, opponent, prob_key, live_prob_key, side in (
             (home, away, "home_win_prob", "home_ml_no_vig_prob", "home"),
             (away, home, "away_win_prob", "away_ml_no_vig_prob", "away"),
         ):
-            prob = float(game[prob_key])
+            warps_prob = float(game[prob_key])
             live_prob_raw = game.get(live_prob_key, "") if game.get("status") == "priced" else ""
             live_prob = float(live_prob_raw) if live_prob_raw else None
+            # Blend WARPS prior with market-implied WP when available
+            if live_prob is not None:
+                effective_prob = 0.35 * warps_prob + 0.65 * live_prob
+            else:
+                effective_prob = warps_prob
             context = schedule_context(schedule, week, team, opponent, side)
             raw.append({
-                "season": int(game.get("season", 0)),
+                "season": season_val,
                 "week": week,
                 "team": team,
                 "opponent": opponent,
@@ -232,7 +325,8 @@ def build_candidates(schedule, warps_rows):
                 "game_key": game_key(week, away, home),
                 "home_away": side,
                 "day": context["day"],
-                "win_probability": prob,
+                "win_probability": effective_prob,
+                "warps_win_probability": warps_prob,
                 "fair_moneyline": game["home_fair_moneyline"] if side == "home" else game["away_fair_moneyline"],
                 "warps_wins": game["home_warps_wins"] if side == "home" else game["away_warps_wins"],
                 "opponent_warps_wins": game["away_warps_wins"] if side == "home" else game["home_warps_wins"],
@@ -241,6 +335,9 @@ def build_candidates(schedule, warps_rows):
                 "team_has_bye_before": context["team_has_bye_before"],
                 "opponent_has_bye_before": context["opponent_has_bye_before"],
                 "_live_win_probability": live_prob,
+                "_line_movement": sig.get("line_movement"),
+                "_side": side,
+                "_engine_pass": sig.get("engine_pass", False),
             })
 
     by_team = {}
@@ -264,18 +361,25 @@ def build_candidates(schedule, warps_rows):
             volatility += 2.0
         if row["team_has_bye_before"]:
             volatility -= 1.0
+        lm_penalty = line_move_penalty(row.get("_line_movement"), row["home_away"])
         safety = row["win_probability"] * 100
         row["future_value_cost"] = round(future_cost, 2)
         row["volatility_penalty"] = round(volatility, 2)
+        row["line_move_penalty"] = lm_penalty
         row["safety_score"] = round(safety, 2)
-        row["survivor_score"] = round(safety - future_cost - volatility, 2)
+        row["survivor_score"] = round(safety - future_cost - volatility - lm_penalty, 2)
         row["risk_band"] = risk_band(row["win_probability"], row["division_game"], row["home_away"])
         row["tier"] = recommendation_tier(row)
-        row["reasons"] = reasons(row)
-        row["win_probability_source_status"] = "warps_prior_only"
+        row["engine_pass"] = row.pop("_engine_pass", False)
         row["live_win_probability"] = row.get("_live_win_probability")
-        row["live_win_probability_source_status"] = "market_moneyline" if row.get("_live_win_probability") is not None else "missing"
+        row["win_probability_source_status"] = (
+            "warps_market_blend" if row["live_win_probability"] is not None else "warps_prior_only"
+        )
+        row["live_win_probability_source_status"] = "market_moneyline" if row["live_win_probability"] is not None else "missing"
         row.pop("_live_win_probability", None)
+        row.pop("_line_movement", None)
+        row.pop("_side", None)
+        row["reasons"] = reasons(row)
         row["public_pick_source_status"] = "estimated"
         row["public_pick_pct_25"] = round(public_pick_estimate(row, 25), 2)
         row["public_pick_pct_100"] = round(public_pick_estimate(row, 100), 2)
@@ -475,18 +579,26 @@ def write_md(path, payload):
     path.write_text("\n".join(lines) + "\n")
 
 
-def build_payload(schedule, warps_rows):
-    candidates = build_candidates(schedule, warps_rows)
+def build_payload(schedule, warps_rows, master_signals=None):
+    candidates = build_candidates(schedule, warps_rows, master_signals=master_signals)
     weekly = build_weekly(candidates)
     path = build_path(candidates)
     pool_cards = build_pool_cards(candidates)
+    blended = sum(1 for c in candidates if c.get("win_probability_source_status") == "warps_market_blend")
+    with_lm = sum(1 for c in candidates if c.get("line_move_penalty", 0) > 0)
     return {
         "metadata": {
             "season": _SEASON,
-            "model": "WARPS survivor intelligence v0.1",
-            "source": "WARPS game priors + schedule matrix context",
-            "policy": "Maximize win probability while penalizing future opportunity cost and volatility.",
+            "model": "WARPS survivor intelligence v0.2",
+            "source": "WARPS game priors + market blend + line movement signals",
+            "policy": (
+                "Blend WARPS prior with market ML when priced (35/65). "
+                "Penalize adverse line movement ≥3 pts. "
+                "Flag engine PASS. Penalize future opportunity cost and volatility."
+            ),
             "candidate_count": len(candidates),
+            "blended_market_count": blended,
+            "line_move_penalized_count": with_lm,
             "public_pick_source": PUBLIC_PICK_SOURCE_CONTRACT,
             "live_win_probability_model": LIVE_WIN_PROBABILITY_CONTRACT,
         },
@@ -519,7 +631,11 @@ def main():
     schedules = json.loads(args.schedule.read_text())
     schedule = schedules[str(_SEASON)]
     warps_rows = json.loads(args.warps.read_text())
-    payload = build_payload(schedule, warps_rows)
+    master_dir = ROOT / "data" / "historical"
+    master_signals = load_master_line_signals(master_dir, _SEASON)
+    if master_signals:
+        print(f"Loaded line signals for {len(master_signals)} games from master JSONs")
+    payload = build_payload(schedule, warps_rows, master_signals=master_signals)
 
     args.json_output.parent.mkdir(parents=True, exist_ok=True)
     args.json_output.write_text(json.dumps(payload, indent=2) + "\n")
