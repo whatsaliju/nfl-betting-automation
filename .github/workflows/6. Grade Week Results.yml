@@ -190,13 +190,13 @@ jobs:
                           line_str = f"{away} {lf:+.1f}"
                       except Exception:
                           line_str = f"{away} ?"
-                  sr = r.get('spread_result', 'no_data')
+                  sr = r.get('engine_spread_result', 'no_data')
                   outcome = 'COVER ✓' if sr == 'cover' else ('MISS ✗' if sr == 'miss' else sr.upper())
                   lines.append(f"  {mk}: {line_str} | {score_str} | ATS → {outcome}")
               else:
                   lines.append(f"  {mk}: {em} {es} | {score_str}")
 
-              sr = r.get('spread_result', '')
+              sr = r.get('engine_spread_result', '')
               ou = r.get('ou_result', '')
               primary = sr if em == 'spread' else (ou if em == 'total' else '')
               if primary == 'cover' or primary == 'over':

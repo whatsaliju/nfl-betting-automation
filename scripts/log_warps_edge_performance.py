@@ -41,7 +41,8 @@ LOG_FIELDS = [
     "engine_side",             # AWAY/HOME/OVER/UNDER or blank
     "engine_stage",            # stage at which engine confirmed (initial/update/lock/final)
     "away_score", "home_score",
-    "spread_result",           # cover/miss/push/no_bet (for overlay side)
+    "engine_spread_result",    # cover/miss/push graded on engine's confirmed pick side
+    "overlay_spread_result",   # cover/miss/push graded on raw WARPS overlay side (always)
     "ml_result",               # win/loss/no_bet (for overlay ML side)
     "ou_result",               # over/under/push
     "status",                  # 'priced' or 'fair_line_only'
@@ -71,11 +72,37 @@ def load_existing_log():
     if not LOG_PATH.exists():
         return []
     with open(LOG_PATH) as f:
-        return list(csv.DictReader(f))
+        rows = list(csv.DictReader(f))
+    # Migrate old rows that have spread_result but not engine_spread_result
+    for r in rows:
+        if "spread_result" in r and "engine_spread_result" not in r:
+            r["engine_spread_result"] = r.pop("spread_result")
+            r.setdefault("overlay_spread_result", "")
+        elif "spread_result" in r:
+            # Both columns present — drop old column to avoid DictWriter extras error
+            r.pop("spread_result")
+    return rows
 
 
 def week_key(season, week):
     return f"{season}_{week}"
+
+
+def _grade_side_result(grade_side, a_score, h_score, mkt_spread_f):
+    """Grade ATS result for a given side (AWAY/HOME) against market home spread."""
+    if a_score is None or h_score is None or mkt_spread_f is None or not grade_side:
+        return "no_data"
+    # market_home_spread convention: negative = home favored, positive = away favored
+    away_covers = (float(a_score) - float(h_score) + (-mkt_spread_f)) > 0
+    home_covers = (float(h_score) - float(a_score) + mkt_spread_f) > 0
+    is_push = not away_covers and not home_covers
+    if is_push:
+        return "push"
+    if grade_side.upper() == "AWAY":
+        return "cover" if away_covers else "miss"
+    if grade_side.upper() == "HOME":
+        return "cover" if home_covers else "miss"
+    return "no_data"
 
 
 def main():
@@ -170,24 +197,20 @@ def main():
                 engine_stage = stage
                 break
 
-        # Grade spread result — engine's confirmed pick side takes precedence over overlay side
-        # so the result reflects what the weekly engine actually bet, not just the model preference
-        spread_result = "no_data"
+        # Grade engine_spread_result — engine's confirmed pick side takes precedence over overlay
+        # side; falls back to overlay_side when not confirmed or not a spread pick.
         grade_side = (engine_side if (engine_confirmed and engine_market == "spread" and engine_side)
                       else overlay_side)
-        if a_score is not None and h_score is not None and mkt_spread_f is not None and grade_side:
-            # market_home_spread convention: negative = home favored, positive = away favored
-            away_covers = (float(a_score) - float(h_score) + (-mkt_spread_f)) > 0
-            home_covers = (float(h_score) - float(a_score) + mkt_spread_f) > 0
-            is_push = not away_covers and not home_covers
-            if is_push:
-                spread_result = "push"
-            elif grade_side.upper() == "AWAY":
-                spread_result = "cover" if away_covers else "miss"
-            elif grade_side.upper() == "HOME":
-                spread_result = "cover" if home_covers else "miss"
-        elif a_score is not None and h_score is not None and not grade_side:
-            spread_result = "no_edge"
+        if a_score is not None and h_score is not None and mkt_spread_f is not None and not grade_side:
+            engine_spread_result = "no_edge"
+        else:
+            engine_spread_result = _grade_side_result(grade_side, a_score, h_score, mkt_spread_f)
+
+        # Grade overlay_spread_result — always uses raw WARPS overlay side, ignoring engine
+        if a_score is not None and h_score is not None and mkt_spread_f is not None and not overlay_side:
+            overlay_spread_result = "no_edge"
+        else:
+            overlay_spread_result = _grade_side_result(overlay_side, a_score, h_score, mkt_spread_f)
 
         # Grade ML result for WARPS overlay ML side
         ml_result = "no_data"
@@ -227,7 +250,8 @@ def main():
             "engine_stage": engine_stage,
             "away_score": a_score if a_score is not None else "",
             "home_score": h_score if h_score is not None else "",
-            "spread_result": spread_result,
+            "engine_spread_result": engine_spread_result,
+            "overlay_spread_result": overlay_spread_result,
             "ml_result": ml_result,
             "ou_result": ou_result,
             "status": status,
@@ -237,12 +261,12 @@ def main():
     all_rows = existing + new_rows
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(LOG_PATH, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=LOG_FIELDS)
+        writer = csv.DictWriter(f, fieldnames=LOG_FIELDS, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(all_rows)
 
     priced = sum(1 for r in new_rows if r["status"] == "priced")
-    graded = sum(1 for r in new_rows if r["spread_result"] in ("cover", "miss", "push"))
+    graded = sum(1 for r in new_rows if r["engine_spread_result"] in ("cover", "miss", "push"))
     print(f"Logged {len(new_rows)} games (season={season} week={week}): "
           f"{priced} priced, {graded} graded spread results")
     print(f"Wrote {LOG_PATH} ({len(all_rows)} total rows)")
