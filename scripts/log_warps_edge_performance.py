@@ -170,25 +170,23 @@ def main():
                 engine_stage = stage
                 break
 
-        # Grade spread result for WARPS overlay side
+        # Grade spread result — engine's confirmed pick side takes precedence over overlay side
+        # so the result reflects what the weekly engine actually bet, not just the model preference
         spread_result = "no_data"
-        if a_score is not None and h_score is not None and mkt_spread_f is not None and overlay_side:
-            margin = float(h_score) - float(a_score)  # positive = home won by margin
-            # home covers if margin + home_spread > 0 (home_spread is negative for favorites)
-            ats_margin = margin + (-mkt_spread_f)  # from away perspective: a_score - h_score + away_spread
-            # simpler: away covers if a_score - h_score + (-mkt_spread_f) > 0
-            # away_spread = -mkt_spread_f
+        grade_side = (engine_side if (engine_confirmed and engine_market == "spread" and engine_side)
+                      else overlay_side)
+        if a_score is not None and h_score is not None and mkt_spread_f is not None and grade_side:
+            # market_home_spread convention: negative = home favored, positive = away favored
             away_covers = (float(a_score) - float(h_score) + (-mkt_spread_f)) > 0
             home_covers = (float(h_score) - float(a_score) + mkt_spread_f) > 0
             is_push = not away_covers and not home_covers
-
             if is_push:
                 spread_result = "push"
-            elif overlay_side.upper() == "AWAY":
+            elif grade_side.upper() == "AWAY":
                 spread_result = "cover" if away_covers else "miss"
-            elif overlay_side.upper() == "HOME":
+            elif grade_side.upper() == "HOME":
                 spread_result = "cover" if home_covers else "miss"
-        elif a_score is not None and h_score is not None and not overlay_side:
+        elif a_score is not None and h_score is not None and not grade_side:
             spread_result = "no_edge"
 
         # Grade ML result for WARPS overlay ML side
