@@ -67,7 +67,8 @@ function stripLeadingEmoji(text: string) {
 
 function decisionSubtitle(card: WeeklyBettingCardRow) {
   if (card.action === "pass") return "No bet from the selector";
-  return card.classification ? stripLeadingEmoji(titleCase(card.classification)) : "Engine recommendation";
+  const label = card.classification && card.classification !== "pass" ? stripLeadingEmoji(titleCase(card.classification)) : null;
+  return label || "Engine recommendation";
 }
 
 function CardItem({ card, isFocused, onViewAnalysis }: { card: WeeklyBettingCardRow; isFocused?: boolean; onViewAnalysis?: (matchupKey: string) => void }) {
