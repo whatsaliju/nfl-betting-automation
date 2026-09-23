@@ -1,15 +1,15 @@
 # 2026 Survivor Recommendations
 
-- Model: WARPS survivor intelligence v0.1
+- Model: WARPS survivor intelligence v0.2
 - Games scored: 544
-- Win probability source: prior_only (warps_prior, schedule_context)
+- Win probability source: warps_market_blend_when_priced (warps_prior, market_moneyline_no_vig, line_movement_penalty, schedule_context)
 - Public pick source: estimated (internal heuristic)
 
 | Week | Pick | Game | Win Prob | Survivor Score | Tier | Reasons |
 |---:|---|---|---:|---:|---|---|
-| 1 | JAX | CLE@JAX | 68.9% | 63.6 | secondary | WARPS win probability 68.9%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
-| 2 | LAC | LV@LAC | 67.3% | 62.9 | secondary | WARPS win probability 67.3%; Home-field survivor spot; Division game raises upset volatility |
-| 3 | DET | NYJ@DET | 74.4% | 67.1 | primary | WARPS win probability 74.4%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
+| 1 | JAX | CLE@JAX | 68.9% | 63.6 | secondary | WARPS win probability 68.9%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 1 future elite spot(s) |
+| 2 | SF | MIA@SF | 80.7% | 72.1 | primary | WARPS 66.2% blended with market 88.5% → 80.7%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 2 future elite spot(s) |
+| 3 | NYG | TEN@NYG | 67.4% | 67.4 | primary | WARPS 61.6% blended with market 70.5% → 67.4%; Home-field survivor spot; Low future opportunity cost |
 | 4 | CHI | NYJ@CHI | 68.3% | 68.3 | primary | WARPS win probability 68.3%; Home-field survivor spot; Low future opportunity cost |
 | 5 | NE | LV@NE | 72.3% | 66.0 | primary | WARPS win probability 72.3%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 6 | NE | NYJ@NE | 73.2% | 67.8 | primary | WARPS win probability 73.2%; Home-field survivor spot; Division game raises upset volatility |
@@ -24,7 +24,7 @@
 | 15 | LAR | DAL@LAR | 69.7% | 67.7 | primary | WARPS win probability 69.7%; Home-field survivor spot; Low future opportunity cost; Opponent off bye |
 | 16 | DET | NYG@DET | 66.3% | 66.3 | primary | WARPS win probability 66.3%; Home-field survivor spot; Low future opportunity cost |
 | 17 | JAX | WAS@JAX | 69.1% | 69.1 | primary | WARPS win probability 69.1%; Home-field survivor spot; Low future opportunity cost |
-| 18 | BUF | NYJ@BUF | 73.8% | 70.8 | primary | WARPS win probability 73.8%; Home-field survivor spot; Division game raises upset volatility; Low future opportunity cost |
+| 18 | BUF | NYJ@BUF | 73.8% | 70.8 | primary | WARPS win probability 73.8%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Division game raises upset volatility; Low future opportunity cost |
 
 ## Pool-EV Card
 
@@ -32,13 +32,13 @@
 |---:|---:|---|---|---|---|
 | 1 | 25 | top_heavy | JAX (68.9%) | JAX (64.0) | JAX (9.8% public) |
 | 1 | 100 | top_heavy | JAX (68.9%) | JAX (65.8) | JAX (11.3% public) |
-| 1 | 500 | top_heavy | JAX (68.9%) | PHI (76.6) | PHI (13.7% public) |
-| 2 | 25 | top_heavy | LAC (67.3%) | LAC (63.0) | LAC (7.4% public) |
-| 2 | 100 | top_heavy | LAC (67.3%) | LAC (64.5) | LAC (8.9% public) |
-| 2 | 500 | top_heavy | LAC (67.3%) | SF (76.7) | SF (14.1% public) |
-| 3 | 25 | top_heavy | DET (74.4%) | DET (67.1) | DET (16.7% public) |
-| 3 | 100 | top_heavy | DET (74.4%) | DET (69.5) | DET (18.2% public) |
-| 3 | 500 | top_heavy | DET (74.4%) | DET (83.5) | DET (18.2% public) |
+| 1 | 500 | top_heavy | JAX (68.9%) | JAX (76.3) | JAX (11.3% public) |
+| 2 | 25 | top_heavy | SF (80.7%) | SF (71.6) | SF (21.6% public) |
+| 2 | 100 | top_heavy | SF (80.7%) | SF (73.9) | SF (23.1% public) |
+| 2 | 500 | top_heavy | SF (80.7%) | BAL (87.3) | BAL (19.4% public) |
+| 3 | 25 | top_heavy | NYG (67.4%) | SF (66.7) | SF (16.5% public) |
+| 3 | 100 | top_heavy | NYG (67.4%) | SF (69.0) | SF (18.0% public) |
+| 3 | 500 | top_heavy | NYG (67.4%) | SF (82.7) | SF (18.0% public) |
 | 4 | 25 | top_heavy | CHI (68.3%) | CHI (66.9) | CHI (11.4% public) |
 | 4 | 100 | top_heavy | CHI (68.3%) | CHI (69.0) | CHI (12.9% public) |
 | 4 | 500 | top_heavy | CHI (68.3%) | BAL (81.8) | BAL (15.0% public) |

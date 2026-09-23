@@ -14,19 +14,24 @@ type SurvivorCandidate = {
   home_away: "home" | "away";
   day: string;
   win_probability: number;
+  warps_win_probability?: number;
+  live_win_probability?: number | null;
+  win_probability_source_status?: string;
   fair_moneyline: string;
-  warps_wins: number;
-  opponent_warps_wins: number;
+  warps_wins: number | string;
+  opponent_warps_wins: number | string;
   division_game: boolean;
   future_safe_spots: number;
   future_elite_spots: number;
   best_future_win_probability: number | null;
   future_value_cost: number;
   volatility_penalty: number;
+  line_move_penalty?: number;
   safety_score: number;
   survivor_score: number;
   risk_band: string;
   tier: SurvivorTier;
+  engine_pass?: boolean;
   reasons: string[];
 };
 
