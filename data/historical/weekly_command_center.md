@@ -1,15 +1,15 @@
 # Weekly Command Center
 
 - Context: 2026 W3 · live
-- Recommended action: **PASS**
+- Recommended action: **NO BET - DATA INCOMPLETE**
 - Confidence tier: **X**
-- Reason: No playable or watchlist edges are active.
+- Reason: Live betting inputs are not published for this context.
 
 ## Source Gates
 
 | Gate | Status |
 |---|---|
-| live betting card | PASS |
+| live betting card | BLOCKED |
 | preseason dry run | PASS |
 | warps priors | PASS |
 | survivor recommendations | PASS |
@@ -22,15 +22,15 @@
 
 ## Survivor
 
-- Primary: NYG vs TEN (67.4%)
-- Safest: SF vs ARI (74.7%)
-- Path pick: SF vs ARI (74.7%)
+- Primary: SF vs ARI (74.4%)
+- Safest: KC vs MIA (74.9%)
+- Path pick: KC vs MIA (74.9%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | NYG vs TEN (67.4%) | SF vs ARI (74.7%) | SF vs ARI (74.7%) |
-| 100 | NYG vs TEN (67.4%) | SF vs ARI (74.7%) | SF vs ARI (74.7%) |
-| 500 | NYG vs TEN (67.4%) | SF vs ARI (74.7%) | SF vs ARI (74.7%) |
+| 25 | SF vs ARI (74.4%) | SF vs ARI (74.4%) | SF vs ARI (74.4%) |
+| 100 | SF vs ARI (74.4%) | SF vs ARI (74.4%) | SF vs ARI (74.4%) |
+| 500 | SF vs ARI (74.4%) | SF vs ARI (74.4%) | DET vs NYJ (73.0%) |
 
 ## WARPS Watch
 
@@ -45,4 +45,5 @@
 
 ## Warnings
 
+- No live betting card is published for the current context.
 - No actionable betting plays or watchlist spots are active.
