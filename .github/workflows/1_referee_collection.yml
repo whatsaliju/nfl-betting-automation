@@ -2,7 +2,8 @@ name: 1. Referee Data Collection
 
 on:
   schedule:
-    - cron: '0 2 * 8-12,1-2 3'  # Every Wednesday Aug-Feb (covers preseason, regular season, playoffs + SB)
+    - cron: '0 14 * 8-12,1-2 3'  # Wednesday 2:00 PM UTC (10am ET) - primary
+    - cron: '0 19 * 8-12,1-2 3'  # Wednesday 7:00 PM UTC (3pm ET) - backup if 10am missed
   workflow_dispatch:
     inputs:
       week:

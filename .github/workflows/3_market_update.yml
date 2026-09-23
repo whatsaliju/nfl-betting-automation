@@ -4,6 +4,8 @@ on:
   schedule:
     # Wednesday 2:00 PM UTC (Wed 10am ET) - opening: first look at the week's lines
     - cron: '0 14 * 8-12,1-2 3'
+    # Wednesday 8:00 PM UTC (Wed 4pm ET) - opening backup: retry if 10am cron was missed by GitHub
+    - cron: '0 20 * 8-12,1-2 3'
     # Thursday 6:00 PM UTC (Thu 2pm ET) - pre_tnf: snapshot before TNF kickoff (~8:20pm ET)
     - cron: '0 18 * 8-12,1-2 4'
     # Sunday 1:00 AM UTC (Sat 9pm ET) - update: Saturday night line snapshot
