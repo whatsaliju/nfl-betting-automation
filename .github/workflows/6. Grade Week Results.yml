@@ -375,16 +375,21 @@ jobs:
           cw_path = Path("data/current_week.json")
           cw = json.loads(cw_path.read_text())
           week = cw.get("week", "")
-          # Only auto-advance numeric REG weeks 1-17; leave playoffs alone
+          # Auto-advance REG weeks 1-17 to next numeric week; week 18 -> WC
           try:
               week_int = int(week)
               if 1 <= week_int <= 17:
-                  cw["week"] = str(week_int + 1)
+                  next_week = str(week_int + 1)
+              elif week_int == 18:
+                  next_week = "WC"
+              else:
+                  print(f"Week {week}: no auto-advance (outside 1-18 REG range)")
+                  next_week = None
+              if next_week:
+                  cw["week"] = next_week
                   cw["updated_at"] = datetime.datetime.now().isoformat()
                   cw_path.write_text(json.dumps(cw, indent=2))
-                  print(f"Advanced current_week.json: Week {week_int} -> {week_int + 1}")
-              else:
-                  print(f"Week {week}: no auto-advance (outside 1-17 REG range)")
+                  print(f"Advanced current_week.json: Week {week_int} -> {next_week}")
           except (ValueError, TypeError):
               print(f"Week '{week}' is non-numeric (playoff/preseason) -- skipping auto-advance")
           EOF
