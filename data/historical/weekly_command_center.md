@@ -1,9 +1,9 @@
 # Weekly Command Center
 
-- Context: 2026 W2 · live
-- Recommended action: **PLAY**
-- Confidence tier: **A**
-- Reason: At least one selector play cleared the current command gate.
+- Context: 2026 W3 · live
+- Recommended action: **PASS**
+- Confidence tier: **X**
+- Reason: No playable or watchlist edges are active.
 
 ## Source Gates
 
@@ -16,38 +16,33 @@
 
 ## Betting Card
 
-- Plays: 1
-- Watch: 10
-- Passes: 5
-
-| Game | Action | Market | Side | Score |
-|---|---|---|---|---:|
-| WAS@DAL | play | spread | AWAY | 4.0 |
-| CAR@ATL | watch | total | OVER | 5.0 |
-| CLE@TB | watch | total | OVER | 5.0 |
-| GB@NYJ | watch | spread | HOME | 5.0 |
-| SEA@ARI | watch | spread | HOME | 5.0 |
-| JAX@DEN | watch | spread | AWAY | 4.0 |
+- Plays: 0
+- Watch: 0
+- Passes: 0
 
 ## Survivor
 
-- Primary: LAC vs LV (67.3%)
-- Safest: LAR vs NYG (68.3%)
-- Path pick: LAC vs LV (67.3%)
+- Primary: NYG vs TEN (67.4%)
+- Safest: SF vs ARI (74.7%)
+- Path pick: SF vs ARI (74.7%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | LAC vs LV (67.3%) | LAC vs LV (67.3%) | LAC vs LV (67.3%) |
-| 100 | LAC vs LV (67.3%) | LAC vs LV (67.3%) | LAC vs LV (67.3%) |
-| 500 | LAC vs LV (67.3%) | SF vs MIA (66.2%) | SF vs MIA (66.2%) |
+| 25 | NYG vs TEN (67.4%) | SF vs ARI (74.7%) | SF vs ARI (74.7%) |
+| 100 | NYG vs TEN (67.4%) | SF vs ARI (74.7%) | SF vs ARI (74.7%) |
+| 500 | NYG vs TEN (67.4%) | SF vs ARI (74.7%) | SF vs ARI (74.7%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| LAR | vs NYG | 68.3% | -215 |
-| LAC | vs LV | 67.3% | -206 |
-| HOU | vs CIN | 66.8% | -201 |
-| SF | vs MIA | 66.2% | -196 |
-| BAL | vs NO | 63.2% | -172 |
-| TB | vs CLE | 62.5% | -167 |
+| DET | vs NYJ | 74.4% | -291 |
+| SF | vs ARI | 66.5% | -198 |
+| NO | vs LV | 64.1% | -179 |
+| BUF | vs LAC | 62.4% | -166 |
+| NYG | vs TEN | 61.6% | -161 |
+| SEA | @ WAS | 61.5% | -160 |
+
+## Warnings
+
+- No actionable betting plays or watchlist spots are active.
