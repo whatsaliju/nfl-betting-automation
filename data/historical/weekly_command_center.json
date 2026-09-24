@@ -7,34 +7,369 @@
     "week": "3",
     "week_label": "W3",
     "stage": null,
-    "status": "LIVE_GAMES_NO_CARD",
+    "status": "LIVE_CARD",
     "mode": "live",
-    "has_betting_card": false,
+    "has_betting_card": true,
     "message": "Current active engine context from current_week.json."
   },
   "decision_mode": "live",
-  "recommended_action": "NO BET - DATA INCOMPLETE",
-  "confidence_tier": "X",
-  "action_reason": "Live betting inputs are not published for this context.",
+  "recommended_action": "WATCH",
+  "confidence_tier": "C",
+  "action_reason": "No plays cleared, but watchlist spots exist.",
   "source_gates": {
-    "live_betting_card": "BLOCKED",
+    "live_betting_card": "PASS",
     "preseason_dry_run": "PASS",
     "warps_priors": "PASS",
     "survivor_recommendations": "PASS"
   },
-  "do_nothing_warning": true,
-  "warnings": [
-    "No live betting card is published for the current context.",
-    "No actionable betting plays or watchlist spots are active."
-  ],
+  "do_nothing_warning": false,
+  "warnings": [],
   "betting_card": {
-    "available": false,
+    "available": true,
     "plays": 0,
-    "watch": 0,
-    "passes": 0,
-    "top_cards": []
+    "watch": 1,
+    "passes": 15,
+    "top_cards": [
+      {
+        "key": "2026:3:CIN@PIT",
+        "season": 2026,
+        "season_type": "REG",
+        "week": "3",
+        "matchup_key": "CIN@PIT",
+        "away_tla": "CIN",
+        "home_tla": "PIT",
+        "action": "watch",
+        "market": "spread",
+        "side": "AWAY",
+        "pick_label": "CIN -3.5",
+        "confidence": "watch",
+        "selector_score": 4.0,
+        "classification": "\ud83c\udfaf TARGETED PLAY",
+        "recommendation": "\ud83c\udfaf TARGETED PLAY: Cincinnati Bengals -3.5",
+        "required_line": "Prefer AWAY at a better number than WARPS fair +3.5",
+        "current_line": "-3.5 (+106) | +3.5 (-105)",
+        "warps_alignment": "conflict",
+        "warps_side": "HOME",
+        "source_health": "DEGRADED",
+        "data_quality": "DEGRADED",
+        "quality_gate": null,
+        "main_reasons": [
+          "\ud83c\udfaf TARGETED PLAY: Cincinnati Bengals -3.5"
+        ],
+        "risk_flags": [
+          "source warning DEGRADED",
+          "WARPS spread conflict"
+        ],
+        "market_status": "playable",
+        "spread_status": "playable",
+        "total_status": "lean",
+        "moneyline_status": "research_only",
+        "moneyline_promotion_status": "not_promoted",
+        "route_selected_market": "spread",
+        "route_reason": "spread routed as best available market with status playable; WARPS conflict keeps risk elevated",
+        "market_options": [
+          {
+            "market": "spread",
+            "side": "AWAY",
+            "status": "playable",
+            "score": 4.0,
+            "threshold": 4.0,
+            "blockers": [],
+            "signals": [
+              {
+                "impact": 2,
+                "score": 2,
+                "side": "AWAY",
+                "source": "sharp",
+                "status": "aligned"
+              },
+              {
+                "impact": 2,
+                "score": 2,
+                "side": "AWAY",
+                "source": "team_rating",
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "warps_alignment": "conflict",
+            "warps_side": "HOME",
+            "warps_team": "PIT",
+            "edge_value": 7.0
+          },
+          {
+            "market": "total",
+            "side": "UNDER",
+            "status": "lean",
+            "score": 1.0,
+            "threshold": 4.0,
+            "blockers": [],
+            "signals": [
+              {
+                "impact": 1,
+                "score": -1,
+                "side": "UNDER",
+                "source": "sharp",
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "warps_alignment": null,
+            "warps_side": null,
+            "warps_team": null,
+            "edge_value": null
+          },
+          {
+            "market": "moneyline",
+            "side": "HOME",
+            "status": "research_only",
+            "promotion_status": "not_promoted",
+            "score": 22.5,
+            "threshold": 5.0,
+            "blockers": [
+              "moneyline selector not promoted",
+              "underdog ML not predictive (32% win rate historically, all edge levels)"
+            ],
+            "signals": [],
+            "conflicts": [],
+            "warps_alignment": "research_only",
+            "warps_side": "HOME",
+            "warps_team": "PIT",
+            "edge_value": 0.6055
+          }
+        ],
+        "referee": "Not Available",
+        "referee_stats": null
+      }
+    ]
   },
-  "best_edges": [],
+  "best_edges": [
+    {
+      "season": 2026,
+      "season_type": "REG",
+      "week": "3",
+      "matchup_key": "CIN@PIT",
+      "game": "Cincinnati Bengals @ Pittsburgh Steelers",
+      "away_team": "Cincinnati Bengals",
+      "home_team": "Pittsburgh Steelers",
+      "away_tla": "CIN",
+      "home_tla": "PIT",
+      "stage": "final",
+      "analysis_available": true,
+      "best_edge": {
+        "market": "spread",
+        "side": "AWAY",
+        "score": 4.0,
+        "label": "\ud83c\udfaf TARGETED PLAY",
+        "recommendation": "\ud83c\udfaf TARGETED PLAY: Cincinnati Bengals -3.5",
+        "status": "play"
+      },
+      "markets": {
+        "spread": {
+          "market": "spread",
+          "side": "AWAY",
+          "score": 4.0,
+          "threshold": 4.0,
+          "cleared_threshold": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "AWAY",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "AWAY",
+              "source": "team_rating",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge aligns"
+          ],
+          "status": "playable",
+          "line": "-3.5 (+106) | +3.5 (-105)"
+        },
+        "total": {
+          "market": "total",
+          "side": "UNDER",
+          "score": 1.0,
+          "threshold": 4.0,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 1,
+              "score": -1,
+              "side": "UNDER",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp total edge"
+          ],
+          "status": "lean",
+          "line": "o42.5 (+102) | u42.5 (+104)"
+        },
+        "moneyline": {
+          "market": "moneyline",
+          "side": "HOME",
+          "score": 22.5,
+          "threshold": 5.0,
+          "cleared_threshold": false,
+          "status": "blocked",
+          "promotion_status": "not_promoted",
+          "blockers": [
+            "underdog ML not predictive (32% win rate historically, all edge levels)"
+          ],
+          "line": "-163 | +167",
+          "reason": "WARPS ML EV"
+        }
+      },
+      "referee": "Not Available",
+      "referee_stats": null,
+      "factor_summary": [
+        {
+          "market": "spread",
+          "source": "sharp",
+          "side": "AWAY",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "team_rating",
+          "side": "AWAY",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "total",
+          "source": "sharp",
+          "side": "UNDER",
+          "impact": 1,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "WARPS fair-line prior",
+          "side": "HOME",
+          "impact": 7.0,
+          "status": "conflict"
+        }
+      ],
+      "warps_market_overlay": {
+        "available": true,
+        "status": "priced",
+        "source": "WARPS v2.3 game prior + master sharp lines (final)",
+        "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
+        "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
+        "away_tla": "CIN",
+        "home_tla": "PIT",
+        "away_warps_wins": 7.74,
+        "home_warps_wins": 8.88,
+        "fair_home_spread": -3.5,
+        "fair_away_spread": 3.5,
+        "home_win_prob": 0.6013,
+        "away_win_prob": 0.3987,
+        "home_fair_moneyline": "-151",
+        "away_fair_moneyline": "+151",
+        "market_home_spread": 3.5,
+        "market_away_spread": -3.5,
+        "market_home_moneyline": 167.0,
+        "market_away_moneyline": -163.0,
+        "spread_side": "HOME",
+        "spread_team": "PIT",
+        "spread_edge_points": 7.0,
+        "spread_pick_alignment": "conflict",
+        "fair_spread_side": "HOME",
+        "ml_side": "HOME",
+        "ml_team": "PIT",
+        "ml_edge_prob": 0.2246,
+        "ml_ev": 0.6055,
+        "ml_pick_alignment": "research_only"
+      },
+      "schedule_context": {
+        "division_game": true,
+        "conference_game": true,
+        "away_division": "AFC North",
+        "home_division": "AFC North"
+      },
+      "expectation_context": {
+        "away_team": "CIN",
+        "home_team": "PIT",
+        "away": {
+          "team": "CIN",
+          "conference": "AFC",
+          "division": "AFC North",
+          "games_tracked": 4,
+          "actual_wins": 2,
+          "actual_losses": 0,
+          "points_for": 53.0,
+          "points_against": 33.0,
+          "vegas_win_total": 9.5,
+          "actual_win_pct": 0.5,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.7545,
+          "pythagorean_wins_tracked": 3.02,
+          "pythagorean_wins_17_game_pace": 12.83,
+          "actual_vs_pythagorean": -1.02,
+          "pythagorean_pace_vs_vegas": 3.33,
+          "actual_pace_vs_vegas": -1.0,
+          "expectation_band": "underperforming"
+        },
+        "home": {
+          "team": "PIT",
+          "conference": "AFC",
+          "division": "AFC North",
+          "games_tracked": 4,
+          "actual_wins": 1,
+          "actual_losses": 1,
+          "points_for": 23.0,
+          "points_against": 33.0,
+          "vegas_win_total": 8.5,
+          "actual_win_pct": 0.25,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.2983,
+          "pythagorean_wins_tracked": 1.19,
+          "pythagorean_wins_17_game_pace": 5.07,
+          "actual_vs_pythagorean": -0.19,
+          "pythagorean_pace_vs_vegas": -3.43,
+          "actual_pace_vs_vegas": -4.25,
+          "expectation_band": "in_line"
+        },
+        "games_tracked_min": 4,
+        "pythagorean_wins_delta": 7.76,
+        "vegas_win_total_delta": 1.0,
+        "pythagorean_vs_vegas_delta": 6.76,
+        "actual_vs_pythagorean_delta": -0.83,
+        "pythagorean_side": "AWAY",
+        "market_expectation_side": "AWAY",
+        "value_gap_side": "AWAY",
+        "overperformance_side": "HOME",
+        "sample_warning": false
+      },
+      "source_health_status": "DEGRADED",
+      "data_quality_status": "DEGRADED",
+      "result": {
+        "away_score": 0,
+        "home_score": 0,
+        "final_margin": 0,
+        "final_total": 0
+      },
+      "explanation": null
+    }
+  ],
   "survivor": {
     "available": true,
     "week": 3,
@@ -542,6 +877,6 @@
       "checks_passed": 14,
       "next_live_command": "python3 builders/build_week_master_table.py --season 2026 --week 1 --season-type PRE"
     },
-    "card_available": false
+    "card_available": true
   }
 }

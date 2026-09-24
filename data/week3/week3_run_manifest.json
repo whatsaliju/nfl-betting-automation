@@ -1,0 +1,182 @@
+{
+  "week": 3,
+  "season_type": "REG",
+  "model_version": "2026.1",
+  "generated_at": "2026-09-24T16:57:52.961031+00:00",
+  "analysis_reference_time": "2026-09-24T16:57:52.961044+00:00",
+  "analysis_target_date": "",
+  "output_dir": "data/week3",
+  "game_count": 16,
+  "play_count": 1,
+  "pass_count": 15,
+  "data_quality": {
+    "status": "DEGRADED",
+    "target_date": "",
+    "sources": {
+      "queries": {
+        "name": "queries",
+        "path": "data/week3/week3_queries.csv",
+        "rows": 16,
+        "status": "OK",
+        "warnings": [],
+        "critical_warnings": [],
+        "file_week": 3
+      },
+      "referee_trends": {
+        "name": "referee_trends",
+        "path": "data/historical/sdql_results.csv",
+        "rows": 16,
+        "status": "OK",
+        "warnings": [],
+        "critical_warnings": []
+      },
+      "action_markets": {
+        "name": "action_markets",
+        "path": "data/action_all_markets_2026-09-24_.csv",
+        "rows": 48,
+        "status": "OK",
+        "warnings": [],
+        "critical_warnings": [],
+        "filename_date": "2026-09-24",
+        "fetched_date": "2026-09-24"
+      },
+      "action_injuries": {
+        "name": "action_injuries",
+        "path": "data/action_injuries_2026-09-24_.csv",
+        "rows": 58,
+        "status": "OK",
+        "warnings": [],
+        "critical_warnings": [],
+        "filename_date": "2026-09-24"
+      },
+      "action_weather": {
+        "name": "action_weather",
+        "path": "data/action_weather_2026-09-24_.csv",
+        "rows": 16,
+        "status": "OK",
+        "warnings": [],
+        "critical_warnings": [],
+        "filename_date": "2026-09-24"
+      },
+      "rotowire": {
+        "name": "rotowire",
+        "path": "",
+        "rows": 0,
+        "status": "DEGRADED",
+        "warnings": [
+          "missing file path"
+        ],
+        "critical_warnings": []
+      }
+    },
+    "warnings": [
+      "rotowire: missing file path"
+    ],
+    "critical_warnings": [],
+    "degraded_sources": [
+      "rotowire"
+    ],
+    "unsafe_sources": []
+  },
+  "input_files": {
+    "queries": {
+      "path": "data/week3/week3_queries.csv",
+      "exists": true,
+      "size_bytes": 1978,
+      "modified_at": "2026-09-24T16:57:44.291427+00:00",
+      "sha256": "5051edc16e75f74bb0cbd0778f0cbe65699ab38d45f6c4c208037bfccd8f2477"
+    },
+    "referee_trends": {
+      "path": "data/historical/sdql_results.csv",
+      "exists": true,
+      "size_bytes": 2542,
+      "modified_at": "2026-09-24T16:57:44.271764+00:00",
+      "sha256": "bca8c38fa00d24d628078e381c5c59a79cff1bf7201fc3542591f966bab7884e"
+    },
+    "action_markets": {
+      "path": "data/action_all_markets_2026-09-24_.csv",
+      "exists": true,
+      "size_bytes": 5636,
+      "modified_at": "2026-09-24T16:57:44.252764+00:00",
+      "sha256": "61567d310cb3322431b073d720ea2ffcc42a95a776862b6be68843693411726a"
+    },
+    "action_injuries": {
+      "path": "data/action_injuries_2026-09-24_.csv",
+      "exists": true,
+      "size_bytes": 4951,
+      "modified_at": "2026-09-24T16:57:44.254764+00:00",
+      "sha256": "9f189a0576f6f05701028fcdfd50d2be4110b3ab205cea02ceb2171ee1d1b4ec"
+    },
+    "action_weather": {
+      "path": "data/action_weather_2026-09-24_.csv",
+      "exists": true,
+      "size_bytes": 1029,
+      "modified_at": "2026-09-24T16:57:44.256763+00:00",
+      "sha256": "51285cc339f1241af10efa582a7161ba829cdee20f381079d78d5c9761a9647a"
+    },
+    "rotowire": {
+      "path": "",
+      "exists": false,
+      "size_bytes": null,
+      "modified_at": "",
+      "sha256": ""
+    },
+    "model_config": {
+      "path": "config/model_config.json",
+      "exists": true,
+      "size_bytes": 1571,
+      "modified_at": "2026-09-24T16:57:44.251147+00:00",
+      "sha256": "ca4ff25881d28c5409fb663811565d69a8b387753762b63c54e9dd27f0585f78"
+    }
+  },
+  "config": {
+    "factor_weights": {
+      "sharp_consensus_score": 1.5,
+      "referee_ou_score": 0.7,
+      "weather_score": 0.5,
+      "injury_score": 1.2,
+      "situational_score": 1.0,
+      "statistical_score": 1.8,
+      "game_theory_score": 0.0,
+      "schedule_score": 0.8,
+      "referee_ats_score": 0.7
+    },
+    "selector": {
+      "spread_threshold_strong_signal": 3,
+      "spread_threshold_default": 4,
+      "total_threshold": 4,
+      "targeted_score": 4,
+      "strong_score": 6,
+      "require_sharp_spread_edge": true,
+      "block_spread_on_team_rating_conflict": true,
+      "injury_spread_mode": "context",
+      "model_confidence_override_threshold": 10,
+      "injury_context_threshold_bump": 1
+    },
+    "source_quality": {
+      "max_age_days": 4,
+      "critical_sources": [
+        "queries",
+        "action_markets",
+        "referee_trends"
+      ],
+      "supporting_sources": [
+        "action_injuries",
+        "action_weather",
+        "rotowire"
+      ],
+      "strict_sources": false,
+      "block_picks_on_unsafe": true
+    }
+  },
+  "environment": {
+    "NFL_SEASON": "2026",
+    "NFL_SEASON_TYPE": "REG",
+    "NFL_MODEL_CONFIG": "config/model_config.json",
+    "ACTION_MARKETS_FILE": "data/action_all_markets_2026-09-24_.csv",
+    "ACTION_INJURIES_FILE": "data/action_injuries_2026-09-24_.csv",
+    "ACTION_WEATHER_FILE": "data/action_weather_2026-09-24_.csv",
+    "ROTOWIRE_FILE": "",
+    "REFEREE_TRENDS_FILE": "data/historical/sdql_results.csv"
+  }
+}
