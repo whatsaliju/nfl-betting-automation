@@ -2,9 +2,11 @@ name: 3. Market Update (with Line-Flip Detection)
 
 on:
   schedule:
-    # Wednesday 2:00 PM UTC (Wed 10am ET) - opening: first look at the week's lines
-    - cron: '0 14 * 8-12,1-2 3'
-    # Wednesday 8:00 PM UTC (Wed 4pm ET) - opening backup: retry if 10am cron was missed by GitHub
+    # Tuesday 8:00 PM UTC (Tue 4pm ET) - early seed: Odds API has next week's lines by Tue afternoon
+    - cron: '0 20 * 8-12,1-2 2'
+    # Wednesday 1:00 PM UTC (Wed 9am ET) - opening: aligned with Wf1 ref collection start
+    - cron: '0 13 * 8-12,1-2 3'
+    # Wednesday 8:00 PM UTC (Wed 4pm ET) - backup: retry if 9am cron missed by GitHub
     - cron: '0 20 * 8-12,1-2 3'
     # Thursday 6:00 PM UTC (Thu 2pm ET) - pre_tnf: snapshot before TNF kickoff (~8:20pm ET)
     - cron: '0 18 * 8-12,1-2 4'
