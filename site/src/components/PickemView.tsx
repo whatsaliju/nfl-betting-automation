@@ -82,6 +82,13 @@ function classTag(cls: string | null): string {
   return "pass";
 }
 
+// Parse a spread/total that may be a number or a numeric string from the overlay JSON
+function toNum(v: number | string | "" | null | undefined): number | null {
+  if (v === null || v === undefined || v === "") return null;
+  const n = typeof v === "number" ? v : parseFloat(String(v));
+  return isNaN(n) ? null : n;
+}
+
 function parseGame(
   g: { away_tla: string; home_tla: string; matchup_key: string; latest: Record<string, unknown>; away_score?: number | null; home_score?: number | null },
   warps: WarpsMarketOverlay | undefined,
@@ -102,10 +109,11 @@ function parseGame(
   const spreadParts = spreadLine.split("|");
   let awaySpread = parseSpreadVal(spreadParts[0] ?? "");
   let homeSpread = parseSpreadVal(spreadParts[1] ?? "");
-  // When engine stage data isn't available yet, fall back to WARPS overlay market spreads
+  // When engine stage data isn't available yet, fall back to WARPS overlay market spreads.
+  // Overlay values may be numeric strings ("4.5") rather than numbers, so use toNum().
   if (awaySpread === null && homeSpread === null && warps) {
-    awaySpread = typeof warps.market_away_spread === "number" ? warps.market_away_spread : null;
-    homeSpread = typeof warps.market_home_spread === "number" ? warps.market_home_spread : null;
+    awaySpread = toNum(warps.market_away_spread);
+    homeSpread = toNum(warps.market_home_spread);
   }
 
   const totalParts = totalLine.split("|");
@@ -113,7 +121,11 @@ function parseGame(
   const underMatch = (totalParts[1] ?? "").match(/[ou](\d+(?:\.\d+)?)/i);
   const over = overMatch ? parseFloat(overMatch[1]) : null;
   const under = underMatch ? parseFloat(underMatch[1]) : null;
-  const ou = over !== null && under !== null ? (over + under) / 2 : (over ?? under);
+  let ou = over !== null && under !== null ? (over + under) / 2 : (over ?? under);
+  // Fall back to overlay market total when engine stage data has no O/U yet
+  if (ou === null && warps) {
+    ou = toNum(warps.market_total);
+  }
 
   let favTla: string | null = null;
   let dogTla: string | null = null;
@@ -266,21 +278,33 @@ export function PickemView({
       <div className="pickem-tiebreakers">
         <div className="pickem-tb most">
           <span className="tb-label">Most Points</span>
-          <div className="tb-pick">
-            {mostPoints?.tla && <img src={teamLogos[mostPoints.tla]} alt={mostPoints.tla} className="tb-logo" />}
-            <strong className="tb-team">{mostPoints?.tla ?? "—"}</strong>
-          </div>
-          <span className="tb-implied">{mostPoints ? `${mostPoints.isActual ? Math.round(mostPoints.implied) : mostPoints.implied.toFixed(1)} pts ${mostPoints.isActual ? "scored" : "implied"}` : ""}</span>
-          <span className="tb-matchup">{mostPoints?.gameKey ?? ""}</span>
+          {mostPoints ? (
+            <>
+              <div className="tb-pick">
+                {mostPoints.tla && <img src={teamLogos[mostPoints.tla]} alt={mostPoints.tla} className="tb-logo" />}
+                <strong className="tb-team">{mostPoints.tla}</strong>
+              </div>
+              <span className="tb-implied">{mostPoints.isActual ? Math.round(mostPoints.implied) : mostPoints.implied.toFixed(1)} pts {mostPoints.isActual ? "scored" : "implied"}</span>
+              <span className="tb-matchup">{mostPoints.gameKey}</span>
+            </>
+          ) : (
+            <span className="tb-unavailable">Totals pending</span>
+          )}
         </div>
         <div className="pickem-tb fewest">
           <span className="tb-label">Fewest Points</span>
-          <div className="tb-pick">
-            {fewestPoints?.tla && <img src={teamLogos[fewestPoints.tla]} alt={fewestPoints.tla} className="tb-logo" />}
-            <strong className="tb-team">{fewestPoints?.tla ?? "—"}</strong>
-          </div>
-          <span className="tb-implied">{fewestPoints ? `${fewestPoints.isActual ? Math.round(fewestPoints.implied) : fewestPoints.implied.toFixed(1)} pts ${fewestPoints.isActual ? "scored" : "implied"}` : ""}</span>
-          <span className="tb-matchup">{fewestPoints?.gameKey ?? ""}</span>
+          {fewestPoints ? (
+            <>
+              <div className="tb-pick">
+                {fewestPoints.tla && <img src={teamLogos[fewestPoints.tla]} alt={fewestPoints.tla} className="tb-logo" />}
+                <strong className="tb-team">{fewestPoints.tla}</strong>
+              </div>
+              <span className="tb-implied">{fewestPoints.isActual ? Math.round(fewestPoints.implied) : fewestPoints.implied.toFixed(1)} pts {fewestPoints.isActual ? "scored" : "implied"}</span>
+              <span className="tb-matchup">{fewestPoints.gameKey}</span>
+            </>
+          ) : (
+            <span className="tb-unavailable">Totals pending</span>
+          )}
         </div>
       </div>
 
