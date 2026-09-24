@@ -102,8 +102,8 @@ jobs:
           [ -z "$TYPE" ] && TYPE="final"
 
           case "$TYPE" in
-            "opening")
-              STAGE="opening"
+            "opening"|"initial")
+              STAGE="initial"
               PREFIX="📋 Opening"
               ;;
             "pre_tnf")
@@ -121,10 +121,6 @@ jobs:
             "lock")
               STAGE="lock"
               PREFIX="🔒 Locked Picks"
-              ;;
-            "initial")
-              STAGE="opening"
-              PREFIX="📋 Opening"
               ;;
             *)
               STAGE="final"
@@ -255,10 +251,10 @@ jobs:
           EOF
 
       - name: Send Enhanced Professional Email
-        # Only send for the opening stage — Workflow 5 handles update/final/pre_mnf
+        # Only send for the initial stage — Workflow 5 handles update/final/pre_mnf
         # to avoid duplicate emails (nfl_reporter.py reads raw analytics while
         # send_betting_card_email.py reads the freshly-built engine feed)
-        if: steps.info.outputs.stage == 'opening'
+        if: steps.info.outputs.stage == 'initial'
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
