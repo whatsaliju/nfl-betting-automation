@@ -16,6 +16,8 @@ on:
         required: false
         default: 'auto'
         type: string
+  repository_dispatch:
+    types: [referee-collection-manual]
 
 jobs:
   collect_referee_data:
@@ -48,7 +50,7 @@ jobs:
       - name: Get Week Number
         id: get_week
         run: |
-          SEASON="${{ github.event.inputs.season }}"
+          SEASON="${{ github.event.inputs.season || github.event.client_payload.season }}"
           [ "$SEASON" = "auto" ] && SEASON=""
           [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
           [ -z "$SEASON" ] && SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
@@ -57,8 +59,9 @@ jobs:
           [ -z "$START_DATE" ] && START_DATE="${SEASON}-09-10"
           PRE_START_DATE="${{ vars.NFL_PRESEASON_START_DATE }}"
           [ -z "$PRE_START_DATE" ] && PRE_START_DATE="${SEASON}-08-07"
-          if [ -n "${{ github.event.inputs.week }}" ]; then
-            WEEK="${{ github.event.inputs.week }}"
+          MANUAL_WEEK="${{ github.event.inputs.week || github.event.client_payload.week }}"
+          if [ -n "$MANUAL_WEEK" ]; then
+            WEEK="$MANUAL_WEEK"
           else
             # Date-based formula: Wednesday prep targets the UPCOMING week, not the completed one.
             # ESPN lags — it reports the most recently played week until TNF kicks off Thursday.
