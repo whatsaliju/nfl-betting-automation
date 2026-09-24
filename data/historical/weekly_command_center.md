@@ -17,12 +17,17 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 1
-- Passes: 15
+- Watch: 8
+- Passes: 8
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | CIN@PIT | watch | spread | AWAY | 4.0 |
+| ARI@SF | watch | n/a | n/a | 3.0 |
+| NYJ@DET | watch | n/a | n/a | 3.0 |
+| SEA@WAS | watch | n/a | n/a | 3.0 |
+| BAL@DAL | watch | n/a | n/a | 1.0 |
+| ATL@GB | watch | n/a | n/a | n/a |
 
 ## Survivor
 
