@@ -1,0 +1,140 @@
+name: 1b. Referee Collection (Manual Dispatch)
+
+# This workflow exists because Wf1's workflow registry is corrupted after
+# 150+ phantom push-triggered failures. repository_dispatch events sent to
+# 1_referee_collection.yml are accepted (HTTP 204) but never create a run.
+# This fresh file has a clean registry and responds immediately.
+#
+# Trigger with:
+#   POST /repos/whatsaliju/nfl-betting-automation/dispatches
+#   {"event_type":"referee-collection-manual","client_payload":{"week":"3","season":"2026"}}
+
+on:
+  repository_dispatch:
+    types: [referee-collection-manual]
+
+jobs:
+  collect_referee_data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          pip install pandas requests beautifulsoup4 lxml
+
+      - name: Get Week Number
+        id: get_week
+        run: |
+          SEASON="${{ github.event.client_payload.season }}"
+          [ -z "$SEASON" ] && SEASON="${{ vars.NFL_SEASON }}"
+          [ -z "$SEASON" ] && SEASON=$(python3 -c "import json; print(json.load(open('data/current_week.json')).get('season',''))" 2>/dev/null || echo "")
+          [ -z "$SEASON" ] && SEASON=$(python3 -c "import datetime; t=datetime.date.today(); print(t.year if t.month>=9 else t.year-1)")
+          START_DATE="${{ vars.NFL_SEASON_START_DATE }}"
+          [ -z "$START_DATE" ] && START_DATE="${SEASON}-09-10"
+          MANUAL_WEEK="${{ github.event.client_payload.week }}"
+          if [ -n "$MANUAL_WEEK" ]; then
+            WEEK="$MANUAL_WEEK"
+          else
+            WEEK=$(python3 -c "
+          from datetime import datetime
+          s = datetime.strptime('$START_DATE', '%Y-%m-%d')
+          d = (datetime.now() - s).days
+          raw = d // 7 + 1 + (1 if datetime.now().weekday() >= 1 else 0)
+          playoff_map = {19: 'WC', 20: 'DIV', 21: 'CONF'}
+          print(playoff_map.get(raw, 'SB') if raw > 18 else max(1, min(raw, 18)))
+          ")
+          fi
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "season=$SEASON" >> $GITHUB_OUTPUT
+          echo "📅 NFL Week: $WEEK"
+          echo "🏈 NFL Season: $SEASON"
+
+      - name: Normalize week input
+        id: clean_week
+        run: |
+          WEEK="${{ steps.get_week.outputs.week }}"
+          WEEK="${WEEK%.*}"
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+
+      - name: Ensure week directory exists
+        run: |
+          mkdir -p data/week${{ steps.clean_week.outputs.week }}
+
+      - name: Scrape Referee Assignments
+        run: |
+          echo "🏈 Scraping Week ${{ steps.clean_week.outputs.week }} referee assignments..."
+          python3 << PYTHON_EOF
+          import sys
+          sys.path.append('scrapers')
+          from football_zebras_scraper import save_referees
+          week_str = "${{ steps.clean_week.outputs.week }}"
+          week = int(week_str) if week_str.isdigit() else week_str
+          year = int("${{ steps.get_week.outputs.season }}")
+          df = save_referees(week, year=year)
+          if df is None or len(df) == 0:
+              print(f"⚠️ No referee assignments found for week {week}")
+              exit(0)
+          print(f"✅ Got {len(df)} games")
+          PYTHON_EOF
+
+      - name: Generate Referee Context Queries (using Odds API)
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          echo "🔍 Generating referee context queries using Odds API..."
+          python3 analyzers/query_generator.py ${{ steps.clean_week.outputs.week }}
+
+      - name: Build Referee Trends from nflverse
+        run: |
+          echo "📈 Building referee trends from public nflverse schedules..."
+          python3 analyzers/nflverse_referee_trends.py ${{ steps.clean_week.outputs.week }}
+
+      - name: Generate Referee Trends Digest
+        run: |
+          echo "📋 Generating referee trends digest..."
+          python3 << PYTHON_EOF
+          import sys
+          sys.path.append('analyzers')
+          from referee_trend_generator import generate_referee_digest
+          week_str = "${{ steps.clean_week.outputs.week }}"
+          generate_referee_digest(int(week_str) if week_str.isdigit() else week_str)
+          PYTHON_EOF
+
+      - name: Commit Referee Data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git add data/week${{ steps.clean_week.outputs.week }}/ \
+                  data/historical/sdql_results.csv || true
+          git commit -m "🏈 Week ${{ steps.clean_week.outputs.week }} referee data collection" || echo "No changes"
+          git push
+
+      - name: Trigger Initial Market Data Workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: referee-data-ready
+          client-payload: '{"week": "${{ steps.clean_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}"}'
+
+      - name: Summary
+        run: |
+          echo "✅ Referee data collection complete for Week ${{ steps.clean_week.outputs.week }}"
+          echo "📁 Files created:"
+          ls -lh data/week${{ steps.clean_week.outputs.week }}/*.csv data/week${{ steps.clean_week.outputs.week }}/*.txt data/historical/sdql_results.csv 2>/dev/null || true
