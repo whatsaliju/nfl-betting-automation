@@ -2711,6 +2711,8 @@ class RecommendationSelector:
             signal = pick_metadata.get('signal_classification') or ''
             if '🔵' in signal or '🎯' in signal:
                 return "🎯 WATCH", "STRONG SIGNAL — NO MARKET", 6
+            if '📊' in signal:
+                return "📊 WATCH", "LEAN SIGNAL — NO MARKET", 5
             return "⚠️ PASS", "PASS", 3
 
         score = pick_metadata.get('score', 0)
