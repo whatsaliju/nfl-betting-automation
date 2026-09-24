@@ -9,8 +9,8 @@
 |---:|---|---|---:|---:|---|---|
 | 1 | JAX | CLE@JAX | 68.9% | 63.6 | secondary | WARPS win probability 68.9%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 2 | LAC | LV@LAC | 67.3% | 56.9 | deep_pool | WARPS win probability 67.3%; ⚠️ Adverse line movement: -6.0pt score penalty; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Division game raises upset volatility |
-| 3 | SF | ARI@SF | 74.4% | 66.5 | primary | WARPS 66.5% blended with market 78.7% → 74.4%; Home-field survivor spot; Division game raises upset volatility; Save risk: 1 future elite spot(s) |
-| 4 | MIN | MIA@MIN | 77.5% | 75.1 | primary | WARPS 64.1% blended with market 84.7% → 77.5%; Home-field survivor spot |
+| 3 | SF | ARI@SF | 74.4% | 66.5 | primary | WARPS 66.5% blended with market 78.7% → 74.4%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Division game raises upset volatility; Save risk: 1 future elite spot(s) |
+| 4 | BAL | TEN@BAL | 77.4% | 75.0 | primary | WARPS 68.4% blended with market 82.2% → 77.4%; Home-field survivor spot |
 | 5 | NE | LV@NE | 72.3% | 66.0 | primary | WARPS win probability 72.3%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 6 | NE | NYJ@NE | 73.2% | 67.8 | primary | WARPS win probability 73.2%; Home-field survivor spot; Division game raises upset volatility |
 | 7 | HOU | NYG@HOU | 67.5% | 62.9 | secondary | WARPS win probability 67.5%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
@@ -38,10 +38,10 @@
 | 2 | 500 | top_heavy | LAC (67.3%) | LAR (74.7) | SF (14.1% public) |
 | 3 | 25 | top_heavy | SF (74.4%) | SF (66.4) | SF (16.3% public) |
 | 3 | 100 | top_heavy | SF (74.4%) | SF (68.8) | SF (17.8% public) |
-| 3 | 500 | top_heavy | SF (74.4%) | SF (82.5) | DET (17.4% public) |
-| 4 | 25 | top_heavy | MIN (77.5%) | MIN (73.7) | MIN (15.1% public) |
-| 4 | 100 | top_heavy | MIN (77.5%) | MIN (75.6) | BAL (20.6% public) |
-| 4 | 500 | top_heavy | MIN (77.5%) | BAL (89.5) | BAL (20.6% public) |
+| 3 | 500 | top_heavy | SF (74.4%) | SF (82.5) | SF (17.8% public) |
+| 4 | 25 | top_heavy | BAL (77.4%) | MIN (73.2) | BAL (19.1% public) |
+| 4 | 100 | top_heavy | BAL (77.4%) | BAL (75.5) | BAL (20.6% public) |
+| 4 | 500 | top_heavy | BAL (77.4%) | BAL (89.5) | BAL (20.6% public) |
 | 5 | 25 | top_heavy | NE (72.3%) | NE (66.1) | NE (13.9% public) |
 | 5 | 100 | top_heavy | NE (72.3%) | NE (68.3) | NE (15.4% public) |
 | 5 | 500 | top_heavy | NE (72.3%) | NE (81.2) | NE (15.4% public) |
