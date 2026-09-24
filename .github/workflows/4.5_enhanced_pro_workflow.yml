@@ -315,6 +315,8 @@ jobs:
         env:
           PYTHONPATH: .
         run: |
+          # Refresh game kickoff times from latest Odds API snapshot in repo
+          python3 scripts/extract_game_times.py || true
           python3 builders/build_matrix_engine_feed.py
           python3 scripts/build_weekly_betting_card.py
           # Second pass: embed the fresh betting card into the engine feed.
