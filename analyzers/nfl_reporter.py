@@ -313,7 +313,7 @@ def generate_report():
     msg['From'] = gmail_user
     msg['To'] = "lvarughese@gmail.com"
 
-    stage_label = {'initial': 'Initial Look', 'update': 'Midweek Update', 'lock': 'Lines Locked', 'final': ''}.get(stage, stage.title())
+    stage_label = {'initial': 'Initial Look', 'pre_tnf': 'Pre-TNF Snapshot', 'update': 'Midweek Update', 'lock': 'Lines Locked', 'pre_mnf': 'Pre-MNF Snapshot', 'final': ''}.get(stage, stage.title())
     stage_context = f"<p style='text-align:center; color:#e67e22; font-weight:bold; font-size:13px;'>{stage_label}</p>" if stage_label else ""
 
     full_html = f"""
