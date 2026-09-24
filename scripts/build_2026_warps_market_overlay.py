@@ -120,6 +120,7 @@ def build_overlay(priors: list[dict], current_odds: dict[str, dict]) -> list[dic
         away_spread = parse_float(odds.get("away_spread_line"))
         home_ml = parse_float(odds.get("home_moneyline"))
         away_ml = parse_float(odds.get("away_moneyline"))
+        total_line = parse_float(odds.get("total_line"))
 
         fair_home_spread = parse_float(row.get("fair_home_spread"))
         fair_away_spread = parse_float(row.get("fair_away_spread"))
@@ -183,6 +184,7 @@ def build_overlay(priors: list[dict], current_odds: dict[str, dict]) -> list[dic
             "market_away_spread": value(away_spread, 2),
             "market_home_moneyline": value(home_ml, 0),
             "market_away_moneyline": value(away_ml, 0),
+            "market_total": value(total_line, 1),
             "home_spread_edge": value(home_spread_edge, 3),
             "away_spread_edge": value(away_spread_edge, 3),
             "spread_overlay_side": spread_side,
