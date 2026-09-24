@@ -24,8 +24,8 @@
 | W2 MIN@CHI | pass | pass |  |  | none | No isolated selector edge |
 | W2 NO@BAL | pass | pass |  |  | none | No isolated selector edge |
 | W3 ARI@SF | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +56.0% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| W3 NYJ@DET | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: HOME +1.3% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| W3 SEA@WAS | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: HOME +50.8% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W3 NYJ@DET | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: HOME +2.6% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| W3 SEA@WAS | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: HOME +57.0% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | No isolated selector edge |
 | W1 DEN@KC | lean | watch |  |  | watch | Signals: sharp |

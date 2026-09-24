@@ -32,14 +32,14 @@
 ## Survivor
 
 - Primary: SF vs ARI (74.4%)
-- Safest: KC vs MIA (74.9%)
-- Path pick: KC vs MIA (74.9%)
+- Safest: SF vs ARI (74.4%)
+- Path pick: SF vs ARI (74.4%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
 | 25 | SF vs ARI (74.4%) | SF vs ARI (74.4%) | SF vs ARI (74.4%) |
 | 100 | SF vs ARI (74.4%) | SF vs ARI (74.4%) | SF vs ARI (74.4%) |
-| 500 | SF vs ARI (74.4%) | SF vs ARI (74.4%) | DET vs NYJ (73.0%) |
+| 500 | SF vs ARI (74.4%) | SF vs ARI (74.4%) | SF vs ARI (74.4%) |
 
 ## WARPS Watch
 
