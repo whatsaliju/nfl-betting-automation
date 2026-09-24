@@ -2708,6 +2708,9 @@ class RecommendationSelector:
             reason = pick_metadata.get('reason', '')
             if 'fade' in reason:
                 return "❌ FADE", "AVOID", 2
+            signal = pick_metadata.get('signal_classification') or ''
+            if '🔵' in signal or '🎯' in signal:
+                return "🎯 WATCH", "STRONG SIGNAL — NO MARKET", 6
             return "⚠️ PASS", "PASS", 3
 
         score = pick_metadata.get('score', 0)
@@ -2718,7 +2721,7 @@ class RecommendationSelector:
         return "📊 LEAN", "SLIGHT EDGE", 5
 
     @staticmethod
-    def pass_metadata(reason, spread_trace=None, total_trace=None, final_reason=None):
+    def pass_metadata(reason, spread_trace=None, total_trace=None, final_reason=None, signal_classification=None):
         trace = {
             "selector_version": MODEL_VERSION,
             "market_candidates": {
@@ -2736,6 +2739,7 @@ class RecommendationSelector:
             'reason': reason,
             'spread_score': (spread_trace or {}).get('score'),
             'total_score': (total_trace or {}).get('score'),
+            'signal_classification': signal_classification,
             'trace': trace,
         }
 
@@ -3216,6 +3220,7 @@ class RecommendationSelector:
                 "no market cleared threshold",
                 spread_trace,
                 total_trace,
+                signal_classification=classification,
             )
 
         if total_score >= total_threshold and total_score > spread_score and total_side in {'OVER', 'UNDER'}:
@@ -3247,6 +3252,7 @@ class RecommendationSelector:
             "no formatted candidate",
             spread_trace,
             total_trace,
+            signal_classification=classification,
         )
 
 def canonical(team_raw: str) -> str:
