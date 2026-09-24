@@ -229,6 +229,12 @@ def normalize_action_csv(rows: list[dict], source: str) -> list[dict]:
                 if len(odds) >= 2:
                     item["away_moneyline"] = float(odds[0])
                     item["home_moneyline"] = float(odds[1])
+        elif "total" in market or market in {"ou", "over/under"}:
+            # Format: "o43.5 (+108) | u42.5 (+106)" — extract both points and average
+            points = re.findall(r"[ou](\d+\.?\d*)", line, re.IGNORECASE)
+            if points:
+                nums = [float(p) for p in points]
+                item["total_line"] = round(sum(nums) / len(nums), 1)
     return list(games.values())
 
 
