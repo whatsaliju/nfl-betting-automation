@@ -113,9 +113,10 @@ def validate_model_config(path, failures):
 
 def validate_replay_stage_times(failures):
     # 2025 regular season — Week 11 (Sun 2025-11-16)
+    # initial = Wed Nov 12 9am ET = 13:00 UTC; update = Sat Nov 15 9pm ET = Sun 01:00 UTC
     expected_2025 = {
-        "initial": "2025-11-13T12:00:00+00:00",
-        "update": "2025-11-15T12:00:00+00:00",
+        "initial": "2025-11-12T13:00:00+00:00",
+        "update": "2025-11-15T01:00:00+00:00",
         "lock": "2025-11-15T16:00:00+00:00",
         "final": "2025-11-16T00:00:00+00:00",
     }
