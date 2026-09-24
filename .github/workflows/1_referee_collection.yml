@@ -19,8 +19,11 @@ on:
 
 jobs:
   collect_referee_data:
+    # GitHub creates phantom push runs whenever any workflow YAML is modified.
+    # Explicitly skip them so the run shows as skipped (neutral) not failed.
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
