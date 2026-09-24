@@ -100,8 +100,13 @@ function parseGame(
   const totalLine = lat.sharp_total_line ?? "";
 
   const spreadParts = spreadLine.split("|");
-  const awaySpread = parseSpreadVal(spreadParts[0] ?? "");
-  const homeSpread = parseSpreadVal(spreadParts[1] ?? "");
+  let awaySpread = parseSpreadVal(spreadParts[0] ?? "");
+  let homeSpread = parseSpreadVal(spreadParts[1] ?? "");
+  // When engine stage data isn't available yet, fall back to WARPS overlay market spreads
+  if (awaySpread === null && homeSpread === null && warps) {
+    awaySpread = typeof warps.market_away_spread === "number" ? warps.market_away_spread : null;
+    homeSpread = typeof warps.market_home_spread === "number" ? warps.market_home_spread : null;
+  }
 
   const totalParts = totalLine.split("|");
   const overMatch = (totalParts[0] ?? "").match(/[ou](\d+(?:\.\d+)?)/i);
@@ -184,8 +189,7 @@ export function PickemView({
     (g) =>
       g.season === ctx.season &&
       g.season_type === ctx.season_type &&
-      String(g.week) === String(ctx.week) &&
-      g.latest?.available
+      String(g.week) === String(ctx.week)
   );
 
   if (weekGames.length === 0) {

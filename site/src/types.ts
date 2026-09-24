@@ -82,6 +82,7 @@ export interface WarpsMarketOverlay {
   market_away_spread: number | "";
   market_home_moneyline: number | "";
   market_away_moneyline: number | "";
+  market_total: number | "";
   home_spread_edge: number | "";
   away_spread_edge: number | "";
   spread_overlay_side: "HOME" | "AWAY" | "";
