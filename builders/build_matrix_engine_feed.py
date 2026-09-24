@@ -62,7 +62,7 @@ SURVIVOR_BACKTEST_REPORT = HISTORICAL_DIR / "survivor_backtest_report.json"
 SURVIVOR_POOL_EV_BACKTEST = HISTORICAL_DIR / "survivor_pool_ev_backtest.json"
 SURVIVOR_RECOMMENDATIONS = HISTORICAL_DIR / f"survivor_recommendations_{ACTIVE_SEASON}.json"
 WARPS_MARKET_OVERLAY = HISTORICAL_DIR / f"warps_{ACTIVE_SEASON}_market_overlay.csv"
-STAGES = ("initial", "update", "lock", "final")
+STAGES = ("initial", "pre_tnf", "update", "lock", "pre_mnf", "final")
 PYTHAGOREAN_EXPONENT = 2.37
 
 

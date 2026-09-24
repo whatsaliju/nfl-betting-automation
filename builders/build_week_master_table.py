@@ -89,7 +89,7 @@ def espn_params_for(season: int, week, season_type: str = None):
     }
 
 
-STAGES = ["initial", "update", "lock", "final"]
+STAGES = ["initial", "pre_tnf", "update", "lock", "pre_mnf", "final"]
 
 def normalize_snapshot_keys(snapshot: dict) -> dict:
     normalized = {}
