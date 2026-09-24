@@ -204,9 +204,9 @@ jobs:
               # cron: '0 1 * * 0'   # Sunday 1:00 AM UTC (Sat 8:00 PM ET)  
               # cron: '30 16 * * 0' # Sunday 5:00 PM UTC (Sun 1:00 PM ET)
               
-              if day_utc == 2 and hour_utc == 14:    # Wednesday 2:00 PM UTC = Wed 10 AM ET
+              if day_utc == 2 and hour_utc in (13, 14, 20):  # Wednesday 9 AM, 10 AM, or 4 PM ET
                   analysis_type_output = "opening"
-                  print("📅 Detected: OPENING analysis (Wednesday 10 AM ET — first look of the week)")
+                  print("📅 Detected: OPENING analysis (Wednesday — first look of the week)")
               elif day_utc == 3 and hour_utc == 18:  # Thursday 6:00 PM UTC = Thu 2 PM ET
                   analysis_type_output = "pre_tnf"
                   print("📅 Detected: PRE-TNF analysis (Thursday 2 PM ET — before Thursday Night Football)")
