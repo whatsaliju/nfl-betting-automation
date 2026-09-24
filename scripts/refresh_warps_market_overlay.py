@@ -59,7 +59,7 @@ def main() -> None:
     parser.add_argument("--preferred-book", default=None)
     parser.add_argument("--api-key", default=os.environ.get("ODDS_API_KEY"))
     parser.add_argument("--regions", default="us")
-    parser.add_argument("--markets", default="spreads,h2h")
+    parser.add_argument("--markets", default="spreads,h2h,totals")
     parser.add_argument("--odds-format", default="american")
     parser.add_argument("--raw-output", type=Path, default=DEFAULT_RAW_ODDS)
     parser.add_argument("--normalized-output", type=Path, default=DEFAULT_NORMALIZED_ODDS)

@@ -2,13 +2,13 @@
 """Normalize current NFL spread/ML odds into the WARPS overlay input shape.
 
 Supported inputs:
-- The Odds API JSON response for markets=spreads,h2h
+- The Odds API JSON response for markets=spreads,h2h,totals
 - Action Network-style CSV with Matchup, Market, and Line columns
 - Already-normalized CSV keyed by matchup_key
 
 Output columns:
 matchup_key, away_team, home_team, away_spread_line, home_spread_line,
-away_moneyline, home_moneyline, source, source_book
+away_moneyline, home_moneyline, total_line, source, source_book
 """
 
 from __future__ import annotations
@@ -154,6 +154,7 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         "home_spread_line",
         "away_moneyline",
         "home_moneyline",
+        "total_line",
         "source",
         "source_book",
     ]
@@ -181,6 +182,7 @@ def normalize_ready_csv(rows: list[dict], source: str) -> list[dict]:
             "home_spread_line": parse_float(row.get("home_spread_line")),
             "away_moneyline": parse_float(row.get("away_moneyline")),
             "home_moneyline": parse_float(row.get("home_moneyline")),
+            "total_line": parse_float(row.get("total_line")),
             "source": source,
             "source_book": row.get("source_book") or row.get("bookmaker") or "",
         })
@@ -205,6 +207,7 @@ def normalize_action_csv(rows: list[dict], source: str) -> list[dict]:
             "home_spread_line": None,
             "away_moneyline": None,
             "home_moneyline": None,
+            "total_line": None,
             "source": source,
             "source_book": row.get("Book") or row.get("Sportsbook") or row.get("book") or "Action Network",
         })
@@ -258,6 +261,7 @@ def normalize_odds_api_json(path: Path, preferred_book: str | None) -> list[dict
             "home_spread_line": None,
             "away_moneyline": None,
             "home_moneyline": None,
+            "total_line": None,
             "source": str(path),
             "source_book": book.get("title") or book.get("key") if book else "",
         }
@@ -277,6 +281,11 @@ def normalize_odds_api_json(path: Path, preferred_book: str | None) -> list[dict
                         item["away_moneyline"] = parse_float(outcome.get("price"))
                     elif team == home:
                         item["home_moneyline"] = parse_float(outcome.get("price"))
+            elif market.get("key") == "totals":
+                for outcome in outcomes:
+                    if outcome.get("name") in ("Over", "Under"):
+                        item["total_line"] = parse_float(outcome.get("point"))
+                        break
         if item["away_spread_line"] is not None and item["home_spread_line"] is None:
             item["home_spread_line"] = -item["away_spread_line"]
         if item["home_spread_line"] is not None and item["away_spread_line"] is None:
@@ -316,6 +325,7 @@ def main() -> None:
         "rows": len(rows),
         "priced_spreads": sum(1 for row in rows if row["away_spread_line"] is not None),
         "priced_moneylines": sum(1 for row in rows if row["away_moneyline"] is not None),
+        "priced_totals": sum(1 for row in rows if row["total_line"] is not None),
     }, indent=2))
 
 
