@@ -265,9 +265,13 @@ def week_anchor_date(season, week, season_type=None):
 def target_date_for_stage(season, week, stage, season_type=None):
     sunday = week_anchor_date(season, week, season_type)
     if stage == "initial":
-        return sunday - timedelta(days=3)
+        return sunday - timedelta(days=4)   # Wednesday
+    if stage == "pre_tnf":
+        return sunday - timedelta(days=3)   # Thursday
     if stage in ("update", "lock"):
-        return sunday - timedelta(days=1)
+        return sunday - timedelta(days=1)   # Saturday
+    if stage == "pre_mnf":
+        return sunday                        # Sunday/Monday
     return sunday
 
 
@@ -275,9 +279,11 @@ def reference_time_for_stage(season, week, stage, season_type=None):
     """UTC cutoff used to simulate whether games have started yet."""
     target = target_date_for_stage(season, week, stage, season_type)
     cutoffs = {
-        "initial": time(12, 0),
-        "update": time(12, 0),
-        "lock": time(16, 0),
+        "initial": time(13, 0),   # Wed 9am ET
+        "pre_tnf": time(18, 0),   # Thu 2pm ET
+        "update": time(1, 0),     # Sat 9pm ET (Sun 1am UTC)
+        "lock": time(16, 0),      # Sun 12pm ET
+        "pre_mnf": time(22, 0),   # Mon 6pm ET
         "final": time(0, 0),
     }
     return datetime.combine(target, cutoffs.get(stage, time(0, 0)), tzinfo=timezone.utc)
