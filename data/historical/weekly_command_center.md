@@ -31,15 +31,15 @@
 
 ## Survivor
 
-- Primary: SF vs ARI (74.1%)
-- Safest: SF vs ARI (74.1%)
-- Path pick: SF vs ARI (74.1%)
+- Primary: DET vs NYJ (75.6%)
+- Safest: DET vs NYJ (75.6%)
+- Path pick: KC vs MIA (73.9%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | SF vs ARI (74.1%) | SF vs ARI (74.1%) | SF vs ARI (74.1%) |
-| 100 | SF vs ARI (74.1%) | SF vs ARI (74.1%) | SF vs ARI (74.1%) |
-| 500 | SF vs ARI (74.1%) | DET vs NYJ (73.0%) | DET vs NYJ (73.0%) |
+| 25 | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) |
+| 100 | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) |
+| 500 | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) |
 
 ## WARPS Watch
 
