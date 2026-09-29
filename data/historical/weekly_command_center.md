@@ -1,15 +1,15 @@
 # Weekly Command Center
 
 - Context: 2026 W4 · live
-- Recommended action: **NO BET - DATA INCOMPLETE**
-- Confidence tier: **X**
-- Reason: Live betting inputs are not published for this context.
+- Recommended action: **WATCH**
+- Confidence tier: **C**
+- Reason: No plays cleared, but watchlist spots exist.
 
 ## Source Gates
 
 | Gate | Status |
 |---|---|
-| live betting card | BLOCKED |
+| live betting card | PASS |
 | preseason dry run | PASS |
 | warps priors | PASS |
 | survivor recommendations | PASS |
@@ -17,8 +17,17 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 0
-- Passes: 0
+- Watch: 6
+- Passes: 10
+
+| Game | Action | Market | Side | Score |
+|---|---|---|---|---:|
+| DET@CAR | watch | spread | HOME | 5.0 |
+| NE@BUF | watch | spread | HOME | 5.0 |
+| ATL@NO | watch | total | OVER | 4.0 |
+| DAL@HOU | watch | spread | AWAY | 4.0 |
+| DEN@SF | watch | spread | HOME | 4.0 |
+| NYJ@CHI | watch | spread | HOME | 4.0 |
 
 ## Survivor
 
@@ -42,8 +51,3 @@
 | SEA | vs LAC | 66.6% | -199 |
 | MIN | vs MIA | 64.1% | -179 |
 | KC | @ LV | 59.2% | -145 |
-
-## Warnings
-
-- No live betting card is published for the current context.
-- No actionable betting plays or watchlist spots are active.
