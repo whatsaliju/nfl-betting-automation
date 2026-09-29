@@ -390,6 +390,37 @@ jobs:
               print("OK: All play/watch picks have line data")
           EOF
 
+      - name: Check game count
+        id: check_games
+        run: |
+          WEEK="${{ steps.info.outputs.week }}"
+          STAGE="${{ steps.info.outputs.stage }}"
+          GAMES=$(python3 - <<'PY'
+          import json, os, sys
+          week = os.environ.get("WEEK", "")
+          stage = os.environ.get("STAGE", "")
+          try:
+              with open(f"data/week{week}/metadata.json") as f:
+                  meta = json.load(f)
+              stages = meta.get("stages", [])
+              g = next((s["games"] for s in stages if s["stage"] == stage), 0)
+              print(g)
+          except Exception:
+              print(0)
+          PY
+          )
+          echo "games=$GAMES" >> $GITHUB_OUTPUT
+          if [ "${GAMES:-0}" -gt 0 ]; then
+            echo "has_games=true" >> $GITHUB_OUTPUT
+            echo "✅ $GAMES games analyzed — will notify downstream"
+          else
+            echo "has_games=false" >> $GITHUB_OUTPUT
+            echo "⚠️ 0 games in this analysis (no initial stage yet for Week $WEEK) — skipping email trigger"
+          fi
+        env:
+          WEEK: ${{ steps.info.outputs.week }}
+          STAGE: ${{ steps.info.outputs.stage }}
+
       - name: Commit Changes
         run: |
           git config user.name "github-actions[bot]"
@@ -405,6 +436,7 @@ jobs:
           git push
 
       - name: Notify downstream workflows
+        if: steps.check_games.outputs.has_games == 'true'
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
