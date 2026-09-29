@@ -1,15 +1,15 @@
 # Weekly Command Center
 
-- Context: 2026 W3 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Context: 2026 W4 · live
+- Recommended action: **NO BET - DATA INCOMPLETE**
+- Confidence tier: **X**
+- Reason: Live betting inputs are not published for this context.
 
 ## Source Gates
 
 | Gate | Status |
 |---|---|
-| live betting card | PASS |
+| live betting card | BLOCKED |
 | preseason dry run | PASS |
 | warps priors | PASS |
 | survivor recommendations | PASS |
@@ -17,37 +17,33 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 8
-- Passes: 8
-
-| Game | Action | Market | Side | Score |
-|---|---|---|---|---:|
-| CIN@PIT | watch | spread | AWAY | 4.0 |
-| ARI@SF | watch | n/a | n/a | 3.0 |
-| NYJ@DET | watch | n/a | n/a | 3.0 |
-| SEA@WAS | watch | n/a | n/a | 3.0 |
-| BAL@DAL | watch | n/a | n/a | 1.0 |
-| ATL@GB | watch | n/a | n/a | n/a |
+- Watch: 0
+- Passes: 0
 
 ## Survivor
 
-- Primary: DET vs NYJ (74.4%)
-- Safest: DET vs NYJ (74.4%)
-- Path pick: DET vs NYJ (74.4%)
+- Primary: BAL vs TEN (79.0%)
+- Safest: BAL vs TEN (79.0%)
+- Path pick: MIN vs MIA (77.5%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) |
-| 100 | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) |
-| 500 | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) |
+| 25 | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) |
+| 100 | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) |
+| 500 | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| DET | vs NYJ | 74.4% | -291 |
-| SF | vs ARI | 66.5% | -198 |
-| NO | vs LV | 64.1% | -179 |
-| BUF | vs LAC | 62.4% | -166 |
-| NYG | vs TEN | 61.6% | -161 |
-| SEA | @ WAS | 61.5% | -160 |
+| HOU | vs DAL | 68.9% | -222 |
+| BAL | vs TEN | 68.4% | -217 |
+| CHI | vs NYJ | 68.3% | -215 |
+| SEA | vs LAC | 66.6% | -199 |
+| MIN | vs MIA | 64.1% | -179 |
+| KC | @ LV | 59.2% | -145 |
+
+## Warnings
+
+- No live betting card is published for the current context.
+- No actionable betting plays or watchlist spots are active.
