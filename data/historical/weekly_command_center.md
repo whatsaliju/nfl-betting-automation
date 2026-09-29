@@ -31,15 +31,15 @@
 
 ## Survivor
 
-- Primary: DET vs NYJ (75.6%)
-- Safest: DET vs NYJ (75.6%)
-- Path pick: KC vs MIA (73.9%)
+- Primary: DET vs NYJ (74.4%)
+- Safest: DET vs NYJ (74.4%)
+- Path pick: DET vs NYJ (74.4%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) |
-| 100 | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) |
-| 500 | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) | DET vs NYJ (75.6%) |
+| 25 | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) |
+| 100 | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) |
+| 500 | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) | DET vs NYJ (74.4%) |
 
 ## WARPS Watch
 
