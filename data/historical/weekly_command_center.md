@@ -17,17 +17,17 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 6
-- Passes: 10
+- Watch: 13
+- Passes: 3
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| DET@CAR | watch | spread | HOME | 5.0 |
-| NE@BUF | watch | spread | HOME | 5.0 |
-| ATL@NO | watch | total | OVER | 4.0 |
-| DAL@HOU | watch | spread | AWAY | 4.0 |
-| DEN@SF | watch | spread | HOME | 4.0 |
-| NYJ@CHI | watch | spread | HOME | 4.0 |
+| DEN@SF | watch | total | UNDER | 4.0 |
+| LAC@SEA | watch | n/a | n/a | 4.0 |
+| NE@BUF | watch | spread | HOME | 4.0 |
+| ATL@NO | watch | n/a | n/a | 3.0 |
+| NYJ@CHI | watch | n/a | n/a | 3.0 |
+| ARI@NYG | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
