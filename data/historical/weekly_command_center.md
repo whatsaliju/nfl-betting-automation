@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W4 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Recommended action: **PLAY**
+- Confidence tier: **A**
+- Reason: At least one selector play cleared the current command gate.
 
 ## Source Gates
 
@@ -16,13 +16,13 @@
 
 ## Betting Card
 
-- Plays: 0
-- Watch: 13
-- Passes: 3
+- Plays: 1
+- Watch: 7
+- Passes: 8
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| DEN@SF | watch | total | UNDER | 4.0 |
+| DEN@SF | play | total | UNDER | 4.0 |
 | LAC@SEA | watch | n/a | n/a | 4.0 |
 | NE@BUF | watch | spread | HOME | 4.0 |
 | ATL@NO | watch | n/a | n/a | 3.0 |
@@ -31,15 +31,15 @@
 
 ## Survivor
 
-- Primary: BAL vs TEN (79.0%)
-- Safest: BAL vs TEN (79.0%)
-- Path pick: MIN vs MIA (77.5%)
+- Primary: BAL vs TEN (78.6%)
+- Safest: BAL vs TEN (78.6%)
+- Path pick: BAL vs TEN (78.6%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) |
-| 100 | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) |
-| 500 | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) | BAL vs TEN (79.0%) |
+| 25 | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) |
+| 100 | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) |
+| 500 | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) |
 
 ## WARPS Watch
 
