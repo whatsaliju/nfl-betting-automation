@@ -328,6 +328,15 @@ export function PickemView({
               const warpsHomeWinPct = warpsBetsAwayWinPct !== null ? 100 - warpsBetsAwayWinPct : null;
               const warpsFavWinPct = g.favTla === g.awayTla ? warpsBetsAwayWinPct : warpsHomeWinPct;
 
+              // SU pick: use WARPS win probability to pick the more likely winner, not the Vegas spread favorite.
+              // When these disagree (e.g. Vegas favors ARI but WARPS gives NYG 59%), show NYG 59% — not ARI 41%.
+              const suPickTla = warpsBetsAwayWinPct !== null
+                ? (warpsBetsAwayWinPct >= 50 ? g.awayTla : g.homeTla)
+                : g.favTla;
+              const suPickPct = suPickTla != null
+                ? (suPickTla === g.awayTla ? warpsBetsAwayWinPct : warpsHomeWinPct)
+                : null;
+
               const awayWon = g.isCompleted && g.awayScore !== null && g.homeScore !== null && g.awayScore > g.homeScore;
               const homeWon = g.isCompleted && g.awayScore !== null && g.homeScore !== null && g.homeScore > g.awayScore;
 
@@ -359,10 +368,10 @@ export function PickemView({
                     <div className="pickem-su">
                       <span className="pk-su-label">SU pick</span>
                       <div className="pk-su-pick">
-                        {g.favTla && <img src={teamLogos[g.favTla]} alt={g.favTla} className="pk-su-logo" />}
-                        <strong className="pk-su-team">{g.favTla ?? "Pick'em"}</strong>
-                        {warpsFavWinPct !== null && (
-                          <span className="pk-win-prob">{warpsFavWinPct}%</span>
+                        {suPickTla && <img src={teamLogos[suPickTla]} alt={suPickTla} className="pk-su-logo" />}
+                        <strong className="pk-su-team">{suPickTla ?? "Pick'em"}</strong>
+                        {suPickPct !== null && (
+                          <span className="pk-win-prob">{suPickPct}%</span>
                         )}
                       </div>
                     </div>
