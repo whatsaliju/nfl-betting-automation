@@ -20,9 +20,16 @@ on:
     types: [referee-collection-manual]
 
 jobs:
+  # GitHub creates phantom push runs whenever any workflow YAML is modified.
+  # A workflow with 0 running jobs is marked failure, so we need one job that
+  # always succeeds on push to keep the run green.
+  skip-push-run:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Phantom push run — skipping referee collection."
+
   collect_referee_data:
-    # GitHub creates phantom push runs whenever any workflow YAML is modified.
-    # Explicitly skip them so the run shows as skipped (neutral) not failed.
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
 
