@@ -22,7 +22,7 @@
         "team-rating edge aligns"
       ],
       "spread_score": 4,
-      "total_score": 3,
+      "total_score": 2,
       "trace": {
         "selector_version": "2026.1",
         "market_candidates": {
@@ -33,7 +33,7 @@
             "threshold": 3.5,
             "threshold_adjustments": [
               {
-                "reason": "market ML implies 73% win prob for pick side: overconfidence zone",
+                "reason": "market ML implies 74% win prob for pick side: overconfidence zone",
                 "delta": 0.5
               }
             ],
@@ -48,6 +48,342 @@
                 "side": "HOME",
                 "score": -2,
                 "impact": 2,
+                "status": "aligned"
+              },
+              {
+                "source": "team_rating",
+                "side": "HOME",
+                "score": 2,
+                "impact": 2,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "sharp spread edge",
+              "team-rating edge aligns"
+            ]
+          },
+          "total": {
+            "market": "total",
+            "side": "UNDER",
+            "score": 2,
+            "threshold": 4,
+            "cleared_threshold": false,
+            "blocked": false,
+            "blockers": [],
+            "signals": [
+              {
+                "source": "ref_weather_context",
+                "side": "UNDER",
+                "score": -2,
+                "impact": 2,
+                "status": "aligned",
+                "reasons": [
+                  "referee under trend"
+                ]
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "referee under trend"
+            ]
+          }
+        },
+        "final_decision": {
+          "market": "spread",
+          "side": "HOME",
+          "score": 4,
+          "reason": "spread candidate cleared threshold and ranked highest"
+        },
+        "source_policy": {
+          "status": "OK",
+          "blocked": false,
+          "unsafe_sources": [],
+          "critical_warnings": []
+        }
+      }
+    },
+    "recommendation_trace": {
+      "selector_version": "2026.1",
+      "market_candidates": {
+        "spread": {
+          "market": "spread",
+          "side": "HOME",
+          "score": 4,
+          "threshold": 3.5,
+          "threshold_adjustments": [
+            {
+              "reason": "market ML implies 74% win prob for pick side: overconfidence zone",
+              "delta": 0.5
+            }
+          ],
+          "cleared_threshold": true,
+          "requires_sharp_edge": true,
+          "has_sharp_edge": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "HOME",
+              "score": -2,
+              "impact": 2,
+              "status": "aligned"
+            },
+            {
+              "source": "team_rating",
+              "side": "HOME",
+              "score": 2,
+              "impact": 2,
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge aligns"
+          ]
+        },
+        "total": {
+          "market": "total",
+          "side": "UNDER",
+          "score": 2,
+          "threshold": 4,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "source": "ref_weather_context",
+              "side": "UNDER",
+              "score": -2,
+              "impact": 2,
+              "status": "aligned",
+              "reasons": [
+                "referee under trend"
+              ]
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "referee under trend"
+          ]
+        }
+      },
+      "final_decision": {
+        "market": "spread",
+        "side": "HOME",
+        "score": 4,
+        "reason": "spread candidate cleared threshold and ranked highest"
+      },
+      "source_policy": {
+        "status": "OK",
+        "blocked": false,
+        "unsafe_sources": [],
+        "critical_warnings": []
+      }
+    },
+    "model_version": "2026.1",
+    "tier_score": 7,
+    "total_score": 8.0,
+    "confidence": 8.0,
+    "sharp_analysis": {
+      "spread": {
+        "differential": -10.0,
+        "score": -2,
+        "direction": "HOME",
+        "bets_pct": 34.0,
+        "money_pct": 24.0,
+        "line": "+6.5 (+111) | -6.5 (-111)",
+        "description": "HOME (-10.0% edge)"
+      },
+      "total": {
+        "differential": -4.0,
+        "score": 0,
+        "direction": "UNDER",
+        "bets_pct": 44.0,
+        "money_pct": 40.0,
+        "line": "o48.5 (-104) | u48.5 (+106)",
+        "description": "UNDER (-4.0% edge)"
+      },
+      "moneyline": {
+        "differential": 0.0,
+        "score": 0,
+        "direction": "NEUTRAL",
+        "bets_pct": 7.0,
+        "money_pct": 7.0,
+        "line": "+292 | -292",
+        "description": "NEUTRAL (+0.0% edge)"
+      }
+    },
+    "weather_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "Good conditions"
+    },
+    "referee_analysis": {
+      "ats_pct": 41.2,
+      "ou_pct": 35.3,
+      "ats_score": 0,
+      "ou_score": -2,
+      "ats_tendency": "DOG-FRIENDLY",
+      "ou_tendency": "UNDER TENDENCY",
+      "referee": "Bill Vinovich",
+      "factors": []
+    },
+    "injury_analysis": {
+      "away_injuries": [],
+      "home_injuries": [],
+      "away_impact": 0,
+      "home_impact": 0,
+      "score": 0,
+      "edge": "NO EDGE",
+      "description": "Found 0 high-impact injuries",
+      "factors": []
+    },
+    "situational_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "No significant situational factors"
+    },
+    "statistical_analysis": {
+      "score": 2,
+      "factors": [
+        "Current-season value on home team (+3.8 pts; projected home margin +10.3)",
+        "Ratings: NE -3.2, BUF +5.6 (season 2026, REG pre-Week 4)"
+      ],
+      "description": "Current-season value on home team (+3.8 pts; projected home margin +10.3)"
+    },
+    "game_theory_analysis": {
+      "score": 0,
+      "factors": [
+        "Market inefficiency detected (-10.0% sharp edge)",
+        "STEAM MOVE: Sharps heavily against public"
+      ],
+      "description": "Market inefficiency detected (-10.0% sharp edge), STEAM MOVE: Sharps heavily against public"
+    },
+    "schedule_analysis": {
+      "score": 0,
+      "factors": [
+        "Neutral schedule situation (standard rest)"
+      ],
+      "description": "Neutral schedule situation (standard rest)"
+    },
+    "sharp_stories": [
+      "\u26a0\ufe0f DIVERGENCE: Sharps on home team but UNDER - expect defensive grind"
+    ],
+    "season_type": "REG",
+    "data_quality": {
+      "status": "OK",
+      "target_date": "",
+      "sources": {
+        "queries": {
+          "name": "queries",
+          "path": "data/week4/week4_queries.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "file_week": 4
+        },
+        "referee_trends": {
+          "name": "referee_trends",
+          "path": "data/historical/sdql_results.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": []
+        },
+        "action_markets": {
+          "name": "action_markets",
+          "path": "data/action_all_markets_2026-10-01_.csv",
+          "rows": 48,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
+        },
+        "action_injuries": {
+          "name": "action_injuries",
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "action_weather": {
+          "name": "action_weather",
+          "path": "data/action_weather_2026-10-01_.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "rotowire": {
+          "name": "rotowire",
+          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
+          "rows": 4,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-01-18",
+          "fetched_date": "2026-01-18"
+        }
+      },
+      "warnings": [],
+      "critical_warnings": [],
+      "degraded_sources": [],
+      "unsafe_sources": []
+    }
+  },
+  {
+    "matchup": "Denver Broncos @ San Francisco 49ers",
+    "matchup_key": "DEN@SF",
+    "away": "Denver Broncos",
+    "home": "San Francisco 49ers",
+    "away_tla": "DEN",
+    "home_tla": "SF",
+    "game_time": "Sun 10/4, 4:25 PM ET",
+    "classification": "\ud83d\udcca LEAN",
+    "classification_label": "SLIGHT EDGE",
+    "signal_classification": "\ud83c\udfaf TARGETED PLAY",
+    "signal_classification_label": "SOLID EDGE",
+    "signal_tier_score": 10,
+    "recommendation": "\ud83d\udc40 LEAN: San Francisco 49ers -2.5 (proceed with caution)",
+    "pick_metadata": {
+      "market": "spread",
+      "side": "HOME",
+      "score": 3,
+      "reasons": [
+        "sharp spread edge",
+        "team-rating edge aligns"
+      ],
+      "spread_score": 3,
+      "total_score": 3,
+      "trace": {
+        "selector_version": "2026.1",
+        "market_candidates": {
+          "spread": {
+            "market": "spread",
+            "side": "HOME",
+            "score": 3,
+            "threshold": 3,
+            "threshold_adjustments": [],
+            "cleared_threshold": true,
+            "requires_sharp_edge": true,
+            "has_sharp_edge": true,
+            "blocked": false,
+            "blockers": [],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "HOME",
+                "score": -1,
+                "impact": 1,
                 "status": "aligned"
               },
               {
@@ -101,7 +437,7 @@
         "final_decision": {
           "market": "spread",
           "side": "HOME",
-          "score": 4,
+          "score": 3,
           "reason": "spread candidate cleared threshold and ranked highest"
         },
         "source_policy": {
@@ -118,14 +454,9 @@
         "spread": {
           "market": "spread",
           "side": "HOME",
-          "score": 4,
-          "threshold": 3.5,
-          "threshold_adjustments": [
-            {
-              "reason": "market ML implies 73% win prob for pick side: overconfidence zone",
-              "delta": 0.5
-            }
-          ],
+          "score": 3,
+          "threshold": 3,
+          "threshold_adjustments": [],
           "cleared_threshold": true,
           "requires_sharp_edge": true,
           "has_sharp_edge": true,
@@ -135,8 +466,8 @@
             {
               "source": "sharp",
               "side": "HOME",
-              "score": -2,
-              "impact": 2,
+              "score": -1,
+              "impact": 1,
               "status": "aligned"
             },
             {
@@ -190,7 +521,7 @@
       "final_decision": {
         "market": "spread",
         "side": "HOME",
-        "score": 4,
+        "score": 3,
         "reason": "spread candidate cleared threshold and ranked highest"
       },
       "source_policy": {
@@ -201,355 +532,7 @@
       }
     },
     "model_version": "2026.1",
-    "tier_score": 7,
-    "total_score": 8.0,
-    "confidence": 8.0,
-    "sharp_analysis": {
-      "spread": {
-        "differential": -12.0,
-        "score": -2,
-        "direction": "HOME",
-        "bets_pct": 36.0,
-        "money_pct": 24.0,
-        "line": "+6.5 (+111) | -6.5 (-111)",
-        "description": "HOME (-12.0% edge)"
-      },
-      "total": {
-        "differential": -7.0,
-        "score": -1,
-        "direction": "UNDER",
-        "bets_pct": 42.0,
-        "money_pct": 35.0,
-        "line": "o48.5 (+102) | u48.5 (-102)",
-        "description": "UNDER (-7.0% edge)"
-      },
-      "moneyline": {
-        "differential": -1.0,
-        "score": 0,
-        "direction": "HOME",
-        "bets_pct": 7.0,
-        "money_pct": 6.0,
-        "line": "+275 | -264",
-        "description": "HOME (-1.0% edge)"
-      }
-    },
-    "weather_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "Good conditions"
-    },
-    "referee_analysis": {
-      "ats_pct": 41.2,
-      "ou_pct": 35.3,
-      "ats_score": 0,
-      "ou_score": -2,
-      "ats_tendency": "DOG-FRIENDLY",
-      "ou_tendency": "UNDER TENDENCY",
-      "referee": "Bill Vinovich",
-      "factors": []
-    },
-    "injury_analysis": {
-      "away_injuries": [],
-      "home_injuries": [],
-      "away_impact": 0,
-      "home_impact": 0,
-      "score": 0,
-      "edge": "NO EDGE",
-      "description": "Found 0 high-impact injuries",
-      "factors": []
-    },
-    "situational_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "No significant situational factors"
-    },
-    "statistical_analysis": {
-      "score": 2,
-      "factors": [
-        "Current-season value on home team (+3.8 pts; projected home margin +10.3)",
-        "Ratings: NE -3.2, BUF +5.6 (season 2026, REG pre-Week 4)"
-      ],
-      "description": "Current-season value on home team (+3.8 pts; projected home margin +10.3)"
-    },
-    "game_theory_analysis": {
-      "score": 0,
-      "factors": [
-        "Market inefficiency detected (-12.0% sharp edge)",
-        "Potential steam move developing"
-      ],
-      "description": "Market inefficiency detected (-12.0% sharp edge), Potential steam move developing"
-    },
-    "schedule_analysis": {
-      "score": 0,
-      "factors": [
-        "Neutral schedule situation (standard rest)"
-      ],
-      "description": "Neutral schedule situation (standard rest)"
-    },
-    "sharp_stories": [
-      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on home team across markets",
-      "\u26a0\ufe0f DIVERGENCE: Sharps on home team but UNDER - expect defensive grind"
-    ],
-    "season_type": "REG",
-    "data_quality": {
-      "status": "OK",
-      "target_date": "",
-      "sources": {
-        "queries": {
-          "name": "queries",
-          "path": "data/week4/week4_queries.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "file_week": 4
-        },
-        "referee_trends": {
-          "name": "referee_trends",
-          "path": "data/historical/sdql_results.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": []
-        },
-        "action_markets": {
-          "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
-          "rows": 48,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
-        },
-        "action_injuries": {
-          "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "action_weather": {
-          "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "rotowire": {
-          "name": "rotowire",
-          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
-          "rows": 4,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-01-18",
-          "fetched_date": "2026-01-18"
-        }
-      },
-      "warnings": [],
-      "critical_warnings": [],
-      "degraded_sources": [],
-      "unsafe_sources": []
-    }
-  },
-  {
-    "matchup": "Denver Broncos @ San Francisco 49ers",
-    "matchup_key": "DEN@SF",
-    "away": "Denver Broncos",
-    "home": "San Francisco 49ers",
-    "away_tla": "DEN",
-    "home_tla": "SF",
-    "game_time": "Sun 10/4, 4:25 PM ET",
-    "classification": "\ud83c\udfaf TARGETED PLAY",
-    "classification_label": "SOLID EDGE",
-    "signal_classification": "\ud83c\udfaf TARGETED PLAY",
-    "signal_classification_label": "SOLID EDGE",
-    "signal_tier_score": 10,
-    "recommendation": "\ud83c\udfaf TARGETED PLAY: UNDER 48.5",
-    "pick_metadata": {
-      "market": "total",
-      "side": "UNDER",
-      "score": 4,
-      "reasons": [
-        "sharp total edge",
-        "referee under trend"
-      ],
-      "spread_score": 3,
-      "total_score": 4,
-      "trace": {
-        "selector_version": "2026.1",
-        "market_candidates": {
-          "spread": {
-            "market": "spread",
-            "side": "HOME",
-            "score": 3,
-            "threshold": 3,
-            "threshold_adjustments": [],
-            "cleared_threshold": true,
-            "requires_sharp_edge": true,
-            "has_sharp_edge": true,
-            "blocked": false,
-            "blockers": [],
-            "signals": [
-              {
-                "source": "sharp",
-                "side": "HOME",
-                "score": -1,
-                "impact": 1,
-                "status": "aligned"
-              },
-              {
-                "source": "team_rating",
-                "side": "HOME",
-                "score": 2,
-                "impact": 2,
-                "status": "aligned"
-              }
-            ],
-            "conflicts": [],
-            "reasons": [
-              "sharp spread edge",
-              "team-rating edge aligns"
-            ]
-          },
-          "total": {
-            "market": "total",
-            "side": "UNDER",
-            "score": 4,
-            "threshold": 4,
-            "cleared_threshold": true,
-            "blocked": false,
-            "blockers": [],
-            "signals": [
-              {
-                "source": "sharp",
-                "side": "UNDER",
-                "score": -2,
-                "impact": 2,
-                "status": "aligned"
-              },
-              {
-                "source": "ref_weather_context",
-                "side": "UNDER",
-                "score": -2,
-                "impact": 2,
-                "status": "aligned",
-                "reasons": [
-                  "referee under trend"
-                ]
-              }
-            ],
-            "conflicts": [],
-            "reasons": [
-              "sharp total edge",
-              "referee under trend"
-            ]
-          }
-        },
-        "final_decision": {
-          "market": "total",
-          "side": "UNDER",
-          "score": 4,
-          "reason": "total candidate cleared threshold and ranked highest"
-        },
-        "source_policy": {
-          "status": "OK",
-          "blocked": false,
-          "unsafe_sources": [],
-          "critical_warnings": []
-        }
-      }
-    },
-    "recommendation_trace": {
-      "selector_version": "2026.1",
-      "market_candidates": {
-        "spread": {
-          "market": "spread",
-          "side": "HOME",
-          "score": 3,
-          "threshold": 3,
-          "threshold_adjustments": [],
-          "cleared_threshold": true,
-          "requires_sharp_edge": true,
-          "has_sharp_edge": true,
-          "blocked": false,
-          "blockers": [],
-          "signals": [
-            {
-              "source": "sharp",
-              "side": "HOME",
-              "score": -1,
-              "impact": 1,
-              "status": "aligned"
-            },
-            {
-              "source": "team_rating",
-              "side": "HOME",
-              "score": 2,
-              "impact": 2,
-              "status": "aligned"
-            }
-          ],
-          "conflicts": [],
-          "reasons": [
-            "sharp spread edge",
-            "team-rating edge aligns"
-          ]
-        },
-        "total": {
-          "market": "total",
-          "side": "UNDER",
-          "score": 4,
-          "threshold": 4,
-          "cleared_threshold": true,
-          "blocked": false,
-          "blockers": [],
-          "signals": [
-            {
-              "source": "sharp",
-              "side": "UNDER",
-              "score": -2,
-              "impact": 2,
-              "status": "aligned"
-            },
-            {
-              "source": "ref_weather_context",
-              "side": "UNDER",
-              "score": -2,
-              "impact": 2,
-              "status": "aligned",
-              "reasons": [
-                "referee under trend"
-              ]
-            }
-          ],
-          "conflicts": [],
-          "reasons": [
-            "sharp total edge",
-            "referee under trend"
-          ]
-        }
-      },
-      "final_decision": {
-        "market": "total",
-        "side": "UNDER",
-        "score": 4,
-        "reason": "total candidate cleared threshold and ranked highest"
-      },
-      "source_policy": {
-        "status": "OK",
-        "blocked": false,
-        "unsafe_sources": [],
-        "critical_warnings": []
-      }
-    },
-    "model_version": "2026.1",
-    "tier_score": 7,
+    "tier_score": 5,
     "total_score": 7.0,
     "confidence": 7.0,
     "sharp_analysis": {
@@ -557,36 +540,36 @@
         "differential": -8.0,
         "score": -1,
         "direction": "HOME",
-        "bets_pct": 41.0,
-        "money_pct": 33.0,
-        "line": "+2.5 (+106) | -2.5 (-106)",
+        "bets_pct": 42.0,
+        "money_pct": 34.0,
+        "line": "+2.5 (+108) | -2.5 (-106)",
         "description": "HOME (-8.0% edge)"
       },
       "total": {
-        "differential": -12.0,
-        "score": -2,
+        "differential": -8.0,
+        "score": -1,
         "direction": "UNDER",
-        "bets_pct": 39.0,
-        "money_pct": 27.0,
-        "line": "o48.5 (+104) | u48.5 (-102)",
-        "description": "UNDER (-12.0% edge)"
+        "bets_pct": 41.0,
+        "money_pct": 33.0,
+        "line": "o47.5 (-108) | u47.5 (+111)",
+        "description": "UNDER (-8.0% edge)"
       },
       "moneyline": {
-        "differential": 7.0,
+        "differential": 5.0,
         "score": 1,
         "direction": "AWAY",
-        "bets_pct": 15.0,
-        "money_pct": 22.0,
-        "line": "+130 | -130",
-        "description": "AWAY (+7.0% edge)"
+        "bets_pct": 16.0,
+        "money_pct": 21.0,
+        "line": "+135 | -135",
+        "description": "AWAY (+5.0% edge)"
       }
     },
     "weather_analysis": {
       "score": 1,
       "factors": [
-        "Hot weather (86\u00b0F)"
+        "Hot weather (89\u00b0F)"
       ],
-      "description": "Hot weather (86\u00b0F)"
+      "description": "Hot weather (89\u00b0F)"
     },
     "referee_analysis": {
       "ats_pct": 50.0,
@@ -662,477 +645,31 @@
         },
         "action_markets": {
           "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
+          "path": "data/action_all_markets_2026-10-01_.csv",
           "rows": 48,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
         },
         "action_injuries": {
           "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "action_weather": {
           "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
+          "path": "data/action_weather_2026-10-01_.csv",
           "rows": 16,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "rotowire": {
-          "name": "rotowire",
-          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
-          "rows": 4,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-01-18",
-          "fetched_date": "2026-01-18"
-        }
-      },
-      "warnings": [],
-      "critical_warnings": [],
-      "degraded_sources": [],
-      "unsafe_sources": []
-    }
-  },
-  {
-    "matchup": "Miami Dolphins @ Minnesota Vikings",
-    "matchup_key": "MIA@MIN",
-    "away": "Miami Dolphins",
-    "home": "Minnesota Vikings",
-    "away_tla": "MIA",
-    "home_tla": "MIN",
-    "game_time": "Sun 10/4, 4:05 PM ET",
-    "classification": "\u26a0\ufe0f PASS",
-    "classification_label": "PASS",
-    "signal_classification": "\u26a0\ufe0f LANDMINE",
-    "signal_classification_label": "PASS",
-    "signal_tier_score": 3,
-    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
-    "pick_metadata": {
-      "market": "none",
-      "reason": "landmine classification",
-      "spread_score": null,
-      "total_score": null,
-      "signal_classification": null,
-      "trace": {
-        "selector_version": "2026.1",
-        "market_candidates": {
-          "spread": {},
-          "total": {}
-        },
-        "final_decision": {
-          "market": "none",
-          "side": null,
-          "reason": "signal classification was LANDMINE"
-        },
-        "source_policy": {
-          "status": "OK",
-          "blocked": false,
-          "unsafe_sources": [],
-          "critical_warnings": []
-        }
-      }
-    },
-    "recommendation_trace": {
-      "selector_version": "2026.1",
-      "market_candidates": {
-        "spread": {},
-        "total": {}
-      },
-      "final_decision": {
-        "market": "none",
-        "side": null,
-        "reason": "signal classification was LANDMINE"
-      },
-      "source_policy": {
-        "status": "OK",
-        "blocked": false,
-        "unsafe_sources": [],
-        "critical_warnings": []
-      }
-    },
-    "model_version": "2026.1",
-    "tier_score": 3,
-    "total_score": 4.9,
-    "confidence": 4.9,
-    "sharp_analysis": {
-      "spread": {
-        "differential": -6.0,
-        "score": -1,
-        "direction": "HOME",
-        "bets_pct": 28.0,
-        "money_pct": 22.0,
-        "line": "+10.5 (-102) | -10.5 (+102)",
-        "description": "HOME (-6.0% edge)"
-      },
-      "total": {
-        "differential": -14.0,
-        "score": -2,
-        "direction": "UNDER",
-        "bets_pct": 66.0,
-        "money_pct": 52.0,
-        "line": "o38.5 (-106) | u38.5 (+106)",
-        "description": "UNDER (-14.0% edge)"
-      },
-      "moneyline": {
-        "differential": 30.0,
-        "score": 3,
-        "direction": "AWAY",
-        "bets_pct": 5.0,
-        "money_pct": 35.0,
-        "line": "+506 | -506",
-        "description": "AWAY (+30.0% edge)"
-      }
-    },
-    "weather_analysis": {
-      "score": 0,
-      "factors": [
-        "Dome"
-      ],
-      "description": "Dome - no weather impact"
-    },
-    "referee_analysis": {
-      "ats_pct": 43.4,
-      "ou_pct": 46.3,
-      "ats_score": 0,
-      "ou_score": 0,
-      "ats_tendency": "DOG-FRIENDLY",
-      "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "Adrian Hill",
-      "factors": []
-    },
-    "injury_analysis": {
-      "away_injuries": [
-        {
-          "player": "De'Von Achane",
-          "position": "RB",
-          "status": "Out",
-          "team": "Miami Dolphins",
-          "team_tla": "MIA"
-        }
-      ],
-      "home_injuries": [
-        {
-          "player": "Justin Jefferson",
-          "position": "WR",
-          "status": "Questionable",
-          "team": "Minnesota Vikings",
-          "team_tla": "MIN"
-        }
-      ],
-      "away_impact": 1.5,
-      "home_impact": 0.8,
-      "score": -0.7,
-      "edge": "NO EDGE",
-      "description": "Found 2 high-impact injuries",
-      "factors": []
-    },
-    "situational_analysis": {
-      "score": -1,
-      "factors": [
-        "Double-digit spread (10.5) - blowout risk"
-      ],
-      "description": "Double-digit spread (10.5) - blowout risk"
-    },
-    "statistical_analysis": {
-      "score": 2,
-      "factors": [
-        "Current-season value on home team (+11.4 pts; projected home margin +21.9)",
-        "Ratings: MIA -12.2, MIN +8.2 (season 2026, REG pre-Week 4)"
-      ],
-      "description": "Current-season value on home team (+11.4 pts; projected home margin +21.9)"
-    },
-    "game_theory_analysis": {
-      "score": 0,
-      "factors": [
-        "Market mispricing possible (-6.0% edge)",
-        "Potential steam move developing"
-      ],
-      "description": "Market mispricing possible (-6.0% edge), Potential steam move developing"
-    },
-    "schedule_analysis": {
-      "score": 0,
-      "factors": [
-        "Neutral schedule situation (standard rest)"
-      ],
-      "description": "Neutral schedule situation (standard rest)"
-    },
-    "sharp_stories": [
-      "\u26a0\ufe0f DIVERGENCE: Sharps on home team but UNDER - expect defensive grind"
-    ],
-    "season_type": "REG",
-    "data_quality": {
-      "status": "OK",
-      "target_date": "",
-      "sources": {
-        "queries": {
-          "name": "queries",
-          "path": "data/week4/week4_queries.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "file_week": 4
-        },
-        "referee_trends": {
-          "name": "referee_trends",
-          "path": "data/historical/sdql_results.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": []
-        },
-        "action_markets": {
-          "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
-          "rows": 48,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
-        },
-        "action_injuries": {
-          "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "action_weather": {
-          "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "rotowire": {
-          "name": "rotowire",
-          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
-          "rows": 4,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-01-18",
-          "fetched_date": "2026-01-18"
-        }
-      },
-      "warnings": [],
-      "critical_warnings": [],
-      "degraded_sources": [],
-      "unsafe_sources": []
-    }
-  },
-  {
-    "matchup": "Pittsburgh Steelers @ Cleveland Browns",
-    "matchup_key": "PIT@CLE",
-    "away": "Pittsburgh Steelers",
-    "home": "Cleveland Browns",
-    "away_tla": "PIT",
-    "home_tla": "CLE",
-    "game_time": "Thu 10/1, 8:15 PM ET",
-    "classification": "\u26a0\ufe0f PASS",
-    "classification_label": "PASS",
-    "signal_classification": "\u26a0\ufe0f LANDMINE",
-    "signal_classification_label": "PASS",
-    "signal_tier_score": 3,
-    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
-    "pick_metadata": {
-      "market": "none",
-      "reason": "landmine classification",
-      "spread_score": null,
-      "total_score": null,
-      "signal_classification": null,
-      "trace": {
-        "selector_version": "2026.1",
-        "market_candidates": {
-          "spread": {},
-          "total": {}
-        },
-        "final_decision": {
-          "market": "none",
-          "side": null,
-          "reason": "signal classification was LANDMINE"
-        },
-        "source_policy": {
-          "status": "OK",
-          "blocked": false,
-          "unsafe_sources": [],
-          "critical_warnings": []
-        }
-      }
-    },
-    "recommendation_trace": {
-      "selector_version": "2026.1",
-      "market_candidates": {
-        "spread": {},
-        "total": {}
-      },
-      "final_decision": {
-        "market": "none",
-        "side": null,
-        "reason": "signal classification was LANDMINE"
-      },
-      "source_policy": {
-        "status": "OK",
-        "blocked": false,
-        "unsafe_sources": [],
-        "critical_warnings": []
-      }
-    },
-    "model_version": "2026.1",
-    "tier_score": 3,
-    "total_score": 4.7,
-    "confidence": 4.7,
-    "sharp_analysis": {
-      "spread": {
-        "differential": 5.0,
-        "score": 1,
-        "direction": "AWAY",
-        "bets_pct": 56.0,
-        "money_pct": 61.0,
-        "line": "-2.5 (-111) | +2.5 (+111)",
-        "description": "AWAY (+5.0% edge)"
-      },
-      "total": {
-        "differential": -1.0,
-        "score": 0,
-        "direction": "UNDER",
-        "bets_pct": 82.0,
-        "money_pct": 81.0,
-        "line": "o38.5 (+102) | u38.5 (+100)",
-        "description": "UNDER (-1.0% edge)"
-      },
-      "moneyline": {
-        "differential": 5.0,
-        "score": 1,
-        "direction": "AWAY",
-        "bets_pct": 79.0,
-        "money_pct": 84.0,
-        "line": "-135 | +135",
-        "description": "AWAY (+5.0% edge)"
-      }
-    },
-    "weather_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "Good conditions"
-    },
-    "referee_analysis": {
-      "ats_pct": 47.1,
-      "ou_pct": 64.7,
-      "ats_score": 0,
-      "ou_score": 2,
-      "ats_tendency": "NEUTRAL",
-      "ou_tendency": "OVER TENDENCY",
-      "referee": "Clete Blakeman",
-      "factors": []
-    },
-    "injury_analysis": {
-      "away_injuries": [],
-      "home_injuries": [],
-      "away_impact": 0,
-      "home_impact": 0,
-      "score": 0,
-      "edge": "NO EDGE",
-      "description": "Found 0 high-impact injuries",
-      "factors": []
-    },
-    "situational_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "No significant situational factors"
-    },
-    "statistical_analysis": {
-      "score": 1,
-      "factors": [
-        "Modest current-season edge on home (2.0 pts; projected home margin -0.5)",
-        "Ratings: PIT -2.2, CLE -4.2 (season 2026, REG pre-Week 4)"
-      ],
-      "description": "Modest current-season edge on home (2.0 pts; projected home margin -0.5)"
-    },
-    "game_theory_analysis": {
-      "score": 0,
-      "factors": [
-        "Market mispricing possible (+5.0% edge)"
-      ],
-      "description": "Market mispricing possible (+5.0% edge)"
-    },
-    "schedule_analysis": {
-      "score": 0,
-      "factors": [
-        "Neutral schedule situation (standard rest)"
-      ],
-      "description": "Neutral schedule situation (standard rest)"
-    },
-    "sharp_stories": [
-      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
-      "\u26a0\ufe0f DIVERGENCE: Sharps on away team but UNDER - expect low-scoring road win"
-    ],
-    "season_type": "REG",
-    "data_quality": {
-      "status": "OK",
-      "target_date": "",
-      "sources": {
-        "queries": {
-          "name": "queries",
-          "path": "data/week4/week4_queries.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "file_week": 4
-        },
-        "referee_trends": {
-          "name": "referee_trends",
-          "path": "data/historical/sdql_results.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": []
-        },
-        "action_markets": {
-          "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
-          "rows": 48,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
-        },
-        "action_injuries": {
-          "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "action_weather": {
-          "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "rotowire": {
           "name": "rotowire",
@@ -1219,26 +756,26 @@
         "direction": "NEUTRAL",
         "bets_pct": 0.0,
         "money_pct": 0.0,
-        "line": "+2.5 (+120) | -3.5 (+117)",
+        "line": "+3.5 (-120) | -3.5 (+120)",
         "description": "NEUTRAL (+0.0% edge)"
       },
       "total": {
         "differential": -1.0,
         "score": 0,
         "direction": "UNDER",
-        "bets_pct": 35.0,
-        "money_pct": 34.0,
-        "line": "o44.5 (-110) | u48.5 (-104)",
+        "bets_pct": 38.0,
+        "money_pct": 37.0,
+        "line": "o48.5 (+104) | u52.5 (-110)",
         "description": "UNDER (-1.0% edge)"
       },
       "moneyline": {
-        "differential": 22.0,
+        "differential": 21.0,
         "score": 3,
         "direction": "AWAY",
         "bets_pct": 52.0,
-        "money_pct": 74.0,
-        "line": "+141 | -141",
-        "description": "AWAY (+22.0% edge)"
+        "money_pct": 73.0,
+        "line": "+147 | -147",
+        "description": "AWAY (+21.0% edge)"
       }
     },
     "weather_analysis": {
@@ -1330,31 +867,254 @@
         },
         "action_markets": {
           "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
+          "path": "data/action_all_markets_2026-10-01_.csv",
           "rows": 48,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
         },
         "action_injuries": {
           "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "action_weather": {
           "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
+          "path": "data/action_weather_2026-10-01_.csv",
           "rows": 16,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
+        },
+        "rotowire": {
+          "name": "rotowire",
+          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
+          "rows": 4,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-01-18",
+          "fetched_date": "2026-01-18"
+        }
+      },
+      "warnings": [],
+      "critical_warnings": [],
+      "degraded_sources": [],
+      "unsafe_sources": []
+    }
+  },
+  {
+    "matchup": "Los Angeles Rams @ Philadelphia Eagles",
+    "matchup_key": "LAR@PHI",
+    "away": "Los Angeles Rams",
+    "home": "Philadelphia Eagles",
+    "away_tla": "LAR",
+    "home_tla": "PHI",
+    "game_time": "Sun 10/4, 1:00 PM ET",
+    "classification": "\u26a0\ufe0f PASS",
+    "classification_label": "PASS",
+    "signal_classification": "\u26a0\ufe0f LANDMINE",
+    "signal_classification_label": "PASS",
+    "signal_tier_score": 3,
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "pick_metadata": {
+      "market": "none",
+      "reason": "landmine classification",
+      "spread_score": null,
+      "total_score": null,
+      "signal_classification": null,
+      "trace": {
+        "selector_version": "2026.1",
+        "market_candidates": {
+          "spread": {},
+          "total": {}
+        },
+        "final_decision": {
+          "market": "none",
+          "side": null,
+          "reason": "signal classification was LANDMINE"
+        },
+        "source_policy": {
+          "status": "OK",
+          "blocked": false,
+          "unsafe_sources": [],
+          "critical_warnings": []
+        }
+      }
+    },
+    "recommendation_trace": {
+      "selector_version": "2026.1",
+      "market_candidates": {
+        "spread": {},
+        "total": {}
+      },
+      "final_decision": {
+        "market": "none",
+        "side": null,
+        "reason": "signal classification was LANDMINE"
+      },
+      "source_policy": {
+        "status": "OK",
+        "blocked": false,
+        "unsafe_sources": [],
+        "critical_warnings": []
+      }
+    },
+    "model_version": "2026.1",
+    "tier_score": 3,
+    "total_score": 3.8,
+    "confidence": 3.8,
+    "sharp_analysis": {
+      "spread": {
+        "differential": 5.0,
+        "score": 1,
+        "direction": "AWAY",
+        "bets_pct": 61.0,
+        "money_pct": 66.0,
+        "line": "-3.5 (+115) | +3.5 (-113)",
+        "description": "AWAY (+5.0% edge)"
+      },
+      "total": {
+        "differential": -8.0,
+        "score": -1,
+        "direction": "UNDER",
+        "bets_pct": 52.0,
+        "money_pct": 44.0,
+        "line": "o43.5 (+106) | u43.5 (-104)",
+        "description": "UNDER (-8.0% edge)"
+      },
+      "moneyline": {
+        "differential": 11.0,
+        "score": 2,
+        "direction": "AWAY",
+        "bets_pct": 76.0,
+        "money_pct": 87.0,
+        "line": "-160 | +160",
+        "description": "AWAY (+11.0% edge)"
+      }
+    },
+    "weather_analysis": {
+      "score": 1,
+      "factors": [
+        "Precipitation (42.0%)"
+      ],
+      "description": "Precipitation (42.0%)"
+    },
+    "referee_analysis": {
+      "ats_pct": 60.0,
+      "ou_pct": 51.4,
+      "ats_score": 3,
+      "ou_score": 0,
+      "ats_tendency": "STRONG FAVORITE COVERAGE",
+      "ou_tendency": "NEUTRAL TOTAL",
+      "referee": "Craig Wrolstad",
+      "factors": []
+    },
+    "injury_analysis": {
+      "away_injuries": [
+        {
+          "player": "Puka Nacua",
+          "position": "WR",
+          "status": "Questionable",
+          "team": "Los Angeles Rams",
+          "team_tla": "LAR"
+        }
+      ],
+      "home_injuries": [],
+      "away_impact": 0.8,
+      "home_impact": 0,
+      "score": -0.8,
+      "edge": "NO EDGE",
+      "description": "Found 1 high-impact injuries",
+      "factors": []
+    },
+    "situational_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "No significant situational factors"
+    },
+    "statistical_analysis": {
+      "score": 0,
+      "factors": [
+        "No current-season team rating yet for 2026 REG Week 4"
+      ],
+      "description": "No current-season team rating yet for 2026 REG Week 4"
+    },
+    "game_theory_analysis": {
+      "score": 0,
+      "factors": [
+        "Market mispricing possible (+5.0% edge)",
+        "Potential steam move developing"
+      ],
+      "description": "Market mispricing possible (+5.0% edge), Potential steam move developing"
+    },
+    "schedule_analysis": {
+      "score": -1,
+      "factors": [
+        "Minor rest edge (1 days)"
+      ],
+      "description": "Minor rest edge (1 days)"
+    },
+    "sharp_stories": [
+      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
+      "\u26a0\ufe0f DIVERGENCE: Sharps on away team but UNDER - expect low-scoring road win"
+    ],
+    "season_type": "REG",
+    "data_quality": {
+      "status": "OK",
+      "target_date": "",
+      "sources": {
+        "queries": {
+          "name": "queries",
+          "path": "data/week4/week4_queries.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "file_week": 4
+        },
+        "referee_trends": {
+          "name": "referee_trends",
+          "path": "data/historical/sdql_results.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": []
+        },
+        "action_markets": {
+          "name": "action_markets",
+          "path": "data/action_all_markets_2026-10-01_.csv",
+          "rows": 48,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
+        },
+        "action_injuries": {
+          "name": "action_injuries",
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "action_weather": {
+          "name": "action_weather",
+          "path": "data/action_weather_2026-10-01_.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
         },
         "rotowire": {
           "name": "rotowire",
@@ -1436,31 +1196,31 @@
     "confidence": 3.6,
     "sharp_analysis": {
       "spread": {
-        "differential": 2.0,
+        "differential": -3.0,
         "score": 0,
-        "direction": "AWAY",
+        "direction": "HOME",
         "bets_pct": 61.0,
-        "money_pct": 63.0,
-        "line": "+2.5 (+106) | -2.5 (-106)",
-        "description": "AWAY (+2.0% edge)"
+        "money_pct": 58.0,
+        "line": "+2.5 (+111) | -2.5 (-111)",
+        "description": "HOME (-3.0% edge)"
       },
       "total": {
-        "differential": 2.0,
-        "score": 0,
+        "differential": 7.0,
+        "score": 1,
         "direction": "OVER",
-        "bets_pct": 36.0,
-        "money_pct": 38.0,
-        "line": "o51.5 (+104) | u51.5 (-102)",
-        "description": "OVER (+2.0% edge)"
+        "bets_pct": 40.0,
+        "money_pct": 47.0,
+        "line": "o51.5 (+100) | u51.5 (+104)",
+        "description": "OVER (+7.0% edge)"
       },
       "moneyline": {
-        "differential": 33.0,
+        "differential": 28.0,
         "score": 3,
         "direction": "AWAY",
-        "bets_pct": 34.0,
-        "money_pct": 67.0,
-        "line": "+130 | -130",
-        "description": "AWAY (+33.0% edge)"
+        "bets_pct": 36.0,
+        "money_pct": 64.0,
+        "line": "+135 | -134",
+        "description": "AWAY (+28.0% edge)"
       }
     },
     "weather_analysis": {
@@ -1514,7 +1274,7 @@
       "description": "Neutral schedule situation (standard rest)"
     },
     "sharp_stories": [
-      "\ud83d\udcc8 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing"
+      "Sharp action relatively balanced across markets"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -1540,31 +1300,31 @@
         },
         "action_markets": {
           "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
+          "path": "data/action_all_markets_2026-10-01_.csv",
           "rows": 48,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
         },
         "action_injuries": {
           "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "action_weather": {
           "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
+          "path": "data/action_weather_2026-10-01_.csv",
           "rows": 16,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "rotowire": {
           "name": "rotowire",
@@ -1584,13 +1344,13 @@
     }
   },
   {
-    "matchup": "Detroit Lions @ Carolina Panthers",
-    "matchup_key": "DET@CAR",
-    "away": "Detroit Lions",
-    "home": "Carolina Panthers",
-    "away_tla": "DET",
-    "home_tla": "CAR",
-    "game_time": "Sun 10/4, 8:20 PM ET",
+    "matchup": "Los Angeles Chargers @ Seattle Seahawks",
+    "matchup_key": "LAC@SEA",
+    "away": "Los Angeles Chargers",
+    "home": "Seattle Seahawks",
+    "away_tla": "LAC",
+    "home_tla": "SEA",
+    "game_time": "Sun 10/4, 4:25 PM ET",
     "classification": "\u26a0\ufe0f PASS",
     "classification_label": "PASS",
     "signal_classification": "\u26a0\ufe0f LANDMINE",
@@ -1646,31 +1406,31 @@
     "confidence": 3.6,
     "sharp_analysis": {
       "spread": {
-        "differential": -1.0,
+        "differential": -3.0,
         "score": 0,
         "direction": "HOME",
-        "bets_pct": 67.0,
-        "money_pct": 66.0,
-        "line": "-3.5 (-104) | +3.5 (+106)",
-        "description": "HOME (-1.0% edge)"
+        "bets_pct": 48.0,
+        "money_pct": 45.0,
+        "line": "+7 (-105) | -7.5 (+115)",
+        "description": "HOME (-3.0% edge)"
       },
       "total": {
-        "differential": 3.0,
+        "differential": -4.0,
         "score": 0,
-        "direction": "OVER",
-        "bets_pct": 33.0,
-        "money_pct": 36.0,
-        "line": "o51.5 (+104) | u51.5 (-102)",
-        "description": "OVER (+3.0% edge)"
+        "direction": "UNDER",
+        "bets_pct": 47.0,
+        "money_pct": 43.0,
+        "line": "o42.5 (-106) | u42.5 (+108)",
+        "description": "UNDER (-4.0% edge)"
       },
       "moneyline": {
-        "differential": -19.0,
-        "score": -3,
-        "direction": "HOME",
-        "bets_pct": 88.0,
-        "money_pct": 69.0,
-        "line": "-180 | +182",
-        "description": "HOME (-19.0% edge)"
+        "differential": 22.0,
+        "score": 3,
+        "direction": "AWAY",
+        "bets_pct": 6.0,
+        "money_pct": 28.0,
+        "line": "+300 | -292",
+        "description": "AWAY (+22.0% edge)"
       }
     },
     "weather_analysis": {
@@ -1679,13 +1439,13 @@
       "description": "Good conditions"
     },
     "referee_analysis": {
-      "ats_pct": 43.6,
-      "ou_pct": 50.0,
-      "ats_score": 0,
+      "ats_pct": 38.6,
+      "ou_pct": 52.3,
+      "ats_score": -2,
       "ou_score": 0,
       "ats_tendency": "DOG-FRIENDLY",
       "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "Clay Martin",
+      "referee": "Scott Novak",
       "factors": []
     },
     "injury_analysis": {
@@ -1706,10 +1466,10 @@
     "statistical_analysis": {
       "score": 2,
       "factors": [
-        "Current-season value on home team (+6.9 pts; projected home margin +3.4)",
-        "Ratings: DET -0.2, CAR +1.7 (season 2026, REG pre-Week 4)"
+        "Current-season value on home team (+8.7 pts; projected home margin +16.2)",
+        "Ratings: LAC -8.4, SEA +6.2 (season 2026, REG pre-Week 4)"
       ],
-      "description": "Current-season value on home team (+6.9 pts; projected home margin +3.4)"
+      "description": "Current-season value on home team (+8.7 pts; projected home margin +16.2)"
     },
     "game_theory_analysis": {
       "score": 0,
@@ -1724,7 +1484,7 @@
       "description": "Neutral schedule situation (standard rest)"
     },
     "sharp_stories": [
-      "Sharp action relatively balanced across markets"
+      "\u26a0\ufe0f DIVERGENCE: Sharps on home team but UNDER - expect defensive grind"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -1750,31 +1510,471 @@
         },
         "action_markets": {
           "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
+          "path": "data/action_all_markets_2026-10-01_.csv",
           "rows": 48,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
         },
         "action_injuries": {
           "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "action_weather": {
           "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
+          "path": "data/action_weather_2026-10-01_.csv",
           "rows": 16,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
+        },
+        "rotowire": {
+          "name": "rotowire",
+          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
+          "rows": 4,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-01-18",
+          "fetched_date": "2026-01-18"
+        }
+      },
+      "warnings": [],
+      "critical_warnings": [],
+      "degraded_sources": [],
+      "unsafe_sources": []
+    }
+  },
+  {
+    "matchup": "Miami Dolphins @ Minnesota Vikings",
+    "matchup_key": "MIA@MIN",
+    "away": "Miami Dolphins",
+    "home": "Minnesota Vikings",
+    "away_tla": "MIA",
+    "home_tla": "MIN",
+    "game_time": "Sun 10/4, 4:05 PM ET",
+    "classification": "\u26a0\ufe0f PASS",
+    "classification_label": "PASS",
+    "signal_classification": "\u26a0\ufe0f LANDMINE",
+    "signal_classification_label": "PASS",
+    "signal_tier_score": 3,
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "pick_metadata": {
+      "market": "none",
+      "reason": "landmine classification",
+      "spread_score": null,
+      "total_score": null,
+      "signal_classification": null,
+      "trace": {
+        "selector_version": "2026.1",
+        "market_candidates": {
+          "spread": {},
+          "total": {}
+        },
+        "final_decision": {
+          "market": "none",
+          "side": null,
+          "reason": "signal classification was LANDMINE"
+        },
+        "source_policy": {
+          "status": "OK",
+          "blocked": false,
+          "unsafe_sources": [],
+          "critical_warnings": []
+        }
+      }
+    },
+    "recommendation_trace": {
+      "selector_version": "2026.1",
+      "market_candidates": {
+        "spread": {},
+        "total": {}
+      },
+      "final_decision": {
+        "market": "none",
+        "side": null,
+        "reason": "signal classification was LANDMINE"
+      },
+      "source_policy": {
+        "status": "OK",
+        "blocked": false,
+        "unsafe_sources": [],
+        "critical_warnings": []
+      }
+    },
+    "model_version": "2026.1",
+    "tier_score": 3,
+    "total_score": 3.4,
+    "confidence": 3.4,
+    "sharp_analysis": {
+      "spread": {
+        "differential": -1.0,
+        "score": 0,
+        "direction": "HOME",
+        "bets_pct": 29.0,
+        "money_pct": 28.0,
+        "line": "+10.5 (-102) | -10.5 (+104)",
+        "description": "HOME (-1.0% edge)"
+      },
+      "total": {
+        "differential": -14.0,
+        "score": -2,
+        "direction": "UNDER",
+        "bets_pct": 63.0,
+        "money_pct": 49.0,
+        "line": "o38.5 (-106) | u38.5 (+106)",
+        "description": "UNDER (-14.0% edge)"
+      },
+      "moneyline": {
+        "differential": 27.0,
+        "score": 3,
+        "direction": "AWAY",
+        "bets_pct": 4.0,
+        "money_pct": 31.0,
+        "line": "+506 | -506",
+        "description": "AWAY (+27.0% edge)"
+      }
+    },
+    "weather_analysis": {
+      "score": 0,
+      "factors": [
+        "Dome"
+      ],
+      "description": "Dome - no weather impact"
+    },
+    "referee_analysis": {
+      "ats_pct": 43.4,
+      "ou_pct": 46.3,
+      "ats_score": 0,
+      "ou_score": 0,
+      "ats_tendency": "DOG-FRIENDLY",
+      "ou_tendency": "NEUTRAL TOTAL",
+      "referee": "Adrian Hill",
+      "factors": []
+    },
+    "injury_analysis": {
+      "away_injuries": [
+        {
+          "player": "De'Von Achane",
+          "position": "RB",
+          "status": "Out",
+          "team": "Miami Dolphins",
+          "team_tla": "MIA"
+        }
+      ],
+      "home_injuries": [
+        {
+          "player": "Justin Jefferson",
+          "position": "WR",
+          "status": "Questionable",
+          "team": "Minnesota Vikings",
+          "team_tla": "MIN"
+        }
+      ],
+      "away_impact": 1.5,
+      "home_impact": 0.8,
+      "score": -0.7,
+      "edge": "NO EDGE",
+      "description": "Found 2 high-impact injuries",
+      "factors": []
+    },
+    "situational_analysis": {
+      "score": -1,
+      "factors": [
+        "Double-digit spread (10.5) - blowout risk"
+      ],
+      "description": "Double-digit spread (10.5) - blowout risk"
+    },
+    "statistical_analysis": {
+      "score": 2,
+      "factors": [
+        "Current-season value on home team (+11.4 pts; projected home margin +21.9)",
+        "Ratings: MIA -12.2, MIN +8.2 (season 2026, REG pre-Week 4)"
+      ],
+      "description": "Current-season value on home team (+11.4 pts; projected home margin +21.9)"
+    },
+    "game_theory_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "Standard market dynamics"
+    },
+    "schedule_analysis": {
+      "score": 0,
+      "factors": [
+        "Neutral schedule situation (standard rest)"
+      ],
+      "description": "Neutral schedule situation (standard rest)"
+    },
+    "sharp_stories": [
+      "\u26a0\ufe0f DIVERGENCE: Sharps on home team but UNDER - expect defensive grind"
+    ],
+    "season_type": "REG",
+    "data_quality": {
+      "status": "OK",
+      "target_date": "",
+      "sources": {
+        "queries": {
+          "name": "queries",
+          "path": "data/week4/week4_queries.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "file_week": 4
+        },
+        "referee_trends": {
+          "name": "referee_trends",
+          "path": "data/historical/sdql_results.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": []
+        },
+        "action_markets": {
+          "name": "action_markets",
+          "path": "data/action_all_markets_2026-10-01_.csv",
+          "rows": 48,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
+        },
+        "action_injuries": {
+          "name": "action_injuries",
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "action_weather": {
+          "name": "action_weather",
+          "path": "data/action_weather_2026-10-01_.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "rotowire": {
+          "name": "rotowire",
+          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
+          "rows": 4,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-01-18",
+          "fetched_date": "2026-01-18"
+        }
+      },
+      "warnings": [],
+      "critical_warnings": [],
+      "degraded_sources": [],
+      "unsafe_sources": []
+    }
+  },
+  {
+    "matchup": "Pittsburgh Steelers @ Cleveland Browns",
+    "matchup_key": "PIT@CLE",
+    "away": "Pittsburgh Steelers",
+    "home": "Cleveland Browns",
+    "away_tla": "PIT",
+    "home_tla": "CLE",
+    "game_time": "Thu 10/1, 8:15 PM ET",
+    "classification": "\u26a0\ufe0f PASS",
+    "classification_label": "PASS",
+    "signal_classification": "\u26a0\ufe0f LANDMINE",
+    "signal_classification_label": "PASS",
+    "signal_tier_score": 3,
+    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+    "pick_metadata": {
+      "market": "none",
+      "reason": "landmine classification",
+      "spread_score": null,
+      "total_score": null,
+      "signal_classification": null,
+      "trace": {
+        "selector_version": "2026.1",
+        "market_candidates": {
+          "spread": {},
+          "total": {}
+        },
+        "final_decision": {
+          "market": "none",
+          "side": null,
+          "reason": "signal classification was LANDMINE"
+        },
+        "source_policy": {
+          "status": "OK",
+          "blocked": false,
+          "unsafe_sources": [],
+          "critical_warnings": []
+        }
+      }
+    },
+    "recommendation_trace": {
+      "selector_version": "2026.1",
+      "market_candidates": {
+        "spread": {},
+        "total": {}
+      },
+      "final_decision": {
+        "market": "none",
+        "side": null,
+        "reason": "signal classification was LANDMINE"
+      },
+      "source_policy": {
+        "status": "OK",
+        "blocked": false,
+        "unsafe_sources": [],
+        "critical_warnings": []
+      }
+    },
+    "model_version": "2026.1",
+    "tier_score": 3,
+    "total_score": 3.2,
+    "confidence": 3.2,
+    "sharp_analysis": {
+      "spread": {
+        "differential": -2.0,
+        "score": 0,
+        "direction": "HOME",
+        "bets_pct": 48.0,
+        "money_pct": 46.0,
+        "line": "-3 (+105) | +2.5 (+111)",
+        "description": "HOME (-2.0% edge)"
+      },
+      "total": {
+        "differential": -1.0,
+        "score": 0,
+        "direction": "UNDER",
+        "bets_pct": 72.0,
+        "money_pct": 71.0,
+        "line": "o37.5 (-106) | u37.5 (+106)",
+        "description": "UNDER (-1.0% edge)"
+      },
+      "moneyline": {
+        "differential": 15.0,
+        "score": 3,
+        "direction": "AWAY",
+        "bets_pct": 76.0,
+        "money_pct": 91.0,
+        "line": "-135 | +135",
+        "description": "AWAY (+15.0% edge)"
+      }
+    },
+    "weather_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "Good conditions"
+    },
+    "referee_analysis": {
+      "ats_pct": 47.1,
+      "ou_pct": 64.7,
+      "ats_score": 0,
+      "ou_score": 2,
+      "ats_tendency": "NEUTRAL",
+      "ou_tendency": "OVER TENDENCY",
+      "referee": "Clete Blakeman",
+      "factors": []
+    },
+    "injury_analysis": {
+      "away_injuries": [],
+      "home_injuries": [],
+      "away_impact": 0,
+      "home_impact": 0,
+      "score": 0,
+      "edge": "NO EDGE",
+      "description": "Found 0 high-impact injuries",
+      "factors": []
+    },
+    "situational_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "No significant situational factors"
+    },
+    "statistical_analysis": {
+      "score": 1,
+      "factors": [
+        "Modest current-season edge on home (2.0 pts; projected home margin -0.5)",
+        "Ratings: PIT -2.2, CLE -4.2 (season 2026, REG pre-Week 4)"
+      ],
+      "description": "Modest current-season edge on home (2.0 pts; projected home margin -0.5)"
+    },
+    "game_theory_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "Standard market dynamics"
+    },
+    "schedule_analysis": {
+      "score": 0,
+      "factors": [
+        "Neutral schedule situation (standard rest)"
+      ],
+      "description": "Neutral schedule situation (standard rest)"
+    },
+    "sharp_stories": [
+      "\u26a0\ufe0f DIVERGENCE: Sharps on home team but UNDER - expect defensive grind"
+    ],
+    "season_type": "REG",
+    "data_quality": {
+      "status": "OK",
+      "target_date": "",
+      "sources": {
+        "queries": {
+          "name": "queries",
+          "path": "data/week4/week4_queries.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "file_week": 4
+        },
+        "referee_trends": {
+          "name": "referee_trends",
+          "path": "data/historical/sdql_results.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": []
+        },
+        "action_markets": {
+          "name": "action_markets",
+          "path": "data/action_all_markets_2026-10-01_.csv",
+          "rows": 48,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
+        },
+        "action_injuries": {
+          "name": "action_injuries",
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "action_weather": {
+          "name": "action_weather",
+          "path": "data/action_weather_2026-10-01_.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
         },
         "rotowire": {
           "name": "rotowire",
@@ -1852,41 +2052,43 @@
     },
     "model_version": "2026.1",
     "tier_score": 3,
-    "total_score": 2.0,
-    "confidence": 2.0,
+    "total_score": 1.0,
+    "confidence": 1.0,
     "sharp_analysis": {
       "spread": {
-        "differential": -11.0,
-        "score": -2,
+        "differential": -7.0,
+        "score": -1,
         "direction": "HOME",
-        "bets_pct": 29.0,
-        "money_pct": 18.0,
+        "bets_pct": 26.0,
+        "money_pct": 19.0,
         "line": "+10.5 (+115) | -11.5 (+100)",
-        "description": "HOME (-11.0% edge)"
+        "description": "HOME (-7.0% edge)"
       },
       "total": {
-        "differential": -8.0,
+        "differential": -7.0,
         "score": -1,
         "direction": "UNDER",
-        "bets_pct": 43.0,
-        "money_pct": 35.0,
+        "bets_pct": 47.0,
+        "money_pct": 40.0,
         "line": "o42.5 (+100) | u42.5 (+102)",
-        "description": "UNDER (-8.0% edge)"
+        "description": "UNDER (-7.0% edge)"
       },
       "moneyline": {
-        "differential": 22.0,
+        "differential": 25.0,
         "score": 3,
         "direction": "AWAY",
         "bets_pct": 4.0,
-        "money_pct": 26.0,
+        "money_pct": 29.0,
         "line": "+590 | -590",
-        "description": "AWAY (+22.0% edge)"
+        "description": "AWAY (+25.0% edge)"
       }
     },
     "weather_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "Good conditions"
+      "score": 1,
+      "factors": [
+        "Precipitation (49.0%)"
+      ],
+      "description": "Precipitation (49.0%)"
     },
     "referee_analysis": {
       "ats_pct": 48.9,
@@ -1923,10 +2125,10 @@
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market inefficiency detected (-11.0% sharp edge)",
-        "STEAM MOVE: Sharps heavily against public"
+        "Market mispricing possible (-7.0% edge)",
+        "Potential steam move developing"
       ],
-      "description": "Market inefficiency detected (-11.0% sharp edge), STEAM MOVE: Sharps heavily against public"
+      "description": "Market mispricing possible (-7.0% edge), Potential steam move developing"
     },
     "schedule_analysis": {
       "score": 0,
@@ -1962,248 +2164,31 @@
         },
         "action_markets": {
           "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
+          "path": "data/action_all_markets_2026-10-01_.csv",
           "rows": 48,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
         },
         "action_injuries": {
           "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "action_weather": {
           "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
+          "path": "data/action_weather_2026-10-01_.csv",
           "rows": 16,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "rotowire": {
-          "name": "rotowire",
-          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
-          "rows": 4,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-01-18",
-          "fetched_date": "2026-01-18"
-        }
-      },
-      "warnings": [],
-      "critical_warnings": [],
-      "degraded_sources": [],
-      "unsafe_sources": []
-    }
-  },
-  {
-    "matchup": "Los Angeles Rams @ Philadelphia Eagles",
-    "matchup_key": "LAR@PHI",
-    "away": "Los Angeles Rams",
-    "home": "Philadelphia Eagles",
-    "away_tla": "LAR",
-    "home_tla": "PHI",
-    "game_time": "Sun 10/4, 1:00 PM ET",
-    "classification": "\u26a0\ufe0f PASS",
-    "classification_label": "PASS",
-    "signal_classification": "\u26a0\ufe0f LANDMINE",
-    "signal_classification_label": "PASS",
-    "signal_tier_score": 3,
-    "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
-    "pick_metadata": {
-      "market": "none",
-      "reason": "landmine classification",
-      "spread_score": null,
-      "total_score": null,
-      "signal_classification": null,
-      "trace": {
-        "selector_version": "2026.1",
-        "market_candidates": {
-          "spread": {},
-          "total": {}
-        },
-        "final_decision": {
-          "market": "none",
-          "side": null,
-          "reason": "signal classification was LANDMINE"
-        },
-        "source_policy": {
-          "status": "OK",
-          "blocked": false,
-          "unsafe_sources": [],
-          "critical_warnings": []
-        }
-      }
-    },
-    "recommendation_trace": {
-      "selector_version": "2026.1",
-      "market_candidates": {
-        "spread": {},
-        "total": {}
-      },
-      "final_decision": {
-        "market": "none",
-        "side": null,
-        "reason": "signal classification was LANDMINE"
-      },
-      "source_policy": {
-        "status": "OK",
-        "blocked": false,
-        "unsafe_sources": [],
-        "critical_warnings": []
-      }
-    },
-    "model_version": "2026.1",
-    "tier_score": 3,
-    "total_score": 1.8,
-    "confidence": 1.8,
-    "sharp_analysis": {
-      "spread": {
-        "differential": 3.0,
-        "score": 0,
-        "direction": "AWAY",
-        "bets_pct": 59.0,
-        "money_pct": 62.0,
-        "line": "-3.5 (+115) | +3.5 (-115)",
-        "description": "AWAY (+3.0% edge)"
-      },
-      "total": {
-        "differential": -14.0,
-        "score": -2,
-        "direction": "UNDER",
-        "bets_pct": 47.0,
-        "money_pct": 33.0,
-        "line": "o43.5 (+102) | u43.5 (+100)",
-        "description": "UNDER (-14.0% edge)"
-      },
-      "moneyline": {
-        "differential": 8.0,
-        "score": 1,
-        "direction": "AWAY",
-        "bets_pct": 75.0,
-        "money_pct": 83.0,
-        "line": "-153 | +153",
-        "description": "AWAY (+8.0% edge)"
-      }
-    },
-    "weather_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "Good conditions"
-    },
-    "referee_analysis": {
-      "ats_pct": 60.0,
-      "ou_pct": 51.4,
-      "ats_score": 3,
-      "ou_score": 0,
-      "ats_tendency": "STRONG FAVORITE COVERAGE",
-      "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "Craig Wrolstad",
-      "factors": []
-    },
-    "injury_analysis": {
-      "away_injuries": [
-        {
-          "player": "Puka Nacua",
-          "position": "WR",
-          "status": "Questionable",
-          "team": "Los Angeles Rams",
-          "team_tla": "LAR"
-        }
-      ],
-      "home_injuries": [],
-      "away_impact": 0.8,
-      "home_impact": 0,
-      "score": -0.8,
-      "edge": "NO EDGE",
-      "description": "Found 1 high-impact injuries",
-      "factors": []
-    },
-    "situational_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "No significant situational factors"
-    },
-    "statistical_analysis": {
-      "score": 0,
-      "factors": [
-        "No current-season team rating yet for 2026 REG Week 4"
-      ],
-      "description": "No current-season team rating yet for 2026 REG Week 4"
-    },
-    "game_theory_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "Standard market dynamics"
-    },
-    "schedule_analysis": {
-      "score": -1,
-      "factors": [
-        "Minor rest edge (1 days)"
-      ],
-      "description": "Minor rest edge (1 days)"
-    },
-    "sharp_stories": [
-      "\u26a0\ufe0f DIVERGENCE: Sharps on away team but UNDER - expect low-scoring road win"
-    ],
-    "season_type": "REG",
-    "data_quality": {
-      "status": "OK",
-      "target_date": "",
-      "sources": {
-        "queries": {
-          "name": "queries",
-          "path": "data/week4/week4_queries.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "file_week": 4
-        },
-        "referee_trends": {
-          "name": "referee_trends",
-          "path": "data/historical/sdql_results.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": []
-        },
-        "action_markets": {
-          "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
-          "rows": 48,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
-        },
-        "action_injuries": {
-          "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "action_weather": {
-          "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "rotowire": {
           "name": "rotowire",
@@ -2232,16 +2217,16 @@
     "game_time": "Sun 10/4, 1:00 PM ET",
     "classification": "\ud83c\udfaf WATCH",
     "classification_label": "STRONG SIGNAL \u2014 NO MARKET",
-    "signal_classification": "\ud83d\udd35 BLUE CHIP",
-    "signal_classification_label": "STRONG PLAY",
-    "signal_tier_score": 15,
+    "signal_classification": "\ud83c\udfaf TARGETED PLAY",
+    "signal_classification_label": "SOLID EDGE",
+    "signal_tier_score": 10,
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "pick_metadata": {
       "market": "none",
       "reason": "no market cleared threshold",
       "spread_score": 0,
       "total_score": 1,
-      "signal_classification": "\ud83d\udd35 BLUE CHIP",
+      "signal_classification": "\ud83c\udfaf TARGETED PLAY",
       "trace": {
         "selector_version": "2026.1",
         "market_candidates": {
@@ -2267,8 +2252,8 @@
               {
                 "source": "sharp",
                 "side": "AWAY",
-                "score": 3,
-                "impact": 3,
+                "score": 1,
+                "impact": 1,
                 "status": "aligned"
               }
             ],
@@ -2366,8 +2351,8 @@
             {
               "source": "sharp",
               "side": "AWAY",
-              "score": 3,
-              "impact": 3,
+              "score": 1,
+              "impact": 1,
               "status": "aligned"
             }
           ],
@@ -2441,33 +2426,33 @@
     },
     "model_version": "2026.1",
     "tier_score": 6,
-    "total_score": 16.4,
-    "confidence": 16.4,
+    "total_score": 13.4,
+    "confidence": 13.4,
     "sharp_analysis": {
       "spread": {
-        "differential": 19.0,
-        "score": 3,
+        "differential": 9.0,
+        "score": 1,
         "direction": "AWAY",
-        "bets_pct": 48.0,
-        "money_pct": 67.0,
-        "line": "-3.5 (+106) | +4 (-110)",
-        "description": "AWAY (+19.0% edge)"
+        "bets_pct": 49.0,
+        "money_pct": 58.0,
+        "line": "-3.5 (+106) | +3.5 (-106)",
+        "description": "AWAY (+9.0% edge)"
       },
       "total": {
-        "differential": -23.0,
+        "differential": -20.0,
         "score": -3,
         "direction": "UNDER",
-        "bets_pct": 64.0,
-        "money_pct": 41.0,
-        "line": "o38.5 (-102) | u37.5 (+113)",
-        "description": "UNDER (-23.0% edge)"
+        "bets_pct": 65.0,
+        "money_pct": 45.0,
+        "line": "o38.5 (+100) | u37.5 (+117)",
+        "description": "UNDER (-20.0% edge)"
       },
       "moneyline": {
         "differential": -2.0,
         "score": 0,
         "direction": "HOME",
-        "bets_pct": 73.0,
-        "money_pct": 71.0,
+        "bets_pct": 75.0,
+        "money_pct": 73.0,
         "line": "-167 | +167",
         "description": "HOME (-2.0% edge)"
       }
@@ -2475,9 +2460,9 @@
     "weather_analysis": {
       "score": 1,
       "factors": [
-        "Hot weather (87\u00b0F)"
+        "Hot weather (88\u00b0F)"
       ],
-      "description": "Hot weather (87\u00b0F)"
+      "description": "Hot weather (88\u00b0F)"
     },
     "referee_analysis": {
       "ats_pct": 60.7,
@@ -2515,17 +2500,17 @@
     "statistical_analysis": {
       "score": 2,
       "factors": [
-        "Current-season value on home team (+10.8 pts; projected home margin +6.8)",
+        "Current-season value on home team (+10.3 pts; projected home margin +6.8)",
         "Ratings: GB -9.7, TB -4.3 (season 2026, REG pre-Week 4)"
       ],
-      "description": "Current-season value on home team (+10.8 pts; projected home margin +6.8)"
+      "description": "Current-season value on home team (+10.3 pts; projected home margin +6.8)"
     },
     "game_theory_analysis": {
       "score": 0,
       "factors": [
-        "Market inefficiency detected (+19.0% sharp edge)"
+        "Market mispricing possible (+9.0% edge)"
       ],
-      "description": "Market inefficiency detected (+19.0% sharp edge)"
+      "description": "Market mispricing possible (+9.0% edge)"
     },
     "schedule_analysis": {
       "score": -2,
@@ -2536,8 +2521,7 @@
     },
     "sharp_stories": [
       "\u26a0\ufe0f DIVERGENCE: Sharps on away team but UNDER - expect low-scoring road win",
-      "\ud83d\udcb0 MASSIVE EDGE: +19.0% sharp money on AWAY team",
-      "\u26a0\ufe0f SHARP CONFLICT: -23.0% sharp money on UNDER"
+      "\u26a0\ufe0f SHARP CONFLICT: -20.0% sharp money on UNDER"
     ],
     "season_type": "REG",
     "data_quality": {
@@ -2563,1078 +2547,31 @@
         },
         "action_markets": {
           "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
+          "path": "data/action_all_markets_2026-10-01_.csv",
           "rows": 48,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
         },
         "action_injuries": {
           "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "action_weather": {
           "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
+          "path": "data/action_weather_2026-10-01_.csv",
           "rows": 16,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "rotowire": {
-          "name": "rotowire",
-          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
-          "rows": 4,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-01-18",
-          "fetched_date": "2026-01-18"
-        }
-      },
-      "warnings": [],
-      "critical_warnings": [],
-      "degraded_sources": [],
-      "unsafe_sources": []
-    }
-  },
-  {
-    "matchup": "New York Jets @ Chicago Bears",
-    "matchup_key": "NYJ@CHI",
-    "away": "New York Jets",
-    "home": "Chicago Bears",
-    "away_tla": "NYJ",
-    "home_tla": "CHI",
-    "game_time": "Sun 10/4, 1:00 PM ET",
-    "classification": "\ud83c\udfaf WATCH",
-    "classification_label": "STRONG SIGNAL \u2014 NO MARKET",
-    "signal_classification": "\ud83c\udfaf TARGETED PLAY",
-    "signal_classification_label": "SOLID EDGE",
-    "signal_tier_score": 10,
-    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
-    "pick_metadata": {
-      "market": "none",
-      "reason": "no market cleared threshold",
-      "spread_score": 3,
-      "total_score": 1,
-      "signal_classification": "\ud83c\udfaf TARGETED PLAY",
-      "trace": {
-        "selector_version": "2026.1",
-        "market_candidates": {
-          "spread": {
-            "market": "spread",
-            "side": "HOME",
-            "score": 3,
-            "threshold": 4,
-            "threshold_adjustments": [
-              {
-                "reason": "injury context present",
-                "delta": 1
-              }
-            ],
-            "cleared_threshold": false,
-            "requires_sharp_edge": true,
-            "has_sharp_edge": true,
-            "blocked": false,
-            "blockers": [],
-            "signals": [
-              {
-                "source": "sharp",
-                "side": "HOME",
-                "score": -1,
-                "impact": 1,
-                "status": "aligned"
-              },
-              {
-                "source": "team_rating",
-                "side": "HOME",
-                "score": 2,
-                "impact": 2,
-                "status": "aligned"
-              },
-              {
-                "source": "injury",
-                "side": "HOME",
-                "score": 2.45,
-                "impact": 0,
-                "status": "aligned"
-              }
-            ],
-            "conflicts": [],
-            "reasons": [
-              "sharp spread edge",
-              "team-rating edge aligns",
-              "injury context aligns"
-            ]
-          },
-          "total": {
-            "market": "total",
-            "side": "UNDER",
-            "score": 1,
-            "threshold": 4,
-            "cleared_threshold": false,
-            "blocked": false,
-            "blockers": [],
-            "signals": [
-              {
-                "source": "sharp",
-                "side": "UNDER",
-                "score": -1,
-                "impact": 1,
-                "status": "aligned"
-              }
-            ],
-            "conflicts": [],
-            "reasons": [
-              "sharp total edge"
-            ]
-          }
-        },
-        "final_decision": {
-          "market": "none",
-          "side": null,
-          "reason": "no market cleared threshold"
-        },
-        "source_policy": {
-          "status": "OK",
-          "blocked": false,
-          "unsafe_sources": [],
-          "critical_warnings": []
-        }
-      }
-    },
-    "recommendation_trace": {
-      "selector_version": "2026.1",
-      "market_candidates": {
-        "spread": {
-          "market": "spread",
-          "side": "HOME",
-          "score": 3,
-          "threshold": 4,
-          "threshold_adjustments": [
-            {
-              "reason": "injury context present",
-              "delta": 1
-            }
-          ],
-          "cleared_threshold": false,
-          "requires_sharp_edge": true,
-          "has_sharp_edge": true,
-          "blocked": false,
-          "blockers": [],
-          "signals": [
-            {
-              "source": "sharp",
-              "side": "HOME",
-              "score": -1,
-              "impact": 1,
-              "status": "aligned"
-            },
-            {
-              "source": "team_rating",
-              "side": "HOME",
-              "score": 2,
-              "impact": 2,
-              "status": "aligned"
-            },
-            {
-              "source": "injury",
-              "side": "HOME",
-              "score": 2.45,
-              "impact": 0,
-              "status": "aligned"
-            }
-          ],
-          "conflicts": [],
-          "reasons": [
-            "sharp spread edge",
-            "team-rating edge aligns",
-            "injury context aligns"
-          ]
-        },
-        "total": {
-          "market": "total",
-          "side": "UNDER",
-          "score": 1,
-          "threshold": 4,
-          "cleared_threshold": false,
-          "blocked": false,
-          "blockers": [],
-          "signals": [
-            {
-              "source": "sharp",
-              "side": "UNDER",
-              "score": -1,
-              "impact": 1,
-              "status": "aligned"
-            }
-          ],
-          "conflicts": [],
-          "reasons": [
-            "sharp total edge"
-          ]
-        }
-      },
-      "final_decision": {
-        "market": "none",
-        "side": null,
-        "reason": "no market cleared threshold"
-      },
-      "source_policy": {
-        "status": "OK",
-        "blocked": false,
-        "unsafe_sources": [],
-        "critical_warnings": []
-      }
-    },
-    "model_version": "2026.1",
-    "tier_score": 6,
-    "total_score": 8.8,
-    "confidence": 8.8,
-    "sharp_analysis": {
-      "spread": {
-        "differential": -8.0,
-        "score": -1,
-        "direction": "HOME",
-        "bets_pct": 43.0,
-        "money_pct": 35.0,
-        "line": "+3.5 (-108) | -3.5 (+108)",
-        "description": "HOME (-8.0% edge)"
-      },
-      "total": {
-        "differential": -7.0,
-        "score": -1,
-        "direction": "UNDER",
-        "bets_pct": 50.0,
-        "money_pct": 43.0,
-        "line": "o43.5 (+104) | u43.5 (-102)",
-        "description": "UNDER (-7.0% edge)"
-      },
-      "moneyline": {
-        "differential": 3.0,
-        "score": 0,
-        "direction": "AWAY",
-        "bets_pct": 14.0,
-        "money_pct": 17.0,
-        "line": "+167 | -167",
-        "description": "AWAY (+3.0% edge)"
-      }
-    },
-    "weather_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "Good conditions"
-    },
-    "referee_analysis": {
-      "ats_pct": 54.2,
-      "ou_pct": 47.9,
-      "ats_score": 0,
-      "ou_score": 0,
-      "ats_tendency": "NEUTRAL",
-      "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "Carl Cheffers",
-      "factors": []
-    },
-    "injury_analysis": {
-      "away_injuries": [
-        {
-          "player": "Breece Hall",
-          "position": "RB",
-          "status": "Doubtful",
-          "team": "New York Jets",
-          "team_tla": "NYJ"
-        }
-      ],
-      "home_injuries": [
-        {
-          "player": "Caleb Williams",
-          "position": "QB",
-          "status": "Doubtful",
-          "team": "Chicago Bears",
-          "team_tla": "CHI"
-        }
-      ],
-      "away_impact": 1.0499999999999998,
-      "home_impact": 3.5,
-      "score": 2.45,
-      "edge": "EDGE",
-      "description": "Found 2 high-impact injuries",
-      "factors": []
-    },
-    "situational_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "No significant situational factors"
-    },
-    "statistical_analysis": {
-      "score": 2,
-      "factors": [
-        "Current-season value on home team (+8.7 pts; projected home margin +12.2)",
-        "Ratings: NYJ -0.1, CHI +10.6 (season 2026, REG pre-Week 4)"
-      ],
-      "description": "Current-season value on home team (+8.7 pts; projected home margin +12.2)"
-    },
-    "game_theory_analysis": {
-      "score": 0,
-      "factors": [
-        "Market mispricing possible (-8.0% edge)"
-      ],
-      "description": "Market mispricing possible (-8.0% edge)"
-    },
-    "schedule_analysis": {
-      "score": -1,
-      "factors": [
-        "Minor rest edge (1 days)"
-      ],
-      "description": "Minor rest edge (1 days)"
-    },
-    "sharp_stories": [
-      "\u26a0\ufe0f DIVERGENCE: Sharps on home team but UNDER - expect defensive grind"
-    ],
-    "season_type": "REG",
-    "data_quality": {
-      "status": "OK",
-      "target_date": "",
-      "sources": {
-        "queries": {
-          "name": "queries",
-          "path": "data/week4/week4_queries.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "file_week": 4
-        },
-        "referee_trends": {
-          "name": "referee_trends",
-          "path": "data/historical/sdql_results.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": []
-        },
-        "action_markets": {
-          "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
-          "rows": 48,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
-        },
-        "action_injuries": {
-          "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "action_weather": {
-          "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "rotowire": {
-          "name": "rotowire",
-          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
-          "rows": 4,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-01-18",
-          "fetched_date": "2026-01-18"
-        }
-      },
-      "warnings": [],
-      "critical_warnings": [],
-      "degraded_sources": [],
-      "unsafe_sources": []
-    }
-  },
-  {
-    "matchup": "Atlanta Falcons @ New Orleans Saints",
-    "matchup_key": "ATL@NO",
-    "away": "Atlanta Falcons",
-    "home": "New Orleans Saints",
-    "away_tla": "ATL",
-    "home_tla": "NO",
-    "game_time": "Mon 10/5, 8:15 PM ET",
-    "classification": "\ud83c\udfaf WATCH",
-    "classification_label": "STRONG SIGNAL \u2014 NO MARKET",
-    "signal_classification": "\ud83c\udfaf TARGETED PLAY",
-    "signal_classification_label": "SOLID EDGE",
-    "signal_tier_score": 10,
-    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
-    "pick_metadata": {
-      "market": "none",
-      "reason": "no market cleared threshold",
-      "spread_score": 0,
-      "total_score": 3,
-      "signal_classification": "\ud83c\udfaf TARGETED PLAY",
-      "trace": {
-        "selector_version": "2026.1",
-        "market_candidates": {
-          "spread": {
-            "market": "spread",
-            "side": "AWAY",
-            "score": 0,
-            "threshold": 3,
-            "threshold_adjustments": [],
-            "cleared_threshold": false,
-            "requires_sharp_edge": true,
-            "has_sharp_edge": true,
-            "blocked": true,
-            "blockers": [
-              "team-rating conflict"
-            ],
-            "signals": [
-              {
-                "source": "sharp",
-                "side": "AWAY",
-                "score": 1,
-                "impact": 1,
-                "status": "aligned"
-              }
-            ],
-            "conflicts": [
-              {
-                "source": "team_rating",
-                "side": "HOME",
-                "score": 2,
-                "status": "conflict"
-              }
-            ],
-            "reasons": [
-              "sharp spread edge",
-              "team-rating edge conflicts"
-            ]
-          },
-          "total": {
-            "market": "total",
-            "side": "OVER",
-            "score": 3,
-            "threshold": 4,
-            "cleared_threshold": false,
-            "blocked": false,
-            "blockers": [],
-            "signals": [
-              {
-                "source": "sharp",
-                "side": "OVER",
-                "score": 1,
-                "impact": 1,
-                "status": "aligned"
-              },
-              {
-                "source": "ref_weather_context",
-                "side": "OVER",
-                "score": 2,
-                "impact": 2,
-                "status": "aligned",
-                "reasons": [
-                  "referee over trend"
-                ]
-              }
-            ],
-            "conflicts": [],
-            "reasons": [
-              "sharp total edge",
-              "referee over trend"
-            ]
-          }
-        },
-        "final_decision": {
-          "market": "none",
-          "side": null,
-          "reason": "no market cleared threshold"
-        },
-        "source_policy": {
-          "status": "OK",
-          "blocked": false,
-          "unsafe_sources": [],
-          "critical_warnings": []
-        }
-      }
-    },
-    "recommendation_trace": {
-      "selector_version": "2026.1",
-      "market_candidates": {
-        "spread": {
-          "market": "spread",
-          "side": "AWAY",
-          "score": 0,
-          "threshold": 3,
-          "threshold_adjustments": [],
-          "cleared_threshold": false,
-          "requires_sharp_edge": true,
-          "has_sharp_edge": true,
-          "blocked": true,
-          "blockers": [
-            "team-rating conflict"
-          ],
-          "signals": [
-            {
-              "source": "sharp",
-              "side": "AWAY",
-              "score": 1,
-              "impact": 1,
-              "status": "aligned"
-            }
-          ],
-          "conflicts": [
-            {
-              "source": "team_rating",
-              "side": "HOME",
-              "score": 2,
-              "status": "conflict"
-            }
-          ],
-          "reasons": [
-            "sharp spread edge",
-            "team-rating edge conflicts"
-          ]
-        },
-        "total": {
-          "market": "total",
-          "side": "OVER",
-          "score": 3,
-          "threshold": 4,
-          "cleared_threshold": false,
-          "blocked": false,
-          "blockers": [],
-          "signals": [
-            {
-              "source": "sharp",
-              "side": "OVER",
-              "score": 1,
-              "impact": 1,
-              "status": "aligned"
-            },
-            {
-              "source": "ref_weather_context",
-              "side": "OVER",
-              "score": 2,
-              "impact": 2,
-              "status": "aligned",
-              "reasons": [
-                "referee over trend"
-              ]
-            }
-          ],
-          "conflicts": [],
-          "reasons": [
-            "sharp total edge",
-            "referee over trend"
-          ]
-        }
-      },
-      "final_decision": {
-        "market": "none",
-        "side": null,
-        "reason": "no market cleared threshold"
-      },
-      "source_policy": {
-        "status": "OK",
-        "blocked": false,
-        "unsafe_sources": [],
-        "critical_warnings": []
-      }
-    },
-    "model_version": "2026.1",
-    "tier_score": 6,
-    "total_score": 8.1,
-    "confidence": 8.1,
-    "sharp_analysis": {
-      "spread": {
-        "differential": 6.0,
-        "score": 1,
-        "direction": "AWAY",
-        "bets_pct": 50.0,
-        "money_pct": 56.0,
-        "line": "+2.5 (+106) | -2.5 (-106)",
-        "description": "AWAY (+6.0% edge)"
-      },
-      "total": {
-        "differential": 9.0,
-        "score": 1,
-        "direction": "OVER",
-        "bets_pct": 36.0,
-        "money_pct": 45.0,
-        "line": "o47.5 (+100) | u47.5 (+100)",
-        "description": "OVER (+9.0% edge)"
-      },
-      "moneyline": {
-        "differential": 25.0,
-        "score": 3,
-        "direction": "AWAY",
-        "bets_pct": 24.0,
-        "money_pct": 49.0,
-        "line": "+135 | -135",
-        "description": "AWAY (+25.0% edge)"
-      }
-    },
-    "weather_analysis": {
-      "score": 0,
-      "factors": [
-        "Dome"
-      ],
-      "description": "Dome - no weather impact"
-    },
-    "referee_analysis": {
-      "ats_pct": 41.2,
-      "ou_pct": 64.7,
-      "ats_score": 0,
-      "ou_score": 2,
-      "ats_tendency": "DOG-FRIENDLY",
-      "ou_tendency": "OVER TENDENCY",
-      "referee": "Land Clark",
-      "factors": []
-    },
-    "injury_analysis": {
-      "away_injuries": [],
-      "home_injuries": [],
-      "away_impact": 0,
-      "home_impact": 0,
-      "score": 0,
-      "edge": "NO EDGE",
-      "description": "Found 0 high-impact injuries",
-      "factors": []
-    },
-    "situational_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "No significant situational factors"
-    },
-    "statistical_analysis": {
-      "score": 2,
-      "factors": [
-        "Current-season value on home team (+4.6 pts; projected home margin +7.1)",
-        "Ratings: ATL -5.4, NO +0.2 (season 2026, REG pre-Week 4)"
-      ],
-      "description": "Current-season value on home team (+4.6 pts; projected home margin +7.1)"
-    },
-    "game_theory_analysis": {
-      "score": 0,
-      "factors": [
-        "Market mispricing possible (+6.0% edge)"
-      ],
-      "description": "Market mispricing possible (+6.0% edge)"
-    },
-    "schedule_analysis": {
-      "score": -2,
-      "factors": [
-        "AWAY rest advantage (+3 days)"
-      ],
-      "description": "AWAY rest advantage (+3 days)"
-    },
-    "sharp_stories": [
-      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
-      "\ud83d\udcc8 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing"
-    ],
-    "season_type": "REG",
-    "data_quality": {
-      "status": "OK",
-      "target_date": "",
-      "sources": {
-        "queries": {
-          "name": "queries",
-          "path": "data/week4/week4_queries.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "file_week": 4
-        },
-        "referee_trends": {
-          "name": "referee_trends",
-          "path": "data/historical/sdql_results.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": []
-        },
-        "action_markets": {
-          "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
-          "rows": 48,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
-        },
-        "action_injuries": {
-          "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "action_weather": {
-          "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "rotowire": {
-          "name": "rotowire",
-          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
-          "rows": 4,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-01-18",
-          "fetched_date": "2026-01-18"
-        }
-      },
-      "warnings": [],
-      "critical_warnings": [],
-      "degraded_sources": [],
-      "unsafe_sources": []
-    }
-  },
-  {
-    "matchup": "Kansas City Chiefs @ Las Vegas Raiders",
-    "matchup_key": "KC@LV",
-    "away": "Kansas City Chiefs",
-    "home": "Las Vegas Raiders",
-    "away_tla": "KC",
-    "home_tla": "LV",
-    "game_time": "Sun 10/4, 4:25 PM ET",
-    "classification": "\ud83c\udfaf WATCH",
-    "classification_label": "STRONG SIGNAL \u2014 NO MARKET",
-    "signal_classification": "\ud83c\udfaf TARGETED PLAY",
-    "signal_classification_label": "SOLID EDGE",
-    "signal_tier_score": 10,
-    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
-    "pick_metadata": {
-      "market": "none",
-      "reason": "no market cleared threshold",
-      "spread_score": 0,
-      "total_score": -2,
-      "signal_classification": "\ud83c\udfaf TARGETED PLAY",
-      "trace": {
-        "selector_version": "2026.1",
-        "market_candidates": {
-          "spread": {
-            "market": "spread",
-            "side": "AWAY",
-            "score": 0,
-            "threshold": 2.5,
-            "threshold_adjustments": [
-              {
-                "reason": "WARPS confidence sweet-spot: 59% away win prob (55-65%), early season \u2014 66.7% ATS historically",
-                "delta": -0.5
-              }
-            ],
-            "cleared_threshold": false,
-            "requires_sharp_edge": true,
-            "has_sharp_edge": true,
-            "blocked": true,
-            "blockers": [
-              "team-rating conflict"
-            ],
-            "signals": [
-              {
-                "source": "sharp",
-                "side": "AWAY",
-                "score": 2,
-                "impact": 2,
-                "status": "aligned"
-              }
-            ],
-            "conflicts": [
-              {
-                "source": "team_rating",
-                "side": "HOME",
-                "score": 2,
-                "status": "conflict"
-              }
-            ],
-            "reasons": [
-              "sharp spread edge",
-              "team-rating edge conflicts"
-            ]
-          },
-          "total": {
-            "market": "total",
-            "side": "UNDER",
-            "score": -2,
-            "threshold": 4,
-            "cleared_threshold": false,
-            "blocked": false,
-            "blockers": [],
-            "signals": [],
-            "conflicts": [
-              {
-                "source": "ref_weather_context",
-                "side": "OVER",
-                "score": 2,
-                "impact": -2,
-                "status": "conflict",
-                "reasons": [
-                  "referee over trend"
-                ]
-              }
-            ],
-            "reasons": [
-              "ref/weather total context conflicts"
-            ]
-          }
-        },
-        "final_decision": {
-          "market": "none",
-          "side": null,
-          "reason": "no market cleared threshold"
-        },
-        "source_policy": {
-          "status": "OK",
-          "blocked": false,
-          "unsafe_sources": [],
-          "critical_warnings": []
-        }
-      }
-    },
-    "recommendation_trace": {
-      "selector_version": "2026.1",
-      "market_candidates": {
-        "spread": {
-          "market": "spread",
-          "side": "AWAY",
-          "score": 0,
-          "threshold": 2.5,
-          "threshold_adjustments": [
-            {
-              "reason": "WARPS confidence sweet-spot: 59% away win prob (55-65%), early season \u2014 66.7% ATS historically",
-              "delta": -0.5
-            }
-          ],
-          "cleared_threshold": false,
-          "requires_sharp_edge": true,
-          "has_sharp_edge": true,
-          "blocked": true,
-          "blockers": [
-            "team-rating conflict"
-          ],
-          "signals": [
-            {
-              "source": "sharp",
-              "side": "AWAY",
-              "score": 2,
-              "impact": 2,
-              "status": "aligned"
-            }
-          ],
-          "conflicts": [
-            {
-              "source": "team_rating",
-              "side": "HOME",
-              "score": 2,
-              "status": "conflict"
-            }
-          ],
-          "reasons": [
-            "sharp spread edge",
-            "team-rating edge conflicts"
-          ]
-        },
-        "total": {
-          "market": "total",
-          "side": "UNDER",
-          "score": -2,
-          "threshold": 4,
-          "cleared_threshold": false,
-          "blocked": false,
-          "blockers": [],
-          "signals": [],
-          "conflicts": [
-            {
-              "source": "ref_weather_context",
-              "side": "OVER",
-              "score": 2,
-              "impact": -2,
-              "status": "conflict",
-              "reasons": [
-                "referee over trend"
-              ]
-            }
-          ],
-          "reasons": [
-            "ref/weather total context conflicts"
-          ]
-        }
-      },
-      "final_decision": {
-        "market": "none",
-        "side": null,
-        "reason": "no market cleared threshold"
-      },
-      "source_policy": {
-        "status": "OK",
-        "blocked": false,
-        "unsafe_sources": [],
-        "critical_warnings": []
-      }
-    },
-    "model_version": "2026.1",
-    "tier_score": 6,
-    "total_score": 8.0,
-    "confidence": 8.0,
-    "sharp_analysis": {
-      "spread": {
-        "differential": 10.0,
-        "score": 2,
-        "direction": "AWAY",
-        "bets_pct": 55.0,
-        "money_pct": 65.0,
-        "line": "-4.5 (+106) | +4.5 (-106)",
-        "description": "AWAY (+10.0% edge)"
-      },
-      "total": {
-        "differential": -1.0,
-        "score": 0,
-        "direction": "UNDER",
-        "bets_pct": 37.0,
-        "money_pct": 36.0,
-        "line": "o48.5 (+115) | u48.5 (-115)",
-        "description": "UNDER (-1.0% edge)"
-      },
-      "moneyline": {
-        "differential": -5.0,
-        "score": -1,
-        "direction": "HOME",
-        "bets_pct": 90.0,
-        "money_pct": 85.0,
-        "line": "-190 | +190",
-        "description": "HOME (-5.0% edge)"
-      }
-    },
-    "weather_analysis": {
-      "score": 0,
-      "factors": [
-        "Dome"
-      ],
-      "description": "Dome - no weather impact"
-    },
-    "referee_analysis": {
-      "ats_pct": 50.0,
-      "ou_pct": 60.0,
-      "ats_score": 0,
-      "ou_score": 2,
-      "ats_tendency": "NEUTRAL",
-      "ou_tendency": "OVER TENDENCY",
-      "referee": "Brad Rogers",
-      "factors": []
-    },
-    "injury_analysis": {
-      "away_injuries": [],
-      "home_injuries": [],
-      "away_impact": 0,
-      "home_impact": 0,
-      "score": 0,
-      "edge": "NO EDGE",
-      "description": "Found 0 high-impact injuries",
-      "factors": []
-    },
-    "situational_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "No significant situational factors"
-    },
-    "statistical_analysis": {
-      "score": 2,
-      "factors": [
-        "Current-season value on home team (+4.8 pts; projected home margin +0.3)",
-        "Ratings: KC +9.4, LV +8.2 (season 2026, REG pre-Week 4)"
-      ],
-      "description": "Current-season value on home team (+4.8 pts; projected home margin +0.3)"
-    },
-    "game_theory_analysis": {
-      "score": 0,
-      "factors": [
-        "Market inefficiency detected (+10.0% sharp edge)"
-      ],
-      "description": "Market inefficiency detected (+10.0% sharp edge)"
-    },
-    "schedule_analysis": {
-      "score": 0,
-      "factors": [
-        "Neutral schedule situation (standard rest)"
-      ],
-      "description": "Neutral schedule situation (standard rest)"
-    },
-    "sharp_stories": [
-      "\u26a0\ufe0f DIVERGENCE: Sharps on away team but UNDER - expect low-scoring road win"
-    ],
-    "season_type": "REG",
-    "data_quality": {
-      "status": "OK",
-      "target_date": "",
-      "sources": {
-        "queries": {
-          "name": "queries",
-          "path": "data/week4/week4_queries.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "file_week": 4
-        },
-        "referee_trends": {
-          "name": "referee_trends",
-          "path": "data/historical/sdql_results.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": []
-        },
-        "action_markets": {
-          "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
-          "rows": 48,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
-        },
-        "action_injuries": {
-          "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "action_weather": {
-          "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "rotowire": {
           "name": "rotowire",
@@ -3819,9 +2756,9 @@
         "differential": -1.0,
         "score": 0,
         "direction": "HOME",
-        "bets_pct": 29.0,
-        "money_pct": 28.0,
-        "line": "-3.5 (-102) | +3.5 (+104)",
+        "bets_pct": 32.0,
+        "money_pct": 31.0,
+        "line": "-3.5 (-106) | +3.5 (+106)",
         "description": "HOME (-1.0% edge)"
       },
       "total": {
@@ -3830,17 +2767,17 @@
         "direction": "UNDER",
         "bets_pct": 7.0,
         "money_pct": 5.0,
-        "line": "o47.5 (-106) | u47.5 (+106)",
+        "line": "o48.5 (+102) | u48.5 (-102)",
         "description": "UNDER (-2.0% edge)"
       },
       "moneyline": {
-        "differential": 17.0,
-        "score": 3,
+        "differential": 11.0,
+        "score": 2,
         "direction": "AWAY",
-        "bets_pct": 64.0,
-        "money_pct": 81.0,
-        "line": "-174 | +174",
-        "description": "AWAY (+17.0% edge)"
+        "bets_pct": 67.0,
+        "money_pct": 78.0,
+        "line": "-182 | +182",
+        "description": "AWAY (+11.0% edge)"
       }
     },
     "weather_analysis": {
@@ -3928,31 +2865,31 @@
         },
         "action_markets": {
           "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
+          "path": "data/action_all_markets_2026-10-01_.csv",
           "rows": 48,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
         },
         "action_injuries": {
           "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "action_weather": {
           "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
+          "path": "data/action_weather_2026-10-01_.csv",
           "rows": 16,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "rotowire": {
           "name": "rotowire",
@@ -3972,388 +2909,66 @@
     }
   },
   {
-    "matchup": "Arizona Cardinals @ New York Giants",
-    "matchup_key": "ARI@NYG",
-    "away": "Arizona Cardinals",
-    "home": "New York Giants",
-    "away_tla": "ARI",
-    "home_tla": "NYG",
+    "matchup": "New York Jets @ Chicago Bears",
+    "matchup_key": "NYJ@CHI",
+    "away": "New York Jets",
+    "home": "Chicago Bears",
+    "away_tla": "NYJ",
+    "home_tla": "CHI",
     "game_time": "Sun 10/4, 1:00 PM ET",
-    "classification": "\ud83d\udcca WATCH",
-    "classification_label": "LEAN SIGNAL \u2014 NO MARKET",
-    "signal_classification": "\ud83d\udcca LEAN",
-    "signal_classification_label": "SLIGHT EDGE",
-    "signal_tier_score": 5,
+    "classification": "\ud83c\udfaf WATCH",
+    "classification_label": "STRONG SIGNAL \u2014 NO MARKET",
+    "signal_classification": "\ud83c\udfaf TARGETED PLAY",
+    "signal_classification_label": "SOLID EDGE",
+    "signal_tier_score": 10,
     "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
     "pick_metadata": {
       "market": "none",
       "reason": "no market cleared threshold",
       "spread_score": 0,
       "total_score": 1,
-      "signal_classification": "\ud83d\udcca LEAN",
-      "trace": {
-        "selector_version": "2026.1",
-        "market_candidates": {
-          "spread": {
-            "market": "spread",
-            "side": "AWAY",
-            "score": 0,
-            "threshold": 4,
-            "threshold_adjustments": [],
-            "cleared_threshold": false,
-            "requires_sharp_edge": true,
-            "has_sharp_edge": true,
-            "blocked": true,
-            "blockers": [
-              "team-rating conflict"
-            ],
-            "signals": [
-              {
-                "source": "sharp",
-                "side": "AWAY",
-                "score": 2,
-                "impact": 2,
-                "status": "aligned"
-              }
-            ],
-            "conflicts": [
-              {
-                "source": "team_rating",
-                "side": "HOME",
-                "score": 2,
-                "status": "conflict"
-              }
-            ],
-            "reasons": [
-              "sharp spread edge",
-              "team-rating edge conflicts"
-            ]
-          },
-          "total": {
-            "market": "total",
-            "side": "UNDER",
-            "score": 1,
-            "threshold": 4,
-            "cleared_threshold": false,
-            "blocked": false,
-            "blockers": [],
-            "signals": [
-              {
-                "source": "sharp",
-                "side": "UNDER",
-                "score": -1,
-                "impact": 1,
-                "status": "aligned"
-              }
-            ],
-            "conflicts": [],
-            "reasons": [
-              "sharp total edge"
-            ]
-          }
-        },
-        "final_decision": {
-          "market": "none",
-          "side": null,
-          "reason": "no market cleared threshold"
-        },
-        "source_policy": {
-          "status": "OK",
-          "blocked": false,
-          "unsafe_sources": [],
-          "critical_warnings": []
-        }
-      }
-    },
-    "recommendation_trace": {
-      "selector_version": "2026.1",
-      "market_candidates": {
-        "spread": {
-          "market": "spread",
-          "side": "AWAY",
-          "score": 0,
-          "threshold": 4,
-          "threshold_adjustments": [],
-          "cleared_threshold": false,
-          "requires_sharp_edge": true,
-          "has_sharp_edge": true,
-          "blocked": true,
-          "blockers": [
-            "team-rating conflict"
-          ],
-          "signals": [
-            {
-              "source": "sharp",
-              "side": "AWAY",
-              "score": 2,
-              "impact": 2,
-              "status": "aligned"
-            }
-          ],
-          "conflicts": [
-            {
-              "source": "team_rating",
-              "side": "HOME",
-              "score": 2,
-              "status": "conflict"
-            }
-          ],
-          "reasons": [
-            "sharp spread edge",
-            "team-rating edge conflicts"
-          ]
-        },
-        "total": {
-          "market": "total",
-          "side": "UNDER",
-          "score": 1,
-          "threshold": 4,
-          "cleared_threshold": false,
-          "blocked": false,
-          "blockers": [],
-          "signals": [
-            {
-              "source": "sharp",
-              "side": "UNDER",
-              "score": -1,
-              "impact": 1,
-              "status": "aligned"
-            }
-          ],
-          "conflicts": [],
-          "reasons": [
-            "sharp total edge"
-          ]
-        }
-      },
-      "final_decision": {
-        "market": "none",
-        "side": null,
-        "reason": "no market cleared threshold"
-      },
-      "source_policy": {
-        "status": "OK",
-        "blocked": false,
-        "unsafe_sources": [],
-        "critical_warnings": []
-      }
-    },
-    "model_version": "2026.1",
-    "tier_score": 5,
-    "total_score": 6.6,
-    "confidence": 6.6,
-    "sharp_analysis": {
-      "spread": {
-        "differential": 13.0,
-        "score": 2,
-        "direction": "AWAY",
-        "bets_pct": 61.0,
-        "money_pct": 74.0,
-        "line": "-2.5 (-102) | +2.5 (+104)",
-        "description": "AWAY (+13.0% edge)"
-      },
-      "total": {
-        "differential": -5.0,
-        "score": -1,
-        "direction": "UNDER",
-        "bets_pct": 42.0,
-        "money_pct": 37.0,
-        "line": "o44.5 (+106) | u44.5 (-106)",
-        "description": "UNDER (-5.0% edge)"
-      },
-      "moneyline": {
-        "differential": 29.0,
-        "score": 3,
-        "direction": "AWAY",
-        "bets_pct": 53.0,
-        "money_pct": 82.0,
-        "line": "-125 | +125",
-        "description": "AWAY (+29.0% edge)"
-      }
-    },
-    "weather_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "Good conditions"
-    },
-    "referee_analysis": {
-      "ats_pct": 44.7,
-      "ou_pct": 50.0,
-      "ats_score": 0,
-      "ou_score": 0,
-      "ats_tendency": "DOG-FRIENDLY",
-      "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "Shawn Smith",
-      "factors": []
-    },
-    "injury_analysis": {
-      "away_injuries": [],
-      "home_injuries": [],
-      "away_impact": 0,
-      "home_impact": 0,
-      "score": 0,
-      "edge": "NO EDGE",
-      "description": "Found 0 high-impact injuries",
-      "factors": []
-    },
-    "situational_analysis": {
-      "score": 0,
-      "factors": [],
-      "description": "No significant situational factors"
-    },
-    "statistical_analysis": {
-      "score": 2,
-      "factors": [
-        "Current-season value on home team (+5.6 pts; projected home margin +3.1)",
-        "Ratings: ARI -4.4, NYG -2.9 (season 2026, REG pre-Week 4)"
-      ],
-      "description": "Current-season value on home team (+5.6 pts; projected home margin +3.1)"
-    },
-    "game_theory_analysis": {
-      "score": 0,
-      "factors": [
-        "Market inefficiency detected (+13.0% sharp edge)",
-        "Potential steam move developing"
-      ],
-      "description": "Market inefficiency detected (+13.0% sharp edge), Potential steam move developing"
-    },
-    "schedule_analysis": {
-      "score": 0,
-      "factors": [
-        "Neutral schedule situation (standard rest)"
-      ],
-      "description": "Neutral schedule situation (standard rest)"
-    },
-    "sharp_stories": [
-      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
-      "\u26a0\ufe0f DIVERGENCE: Sharps on away team but UNDER - expect low-scoring road win"
-    ],
-    "season_type": "REG",
-    "data_quality": {
-      "status": "OK",
-      "target_date": "",
-      "sources": {
-        "queries": {
-          "name": "queries",
-          "path": "data/week4/week4_queries.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "file_week": 4
-        },
-        "referee_trends": {
-          "name": "referee_trends",
-          "path": "data/historical/sdql_results.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": []
-        },
-        "action_markets": {
-          "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
-          "rows": 48,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
-        },
-        "action_injuries": {
-          "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "action_weather": {
-          "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
-          "rows": 16,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-09-30"
-        },
-        "rotowire": {
-          "name": "rotowire",
-          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
-          "rows": 4,
-          "status": "OK",
-          "warnings": [],
-          "critical_warnings": [],
-          "filename_date": "2026-01-18",
-          "fetched_date": "2026-01-18"
-        }
-      },
-      "warnings": [],
-      "critical_warnings": [],
-      "degraded_sources": [],
-      "unsafe_sources": []
-    }
-  },
-  {
-    "matchup": "Los Angeles Chargers @ Seattle Seahawks",
-    "matchup_key": "LAC@SEA",
-    "away": "Los Angeles Chargers",
-    "home": "Seattle Seahawks",
-    "away_tla": "LAC",
-    "home_tla": "SEA",
-    "game_time": "Sun 10/4, 4:25 PM ET",
-    "classification": "\ud83d\udcca WATCH",
-    "classification_label": "LEAN SIGNAL \u2014 NO MARKET",
-    "signal_classification": "\ud83d\udcca LEAN",
-    "signal_classification_label": "SLIGHT EDGE",
-    "signal_tier_score": 5,
-    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
-    "pick_metadata": {
-      "market": "none",
-      "reason": "no market cleared threshold",
-      "spread_score": 4,
-      "total_score": 1,
-      "signal_classification": "\ud83d\udcca LEAN",
+      "signal_classification": "\ud83c\udfaf TARGETED PLAY",
       "trace": {
         "selector_version": "2026.1",
         "market_candidates": {
           "spread": {
             "market": "spread",
             "side": "HOME",
-            "score": 4,
-            "threshold": 4.5,
+            "score": 0,
+            "threshold": 4,
             "threshold_adjustments": [
               {
-                "reason": "market ML implies 74% win prob for pick side: overconfidence zone",
-                "delta": 0.5
+                "reason": "injury context present",
+                "delta": 1
               }
             ],
             "cleared_threshold": false,
             "requires_sharp_edge": true,
-            "has_sharp_edge": true,
-            "blocked": false,
-            "blockers": [],
+            "has_sharp_edge": false,
+            "blocked": true,
+            "blockers": [
+              "sharp spread edge required"
+            ],
             "signals": [
-              {
-                "source": "sharp",
-                "side": "HOME",
-                "score": -2,
-                "impact": 2,
-                "status": "aligned"
-              },
               {
                 "source": "team_rating",
                 "side": "HOME",
                 "score": 2,
                 "impact": 2,
                 "status": "aligned"
+              },
+              {
+                "source": "injury",
+                "side": "HOME",
+                "score": 2.45,
+                "impact": 0,
+                "status": "aligned"
               }
             ],
             "conflicts": [],
             "reasons": [
-              "sharp spread edge",
-              "team-rating edge aligns"
+              "team-rating edge aligns",
+              "injury context aligns"
             ]
           },
           "total": {
@@ -4398,39 +3013,41 @@
         "spread": {
           "market": "spread",
           "side": "HOME",
-          "score": 4,
-          "threshold": 4.5,
+          "score": 0,
+          "threshold": 4,
           "threshold_adjustments": [
             {
-              "reason": "market ML implies 74% win prob for pick side: overconfidence zone",
-              "delta": 0.5
+              "reason": "injury context present",
+              "delta": 1
             }
           ],
           "cleared_threshold": false,
           "requires_sharp_edge": true,
-          "has_sharp_edge": true,
-          "blocked": false,
-          "blockers": [],
+          "has_sharp_edge": false,
+          "blocked": true,
+          "blockers": [
+            "sharp spread edge required"
+          ],
           "signals": [
-            {
-              "source": "sharp",
-              "side": "HOME",
-              "score": -2,
-              "impact": 2,
-              "status": "aligned"
-            },
             {
               "source": "team_rating",
               "side": "HOME",
               "score": 2,
               "impact": 2,
               "status": "aligned"
+            },
+            {
+              "source": "injury",
+              "side": "HOME",
+              "score": 2.45,
+              "impact": 0,
+              "status": "aligned"
             }
           ],
           "conflicts": [],
           "reasons": [
-            "sharp spread edge",
-            "team-rating edge aligns"
+            "team-rating edge aligns",
+            "injury context aligns"
           ]
         },
         "total": {
@@ -4469,36 +3086,36 @@
       }
     },
     "model_version": "2026.1",
-    "tier_score": 5,
-    "total_score": 6.6,
-    "confidence": 6.6,
+    "tier_score": 6,
+    "total_score": 7.3,
+    "confidence": 7.3,
     "sharp_analysis": {
       "spread": {
-        "differential": -10.0,
-        "score": -2,
+        "differential": -2.0,
+        "score": 0,
         "direction": "HOME",
-        "bets_pct": 49.0,
-        "money_pct": 39.0,
-        "line": "+7 (-105) | -7.5 (+115)",
-        "description": "HOME (-10.0% edge)"
+        "bets_pct": 42.0,
+        "money_pct": 40.0,
+        "line": "+3.5 (-106) | -3.5 (+106)",
+        "description": "HOME (-2.0% edge)"
       },
       "total": {
         "differential": -5.0,
         "score": -1,
         "direction": "UNDER",
-        "bets_pct": 43.0,
-        "money_pct": 38.0,
-        "line": "o42.5 (-104) | u42.5 (+106)",
+        "bets_pct": 52.0,
+        "money_pct": 47.0,
+        "line": "o43.5 (+102) | u42.5 (+108)",
         "description": "UNDER (-5.0% edge)"
       },
       "moneyline": {
-        "differential": 3.0,
+        "differential": 4.0,
         "score": 0,
         "direction": "AWAY",
-        "bets_pct": 6.0,
-        "money_pct": 9.0,
-        "line": "+300 | -292",
-        "description": "AWAY (+3.0% edge)"
+        "bets_pct": 13.0,
+        "money_pct": 17.0,
+        "line": "+160 | -160",
+        "description": "AWAY (+4.0% edge)"
       }
     },
     "weather_analysis": {
@@ -4507,23 +3124,39 @@
       "description": "Good conditions"
     },
     "referee_analysis": {
-      "ats_pct": 38.6,
-      "ou_pct": 52.3,
-      "ats_score": -2,
+      "ats_pct": 54.2,
+      "ou_pct": 47.9,
+      "ats_score": 0,
       "ou_score": 0,
-      "ats_tendency": "DOG-FRIENDLY",
+      "ats_tendency": "NEUTRAL",
       "ou_tendency": "NEUTRAL TOTAL",
-      "referee": "Scott Novak",
+      "referee": "Carl Cheffers",
       "factors": []
     },
     "injury_analysis": {
-      "away_injuries": [],
-      "home_injuries": [],
-      "away_impact": 0,
-      "home_impact": 0,
-      "score": 0,
-      "edge": "NO EDGE",
-      "description": "Found 0 high-impact injuries",
+      "away_injuries": [
+        {
+          "player": "Breece Hall",
+          "position": "RB",
+          "status": "Doubtful",
+          "team": "New York Jets",
+          "team_tla": "NYJ"
+        }
+      ],
+      "home_injuries": [
+        {
+          "player": "Caleb Williams",
+          "position": "QB",
+          "status": "Doubtful",
+          "team": "Chicago Bears",
+          "team_tla": "CHI"
+        }
+      ],
+      "away_impact": 1.0499999999999998,
+      "home_impact": 3.5,
+      "score": 2.45,
+      "edge": "EDGE",
+      "description": "Found 2 high-impact injuries",
       "factors": []
     },
     "situational_analysis": {
@@ -4534,24 +3167,22 @@
     "statistical_analysis": {
       "score": 2,
       "factors": [
-        "Current-season value on home team (+8.7 pts; projected home margin +16.2)",
-        "Ratings: LAC -8.4, SEA +6.2 (season 2026, REG pre-Week 4)"
+        "Current-season value on home team (+8.7 pts; projected home margin +12.2)",
+        "Ratings: NYJ -0.1, CHI +10.6 (season 2026, REG pre-Week 4)"
       ],
-      "description": "Current-season value on home team (+8.7 pts; projected home margin +16.2)"
+      "description": "Current-season value on home team (+8.7 pts; projected home margin +12.2)"
     },
     "game_theory_analysis": {
       "score": 0,
-      "factors": [
-        "Market inefficiency detected (-10.0% sharp edge)"
-      ],
-      "description": "Market inefficiency detected (-10.0% sharp edge)"
+      "factors": [],
+      "description": "Standard market dynamics"
     },
     "schedule_analysis": {
-      "score": 0,
+      "score": -1,
       "factors": [
-        "Neutral schedule situation (standard rest)"
+        "Minor rest edge (1 days)"
       ],
-      "description": "Neutral schedule situation (standard rest)"
+      "description": "Minor rest edge (1 days)"
     },
     "sharp_stories": [
       "\u26a0\ufe0f DIVERGENCE: Sharps on home team but UNDER - expect defensive grind"
@@ -4580,31 +3211,1336 @@
         },
         "action_markets": {
           "name": "action_markets",
-          "path": "data/action_all_markets_2026-09-30_.csv",
+          "path": "data/action_all_markets_2026-10-01_.csv",
           "rows": 48,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30",
-          "fetched_date": "2026-09-30"
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
         },
         "action_injuries": {
           "name": "action_injuries",
-          "path": "data/action_injuries_2026-09-30_.csv",
-          "rows": 64,
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
         },
         "action_weather": {
           "name": "action_weather",
-          "path": "data/action_weather_2026-09-30_.csv",
+          "path": "data/action_weather_2026-10-01_.csv",
           "rows": 16,
           "status": "OK",
           "warnings": [],
           "critical_warnings": [],
-          "filename_date": "2026-09-30"
+          "filename_date": "2026-10-01"
+        },
+        "rotowire": {
+          "name": "rotowire",
+          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
+          "rows": 4,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-01-18",
+          "fetched_date": "2026-01-18"
+        }
+      },
+      "warnings": [],
+      "critical_warnings": [],
+      "degraded_sources": [],
+      "unsafe_sources": []
+    }
+  },
+  {
+    "matchup": "Atlanta Falcons @ New Orleans Saints",
+    "matchup_key": "ATL@NO",
+    "away": "Atlanta Falcons",
+    "home": "New Orleans Saints",
+    "away_tla": "ATL",
+    "home_tla": "NO",
+    "game_time": "Mon 10/5, 8:15 PM ET",
+    "classification": "\ud83d\udcca WATCH",
+    "classification_label": "LEAN SIGNAL \u2014 NO MARKET",
+    "signal_classification": "\ud83d\udcca LEAN",
+    "signal_classification_label": "SLIGHT EDGE",
+    "signal_tier_score": 5,
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+    "pick_metadata": {
+      "market": "none",
+      "reason": "no market cleared threshold",
+      "spread_score": 0,
+      "total_score": 3,
+      "signal_classification": "\ud83d\udcca LEAN",
+      "trace": {
+        "selector_version": "2026.1",
+        "market_candidates": {
+          "spread": {
+            "market": "spread",
+            "side": "HOME",
+            "score": 0,
+            "threshold": 4,
+            "threshold_adjustments": [],
+            "cleared_threshold": false,
+            "requires_sharp_edge": true,
+            "has_sharp_edge": false,
+            "blocked": true,
+            "blockers": [
+              "sharp spread edge required"
+            ],
+            "signals": [
+              {
+                "source": "team_rating",
+                "side": "HOME",
+                "score": 2,
+                "impact": 2,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "team-rating edge aligns"
+            ]
+          },
+          "total": {
+            "market": "total",
+            "side": "OVER",
+            "score": 3,
+            "threshold": 4,
+            "cleared_threshold": false,
+            "blocked": false,
+            "blockers": [],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "OVER",
+                "score": 1,
+                "impact": 1,
+                "status": "aligned"
+              },
+              {
+                "source": "ref_weather_context",
+                "side": "OVER",
+                "score": 2,
+                "impact": 2,
+                "status": "aligned",
+                "reasons": [
+                  "referee over trend"
+                ]
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "sharp total edge",
+              "referee over trend"
+            ]
+          }
+        },
+        "final_decision": {
+          "market": "none",
+          "side": null,
+          "reason": "no market cleared threshold"
+        },
+        "source_policy": {
+          "status": "OK",
+          "blocked": false,
+          "unsafe_sources": [],
+          "critical_warnings": []
+        }
+      }
+    },
+    "recommendation_trace": {
+      "selector_version": "2026.1",
+      "market_candidates": {
+        "spread": {
+          "market": "spread",
+          "side": "HOME",
+          "score": 0,
+          "threshold": 4,
+          "threshold_adjustments": [],
+          "cleared_threshold": false,
+          "requires_sharp_edge": true,
+          "has_sharp_edge": false,
+          "blocked": true,
+          "blockers": [
+            "sharp spread edge required"
+          ],
+          "signals": [
+            {
+              "source": "team_rating",
+              "side": "HOME",
+              "score": 2,
+              "impact": 2,
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "team-rating edge aligns"
+          ]
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 3,
+          "threshold": 4,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "OVER",
+              "score": 1,
+              "impact": 1,
+              "status": "aligned"
+            },
+            {
+              "source": "ref_weather_context",
+              "side": "OVER",
+              "score": 2,
+              "impact": 2,
+              "status": "aligned",
+              "reasons": [
+                "referee over trend"
+              ]
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp total edge",
+            "referee over trend"
+          ]
+        }
+      },
+      "final_decision": {
+        "market": "none",
+        "side": null,
+        "reason": "no market cleared threshold"
+      },
+      "source_policy": {
+        "status": "OK",
+        "blocked": false,
+        "unsafe_sources": [],
+        "critical_warnings": []
+      }
+    },
+    "model_version": "2026.1",
+    "tier_score": 5,
+    "total_score": 6.6,
+    "confidence": 6.6,
+    "sharp_analysis": {
+      "spread": {
+        "differential": -4.0,
+        "score": 0,
+        "direction": "HOME",
+        "bets_pct": 51.0,
+        "money_pct": 47.0,
+        "line": "+2.5 (+102) | -2.5 (-102)",
+        "description": "HOME (-4.0% edge)"
+      },
+      "total": {
+        "differential": 9.0,
+        "score": 1,
+        "direction": "OVER",
+        "bets_pct": 37.0,
+        "money_pct": 46.0,
+        "line": "o47.5 (-106) | u47.5 (+106)",
+        "description": "OVER (+9.0% edge)"
+      },
+      "moneyline": {
+        "differential": 18.0,
+        "score": 3,
+        "direction": "AWAY",
+        "bets_pct": 25.0,
+        "money_pct": 43.0,
+        "line": "+130 | -130",
+        "description": "AWAY (+18.0% edge)"
+      }
+    },
+    "weather_analysis": {
+      "score": 0,
+      "factors": [
+        "Dome"
+      ],
+      "description": "Dome - no weather impact"
+    },
+    "referee_analysis": {
+      "ats_pct": 41.2,
+      "ou_pct": 64.7,
+      "ats_score": 0,
+      "ou_score": 2,
+      "ats_tendency": "DOG-FRIENDLY",
+      "ou_tendency": "OVER TENDENCY",
+      "referee": "Land Clark",
+      "factors": []
+    },
+    "injury_analysis": {
+      "away_injuries": [],
+      "home_injuries": [],
+      "away_impact": 0,
+      "home_impact": 0,
+      "score": 0,
+      "edge": "NO EDGE",
+      "description": "Found 0 high-impact injuries",
+      "factors": []
+    },
+    "situational_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "No significant situational factors"
+    },
+    "statistical_analysis": {
+      "score": 2,
+      "factors": [
+        "Current-season value on home team (+4.6 pts; projected home margin +7.1)",
+        "Ratings: ATL -5.4, NO +0.2 (season 2026, REG pre-Week 4)"
+      ],
+      "description": "Current-season value on home team (+4.6 pts; projected home margin +7.1)"
+    },
+    "game_theory_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "Standard market dynamics"
+    },
+    "schedule_analysis": {
+      "score": -2,
+      "factors": [
+        "AWAY rest advantage (+3 days)"
+      ],
+      "description": "AWAY rest advantage (+3 days)"
+    },
+    "sharp_stories": [
+      "Sharp action relatively balanced across markets"
+    ],
+    "season_type": "REG",
+    "data_quality": {
+      "status": "OK",
+      "target_date": "",
+      "sources": {
+        "queries": {
+          "name": "queries",
+          "path": "data/week4/week4_queries.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "file_week": 4
+        },
+        "referee_trends": {
+          "name": "referee_trends",
+          "path": "data/historical/sdql_results.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": []
+        },
+        "action_markets": {
+          "name": "action_markets",
+          "path": "data/action_all_markets_2026-10-01_.csv",
+          "rows": 48,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
+        },
+        "action_injuries": {
+          "name": "action_injuries",
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "action_weather": {
+          "name": "action_weather",
+          "path": "data/action_weather_2026-10-01_.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "rotowire": {
+          "name": "rotowire",
+          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
+          "rows": 4,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-01-18",
+          "fetched_date": "2026-01-18"
+        }
+      },
+      "warnings": [],
+      "critical_warnings": [],
+      "degraded_sources": [],
+      "unsafe_sources": []
+    }
+  },
+  {
+    "matchup": "Kansas City Chiefs @ Las Vegas Raiders",
+    "matchup_key": "KC@LV",
+    "away": "Kansas City Chiefs",
+    "home": "Las Vegas Raiders",
+    "away_tla": "KC",
+    "home_tla": "LV",
+    "game_time": "Sun 10/4, 4:25 PM ET",
+    "classification": "\ud83d\udcca WATCH",
+    "classification_label": "LEAN SIGNAL \u2014 NO MARKET",
+    "signal_classification": "\ud83d\udcca LEAN",
+    "signal_classification_label": "SLIGHT EDGE",
+    "signal_tier_score": 5,
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+    "pick_metadata": {
+      "market": "none",
+      "reason": "no market cleared threshold",
+      "spread_score": 0,
+      "total_score": 2,
+      "signal_classification": "\ud83d\udcca LEAN",
+      "trace": {
+        "selector_version": "2026.1",
+        "market_candidates": {
+          "spread": {
+            "market": "spread",
+            "side": "AWAY",
+            "score": 0,
+            "threshold": 3.5,
+            "threshold_adjustments": [
+              {
+                "reason": "WARPS confidence sweet-spot: 59% away win prob (55-65%), early season \u2014 66.7% ATS historically",
+                "delta": -0.5
+              }
+            ],
+            "cleared_threshold": false,
+            "requires_sharp_edge": true,
+            "has_sharp_edge": true,
+            "blocked": true,
+            "blockers": [
+              "team-rating conflict"
+            ],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "AWAY",
+                "score": 1,
+                "impact": 1,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [
+              {
+                "source": "team_rating",
+                "side": "HOME",
+                "score": 2,
+                "status": "conflict"
+              }
+            ],
+            "reasons": [
+              "sharp spread edge",
+              "team-rating edge conflicts"
+            ]
+          },
+          "total": {
+            "market": "total",
+            "side": "OVER",
+            "score": 2,
+            "threshold": 4,
+            "cleared_threshold": false,
+            "blocked": false,
+            "blockers": [],
+            "signals": [
+              {
+                "source": "ref_weather_context",
+                "side": "OVER",
+                "score": 2,
+                "impact": 2,
+                "status": "aligned",
+                "reasons": [
+                  "referee over trend"
+                ]
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "referee over trend"
+            ]
+          }
+        },
+        "final_decision": {
+          "market": "none",
+          "side": null,
+          "reason": "no market cleared threshold"
+        },
+        "source_policy": {
+          "status": "OK",
+          "blocked": false,
+          "unsafe_sources": [],
+          "critical_warnings": []
+        }
+      }
+    },
+    "recommendation_trace": {
+      "selector_version": "2026.1",
+      "market_candidates": {
+        "spread": {
+          "market": "spread",
+          "side": "AWAY",
+          "score": 0,
+          "threshold": 3.5,
+          "threshold_adjustments": [
+            {
+              "reason": "WARPS confidence sweet-spot: 59% away win prob (55-65%), early season \u2014 66.7% ATS historically",
+              "delta": -0.5
+            }
+          ],
+          "cleared_threshold": false,
+          "requires_sharp_edge": true,
+          "has_sharp_edge": true,
+          "blocked": true,
+          "blockers": [
+            "team-rating conflict"
+          ],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "AWAY",
+              "score": 1,
+              "impact": 1,
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [
+            {
+              "source": "team_rating",
+              "side": "HOME",
+              "score": 2,
+              "status": "conflict"
+            }
+          ],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge conflicts"
+          ]
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 2,
+          "threshold": 4,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "source": "ref_weather_context",
+              "side": "OVER",
+              "score": 2,
+              "impact": 2,
+              "status": "aligned",
+              "reasons": [
+                "referee over trend"
+              ]
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "referee over trend"
+          ]
+        }
+      },
+      "final_decision": {
+        "market": "none",
+        "side": null,
+        "reason": "no market cleared threshold"
+      },
+      "source_policy": {
+        "status": "OK",
+        "blocked": false,
+        "unsafe_sources": [],
+        "critical_warnings": []
+      }
+    },
+    "model_version": "2026.1",
+    "tier_score": 5,
+    "total_score": 6.5,
+    "confidence": 6.5,
+    "sharp_analysis": {
+      "spread": {
+        "differential": 5.0,
+        "score": 1,
+        "direction": "AWAY",
+        "bets_pct": 54.0,
+        "money_pct": 59.0,
+        "line": "-4.5 (+106) | +4.5 (-104)",
+        "description": "AWAY (+5.0% edge)"
+      },
+      "total": {
+        "differential": 2.0,
+        "score": 0,
+        "direction": "OVER",
+        "bets_pct": 40.0,
+        "money_pct": 42.0,
+        "line": "o48.5 (+115) | u48.5 (-115)",
+        "description": "OVER (+2.0% edge)"
+      },
+      "moneyline": {
+        "differential": -3.0,
+        "score": 0,
+        "direction": "HOME",
+        "bets_pct": 90.0,
+        "money_pct": 87.0,
+        "line": "-190 | +190",
+        "description": "HOME (-3.0% edge)"
+      }
+    },
+    "weather_analysis": {
+      "score": 0,
+      "factors": [
+        "Dome"
+      ],
+      "description": "Dome - no weather impact"
+    },
+    "referee_analysis": {
+      "ats_pct": 50.0,
+      "ou_pct": 60.0,
+      "ats_score": 0,
+      "ou_score": 2,
+      "ats_tendency": "NEUTRAL",
+      "ou_tendency": "OVER TENDENCY",
+      "referee": "Brad Rogers",
+      "factors": []
+    },
+    "injury_analysis": {
+      "away_injuries": [],
+      "home_injuries": [],
+      "away_impact": 0,
+      "home_impact": 0,
+      "score": 0,
+      "edge": "NO EDGE",
+      "description": "Found 0 high-impact injuries",
+      "factors": []
+    },
+    "situational_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "No significant situational factors"
+    },
+    "statistical_analysis": {
+      "score": 2,
+      "factors": [
+        "Current-season value on home team (+4.8 pts; projected home margin +0.3)",
+        "Ratings: KC +9.4, LV +8.2 (season 2026, REG pre-Week 4)"
+      ],
+      "description": "Current-season value on home team (+4.8 pts; projected home margin +0.3)"
+    },
+    "game_theory_analysis": {
+      "score": 0,
+      "factors": [
+        "Market mispricing possible (+5.0% edge)"
+      ],
+      "description": "Market mispricing possible (+5.0% edge)"
+    },
+    "schedule_analysis": {
+      "score": 0,
+      "factors": [
+        "Neutral schedule situation (standard rest)"
+      ],
+      "description": "Neutral schedule situation (standard rest)"
+    },
+    "sharp_stories": [
+      "\ud83d\udcc8 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing"
+    ],
+    "season_type": "REG",
+    "data_quality": {
+      "status": "OK",
+      "target_date": "",
+      "sources": {
+        "queries": {
+          "name": "queries",
+          "path": "data/week4/week4_queries.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "file_week": 4
+        },
+        "referee_trends": {
+          "name": "referee_trends",
+          "path": "data/historical/sdql_results.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": []
+        },
+        "action_markets": {
+          "name": "action_markets",
+          "path": "data/action_all_markets_2026-10-01_.csv",
+          "rows": 48,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
+        },
+        "action_injuries": {
+          "name": "action_injuries",
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "action_weather": {
+          "name": "action_weather",
+          "path": "data/action_weather_2026-10-01_.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "rotowire": {
+          "name": "rotowire",
+          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
+          "rows": 4,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-01-18",
+          "fetched_date": "2026-01-18"
+        }
+      },
+      "warnings": [],
+      "critical_warnings": [],
+      "degraded_sources": [],
+      "unsafe_sources": []
+    }
+  },
+  {
+    "matchup": "Arizona Cardinals @ New York Giants",
+    "matchup_key": "ARI@NYG",
+    "away": "Arizona Cardinals",
+    "home": "New York Giants",
+    "away_tla": "ARI",
+    "home_tla": "NYG",
+    "game_time": "Sun 10/4, 1:00 PM ET",
+    "classification": "\ud83d\udcca WATCH",
+    "classification_label": "LEAN SIGNAL \u2014 NO MARKET",
+    "signal_classification": "\ud83d\udcca LEAN",
+    "signal_classification_label": "SLIGHT EDGE",
+    "signal_tier_score": 5,
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+    "pick_metadata": {
+      "market": "none",
+      "reason": "no market cleared threshold",
+      "spread_score": 0,
+      "total_score": 0,
+      "signal_classification": "\ud83d\udcca LEAN",
+      "trace": {
+        "selector_version": "2026.1",
+        "market_candidates": {
+          "spread": {
+            "market": "spread",
+            "side": "AWAY",
+            "score": 0,
+            "threshold": 4,
+            "threshold_adjustments": [],
+            "cleared_threshold": false,
+            "requires_sharp_edge": true,
+            "has_sharp_edge": true,
+            "blocked": true,
+            "blockers": [
+              "team-rating conflict"
+            ],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "AWAY",
+                "score": 1,
+                "impact": 1,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [
+              {
+                "source": "team_rating",
+                "side": "HOME",
+                "score": 2,
+                "status": "conflict"
+              }
+            ],
+            "reasons": [
+              "sharp spread edge",
+              "team-rating edge conflicts"
+            ]
+          },
+          "total": {
+            "market": "total",
+            "side": "UNDER",
+            "score": 0,
+            "threshold": 4,
+            "cleared_threshold": false,
+            "blocked": false,
+            "blockers": [],
+            "signals": [],
+            "conflicts": [],
+            "reasons": []
+          }
+        },
+        "final_decision": {
+          "market": "none",
+          "side": null,
+          "reason": "no market cleared threshold"
+        },
+        "source_policy": {
+          "status": "OK",
+          "blocked": false,
+          "unsafe_sources": [],
+          "critical_warnings": []
+        }
+      }
+    },
+    "recommendation_trace": {
+      "selector_version": "2026.1",
+      "market_candidates": {
+        "spread": {
+          "market": "spread",
+          "side": "AWAY",
+          "score": 0,
+          "threshold": 4,
+          "threshold_adjustments": [],
+          "cleared_threshold": false,
+          "requires_sharp_edge": true,
+          "has_sharp_edge": true,
+          "blocked": true,
+          "blockers": [
+            "team-rating conflict"
+          ],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "AWAY",
+              "score": 1,
+              "impact": 1,
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [
+            {
+              "source": "team_rating",
+              "side": "HOME",
+              "score": 2,
+              "status": "conflict"
+            }
+          ],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge conflicts"
+          ]
+        },
+        "total": {
+          "market": "total",
+          "side": "UNDER",
+          "score": 0,
+          "threshold": 4,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [],
+          "conflicts": [],
+          "reasons": []
+        }
+      },
+      "final_decision": {
+        "market": "none",
+        "side": null,
+        "reason": "no market cleared threshold"
+      },
+      "source_policy": {
+        "status": "OK",
+        "blocked": false,
+        "unsafe_sources": [],
+        "critical_warnings": []
+      }
+    },
+    "model_version": "2026.1",
+    "tier_score": 5,
+    "total_score": 5.1,
+    "confidence": 5.1,
+    "sharp_analysis": {
+      "spread": {
+        "differential": 8.0,
+        "score": 1,
+        "direction": "AWAY",
+        "bets_pct": 61.0,
+        "money_pct": 69.0,
+        "line": "-2.5 (-102) | +2.5 (+102)",
+        "description": "AWAY (+8.0% edge)"
+      },
+      "total": {
+        "differential": -4.0,
+        "score": 0,
+        "direction": "UNDER",
+        "bets_pct": 44.0,
+        "money_pct": 40.0,
+        "line": "o44.5 (+104) | u44.5 (-102)",
+        "description": "UNDER (-4.0% edge)"
+      },
+      "moneyline": {
+        "differential": 23.0,
+        "score": 3,
+        "direction": "AWAY",
+        "bets_pct": 58.0,
+        "money_pct": 81.0,
+        "line": "-130 | +130",
+        "description": "AWAY (+23.0% edge)"
+      }
+    },
+    "weather_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "Good conditions"
+    },
+    "referee_analysis": {
+      "ats_pct": 44.7,
+      "ou_pct": 50.0,
+      "ats_score": 0,
+      "ou_score": 0,
+      "ats_tendency": "DOG-FRIENDLY",
+      "ou_tendency": "NEUTRAL TOTAL",
+      "referee": "Shawn Smith",
+      "factors": []
+    },
+    "injury_analysis": {
+      "away_injuries": [],
+      "home_injuries": [],
+      "away_impact": 0,
+      "home_impact": 0,
+      "score": 0,
+      "edge": "NO EDGE",
+      "description": "Found 0 high-impact injuries",
+      "factors": []
+    },
+    "situational_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "No significant situational factors"
+    },
+    "statistical_analysis": {
+      "score": 2,
+      "factors": [
+        "Current-season value on home team (+5.6 pts; projected home margin +3.1)",
+        "Ratings: ARI -4.4, NYG -2.9 (season 2026, REG pre-Week 4)"
+      ],
+      "description": "Current-season value on home team (+5.6 pts; projected home margin +3.1)"
+    },
+    "game_theory_analysis": {
+      "score": 0,
+      "factors": [
+        "Market mispricing possible (+8.0% edge)",
+        "Potential steam move developing"
+      ],
+      "description": "Market mispricing possible (+8.0% edge), Potential steam move developing"
+    },
+    "schedule_analysis": {
+      "score": 0,
+      "factors": [
+        "Neutral schedule situation (standard rest)"
+      ],
+      "description": "Neutral schedule situation (standard rest)"
+    },
+    "sharp_stories": [
+      "\ud83c\udfaf SHARP CONSENSUS: Full alignment on away team across markets",
+      "\u26a0\ufe0f DIVERGENCE: Sharps on away team but UNDER - expect low-scoring road win"
+    ],
+    "season_type": "REG",
+    "data_quality": {
+      "status": "OK",
+      "target_date": "",
+      "sources": {
+        "queries": {
+          "name": "queries",
+          "path": "data/week4/week4_queries.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "file_week": 4
+        },
+        "referee_trends": {
+          "name": "referee_trends",
+          "path": "data/historical/sdql_results.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": []
+        },
+        "action_markets": {
+          "name": "action_markets",
+          "path": "data/action_all_markets_2026-10-01_.csv",
+          "rows": 48,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
+        },
+        "action_injuries": {
+          "name": "action_injuries",
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "action_weather": {
+          "name": "action_weather",
+          "path": "data/action_weather_2026-10-01_.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "rotowire": {
+          "name": "rotowire",
+          "path": "data/rotowire_lineups_weekWC_2026-01-18_164657.csv",
+          "rows": 4,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-01-18",
+          "fetched_date": "2026-01-18"
+        }
+      },
+      "warnings": [],
+      "critical_warnings": [],
+      "degraded_sources": [],
+      "unsafe_sources": []
+    }
+  },
+  {
+    "matchup": "Detroit Lions @ Carolina Panthers",
+    "matchup_key": "DET@CAR",
+    "away": "Detroit Lions",
+    "home": "Carolina Panthers",
+    "away_tla": "DET",
+    "home_tla": "CAR",
+    "game_time": "Sun 10/4, 8:20 PM ET",
+    "classification": "\ud83d\udcca WATCH",
+    "classification_label": "LEAN SIGNAL \u2014 NO MARKET",
+    "signal_classification": "\ud83d\udcca LEAN",
+    "signal_classification_label": "SLIGHT EDGE",
+    "signal_tier_score": 5,
+    "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
+    "pick_metadata": {
+      "market": "none",
+      "reason": "no market cleared threshold",
+      "spread_score": 0,
+      "total_score": 1,
+      "signal_classification": "\ud83d\udcca LEAN",
+      "trace": {
+        "selector_version": "2026.1",
+        "market_candidates": {
+          "spread": {
+            "market": "spread",
+            "side": "AWAY",
+            "score": 0,
+            "threshold": 3.5,
+            "threshold_adjustments": [
+              {
+                "reason": "WARPS confidence sweet-spot: 57% away win prob (55-65%), early season \u2014 66.7% ATS historically",
+                "delta": -0.5
+              }
+            ],
+            "cleared_threshold": false,
+            "requires_sharp_edge": true,
+            "has_sharp_edge": true,
+            "blocked": true,
+            "blockers": [
+              "team-rating conflict"
+            ],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "AWAY",
+                "score": 1,
+                "impact": 1,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [
+              {
+                "source": "team_rating",
+                "side": "HOME",
+                "score": 2,
+                "status": "conflict"
+              }
+            ],
+            "reasons": [
+              "sharp spread edge",
+              "team-rating edge conflicts"
+            ]
+          },
+          "total": {
+            "market": "total",
+            "side": "OVER",
+            "score": 1,
+            "threshold": 4,
+            "cleared_threshold": false,
+            "blocked": false,
+            "blockers": [],
+            "signals": [
+              {
+                "source": "sharp",
+                "side": "OVER",
+                "score": 1,
+                "impact": 1,
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "reasons": [
+              "sharp total edge"
+            ]
+          }
+        },
+        "final_decision": {
+          "market": "none",
+          "side": null,
+          "reason": "no market cleared threshold"
+        },
+        "source_policy": {
+          "status": "OK",
+          "blocked": false,
+          "unsafe_sources": [],
+          "critical_warnings": []
+        }
+      }
+    },
+    "recommendation_trace": {
+      "selector_version": "2026.1",
+      "market_candidates": {
+        "spread": {
+          "market": "spread",
+          "side": "AWAY",
+          "score": 0,
+          "threshold": 3.5,
+          "threshold_adjustments": [
+            {
+              "reason": "WARPS confidence sweet-spot: 57% away win prob (55-65%), early season \u2014 66.7% ATS historically",
+              "delta": -0.5
+            }
+          ],
+          "cleared_threshold": false,
+          "requires_sharp_edge": true,
+          "has_sharp_edge": true,
+          "blocked": true,
+          "blockers": [
+            "team-rating conflict"
+          ],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "AWAY",
+              "score": 1,
+              "impact": 1,
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [
+            {
+              "source": "team_rating",
+              "side": "HOME",
+              "score": 2,
+              "status": "conflict"
+            }
+          ],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge conflicts"
+          ]
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 1,
+          "threshold": 4,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "source": "sharp",
+              "side": "OVER",
+              "score": 1,
+              "impact": 1,
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp total edge"
+          ]
+        }
+      },
+      "final_decision": {
+        "market": "none",
+        "side": null,
+        "reason": "no market cleared threshold"
+      },
+      "source_policy": {
+        "status": "OK",
+        "blocked": false,
+        "unsafe_sources": [],
+        "critical_warnings": []
+      }
+    },
+    "model_version": "2026.1",
+    "tier_score": 5,
+    "total_score": 5.1,
+    "confidence": 5.1,
+    "sharp_analysis": {
+      "spread": {
+        "differential": 6.0,
+        "score": 1,
+        "direction": "AWAY",
+        "bets_pct": 64.0,
+        "money_pct": 70.0,
+        "line": "-3.5 (-102) | +3.5 (+102)",
+        "description": "AWAY (+6.0% edge)"
+      },
+      "total": {
+        "differential": 5.0,
+        "score": 1,
+        "direction": "OVER",
+        "bets_pct": 39.0,
+        "money_pct": 44.0,
+        "line": "o51.5 (+106) | u51.5 (-106)",
+        "description": "OVER (+5.0% edge)"
+      },
+      "moneyline": {
+        "differential": -13.0,
+        "score": -2,
+        "direction": "HOME",
+        "bets_pct": 88.0,
+        "money_pct": 75.0,
+        "line": "-182 | +182",
+        "description": "HOME (-13.0% edge)"
+      }
+    },
+    "weather_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "Good conditions"
+    },
+    "referee_analysis": {
+      "ats_pct": 43.6,
+      "ou_pct": 50.0,
+      "ats_score": 0,
+      "ou_score": 0,
+      "ats_tendency": "DOG-FRIENDLY",
+      "ou_tendency": "NEUTRAL TOTAL",
+      "referee": "Clay Martin",
+      "factors": []
+    },
+    "injury_analysis": {
+      "away_injuries": [],
+      "home_injuries": [],
+      "away_impact": 0,
+      "home_impact": 0,
+      "score": 0,
+      "edge": "NO EDGE",
+      "description": "Found 0 high-impact injuries",
+      "factors": []
+    },
+    "situational_analysis": {
+      "score": 0,
+      "factors": [],
+      "description": "No significant situational factors"
+    },
+    "statistical_analysis": {
+      "score": 2,
+      "factors": [
+        "Current-season value on home team (+6.9 pts; projected home margin +3.4)",
+        "Ratings: DET -0.2, CAR +1.7 (season 2026, REG pre-Week 4)"
+      ],
+      "description": "Current-season value on home team (+6.9 pts; projected home margin +3.4)"
+    },
+    "game_theory_analysis": {
+      "score": 0,
+      "factors": [
+        "Market mispricing possible (+6.0% edge)",
+        "Potential steam move developing"
+      ],
+      "description": "Market mispricing possible (+6.0% edge), Potential steam move developing"
+    },
+    "schedule_analysis": {
+      "score": 0,
+      "factors": [
+        "Neutral schedule situation (standard rest)"
+      ],
+      "description": "Neutral schedule situation (standard rest)"
+    },
+    "sharp_stories": [
+      "\ud83d\udcc8 DIVERGENCE: Sharps on away team + OVER - expect shootout with road team prevailing"
+    ],
+    "season_type": "REG",
+    "data_quality": {
+      "status": "OK",
+      "target_date": "",
+      "sources": {
+        "queries": {
+          "name": "queries",
+          "path": "data/week4/week4_queries.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "file_week": 4
+        },
+        "referee_trends": {
+          "name": "referee_trends",
+          "path": "data/historical/sdql_results.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": []
+        },
+        "action_markets": {
+          "name": "action_markets",
+          "path": "data/action_all_markets_2026-10-01_.csv",
+          "rows": 48,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01",
+          "fetched_date": "2026-10-01"
+        },
+        "action_injuries": {
+          "name": "action_injuries",
+          "path": "data/action_injuries_2026-10-01_.csv",
+          "rows": 65,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
+        },
+        "action_weather": {
+          "name": "action_weather",
+          "path": "data/action_weather_2026-10-01_.csv",
+          "rows": 16,
+          "status": "OK",
+          "warnings": [],
+          "critical_warnings": [],
+          "filename_date": "2026-10-01"
         },
         "rotowire": {
           "name": "rotowire",
