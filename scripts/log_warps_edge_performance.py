@@ -45,6 +45,8 @@ LOG_FIELDS = [
     "overlay_spread_result",   # cover/miss/push graded on raw WARPS overlay side (always)
     "ml_result",               # win/loss/no_bet (for overlay ML side)
     "ou_result",               # over/under/push
+    "su_pick_tla",             # team WARPS predicted to win SU (higher win prob side)
+    "su_pick_result",          # WIN/LOSS/TIE or '' if not yet complete
     "status",                  # 'priced' or 'fair_line_only'
 ]
 
@@ -81,6 +83,9 @@ def load_existing_log():
         elif "spread_result" in r:
             # Both columns present — drop old column to avoid DictWriter extras error
             r.pop("spread_result")
+        # Migrate old rows that lack su_pick columns
+        r.setdefault("su_pick_tla", "")
+        r.setdefault("su_pick_result", "")
     return rows
 
 
@@ -229,6 +234,28 @@ def main():
             actual = float(a_score) + float(h_score)
             ou_result = "over" if actual > mkt_total else ("under" if actual < mkt_total else "push")
 
+        # SU pick — team WARPS predicts to win outright (higher win probability)
+        # away_win_prob is a decimal (e.g. 0.623 means 62.3% away win probability)
+        away_win_prob_str = ov.get("away_win_prob", "")
+        away_win_prob = float(away_win_prob_str) if away_win_prob_str else None
+        away_tla_str = ov.get("away_tla", "")
+        home_tla_str = ov.get("home_tla", "")
+        if away_win_prob is not None and (away_tla_str or home_tla_str):
+            su_pick_tla = away_tla_str if away_win_prob >= 0.5 else home_tla_str
+        else:
+            su_pick_tla = ""
+
+        su_pick_result = ""
+        if su_pick_tla and a_score is not None and h_score is not None:
+            a_f = float(a_score)
+            h_f = float(h_score)
+            if a_f == h_f:
+                su_pick_result = "TIE"
+            elif su_pick_tla == away_tla_str:
+                su_pick_result = "WIN" if a_f > h_f else "LOSS"
+            else:
+                su_pick_result = "WIN" if h_f > a_f else "LOSS"
+
         new_rows.append({
             "season": season,
             "week": week,
@@ -254,6 +281,8 @@ def main():
             "overlay_spread_result": overlay_spread_result,
             "ml_result": ml_result,
             "ou_result": ou_result,
+            "su_pick_tla": su_pick_tla,
+            "su_pick_result": su_pick_result,
             "status": status,
         })
 
