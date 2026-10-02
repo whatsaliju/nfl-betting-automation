@@ -23,7 +23,6 @@ import { WeekView } from "./components/WeekView";
 import { availableSeasons, buildTeams, DEFAULT_SEASON, edgeBoardGames, getDisplayTeamStats, getSeasonResults, getSeasonSchedule, indexEdgeBoard, indexEngineCells, loadEngineFeed, postseasonCells } from "./lib/schedule";
 import { historicalVegasLines } from "./data/nflData";
 import warpsMarketOverlay from "./data/warpsMarketOverlay.json";
-import survivorConsensus from "./data/survivorConsensus.json";
 import type { CurrentContext, EngineFeed, Filter, LineMoveAlert, TeamProfile, WarpsMarketOverlay, WeeklyBettingCard } from "./types";
 
 type AppViewMode = "command" | "track" | "matrix" | "edges" | "card" | "survivor" | "expectations" | "research" | "week" | "compare" | "results" | "warps" | "audit" | "scout" | "projections" | "pickem" | "pools" | "overview";
@@ -408,7 +407,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
 
       {viewMode === "results" && <ResultsView results={seasonResults} loading={false} error={seasonSchedule.hasResults ? null : `${selectedSeason} results are not available yet.`} />}
 
-      {viewMode === "pickem" && <PickemView feed={engineFeed} warpsRows={warpsMarketOverlay as unknown as WarpsMarketOverlay[]} survivorConsensus={survivorConsensus as unknown as { weeks: Record<string, Record<string, { yahoo?: number; espn?: number; p?: number; w?: number | null; ev?: number | null }>> }} />}
+      {viewMode === "pickem" && <PickemView feed={engineFeed} warpsRows={warpsMarketOverlay as unknown as WarpsMarketOverlay[]} />}
 
       {viewMode === "warps" && <WARPSView />}
 

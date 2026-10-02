@@ -32,8 +32,6 @@ function utcToEt(iso: string): { date: string; day: string; timeLabel: string } 
   };
 }
 
-type SurvivorConsensus = { weeks: Record<string, Record<string, { yahoo?: number; espn?: number; p?: number; w?: number | null; ev?: number | null }>> };
-
 interface PickemGame {
   awayTla: string;
   homeTla: string;
@@ -63,9 +61,6 @@ interface PickemGame {
   warpsOverlaySide: string | null;   // "AWAY" | "HOME"
   warpsOverlayTeam: string | null;
   warpsOverlayEdge: number | null;
-  // Public pick %
-  awayPublicPct: number | null;   // survivorConsensus yahoo% for away team (0–100)
-  homePublicPct: number | null;   // survivorConsensus yahoo% for home team (0–100)
 }
 
 const DAY_ORDER: Record<string, number> = { Thu: 0, Fri: 1, Sat: 2, Sun: 3, Mon: 4, Tue: 5, Wed: 6 };
@@ -97,9 +92,7 @@ function toNum(v: number | string | "" | null | undefined): number | null {
 function parseGame(
   g: { away_tla: string; home_tla: string; matchup_key: string; latest: Record<string, unknown>; away_score?: number | null; home_score?: number | null },
   warps: WarpsMarketOverlay | undefined,
-  kickoffTime: string | undefined,
-  awayPublicPct: number | null,
-  homePublicPct: number | null
+  kickoffTime: string | undefined
 ): PickemGame {
   const hasScores = g.away_score != null && g.home_score != null;
   const kickoffMs = kickoffTime ? new Date(kickoffTime).getTime() : 0;
@@ -186,19 +179,15 @@ function parseGame(
     warpsOverlaySide: warps?.spread_overlay_side ?? null,
     warpsOverlayTeam: warps?.spread_overlay_team ?? null,
     warpsOverlayEdge: typeof warps?.spread_overlay_edge_points === "number" ? warps.spread_overlay_edge_points : null,
-    awayPublicPct,
-    homePublicPct,
   };
 }
 
 export function PickemView({
   feed,
   warpsRows,
-  survivorConsensus,
 }: {
   feed: EngineFeed | null;
   warpsRows: WarpsMarketOverlay[];
-  survivorConsensus?: SurvivorConsensus;
 }) {
   if (!feed) return <div className="pickem-empty">Loading engine feed…</div>;
 
@@ -207,19 +196,6 @@ export function PickemView({
 
   const warpsIndex = new Map(warpsRows.map((r) => [normalizeKey(r.matchup_key), r]));
   const weekTimes: Record<string, string> = gameTimes[String(ctx.week)] ?? {};
-
-  // Build public pick % lookup for this week from survivorConsensus
-  // Use Yahoo% as primary signal, fall back to projected% (p), then null
-  const weekConsensus: Record<string, { yahoo?: number; p?: number }> =
-    survivorConsensus?.weeks?.[String(ctx.week)] ?? {};
-  function getPublicPct(tla: string): number | null {
-    const normalized = normalizeTla(tla);
-    const entry = weekConsensus[normalized];
-    if (!entry) return null;
-    const raw = (entry.yahoo && entry.yahoo > 0) ? entry.yahoo : (entry.p ?? null);
-    if (raw === null || raw === undefined) return null;
-    return Math.round(raw * 100);
-  }
 
   const weekGames = (feed.games ?? []).filter(
     (g) =>
@@ -238,9 +214,7 @@ export function PickemView({
       return parseGame(
         { away_tla: g.away_tla, home_tla: g.home_tla, matchup_key: g.matchup_key, latest: g.latest as Record<string, unknown>, away_score: g.away_score, home_score: g.home_score },
         warpsIndex.get(normKey),
-        weekTimes[normKey],
-        getPublicPct(g.away_tla),
-        getPublicPct(g.home_tla)
+        weekTimes[normKey]
       );
     })
     .sort((a, b) => {
@@ -352,8 +326,6 @@ export function PickemView({
               const warpsAgreesWithFav = g.warpsOverlayTeam && g.warpsOverlayTeam === g.favTla;
               const warpsBetsAwayWinPct = g.warpsAwayWinProb !== null ? Math.round(g.warpsAwayWinProb * 100) : null;
               const warpsHomeWinPct = warpsBetsAwayWinPct !== null ? 100 - warpsBetsAwayWinPct : null;
-              const warpsFavWinPct = g.favTla === g.awayTla ? warpsBetsAwayWinPct : warpsHomeWinPct;
-
               // SU pick: use WARPS win probability to pick the more likely winner, not the Vegas spread favorite.
               // When these disagree (e.g. Vegas favors ARI but WARPS gives NYG 59%), show NYG 59% — not ARI 41%.
               const suPickTla = warpsBetsAwayWinPct !== null
@@ -362,15 +334,6 @@ export function PickemView({
               const suPickPct = suPickTla != null
                 ? (suPickTla === g.awayTla ? warpsBetsAwayWinPct : warpsHomeWinPct)
                 : null;
-
-              // Public pick % for the WARPS SU pick team
-              const suPickPublicPct = suPickTla != null
-                ? (suPickTla === g.awayTla ? g.awayPublicPct : g.homePublicPct)
-                : null;
-              // WARPS CONTRA: WARPS backs the public underdog (public gives <50% to the WARPS pick)
-              const isContra = suPickPublicPct !== null && suPickPublicPct < 50;
-              // Optional consensus signal: WARPS agrees with heavy public (≥60%) — currently unused in render
-              void (suPickPublicPct !== null && suPickPublicPct >= 60);
 
               const awayWon = g.isCompleted && g.awayScore !== null && g.homeScore !== null && g.awayScore > g.homeScore;
               const homeWon = g.isCompleted && g.awayScore !== null && g.homeScore !== null && g.homeScore > g.awayScore;
@@ -409,12 +372,6 @@ export function PickemView({
                           <span className="pk-win-prob">{suPickPct}%</span>
                         )}
                       </div>
-                      {suPickPublicPct !== null && (
-                        <span className="pk-public-pct">public {suPickPublicPct}%</span>
-                      )}
-                      {isContra && (
-                        <span className="pk-contra-badge">WARPS CONTRA</span>
-                      )}
                     </div>
 
                     {g.warpsFairHomeSpread !== null && (
