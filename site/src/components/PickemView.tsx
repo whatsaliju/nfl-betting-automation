@@ -1,5 +1,6 @@
 import { teamLogos } from "../data/nflData";
 import gameTimesData from "../data/gameTimes.json";
+import pickemRecordData from "../data/warpsPickemRecord.json";
 import type { EngineFeed, WarpsMarketOverlay } from "../types";
 
 const gameTimes = (gameTimesData as { weeks: Record<string, Record<string, string>> }).weeks;
@@ -268,10 +269,28 @@ export function PickemView({
     slot.games.push(g);
   }
 
+  const pickemRecord = pickemRecordData as {
+    season: string;
+    season_record: { wins: number; losses: number };
+  };
+  const recWins = pickemRecord.season_record.wins;
+  const recLosses = pickemRecord.season_record.losses;
+  const recTotal = recWins + recLosses;
+  const recPct = recTotal > 0 ? Math.round((recWins / recTotal) * 100) : 0;
+
   return (
     <section className="pickem-view">
       <div className="pickem-header">
-        <h2>Pick'em — {ctx.season_type} Week {ctx.week}</h2>
+        <div className="pk-header-top">
+          <h2>Pick'em — {ctx.season_type} Week {ctx.week}</h2>
+          {recTotal > 0 && (
+            <div className="pk-season-record">
+              <span className="pk-record-label">{pickemRecord.season}</span>
+              <span className="pk-record-wl">{recWins}–{recLosses}</span>
+              <span className="pk-record-pct">{recPct}%</span>
+            </div>
+          )}
+        </div>
         <p>SU picks from Vegas spreads · WARPS fair value · implied totals from O/U + spread</p>
       </div>
 
@@ -337,10 +356,22 @@ export function PickemView({
 
               const awayWon = g.isCompleted && g.awayScore !== null && g.homeScore !== null && g.awayScore > g.homeScore;
               const homeWon = g.isCompleted && g.awayScore !== null && g.homeScore !== null && g.homeScore > g.awayScore;
+              const suResult = g.isCompleted && suPickTla
+                ? ((awayWon && suPickTla === g.awayTla) || (homeWon && suPickTla === g.homeTla) ? "win" : "loss")
+                : null;
 
               return (
                 <div key={g.matchupKey} className={`pickem-card ${g.isCompleted ? "pickem-final" : `pickem-${tag}`}`}>
-                  {g.isCompleted && <div className="pk-final-badge">Final</div>}
+                  {g.isCompleted && (
+                    <div className="pk-final-row">
+                      <div className="pk-final-badge">Final</div>
+                      {suResult && (
+                        <div className={`pk-su-result pk-su-${suResult}`}>
+                          {suResult === "win" ? "✓" : "✗"} {suPickTla}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="pickem-matchup">
                     <div className={`pk-team ${g.isCompleted ? (awayWon ? "pk-winner" : "pk-loser") : g.favTla === g.awayTla ? "fav" : ""}`}>
                       <img src={teamLogos[g.awayTla]} alt={g.awayTla} className="pk-logo" />

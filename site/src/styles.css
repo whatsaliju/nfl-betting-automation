@@ -5043,8 +5043,13 @@ select {
 .pickem-view { padding: 20px; max-width: 1100px; margin: 0 auto; }
 .pickem-empty { padding: 40px; text-align: center; color: #71717a; }
 .pickem-header { margin-bottom: 18px; }
-.pickem-header h2 { font-size: 18px; font-weight: 700; color: #18181b; margin: 0 0 4px; }
+.pk-header-top { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+.pickem-header h2 { font-size: 18px; font-weight: 700; color: #18181b; margin: 0; }
 .pickem-header p { font-size: 12px; color: #71717a; margin: 0; }
+.pk-season-record { display: flex; align-items: center; gap: 5px; }
+.pk-record-label { font-size: 11px; color: #a1a1aa; font-weight: 500; letter-spacing: .04em; }
+.pk-record-wl { font-size: 13px; font-weight: 700; color: #18181b; }
+.pk-record-pct { font-size: 11px; font-weight: 600; color: #059669; background: #dcfce7; border-radius: 4px; padding: 1px 6px; }
 
 .pickem-tiebreakers { display: flex; gap: 14px; margin-bottom: 22px; }
 .pickem-tb { flex: 1; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; }
@@ -5067,7 +5072,11 @@ select {
 .pickem-card.pickem-fade { border-color: #fca5a5; background: #fff5f5; }
 .pickem-card.pickem-pass { border-color: #e4e4e7; }
 .pickem-card.pickem-final { border-color: #d4d4d8; background: #fafafa; opacity: 0.82; }
-.pk-final-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #71717a; background: #e4e4e7; border-radius: 4px; padding: 2px 7px; align-self: flex-start; }
+.pk-final-row { display: flex; align-items: center; justify-content: space-between; }
+.pk-final-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #71717a; background: #e4e4e7; border-radius: 4px; padding: 2px 7px; }
+.pk-su-result { font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 7px; }
+.pk-su-win { color: #065f46; background: #d1fae5; }
+.pk-su-loss { color: #991b1b; background: #fee2e2; }
 .pk-pregame-frozen { opacity: 0.55; pointer-events: none; }
 .pk-score { font-weight: 800; font-size: 15px; margin-left: 4px; color: #18181b; }
 .pk-team.pk-winner .pk-score { color: #059669; }
@@ -5124,6 +5133,11 @@ select {
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .pickem-header h2 { color: #f4f4f5; }
+  :root:not([data-theme="light"]) .pk-record-wl { color: #f4f4f5; }
+  :root:not([data-theme="light"]) .pk-record-pct { background: #064e3b; color: #6ee7b7; }
+  :root:not([data-theme="light"]) .pk-su-win { background: #064e3b; color: #6ee7b7; }
+  :root:not([data-theme="light"]) .pk-su-loss { background: #450a0a; color: #fca5a5; }
+  :root:not([data-theme="light"]) .pk-final-badge { background: #18181b; color: #a1a1aa; }
   :root:not([data-theme="light"]) .pk-team.fav { color: #f4f4f5; }
   :root:not([data-theme="light"]) .pk-su-team { color: #f4f4f5; }
   :root:not([data-theme="light"]) .pickem-card { background: #27272a; border-color: #3f3f46; }
@@ -5146,12 +5160,17 @@ select {
   :root:not([data-theme="light"]) .pk-su-logo { background: rgba(255,255,255,0.15); border-radius: 50%; padding: 3px; }
 }
 :root[data-theme="dark"] .pickem-header h2 { color: #f4f4f5; }
+:root[data-theme="dark"] .pk-record-wl { color: #f4f4f5; }
+:root[data-theme="dark"] .pk-record-pct { background: #064e3b; color: #6ee7b7; }
+:root[data-theme="dark"] .pk-su-win { background: #064e3b; color: #6ee7b7; }
+:root[data-theme="dark"] .pk-su-loss { background: #450a0a; color: #fca5a5; }
 :root[data-theme="dark"] .pk-team.fav { color: #f4f4f5; }
 :root[data-theme="dark"] .pk-su-team { color: #f4f4f5; }
 :root[data-theme="dark"] .pickem-card { background: #27272a; border-color: #3f3f46; }
 :root[data-theme="dark"] .pickem-card.pickem-final { background: #18181b; border-color: #27272a; }
 :root[data-theme="dark"] .pk-final-badge { background: #18181b; color: #a1a1aa; }
 :root[data-theme="dark"] .pk-score { color: #f4f4f5; }
+
 :root[data-theme="dark"] .pickem-tb.most { background: #064e3b; border-color: #6ee7b7; }
 :root[data-theme="dark"] .pickem-tb.fewest { background: #450a0a; border-color: #fca5a5; }
 :root[data-theme="dark"] .pt-row { background: #27272a; }
