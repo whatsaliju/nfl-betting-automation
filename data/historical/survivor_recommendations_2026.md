@@ -10,7 +10,7 @@
 | 1 | JAX | CLE@JAX | 68.9% | 63.6 | secondary | WARPS win probability 68.9%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 2 | SF | MIA@SF | 66.2% | 59.2 | deep_pool | WARPS win probability 66.2%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 3 | DET | NYJ@DET | 74.4% | 65.9 | secondary | WARPS win probability 74.4%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
-| 4 | BAL | TEN@BAL | 78.4% | 74.8 | primary | WARPS 68.4% blended with market 83.7% → 78.4%; ⚠️ Engine issued PASS on this game; Home-field survivor spot |
+| 4 | BAL | TEN@BAL | 78.6% | 75.0 | primary | WARPS 68.4% blended with market 84.0% → 78.6%; ⚠️ Engine issued PASS on this game; Home-field survivor spot |
 | 5 | DAL | TB@DAL | 70.2% | 70.2 | primary | WARPS 50.5% blended with market 80.8% → 70.2%; Home-field survivor spot; Low future opportunity cost |
 | 6 | NE | NYJ@NE | 73.2% | 67.8 | primary | WARPS win probability 73.2%; Home-field survivor spot; Division game raises upset volatility |
 | 7 | HOU | NYG@HOU | 67.5% | 62.9 | secondary | WARPS win probability 67.5%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
@@ -39,9 +39,9 @@
 | 3 | 25 | top_heavy | DET (74.4%) | DET (66.3) | DET (16.7% public) |
 | 3 | 100 | top_heavy | DET (74.4%) | DET (68.7) | DET (18.2% public) |
 | 3 | 500 | top_heavy | DET (74.4%) | DET (82.7) | DET (18.2% public) |
-| 4 | 25 | top_heavy | BAL (78.4%) | BAL (73.1) | BAL (19.7% public) |
-| 4 | 100 | top_heavy | BAL (78.4%) | BAL (75.5) | BAL (21.2% public) |
-| 4 | 500 | top_heavy | BAL (78.4%) | BAL (89.2) | BAL (21.2% public) |
+| 4 | 25 | top_heavy | BAL (78.6%) | BAL (73.3) | BAL (19.8% public) |
+| 4 | 100 | top_heavy | BAL (78.6%) | BAL (75.6) | BAL (21.3% public) |
+| 4 | 500 | top_heavy | BAL (78.6%) | BAL (89.3) | BAL (21.3% public) |
 | 5 | 25 | top_heavy | DAL (70.2%) | DAL (68.5) | DAL (14.1% public) |
 | 5 | 100 | top_heavy | DAL (70.2%) | DAL (70.9) | DAL (15.6% public) |
 | 5 | 500 | top_heavy | DAL (70.2%) | DAL (84.8) | DAL (15.6% public) |
