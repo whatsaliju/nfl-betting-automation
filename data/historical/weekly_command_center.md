@@ -22,24 +22,24 @@
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| LAC@SEA | watch | n/a | n/a | 4.0 |
-| NE@BUF | watch | spread | HOME | 4.0 |
 | ATL@NO | watch | n/a | n/a | 3.0 |
 | DEN@SF | watch | spread | HOME | 3.0 |
-| KC@LV | watch | n/a | n/a | 2.0 |
-| GB@TB | watch | n/a | n/a | 1.0 |
+| GB@TB | watch | n/a | n/a | 3.0 |
+| KC@LV | watch | n/a | n/a | 3.0 |
+| DET@CAR | watch | n/a | n/a | 1.0 |
+| ARI@NYG | watch | n/a | n/a | n/a |
 
 ## Survivor
 
-- Primary: BAL vs TEN (78.4%)
-- Safest: BAL vs TEN (78.4%)
-- Path pick: BAL vs TEN (78.4%)
+- Primary: BAL vs TEN (78.6%)
+- Safest: BAL vs TEN (78.6%)
+- Path pick: BAL vs TEN (78.6%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | BAL vs TEN (78.4%) | BAL vs TEN (78.4%) | BAL vs TEN (78.4%) |
-| 100 | BAL vs TEN (78.4%) | BAL vs TEN (78.4%) | BAL vs TEN (78.4%) |
-| 500 | BAL vs TEN (78.4%) | BAL vs TEN (78.4%) | BAL vs TEN (78.4%) |
+| 25 | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) |
+| 100 | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) |
+| 500 | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) | BAL vs TEN (78.6%) |
 
 ## WARPS Watch
 
