@@ -1,15 +1,15 @@
 # Weekly Command Center
 
-- Context: 2026 W4 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Context: 2026 W5 · live
+- Recommended action: **NO BET - DATA INCOMPLETE**
+- Confidence tier: **X**
+- Reason: Live betting inputs are not published for this context.
 
 ## Source Gates
 
 | Gate | Status |
 |---|---|
-| live betting card | PASS |
+| live betting card | BLOCKED |
 | preseason dry run | PASS |
 | warps priors | PASS |
 | survivor recommendations | PASS |
@@ -17,37 +17,33 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 10
-- Passes: 6
-
-| Game | Action | Market | Side | Score |
-|---|---|---|---|---:|
-| GB@TB | watch | spread | HOME | 5.0 |
-| ARI@NYG | watch | n/a | n/a | 4.0 |
-| KC@LV | watch | n/a | n/a | 4.0 |
-| ATL@NO | watch | n/a | n/a | 3.0 |
-| IND@WAS | watch | n/a | n/a | 2.0 |
-| MIA@MIN | watch | n/a | n/a | 2.0 |
+- Watch: 0
+- Passes: 0
 
 ## Survivor
 
-- Primary: CHI vs NYJ (68.3%)
-- Safest: HOU vs DAL (68.9%)
-- Path pick: CHI vs NYJ (68.3%)
+- Primary: DAL vs TB (68.8%)
+- Safest: HOU vs TEN (69.8%)
+- Path pick: DAL vs TB (68.8%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | CHI vs NYJ (68.3%) | CHI vs NYJ (68.3%) | CHI vs NYJ (68.3%) |
-| 100 | CHI vs NYJ (68.3%) | CHI vs NYJ (68.3%) | CHI vs NYJ (68.3%) |
-| 500 | CHI vs NYJ (68.3%) | BAL vs TEN (68.4%) | BAL vs TEN (68.4%) |
+| 25 | DAL vs TB (68.8%) | DAL vs TB (68.8%) | DAL vs TB (68.8%) |
+| 100 | DAL vs TB (68.8%) | DAL vs TB (68.8%) | DAL vs TB (68.8%) |
+| 500 | DAL vs TB (68.8%) | DAL vs TB (68.8%) | DAL vs TB (68.8%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| HOU | vs DAL | 68.9% | -222 |
-| BAL | vs TEN | 68.4% | -217 |
-| CHI | vs NYJ | 68.3% | -215 |
-| SEA | vs LAC | 66.6% | -199 |
-| MIN | vs MIA | 64.1% | -179 |
-| KC | @ LV | 59.2% | -145 |
+| NE | vs LV | 72.3% | -261 |
+| SEA | vs SF | 62.5% | -167 |
+| HOU | @ TEN | 61.9% | -162 |
+| LAR | vs BUF | 59.0% | -144 |
+| JAX | vs PHI | 58.4% | -140 |
+| DET | @ ARI | 58.1% | -138 |
+
+## Warnings
+
+- No live betting card is published for the current context.
+- No actionable betting plays or watchlist spots are active.
