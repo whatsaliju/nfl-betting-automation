@@ -8,11 +8,11 @@
 | Week | Pick | Game | Win Prob | Survivor Score | Tier | Reasons |
 |---:|---|---|---:|---:|---|---|
 | 1 | JAX | CLE@JAX | 68.9% | 62.4 | secondary | WARPS win probability 68.9%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 1 future elite spot(s) |
-| 2 | SF | MIA@SF | 66.2% | 59.2 | deep_pool | WARPS win probability 66.2%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 1 future elite spot(s) |
+| 2 | BAL | NO@BAL | 63.2% | 58.7 | deep_pool | WARPS win probability 63.2%; ⚠️ Engine issued PASS on this game; Home-field survivor spot |
 | 3 | DET | NYJ@DET | 74.4% | 65.9 | secondary | WARPS win probability 74.4%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 4 | CHI | NYJ@CHI | 68.3% | 68.3 | primary | WARPS win probability 68.3%; Home-field survivor spot; Low future opportunity cost |
-| 5 | DAL | TB@DAL | 68.8% | 68.8 | primary | WARPS 50.5% blended with market 78.7% → 68.8%; Home-field survivor spot; Low future opportunity cost |
-| 6 | NE | NYJ@NE | 73.2% | 67.8 | primary | WARPS win probability 73.2%; Home-field survivor spot; Division game raises upset volatility |
+| 5 | DAL | TB@DAL | 69.1% | 69.1 | primary | WARPS 50.5% blended with market 79.1% → 69.1%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Low future opportunity cost |
+| 6 | SF | WAS@SF | 73.7% | 70.0 | primary | WARPS 66.4% blended with market 77.7% → 73.7%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 7 | HOU | NYG@HOU | 67.5% | 62.9 | secondary | WARPS win probability 67.5%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 8 | CIN | TEN@CIN | 62.4% | 62.4 | secondary | WARPS win probability 62.4%; Home-field survivor spot; Low future opportunity cost |
 | 9 | SF | LV@SF | 71.1% | 72.1 | primary | WARPS win probability 71.1%; Home-field survivor spot; Low future opportunity cost; Team off bye |
@@ -32,22 +32,22 @@
 |---:|---:|---|---|---|---|
 | 1 | 25 | top_heavy | JAX (68.9%) | JAX (63.1) | JAX (9.8% public) |
 | 1 | 100 | top_heavy | JAX (68.9%) | JAX (64.9) | JAX (11.3% public) |
-| 1 | 500 | top_heavy | JAX (68.9%) | PHI (76.6) | PHI (13.7% public) |
-| 2 | 25 | top_heavy | SF (66.2%) | LAC (63.0) | LAC (7.4% public) |
-| 2 | 100 | top_heavy | SF (66.2%) | LAC (64.5) | LAC (8.9% public) |
-| 2 | 500 | top_heavy | SF (66.2%) | SF (76.7) | SF (14.1% public) |
+| 1 | 500 | top_heavy | JAX (68.9%) | PHI (77.4) | PHI (13.7% public) |
+| 2 | 25 | top_heavy | BAL (63.2%) | LAC (63.0) | LAC (7.4% public) |
+| 2 | 100 | top_heavy | BAL (63.2%) | LAC (64.5) | LAC (8.9% public) |
+| 2 | 500 | top_heavy | BAL (63.2%) | SF (74.6) | SF (14.1% public) |
 | 3 | 25 | top_heavy | DET (74.4%) | DET (66.3) | DET (16.7% public) |
 | 3 | 100 | top_heavy | DET (74.4%) | DET (68.7) | DET (18.2% public) |
 | 3 | 500 | top_heavy | DET (74.4%) | DET (82.7) | DET (18.2% public) |
 | 4 | 25 | top_heavy | CHI (68.3%) | CHI (66.9) | CHI (11.4% public) |
 | 4 | 100 | top_heavy | CHI (68.3%) | CHI (69.0) | CHI (12.9% public) |
 | 4 | 500 | top_heavy | CHI (68.3%) | BAL (81.8) | BAL (15.0% public) |
-| 5 | 25 | top_heavy | DAL (68.8%) | DAL (67.2) | DAL (13.3% public) |
-| 5 | 100 | top_heavy | DAL (68.8%) | DAL (69.6) | DAL (14.8% public) |
-| 5 | 500 | top_heavy | DAL (68.8%) | DAL (83.4) | DAL (14.8% public) |
-| 6 | 25 | top_heavy | NE (73.2%) | NE (67.5) | NE (13.1% public) |
-| 6 | 100 | top_heavy | NE (73.2%) | NE (69.5) | NE (14.6% public) |
-| 6 | 500 | top_heavy | NE (73.2%) | NE (81.2) | NE (14.6% public) |
+| 5 | 25 | top_heavy | DAL (69.1%) | DAL (67.5) | DAL (13.4% public) |
+| 5 | 100 | top_heavy | DAL (69.1%) | DAL (69.9) | DAL (14.9% public) |
+| 5 | 500 | top_heavy | DAL (69.1%) | DAL (83.7) | DAL (14.9% public) |
+| 6 | 25 | top_heavy | SF (73.7%) | LAR (69.6) | LAR (16.9% public) |
+| 6 | 100 | top_heavy | SF (73.7%) | LAR (71.6) | SF (18.8% public) |
+| 6 | 500 | top_heavy | SF (73.7%) | SF (86.3) | SF (18.8% public) |
 | 7 | 25 | top_heavy | HOU (67.5%) | HOU (63.2) | HOU (8.9% public) |
 | 7 | 100 | top_heavy | HOU (67.5%) | HOU (65.0) | HOU (10.4% public) |
 | 7 | 500 | top_heavy | HOU (67.5%) | PHI (76.8) | PHI (12.9% public) |
