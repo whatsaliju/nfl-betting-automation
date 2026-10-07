@@ -7,34 +7,394 @@
     "week": "5",
     "week_label": "W5",
     "stage": null,
-    "status": "LIVE_GAMES_NO_CARD",
+    "status": "LIVE_CARD",
     "mode": "live",
-    "has_betting_card": false,
+    "has_betting_card": true,
     "message": "Current active engine context from current_week.json."
   },
   "decision_mode": "live",
-  "recommended_action": "NO BET - DATA INCOMPLETE",
-  "confidence_tier": "X",
-  "action_reason": "Live betting inputs are not published for this context.",
+  "recommended_action": "WATCH",
+  "confidence_tier": "C",
+  "action_reason": "No plays cleared, but watchlist spots exist.",
   "source_gates": {
-    "live_betting_card": "BLOCKED",
+    "live_betting_card": "PASS",
     "preseason_dry_run": "PASS",
     "warps_priors": "PASS",
     "survivor_recommendations": "PASS"
   },
-  "do_nothing_warning": true,
-  "warnings": [
-    "No live betting card is published for the current context.",
-    "No actionable betting plays or watchlist spots are active."
-  ],
+  "do_nothing_warning": false,
+  "warnings": [],
   "betting_card": {
-    "available": false,
+    "available": true,
     "plays": 0,
-    "watch": 0,
-    "passes": 0,
-    "top_cards": []
+    "watch": 1,
+    "passes": 14,
+    "top_cards": [
+      {
+        "key": "2026:5:SF@SEA",
+        "season": 2026,
+        "season_type": "REG",
+        "week": "5",
+        "matchup_key": "SF@SEA",
+        "away_tla": "SF",
+        "home_tla": "SEA",
+        "action": "watch",
+        "market": "spread",
+        "side": "AWAY",
+        "pick_label": "SF 49",
+        "confidence": "watch",
+        "selector_score": 3.0,
+        "classification": "\ud83d\udcca LEAN",
+        "recommendation": "\ud83d\udc40 LEAN: San Francisco 49ers +3.5 (proceed with caution)",
+        "required_line": "Prefer AWAY at a better number than WARPS fair +4.3",
+        "current_line": "+3.5 (-120) | -3.5 (+120)",
+        "warps_alignment": "conflict",
+        "warps_side": "HOME",
+        "source_health": "DEGRADED",
+        "data_quality": "DEGRADED",
+        "quality_gate": null,
+        "main_reasons": [
+          "\ud83d\udc40 LEAN: San Francisco 49ers +3.5 (proceed with caution)"
+        ],
+        "risk_flags": [
+          "source warning DEGRADED",
+          "WARPS spread conflict"
+        ],
+        "market_status": "playable",
+        "spread_status": "playable",
+        "total_status": "lean",
+        "moneyline_status": "research_only",
+        "moneyline_promotion_status": "not_promoted",
+        "route_selected_market": "spread",
+        "route_reason": "spread routed as best available market with status playable; WARPS conflict keeps risk elevated",
+        "market_options": [
+          {
+            "market": "spread",
+            "side": "AWAY",
+            "status": "playable",
+            "score": 3.0,
+            "threshold": 2.5,
+            "blockers": [],
+            "signals": [
+              {
+                "impact": 1,
+                "score": 1,
+                "side": "AWAY",
+                "source": "sharp",
+                "status": "aligned"
+              },
+              {
+                "impact": 2,
+                "score": 2,
+                "side": "AWAY",
+                "source": "team_rating",
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "warps_alignment": "conflict",
+            "warps_side": "HOME",
+            "warps_team": "SEA",
+            "edge_value": 0.8
+          },
+          {
+            "market": "total",
+            "side": "OVER",
+            "status": "lean",
+            "score": 3.0,
+            "threshold": 4.0,
+            "blockers": [],
+            "signals": [
+              {
+                "impact": 1,
+                "score": 1,
+                "side": "OVER",
+                "source": "sharp",
+                "status": "aligned"
+              },
+              {
+                "impact": 2,
+                "reasons": [
+                  "referee over trend"
+                ],
+                "score": 2,
+                "side": "OVER",
+                "source": "ref_weather_context",
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "warps_alignment": null,
+            "warps_side": null,
+            "warps_team": null,
+            "edge_value": null
+          },
+          {
+            "market": "moneyline",
+            "side": "HOME",
+            "status": "research_only",
+            "promotion_status": "not_promoted",
+            "score": 2.1,
+            "threshold": 5.0,
+            "blockers": [
+              "moneyline selector not promoted"
+            ],
+            "signals": [],
+            "conflicts": [],
+            "warps_alignment": "research_only",
+            "warps_side": "HOME",
+            "warps_team": "SEA",
+            "edge_value": 0.0359
+          }
+        ],
+        "referee": "Land Clark",
+        "referee_stats": null
+      }
+    ]
   },
-  "best_edges": [],
+  "best_edges": [
+    {
+      "season": 2026,
+      "season_type": "REG",
+      "week": "5",
+      "matchup_key": "SF@SEA",
+      "game": "San Francisco 49ers @ Seattle Seahawks",
+      "away_team": "San Francisco 49ers",
+      "home_team": "Seattle Seahawks",
+      "away_tla": "SF",
+      "home_tla": "SEA",
+      "stage": "initial",
+      "analysis_available": true,
+      "best_edge": {
+        "market": "spread",
+        "side": "AWAY",
+        "score": 3.0,
+        "label": "\ud83d\udcca LEAN",
+        "recommendation": "\ud83d\udc40 LEAN: San Francisco 49ers +3.5 (proceed with caution)",
+        "status": "play"
+      },
+      "markets": {
+        "spread": {
+          "market": "spread",
+          "side": "AWAY",
+          "score": 3.0,
+          "threshold": 2.5,
+          "cleared_threshold": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 1,
+              "score": 1,
+              "side": "AWAY",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "score": 2,
+              "side": "AWAY",
+              "source": "team_rating",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge aligns"
+          ],
+          "status": "playable",
+          "line": "+3.5 (-120) | -3.5 (+120)"
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 3.0,
+          "threshold": 4.0,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 1,
+              "score": 1,
+              "side": "OVER",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 2,
+              "reasons": [
+                "referee over trend"
+              ],
+              "score": 2,
+              "side": "OVER",
+              "source": "ref_weather_context",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp total edge",
+            "referee over trend"
+          ],
+          "status": "lean",
+          "line": "o46.5 (+106) | u46.5 (-106)"
+        },
+        "moneyline": {
+          "market": "moneyline",
+          "side": "HOME",
+          "score": 2.1,
+          "threshold": 5.0,
+          "cleared_threshold": false,
+          "status": "lean",
+          "promotion_status": "not_promoted",
+          "blockers": [],
+          "line": "+153 | -152",
+          "reason": "WARPS ML: fav >=2% edge lean"
+        }
+      },
+      "referee": "Land Clark",
+      "referee_stats": null,
+      "factor_summary": [
+        {
+          "market": "spread",
+          "source": "sharp",
+          "side": "AWAY",
+          "impact": 1,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "team_rating",
+          "side": "AWAY",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "total",
+          "source": "sharp",
+          "side": "OVER",
+          "impact": 1,
+          "status": "aligned"
+        },
+        {
+          "market": "total",
+          "source": "ref_weather_context",
+          "side": "OVER",
+          "impact": 2,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "WARPS fair-line prior",
+          "side": "HOME",
+          "impact": 0.8,
+          "status": "conflict"
+        }
+      ],
+      "warps_market_overlay": {
+        "available": true,
+        "status": "priced",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
+        "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
+        "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
+        "away_tla": "SF",
+        "home_tla": "SEA",
+        "away_warps_wins": 9.64,
+        "home_warps_wins": 11.44,
+        "fair_home_spread": -4.3,
+        "fair_away_spread": 4.3,
+        "home_win_prob": 0.6248,
+        "away_win_prob": 0.3752,
+        "home_fair_moneyline": "-167",
+        "away_fair_moneyline": "+167",
+        "market_home_spread": -3.5,
+        "market_away_spread": 3.5,
+        "market_home_moneyline": -152.0,
+        "market_away_moneyline": 153.0,
+        "spread_side": "HOME",
+        "spread_team": "SEA",
+        "spread_edge_points": 0.8,
+        "spread_pick_alignment": "conflict",
+        "fair_spread_side": "HOME",
+        "ml_side": "HOME",
+        "ml_team": "SEA",
+        "ml_edge_prob": 0.0207,
+        "ml_ev": 0.0359,
+        "ml_pick_alignment": "research_only"
+      },
+      "schedule_context": {
+        "division_game": true,
+        "conference_game": true,
+        "away_division": "NFC West",
+        "home_division": "NFC West"
+      },
+      "expectation_context": {
+        "away_team": "SF",
+        "home_team": "SEA",
+        "away": {
+          "team": "SF",
+          "conference": "NFC",
+          "division": "NFC West",
+          "games_tracked": 6,
+          "actual_wins": 4,
+          "actual_losses": 0,
+          "points_for": 122.0,
+          "points_against": 64.0,
+          "vegas_win_total": 10.5,
+          "actual_win_pct": 0.6667,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.8219,
+          "pythagorean_wins_tracked": 4.93,
+          "pythagorean_wins_17_game_pace": 13.97,
+          "actual_vs_pythagorean": -0.93,
+          "pythagorean_pace_vs_vegas": 3.47,
+          "actual_pace_vs_vegas": 0.83,
+          "expectation_band": "in_line"
+        },
+        "home": {
+          "team": "SEA",
+          "conference": "NFC",
+          "division": "NFC West",
+          "games_tracked": 6,
+          "actual_wins": 3,
+          "actual_losses": 1,
+          "points_for": 105.0,
+          "points_against": 73.0,
+          "vegas_win_total": 10.5,
+          "actual_win_pct": 0.5,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.703,
+          "pythagorean_wins_tracked": 4.22,
+          "pythagorean_wins_17_game_pace": 11.95,
+          "actual_vs_pythagorean": -1.22,
+          "pythagorean_pace_vs_vegas": 1.45,
+          "actual_pace_vs_vegas": -2.0,
+          "expectation_band": "underperforming"
+        },
+        "games_tracked_min": 6,
+        "pythagorean_wins_delta": 2.02,
+        "vegas_win_total_delta": 0.0,
+        "pythagorean_vs_vegas_delta": 2.02,
+        "actual_vs_pythagorean_delta": 0.29,
+        "pythagorean_side": "AWAY",
+        "market_expectation_side": "NEUTRAL",
+        "value_gap_side": "AWAY",
+        "overperformance_side": "NEUTRAL",
+        "sample_warning": false
+      },
+      "source_health_status": "DEGRADED",
+      "data_quality_status": "DEGRADED",
+      "result": {
+        "away_score": 0,
+        "home_score": 0,
+        "final_margin": 0,
+        "final_total": 0
+      },
+      "explanation": null
+    }
+  ],
   "survivor": {
     "available": true,
     "week": 5,
@@ -534,6 +894,6 @@
       "checks_passed": 14,
       "next_live_command": "python3 builders/build_week_master_table.py --season 2026 --week 1 --season-type PRE"
     },
-    "card_available": false
+    "card_available": true
   }
 }
