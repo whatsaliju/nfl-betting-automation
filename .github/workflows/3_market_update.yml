@@ -610,7 +610,7 @@ jobs:
                 git checkout --ours data/historical/sdql_results.csv 2>/dev/null || true
                 
                 git add data/ 2>/dev/null || true
-                git rebase --continue
+                GIT_EDITOR=true git rebase --continue
             }
             
             git push --force-with-lease

@@ -431,7 +431,7 @@ jobs:
           git rebase origin/main || {
             git checkout --ours -- data/ site/src/data/
             git add data/ site/src/data/
-            git rebase --continue
+            GIT_EDITOR=true git rebase --continue
           }
           git push
 
