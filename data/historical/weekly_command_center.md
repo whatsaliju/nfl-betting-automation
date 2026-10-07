@@ -17,24 +17,29 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 1
-- Passes: 14
+- Watch: 11
+- Passes: 4
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| SF@SEA | watch | spread | AWAY | 3.0 |
+| BUF@LAR | watch | n/a | n/a | 3.0 |
+| CHI@GB | watch | n/a | n/a | 3.0 |
+| CIN@MIA | watch | n/a | n/a | 3.0 |
+| HOU@TEN | watch | n/a | n/a | 3.0 |
+| LV@NE | watch | n/a | n/a | 3.0 |
+| NYG@WAS | watch | n/a | n/a | 3.0 |
 
 ## Survivor
 
-- Primary: DAL vs TB (68.8%)
-- Safest: HOU vs TEN (69.8%)
-- Path pick: DAL vs TB (68.8%)
+- Primary: DAL vs TB (69.1%)
+- Safest: HOU vs TEN (70.5%)
+- Path pick: DAL vs TB (69.1%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | DAL vs TB (68.8%) | DAL vs TB (68.8%) | DAL vs TB (68.8%) |
-| 100 | DAL vs TB (68.8%) | DAL vs TB (68.8%) | DAL vs TB (68.8%) |
-| 500 | DAL vs TB (68.8%) | DAL vs TB (68.8%) | DAL vs TB (68.8%) |
+| 25 | DAL vs TB (69.1%) | DAL vs TB (69.1%) | DAL vs TB (69.1%) |
+| 100 | DAL vs TB (69.1%) | DAL vs TB (69.1%) | DAL vs TB (69.1%) |
+| 500 | DAL vs TB (69.1%) | DAL vs TB (69.1%) | DAL vs TB (69.1%) |
 
 ## WARPS Watch
 
