@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W5 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Recommended action: **PLAY**
+- Confidence tier: **A**
+- Reason: At least one selector play cleared the current command gate.
 
 ## Source Gates
 
@@ -16,38 +16,38 @@
 
 ## Betting Card
 
-- Plays: 0
-- Watch: 11
+- Plays: 1
+- Watch: 10
 - Passes: 4
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
+| SF@SEA | play | spread | AWAY | 3.0 |
+| HOU@TEN | watch | total | UNDER | 4.0 |
 | BUF@LAR | watch | n/a | n/a | 3.0 |
-| CHI@GB | watch | n/a | n/a | 3.0 |
 | CIN@MIA | watch | n/a | n/a | 3.0 |
-| HOU@TEN | watch | n/a | n/a | 3.0 |
 | LV@NE | watch | n/a | n/a | 3.0 |
-| NYG@WAS | watch | n/a | n/a | 3.0 |
+| CHI@GB | watch | n/a | n/a | 2.0 |
 
 ## Survivor
 
-- Primary: DAL vs TB (69.1%)
-- Safest: HOU vs TEN (70.5%)
-- Path pick: DAL vs TB (69.1%)
+- Primary: DAL vs TB (69.7%)
+- Safest: HOU vs TEN (72.2%)
+- Path pick: DAL vs TB (69.7%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | DAL vs TB (69.1%) | DAL vs TB (69.1%) | DAL vs TB (69.1%) |
-| 100 | DAL vs TB (69.1%) | DAL vs TB (69.1%) | DAL vs TB (69.1%) |
-| 500 | DAL vs TB (69.1%) | DAL vs TB (69.1%) | DAL vs TB (69.1%) |
+| 25 | DAL vs TB (69.7%) | DAL vs TB (69.7%) | DAL vs TB (69.7%) |
+| 100 | DAL vs TB (69.7%) | DAL vs TB (69.7%) | DAL vs TB (69.7%) |
+| 500 | DAL vs TB (69.7%) | DAL vs TB (69.7%) | DAL vs TB (69.7%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| NE | vs LV | 72.3% | -261 |
-| SEA | vs SF | 62.5% | -167 |
-| HOU | @ TEN | 61.9% | -162 |
-| LAR | vs BUF | 59.0% | -144 |
-| JAX | vs PHI | 58.4% | -140 |
-| DET | @ ARI | 58.1% | -138 |
+| JAX | vs PHI | 66.7% | -200 |
+| NE | vs LV | 61.9% | -162 |
+| SEA | vs SF | 57.9% | -138 |
+| HOU | @ TEN | 57.6% | -136 |
+| DAL | vs TB | 56.2% | -128 |
+| LAR | vs BUF | 56.2% | -128 |
