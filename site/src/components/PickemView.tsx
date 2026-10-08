@@ -354,6 +354,15 @@ export function PickemView({
                 ? (suPickTla === g.awayTla ? warpsBetsAwayWinPct : warpsHomeWinPct)
                 : null;
 
+              // Spread pick (WARPS overlay)
+              const spreadPickTla = g.warpsOverlayTeam;
+              const spreadPickSide = g.warpsOverlaySide;
+              const spreadMktLine = spreadPickSide === "AWAY" ? g.awaySpread
+                : spreadPickSide === "HOME" ? g.homeSpread : null;
+              const spreadFairLine = spreadPickSide === "AWAY"
+                ? (g.warpsFairHomeSpread !== null ? -g.warpsFairHomeSpread : null)
+                : g.warpsFairHomeSpread;
+
               const awayWon = g.isCompleted && g.awayScore !== null && g.homeScore !== null && g.awayScore > g.homeScore;
               const homeWon = g.isCompleted && g.awayScore !== null && g.homeScore !== null && g.homeScore > g.awayScore;
               const suResult = g.isCompleted && suPickTla
@@ -394,24 +403,43 @@ export function PickemView({
                       )}
                     </div>
 
-                    <div className="pickem-su">
-                      <span className="pk-su-label">SU pick</span>
-                      <div className="pk-su-pick">
-                        {suPickTla && <img src={teamLogos[suPickTla]} alt={suPickTla} className="pk-su-logo" />}
-                        <strong className="pk-su-team">{suPickTla ?? "Pick'em"}</strong>
-                        {suPickPct !== null && (
-                          <span className="pk-win-prob">{suPickPct}%</span>
+                    <div className="pk-picks-row">
+                      {/* SU pick */}
+                      <div className="pk-pick-cell pk-cell-su">
+                        <span className="pk-cell-label">Straight up</span>
+                        <div className="pk-cell-pick">
+                          {suPickTla && <img src={teamLogos[suPickTla]} alt={suPickTla} className="pk-su-logo" />}
+                          <strong className="pk-su-team">{suPickTla ?? "—"}</strong>
+                          {suPickPct !== null && <span className="pk-win-prob">{suPickPct}%</span>}
+                        </div>
+                      </div>
+
+                      {/* Spread pick */}
+                      <div className={`pk-pick-cell pk-cell-spread ${spreadPickTla && g.warpsOverlayEdge !== null ? (warpsAgreesWithFav ? "spread-agree" : "spread-fade") : ""}`}>
+                        <span className="pk-cell-label">Against spread</span>
+                        {spreadPickTla ? (
+                          <>
+                            <div className="pk-cell-pick">
+                              <img src={teamLogos[spreadPickTla]} alt={spreadPickTla} className="pk-su-logo" />
+                              <strong className="pk-su-team">{spreadPickTla}</strong>
+                              {spreadMktLine !== null && (
+                                <span className="pk-spread-line">{signed(spreadMktLine)}</span>
+                              )}
+                            </div>
+                            {g.warpsOverlayEdge !== null && (
+                              <span className="pk-edge-badge">{g.warpsOverlayEdge.toFixed(1)}pt edge</span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="pk-cell-na">No line yet</span>
                         )}
                       </div>
                     </div>
 
-                    {g.warpsFairHomeSpread !== null && (
-                      <div className={`pickem-warps ${warpsAgreesWithFav ? "warps-agree" : "warps-fade"}`}>
-                        <span className="warps-label">WARPS</span>
-                        <span className="warps-fair">fair {g.favTla === g.homeTla ? signed(-g.warpsFairHomeSpread) : signed(g.warpsFairHomeSpread)} {g.favTla}</span>
-                        {g.warpsOverlayEdge !== null && (
-                          <span className="warps-edge">{warpsAgreesWithFav ? "▲" : "▼"} {g.warpsOverlayEdge.toFixed(1)}pt edge</span>
-                        )}
+                    {/* Fair vs market context */}
+                    {spreadFairLine !== null && spreadMktLine !== null && spreadPickTla && (
+                      <div className="pk-fair-note">
+                        fair {signed(Math.round(spreadFairLine * 10) / 10)} · mkt {signed(spreadMktLine)} {spreadPickTla}
                       </div>
                     )}
 
