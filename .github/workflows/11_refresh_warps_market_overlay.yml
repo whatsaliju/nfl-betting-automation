@@ -65,6 +65,10 @@ jobs:
             echo "No master JSON for week $WEEK — skipping overlay patch"
           fi
 
+      - name: Apply in-season Pythagorean rating update
+        run: |
+          python3 scripts/update_warps_inseason.py
+
       - name: Validate generated overlay
         run: |
           python - <<'PY'
