@@ -453,6 +453,37 @@ export function PickemView({
                           <span className="pk-cell-na">No line yet</span>
                         )}
                       </div>
+
+                      {/* O/U total */}
+                      {(() => {
+                        const actualTotal = g.isCompleted && g.awayScore !== null && g.homeScore !== null
+                          ? g.awayScore + g.homeScore : null;
+                        const ouResult = actualTotal !== null && g.ou !== null
+                          ? (actualTotal > g.ou ? "over" : actualTotal < g.ou ? "under" : "push")
+                          : null;
+                        return (
+                          <div className="pk-pick-cell pk-cell-total">
+                            <span className="pk-cell-label">Total</span>
+                            {g.ou !== null ? (
+                              <>
+                                {ouResult ? (
+                                  <div className={`pk-ou-result pk-ou-${ouResult}`}>
+                                    {ouResult === "over" ? "▲" : ouResult === "under" ? "▼" : "="} {ouResult.toUpperCase()} {actualTotal}
+                                  </div>
+                                ) : (
+                                  <div className="pk-ou-line">O/U {g.ou.toFixed(1)}</div>
+                                )}
+                                <div className="pk-ou-splits">
+                                  {g.awayImplied !== null && <span>{g.awayTla} {g.isCompleted ? g.awayScore : g.awayImplied?.toFixed(1)}</span>}
+                                  {g.homeImplied !== null && <span>{g.homeTla} {g.isCompleted ? g.homeScore : g.homeImplied?.toFixed(1)}</span>}
+                                </div>
+                              </>
+                            ) : (
+                              <span className="pk-cell-na">No total</span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Fair vs market context */}
