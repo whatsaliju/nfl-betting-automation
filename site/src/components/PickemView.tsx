@@ -369,16 +369,35 @@ export function PickemView({
                 ? ((awayWon && suPickTla === g.awayTla) || (homeWon && suPickTla === g.homeTla) ? "win" : "loss")
                 : null;
 
+              // ATS result: did our spread pick cover?
+              let atsResult: "win" | "loss" | "push" | null = null;
+              if (g.isCompleted && spreadPickTla && g.awayScore !== null && g.homeScore !== null) {
+                if (spreadPickSide === "AWAY" && g.awaySpread !== null) {
+                  const margin = g.awayScore + g.awaySpread - g.homeScore;
+                  atsResult = margin > 0 ? "win" : margin < 0 ? "loss" : "push";
+                } else if (spreadPickSide === "HOME" && g.homeSpread !== null) {
+                  const margin = g.homeScore + g.homeSpread - g.awayScore;
+                  atsResult = margin > 0 ? "win" : margin < 0 ? "loss" : "push";
+                }
+              }
+
               return (
                 <div key={g.matchupKey} className={`pickem-card ${g.isCompleted ? "pickem-final" : `pickem-${tag}`}`}>
                   {g.isCompleted && (
                     <div className="pk-final-row">
                       <div className="pk-final-badge">Final</div>
-                      {suResult && (
-                        <div className={`pk-su-result pk-su-${suResult}`}>
-                          {suResult === "win" ? "✓" : "✗"} {suPickTla}
-                        </div>
-                      )}
+                      <div className="pk-result-chips">
+                        {suResult && (
+                          <div className={`pk-su-result pk-su-${suResult}`}>
+                            {suResult === "win" ? "✓" : "✗"} {suPickTla} SU
+                          </div>
+                        )}
+                        {atsResult && (
+                          <div className={`pk-su-result pk-ats-${atsResult}`}>
+                            {atsResult === "win" ? "✓" : atsResult === "push" ? "=" : "✗"} {spreadPickTla} ATS
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                   <div className="pickem-matchup">

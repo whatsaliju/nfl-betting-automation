@@ -5072,7 +5072,11 @@ select {
 .pickem-card.pickem-fade { border-color: #fca5a5; background: #fff5f5; }
 .pickem-card.pickem-pass { border-color: #e4e4e7; }
 .pickem-card.pickem-final { border-color: #d4d4d8; background: #fafafa; opacity: 0.82; }
-.pk-final-row { display: flex; align-items: center; justify-content: space-between; }
+.pk-final-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.pk-result-chips { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+.pk-ats-win { color: #065f46; background: #d1fae5; }
+.pk-ats-loss { color: #991b1b; background: #fee2e2; }
+.pk-ats-push { color: #5b21b6; background: #ede9fe; }
 .pk-final-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #71717a; background: #e4e4e7; border-radius: 4px; padding: 2px 7px; }
 .pk-su-result { font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 7px; }
 .pk-su-win { color: #065f46; background: #d1fae5; }
@@ -5153,6 +5157,9 @@ select {
   :root:not([data-theme="light"]) .pk-record-pct { background: #064e3b; color: #6ee7b7; }
   :root:not([data-theme="light"]) .pk-su-win { background: #064e3b; color: #6ee7b7; }
   :root:not([data-theme="light"]) .pk-su-loss { background: #450a0a; color: #fca5a5; }
+  :root:not([data-theme="light"]) .pk-ats-win { background: #064e3b; color: #6ee7b7; }
+  :root:not([data-theme="light"]) .pk-ats-loss { background: #450a0a; color: #fca5a5; }
+  :root:not([data-theme="light"]) .pk-ats-push { background: #2e1065; color: #c4b5fd; }
   :root:not([data-theme="light"]) .pk-final-badge { background: #18181b; color: #a1a1aa; }
   :root:not([data-theme="light"]) .pk-team.fav { color: #f4f4f5; }
   :root:not([data-theme="light"]) .pk-su-team { color: #f4f4f5; }
@@ -5189,6 +5196,9 @@ select {
 :root[data-theme="dark"] .pk-record-pct { background: #064e3b; color: #6ee7b7; }
 :root[data-theme="dark"] .pk-su-win { background: #064e3b; color: #6ee7b7; }
 :root[data-theme="dark"] .pk-su-loss { background: #450a0a; color: #fca5a5; }
+:root[data-theme="dark"] .pk-ats-win { background: #064e3b; color: #6ee7b7; }
+:root[data-theme="dark"] .pk-ats-loss { background: #450a0a; color: #fca5a5; }
+:root[data-theme="dark"] .pk-ats-push { background: #2e1065; color: #c4b5fd; }
 :root[data-theme="dark"] .pk-team.fav { color: #f4f4f5; }
 :root[data-theme="dark"] .pk-su-team { color: #f4f4f5; }
 :root[data-theme="dark"] .pickem-card { background: #27272a; border-color: #3f3f46; }
