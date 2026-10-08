@@ -75,6 +75,26 @@ function signed(n: number): string {
   return n >= 0 ? `+${n}` : `${n}`;
 }
 
+type ConfidenceTier = "lean" | "moderate" | "high" | "strong";
+
+function suConfidence(pct: number | null): ConfidenceTier | null {
+  if (pct === null) return null;
+  const d = Math.abs(pct - 50);
+  if (d >= 15) return "strong";
+  if (d >= 7)  return "high";
+  if (d >= 3)  return "moderate";
+  return "lean";
+}
+
+function spreadConfidence(edge: number | null): ConfidenceTier | null {
+  if (edge === null) return null;
+  const e = Math.abs(edge);
+  if (e >= 5)   return "strong";
+  if (e >= 3)   return "high";
+  if (e >= 1.5) return "moderate";
+  return "lean";
+}
+
 function classTag(cls: string | null): string {
   if (!cls) return "pass";
   if (cls.includes("BLUE") || cls.includes("TARGETED")) return "hot";
@@ -424,35 +444,47 @@ export function PickemView({
 
                     <div className="pk-picks-row">
                       {/* SU pick */}
-                      <div className="pk-pick-cell pk-cell-su">
-                        <span className="pk-cell-label">Straight up</span>
-                        <div className="pk-cell-pick">
-                          {suPickTla && <img src={teamLogos[suPickTla]} alt={suPickTla} className="pk-su-logo" />}
-                          <strong className="pk-su-team">{suPickTla ?? "—"}</strong>
-                          {suPickPct !== null && <span className="pk-win-prob">{suPickPct}%</span>}
-                        </div>
-                      </div>
+                      {(() => {
+                        const suTier = suConfidence(suPickPct ?? null);
+                        return (
+                          <div className="pk-pick-cell pk-cell-su">
+                            <span className="pk-cell-label">Straight up</span>
+                            <div className="pk-cell-pick">
+                              {suPickTla && <img src={teamLogos[suPickTla]} alt={suPickTla} className="pk-su-logo" />}
+                              <strong className="pk-su-team">{suPickTla ?? "—"}</strong>
+                              {suPickPct !== null && <span className="pk-win-prob">{suPickPct}%</span>}
+                            </div>
+                            {suTier && <span className={`pk-confidence pk-conf-${suTier}`}>{suTier}</span>}
+                          </div>
+                        );
+                      })()}
 
                       {/* Spread pick */}
-                      <div className={`pk-pick-cell pk-cell-spread ${spreadPickTla && g.warpsOverlayEdge !== null ? (warpsAgreesWithFav ? "spread-agree" : "spread-fade") : ""}`}>
-                        <span className="pk-cell-label">Against spread</span>
-                        {spreadPickTla ? (
-                          <>
-                            <div className="pk-cell-pick">
-                              <img src={teamLogos[spreadPickTla]} alt={spreadPickTla} className="pk-su-logo" />
-                              <strong className="pk-su-team">{spreadPickTla}</strong>
-                              {spreadMktLine !== null && (
-                                <span className="pk-spread-line">{signed(spreadMktLine)}</span>
-                              )}
-                            </div>
-                            {g.warpsOverlayEdge !== null && (
-                              <span className="pk-edge-badge">{g.warpsOverlayEdge.toFixed(1)}pt edge</span>
+                      {(() => {
+                        const spreadTier = spreadConfidence(g.warpsOverlayEdge);
+                        return (
+                          <div className={`pk-pick-cell pk-cell-spread ${spreadPickTla && g.warpsOverlayEdge !== null ? (warpsAgreesWithFav ? "spread-agree" : "spread-fade") : ""}`}>
+                            <span className="pk-cell-label">Against spread</span>
+                            {spreadPickTla ? (
+                              <>
+                                <div className="pk-cell-pick">
+                                  <img src={teamLogos[spreadPickTla]} alt={spreadPickTla} className="pk-su-logo" />
+                                  <strong className="pk-su-team">{spreadPickTla}</strong>
+                                  {spreadMktLine !== null && (
+                                    <span className="pk-spread-line">{signed(spreadMktLine)}</span>
+                                  )}
+                                </div>
+                                {g.warpsOverlayEdge !== null && (
+                                  <span className="pk-edge-badge">{g.warpsOverlayEdge.toFixed(1)}pt edge</span>
+                                )}
+                                {spreadTier && <span className={`pk-confidence pk-conf-${spreadTier}`}>{spreadTier}</span>}
+                              </>
+                            ) : (
+                              <span className="pk-cell-na">No line yet</span>
                             )}
-                          </>
-                        ) : (
-                          <span className="pk-cell-na">No line yet</span>
-                        )}
-                      </div>
+                          </div>
+                        );
+                      })()}
 
                       {/* O/U total */}
                       {(() => {
