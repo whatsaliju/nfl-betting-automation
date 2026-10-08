@@ -35,6 +35,23 @@ cards = wbc.get("cards", [])
 edge_board = feed.get("edge_board", [])
 edge_lookup = {g["matchup_key"]: g for g in edge_board}
 
+# ── Load WARPS overlay for pick'em section ────────────────────────────────────
+overlay_rows = []
+for path in ["site/src/data/warpsMarketOverlay.json", "data/historical/warps_2026_market_overlay.csv"]:
+    try:
+        if path.endswith(".json"):
+            with open(path) as f:
+                overlay_rows = json.load(f)
+        break
+    except (FileNotFoundError, json.JSONDecodeError):
+        continue
+cur_week_str = str(ctx.get("week", week))
+overlay_week = [r for r in overlay_rows if str(r.get("week")) == cur_week_str]
+# Build overlay lookup by matchup_key (WAS normalization)
+def _norm_mk(mk):
+    return mk.replace("WSH", "WAS")
+overlay_by_mk = {_norm_mk(r["matchup_key"]): r for r in overlay_week}
+
 plays   = [c for c in cards if c.get("action") == "play"]
 watches = [c for c in cards if c.get("action") in ("watch", "lean")]
 passes  = [c for c in cards if c.get("action") == "pass"]
@@ -195,6 +212,75 @@ def render_card(card):
         "</td></tr></table>"
     )
 
+# ── Build pick'em section ─────────────────────────────────────────────────────
+def build_pickem_section():
+    if not overlay_week:
+        return ""
+    DAY_ORDER = {"Thu": 0, "Fri": 1, "Sat": 2, "Sun": 3, "Mon": 4}
+    games_by_day: dict = {}
+    for mk, r in overlay_by_mk.items():
+        hwp = r.get("home_win_prob")
+        if hwp is None:
+            continue
+        try:
+            hwp = float(hwp)
+        except (ValueError, TypeError):
+            continue
+        away = r.get("away_tla", "")
+        home = r.get("home_tla", "")
+        if hwp >= 0.5:
+            pick, pick_pct = home, round(hwp * 100)
+            dog = away
+        else:
+            pick, pick_pct = away, round((1 - hwp) * 100)
+            dog = home
+        day = r.get("game_day") or "Sun"
+        games_by_day.setdefault(day, []).append({
+            "mk": mk, "away": away, "home": home,
+            "pick": pick, "pct": pick_pct, "dog": dog,
+            "date": r.get("game_date", ""),
+        })
+
+    rows_html = ""
+    for day in sorted(games_by_day, key=lambda d: DAY_ORDER.get(d, 9)):
+        day_games = sorted(games_by_day[day], key=lambda g: g["mk"])
+        rows_html += (
+            f"<tr><td colspan='3' style='padding:10px 0 4px;font-size:11px;"
+            f"text-transform:uppercase;letter-spacing:1px;color:#6b7280;"
+            f"border-bottom:1px solid #e5e7eb;'>{day}</td></tr>"
+        )
+        for g in day_games:
+            fav_color = "#15803d"
+            dog_color = "#6b7280"
+            rows_html += (
+                f"<tr>"
+                f"<td style='padding:5px 0;font-size:13px;color:{dog_color};width:38%;'>"
+                f"{g['away']} @ {g['home']}</td>"
+                f"<td style='padding:5px 8px;font-size:13px;font-weight:700;"
+                f"color:{fav_color};width:30%;'>▶ {g['pick']}</td>"
+                f"<td style='padding:5px 0;font-size:12px;color:#9ca3af;"
+                f"width:32%;'>{g['pct']}% win prob</td>"
+                f"</tr>"
+            )
+    if not rows_html:
+        return ""
+    total = len(overlay_by_mk)
+    return (
+        f"<h2 style='font-size:16px;color:#111827;border-bottom:2px solid #e5e7eb;"
+        f"padding-bottom:8px;margin:28px 0 4px;'>"
+        f"Pick'em &nbsp;<span style='font-size:13px;font-weight:400;color:#6b7280;'>"
+        f"WARPS straight-up · {total} games</span></h2>"
+        f"<table style='width:100%;border-collapse:collapse;font-size:13px;"
+        f"margin:0 0 8px;'>"
+        f"{rows_html}"
+        f"</table>"
+        f"<p style='font-size:11px;color:#9ca3af;margin:4px 0 0;'>"
+        f"SU pick = team with higher WARPS win probability. "
+        f"Pool record through last week: <strong style='color:#15803d;'>41–23 (64%)</strong></p>"
+    )
+
+pickem_section = build_pickem_section()
+
 # ── Build sections ────────────────────────────────────────────────────────────
 plays_html = "".join(render_card(c) for c in plays) if plays else (
     "<p style='color:#9ca3af;font-size:14px;margin:8px 0;'>No plays this week.</p>"
@@ -275,6 +361,7 @@ body = f"""<html>
     {plays_html}
     {watch_section}
     {pass_section}
+    {pickem_section}
     <table style="width:100%;border-collapse:collapse;margin-top:28px;">
       <tr>
         <td style="background:#eff6ff;border-radius:8px;padding:20px 24px;text-align:center;">
