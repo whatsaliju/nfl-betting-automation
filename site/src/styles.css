@@ -5130,6 +5130,22 @@ select {
 .warps-edge { margin-left: auto; font-weight: 700; color: #059669; }
 .pickem-warps.warps-fade .warps-edge { color: #b45309; }
 
+/* ── Side-by-side SU + Spread picks ──────────────────────── */
+.pk-picks-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0 4px; }
+.pk-pick-cell { border: 1px solid #e4e4e7; border-radius: 7px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.pk-cell-label { font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: #a1a1aa; font-weight: 600; }
+.pk-cell-pick { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.pk-cell-su { background: #fafafa; }
+.pk-cell-spread { background: #f0f9ff; border-color: #bae6fd; }
+.pk-cell-spread.spread-agree { background: #f0fdf4; border-color: #86efac; }
+.pk-cell-spread.spread-fade { background: #fffbeb; border-color: #fcd34d; }
+.pk-cell-na { font-size: 11px; color: #a1a1aa; font-style: italic; }
+.pk-spread-line { font-size: 12px; font-family: monospace; color: #52525b; margin-left: 2px; }
+.pk-edge-badge { font-size: 10px; font-weight: 700; color: #0369a1; background: #e0f2fe; border-radius: 4px; padding: 1px 6px; align-self: flex-start; }
+.pk-cell-spread.spread-agree .pk-edge-badge { color: #166534; background: #dcfce7; }
+.pk-cell-spread.spread-fade .pk-edge-badge { color: #92400e; background: #fef3c7; }
+.pk-fair-note { font-size: 10px; color: #a1a1aa; font-family: monospace; margin-bottom: 4px; }
+
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .pickem-header h2 { color: #f4f4f5; }
@@ -5154,6 +5170,15 @@ select {
   :root:not([data-theme="light"]) .pickem-warps.warps-agree { background: #064e3b; border-color: #6ee7b7; }
   :root:not([data-theme="light"]) .pickem-warps.warps-fade { background: #451a03; border-color: #f0c37a; }
   :root:not([data-theme="light"]) .warps-fair { color: #d4d4d8; }
+  :root:not([data-theme="light"]) .pk-pick-cell { background: #27272a; border-color: #3f3f46; }
+  :root:not([data-theme="light"]) .pk-cell-spread { background: #0c2336; border-color: #075985; }
+  :root:not([data-theme="light"]) .pk-cell-spread.spread-agree { background: #052e16; border-color: #166534; }
+  :root:not([data-theme="light"]) .pk-cell-spread.spread-fade { background: #1c1400; border-color: #854d0e; }
+  :root:not([data-theme="light"]) .pk-spread-line { color: #d4d4d8; }
+  :root:not([data-theme="light"]) .pk-edge-badge { background: #0c4a6e; color: #7dd3fc; }
+  :root:not([data-theme="light"]) .pk-cell-spread.spread-agree .pk-edge-badge { background: #052e16; color: #86efac; }
+  :root:not([data-theme="light"]) .pk-cell-spread.spread-fade .pk-edge-badge { background: #451a03; color: #fcd34d; }
+  :root:not([data-theme="light"]) .pk-fair-note { color: #52525b; }
   :root:not([data-theme="light"]) .game-card-intl-badge { background: linear-gradient(135deg, #78350f44, #92400e33); border-color: #f59e0b88; color: #fbbf24; }
   :root:not([data-theme="light"]) .game-card-intl { border-color: #f59e0b44; }
   :root:not([data-theme="light"]) .pk-logo,
@@ -5180,6 +5205,15 @@ select {
 :root[data-theme="dark"] .pickem-warps.warps-agree { background: #064e3b; border-color: #6ee7b7; }
 :root[data-theme="dark"] .pickem-warps.warps-fade { background: #451a03; border-color: #f0c37a; }
 :root[data-theme="dark"] .warps-fair { color: #d4d4d8; }
+:root[data-theme="dark"] .pk-pick-cell { background: #27272a; border-color: #3f3f46; }
+:root[data-theme="dark"] .pk-cell-spread { background: #0c2336; border-color: #075985; }
+:root[data-theme="dark"] .pk-cell-spread.spread-agree { background: #052e16; border-color: #166534; }
+:root[data-theme="dark"] .pk-cell-spread.spread-fade { background: #1c1400; border-color: #854d0e; }
+:root[data-theme="dark"] .pk-spread-line { color: #d4d4d8; }
+:root[data-theme="dark"] .pk-edge-badge { background: #0c4a6e; color: #7dd3fc; }
+:root[data-theme="dark"] .pk-cell-spread.spread-agree .pk-edge-badge { background: #052e16; color: #86efac; }
+:root[data-theme="dark"] .pk-cell-spread.spread-fade .pk-edge-badge { background: #451a03; color: #fcd34d; }
+:root[data-theme="dark"] .pk-fair-note { color: #52525b; }
 :root[data-theme="dark"] .pt-tla { color: #f4f4f5; }
 :root[data-theme="dark"] .game-card-intl-badge { background: linear-gradient(135deg, #78350f44, #92400e33); border-color: #f59e0b88; color: #fbbf24; }
 :root[data-theme="dark"] .game-card-intl { border-color: #f59e0b44; }
