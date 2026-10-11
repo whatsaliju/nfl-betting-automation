@@ -2,6 +2,7 @@ import { AlertTriangle, BadgeCheck, ClipboardList, Crosshair, Gauge, ListChecks,
 import { teamLogos } from "../data/nflData";
 import survivorPayload from "../data/survivorRecommendations.json";
 import type { EdgeBoardGame, EngineFeed, WarpsMarketOverlay, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
+import { betText, edgeBetText, verdictOf } from "../lib/betText";
 
 type SurvivorCandidate = {
   week: number;
@@ -310,7 +311,7 @@ export function CommandCenterView({
             <button className="text-button" onClick={() => onNavigate("card")}>Open →</button>
           </div>
           {[...groups.plays, ...groups.watch].slice(0, 4).map((card) => {
-            const betDisplay = card.pick_label || (card.market ? `${card.market} ${card.side || ""}` : titleCase(card.action));
+            const betDisplay = card.pick_label || betText(card.market, card.side, card.current_line, card.away_tla, card.home_tla) || titleCase(card.action);
             return (
               <div
                 className={`command-bet-row ${card.action}`}
@@ -367,7 +368,8 @@ export function CommandCenterView({
             <button className="text-button" onClick={() => onNavigate("edges")}>Open →</button>
           </div>
           {edges.length ? edges.map((game) => {
-            const betDisplay = game.best_edge.label || game.best_edge.recommendation || `${game.best_edge.market || ""} ${game.best_edge.side || ""}`.trim() || "pick";
+            const bet = edgeBetText(game);
+            const betDisplay = bet ? `${verdictOf(game) === "bet" ? "Bet" : "Watch"} ${bet}` : "No bet";
             return (
               <div
                 className="command-bet-row play"

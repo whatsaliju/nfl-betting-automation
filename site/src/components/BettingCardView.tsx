@@ -2,6 +2,7 @@ import { AlertTriangle, BadgeCheck, CircleSlash, Clock, ShieldAlert, Target, Tre
 import { useEffect } from "react";
 import { teamLogos } from "../data/nflData";
 import type { CurrentContext, LineMoveAlert, WeeklyBettingCard, WeeklyBettingCardRow } from "../types";
+import { betText } from "../lib/betText";
 
 function formatScore(value?: number | null) {
   return typeof value === "number" ? value.toFixed(1) : "n/a";
@@ -54,11 +55,11 @@ function weekDisplay(week: string | number | undefined | null) {
 
 function decisionTitle(card: WeeklyBettingCardRow) {
   if (card.action === "pass") return "PASS";
-  const label = card.pick_label;
+  const label = card.pick_label || betText(card.market, card.side, card.current_line, card.away_tla, card.home_tla);
   if (card.action === "watch" || card.action === "lean") {
-    return label ? `WATCH · ${label}` : card.market ? `WATCH ${card.market.toUpperCase()} ${card.side || ""}` : "WATCH";
+    return label ? `WATCH · ${label}` : "WATCH";
   }
-  return label || (card.market ? `${card.market.toUpperCase()} ${card.side || ""}` : "PLAY");
+  return label || "PLAY";
 }
 
 function stripLeadingEmoji(text: string) {

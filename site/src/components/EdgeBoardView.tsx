@@ -2,48 +2,47 @@ import { Activity, AlertTriangle, BadgeCheck, CircleSlash, Gauge, Info, Trending
 import { useEffect } from "react";
 import { teamLogos } from "../data/nflData";
 import type { EdgeBoardGame, EdgeMarket, LineMoveAlert, WarpsMarketOverlay } from "../types";
+import { betText, edgeBetText, favoriteLine, teamify, verdictOf, VERDICT_TEXT } from "../lib/betText";
 
 const DAY_ORDER: Record<string, number> = { Thu: 0, Fri: 1, Sat: 2, Sun: 3, Mon: 4, Tue: 5, Wed: 6 };
 
-function formatScore(value: number | null) {
-  return typeof value === "number" ? value.toFixed(1) : "n/a";
+function stripEmoji(text: string) {
+  return text.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}\u{FE0F}]/gu, "").trim();
 }
 
-function edgeTitle(edge: EdgeBoardGame) {
-  const best = edge.best_edge;
-  if (best.status === "play" && best.market) {
-    return `${best.market.toUpperCase()} ${best.side || ""}`;
-  }
-  return "PASS";
+function tierText(label: string | null) {
+  if (!label) return "No isolated edge";
+  const t = stripEmoji(label).toLowerCase();
+  return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
-function marketLabel(market: EdgeMarket) {
-  if (market.status === "not_priced") return "not priced";
-  if (market.status === "playable") return "playable";
-  if (market.status === "lean") return "lean";
-  if (market.status === "blocked") return "blocked";
-  return "unavailable";
-}
+const MARKET_STATUS_TEXT: Record<string, string> = {
+  playable: "Strong signal",
+  lean: "Weak signal",
+  blocked: "Blocked",
+  research_only: "Research only",
+  not_priced: "Not priced",
+  unavailable: "No data",
+};
 
-function scoreContext(market: EdgeMarket) {
-  if (market.score == null) return "n/a";
-  if (market.threshold != null) return `${market.score.toFixed(1)} / ${market.threshold.toFixed(1)}`;
-  return market.score.toFixed(1);
-}
-
-function MarketMini({ market }: { market: EdgeMarket }) {
+function MarketMini({ market, awayTla, homeTla }: { market: EdgeMarket; awayTla: string; homeTla: string }) {
   const pct = market.score != null && market.threshold != null
     ? Math.min(100, Math.max(0, (market.score / market.threshold) * 100))
     : null;
+  const pick = betText(market.market, market.side, market.line, awayTla, homeTla);
+  const blocker = market.blockers?.[0];
   return (
     <div className={`market-mini ${market.status}`}>
       <div>
         <strong>{market.market}</strong>
-        <span>{market.side || marketLabel(market)}</span>
-        {market.line && <span className="market-line">{market.line}</span>}
+        <span className="market-line">{pick ?? "No side"}</span>
+        {blocker && <span className="market-blocker">{teamify(blocker, awayTla, homeTla)}</span>}
       </div>
       <div className="market-mini-right">
-        <b title="score / threshold">{scoreContext(market)}</b>
+        <b>{market.score === 0 && market.status === "lean" ? "No signal" : MARKET_STATUS_TEXT[market.status] ?? market.status.replace(/_/g, " ")}</b>
+        {market.score != null && market.threshold != null && (
+          <span className="market-score">score {market.score.toFixed(1)} · needs {market.threshold.toFixed(1)}</span>
+        )}
         {pct !== null && (
           <div className="score-meter">
             <div className="score-meter-fill" style={{ width: `${pct}%` }} />
@@ -64,14 +63,30 @@ function percent(value?: number | null) {
   return `${(value * 100).toFixed(1)}%`;
 }
 
-function actionLabel(action?: string) {
-  if (!action) return "pass";
-  return action.replace(/_/g, " ");
+function expectationLine(
+  label: string,
+  side: string | null | undefined,
+  delta: number | null | undefined,
+  joiner: string,
+  away: string,
+  home: string,
+) {
+  if (side == null) return null;
+  if (side === "NEUTRAL" || typeof delta !== "number") return <span>{label}: even</span>;
+  const team = side === "AWAY" ? away : home;
+  return <span>{label}: {team} {joiner} {Math.abs(delta).toFixed(1)} wins</span>;
 }
 
-function alignmentLabel(value?: string | null) {
-  if (!value) return "unavailable";
-  return value.replace(/_/g, " ");
+const WARPS_ALIGNMENT_TEXT: Record<string, string> = {
+  conflict: "Disagrees",
+  aligned: "Agrees",
+  neutral: "Neutral",
+  no_spread_pick: "No engine pick",
+};
+
+function winProbText(awayProb: number | null | undefined, homeProb: number | null | undefined, away: string, home: string) {
+  if (typeof awayProb !== "number" || typeof homeProb !== "number") return "n/a";
+  return awayProb >= homeProb ? `${away} ${percent(awayProb)}` : `${home} ${percent(homeProb)}`;
 }
 
 export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, warpsRows }: { games: EdgeBoardGame[]; focusGame?: string | null; onFocusClear?: () => void; lineMoveAlert?: LineMoveAlert | null; warpsRows?: WarpsMarketOverlay[] }) {
@@ -139,6 +154,12 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
         {regularGames.map((game) => {
           const best = game.best_edge;
           const factors = game.factor_summary.slice(0, 4);
+          const away = game.away_tla;
+          const home = game.home_tla;
+          const verdict = verdictOf(game);
+          const bet = edgeBetText(game);
+          const wo = game.warps_market_overlay;
+          const exp = game.expectation_context;
           return (
             <article className={`edge-card ${best.status}${focusGame === game.matchup_key ? " focused" : ""}`} key={`${game.week}-${game.matchup_key}`} id={`edge-${game.matchup_key}`}>
               <div className="edge-card-top">
@@ -153,26 +174,24 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
                 <strong>{game.home_tla}</strong>
               </div>
               <div className="edge-decision">
-                {best.status === "play" ? <TrendingUp size={18} /> : <AlertTriangle size={18} />}
+                {verdict === "bet" ? <TrendingUp size={18} /> : <AlertTriangle size={18} />}
                 <div>
-                  <strong>{edgeTitle(game)}</strong>
-                  <span>{best.label || "No isolated edge"}</span>
+                  <strong>{bet ?? "No bet"}</strong>
+                  <span>{best.market ? `${best.market} · ` : ""}{tierText(best.label)}</span>
                 </div>
-                <b>{formatScore(best.score)}</b>
+                <span className={`verdict-pill ${verdict}`}>{VERDICT_TEXT[verdict]}</span>
               </div>
 
               {game.explanation && (
                 <div className={`why-box ${game.explanation.quality_action}`}>
-                  <div className="why-box-top">
-                    <span className={`action-pill ${game.explanation.quality_action}`}>
-                      {actionLabel(game.explanation.quality_action)}
-                    </span>
-                    <span>{game.explanation.confidence}</span>
-                    <span>{game.explanation.quality_gate}</span>
-                  </div>
+                  {game.explanation.quality_gate === "warn" && (
+                    <div className="why-box-top">
+                      <span className="action-pill watch">Quality check flagged</span>
+                    </div>
+                  )}
                   <ul>
                     {(game.explanation.reasons || []).slice(0, 3).map((reason) => (
-                      <li key={reason}>{reason}</li>
+                      <li key={reason}>{teamify(reason, away, home)}</li>
                     ))}
                   </ul>
                   {game.explanation.promoted_matches?.length ? (
@@ -186,9 +205,9 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
               )}
 
               <div className="market-row">
-                <MarketMini market={game.markets.spread} />
-                <MarketMini market={game.markets.total} />
-                <MarketMini market={game.markets.moneyline} />
+                <MarketMini market={game.markets.spread} awayTla={away} homeTla={home} />
+                <MarketMini market={game.markets.total} awayTla={away} homeTla={home} />
+                <MarketMini market={game.markets.moneyline} awayTla={away} homeTla={home} />
               </div>
 
               <div className="context-tags">
@@ -236,38 +255,35 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
                 </div>
               )}
 
-              {game.expectation_context && (game.expectation_context.pythagorean_side || game.expectation_context.value_gap_side || game.expectation_context.overperformance_side) && (
+              {exp && (exp.pythagorean_side || exp.value_gap_side || exp.overperformance_side) && (
                 <div className="expectation-mini">
-                  {game.expectation_context.pythagorean_side != null && (
-                    <span>Py {game.expectation_context.pythagorean_side} {signed(game.expectation_context.pythagorean_wins_delta)}</span>
-                  )}
-                  {game.expectation_context.value_gap_side != null && (
-                    <span>Value {game.expectation_context.value_gap_side} {signed(game.expectation_context.pythagorean_vs_vegas_delta)}</span>
-                  )}
-                  {game.expectation_context.overperformance_side != null && (
-                    <span>Act-Py {game.expectation_context.overperformance_side} {signed(game.expectation_context.actual_vs_pythagorean_delta)}</span>
-                  )}
+                  {expectationLine("Points-based strength", exp.pythagorean_side, exp.pythagorean_wins_delta, "better by", away, home)}
+                  {expectationLine("Underrated vs Vegas", exp.value_gap_side, exp.pythagorean_vs_vegas_delta, "by", away, home)}
+                  {expectationLine("Luckier record", exp.overperformance_side, exp.actual_vs_pythagorean_delta, "by", away, home)}
                 </div>
               )}
 
-              {game.warps_market_overlay?.available && (
-                <div className={`warps-edge-strip ${game.warps_market_overlay.spread_pick_alignment || "context"}`}>
+              {wo?.available && (
+                <div className={`warps-edge-strip ${wo.spread_pick_alignment || "context"}`}>
                   <div>
                     <strong>WARPS</strong>
-                    <span>{alignmentLabel(game.warps_market_overlay.spread_pick_alignment)}</span>
+                    <span>{WARPS_ALIGNMENT_TEXT[wo.spread_pick_alignment ?? ""] ?? "Context"}</span>
                   </div>
                   <div>
-                    <span>Fair spread</span>
-                    <b>
-                      {game.home_tla} {signed(game.warps_market_overlay.fair_home_spread)}
-                    </b>
+                    <span>Fair line</span>
+                    <b>{favoriteLine(wo.fair_home_spread, away, home) ?? "n/a"}</b>
                   </div>
                   <div>
                     <span>Win prob</span>
-                    <b>
-                      {game.home_tla} {percent(game.warps_market_overlay.home_win_prob)}
-                    </b>
+                    <b>{winProbText(wo.away_win_prob, wo.home_win_prob, away, home)}</b>
                   </div>
+                  {wo.spread_pick_alignment === "conflict" && wo.spread_team && (
+                    <p className="warps-note">
+                      WARPS disagrees with the pick and sees value on {wo.spread_team}
+                      {wo.spread_side === "HOME" && typeof wo.market_home_spread === "number" ? ` ${signed(wo.market_home_spread)}` : ""}
+                      {wo.spread_side === "AWAY" && typeof wo.market_away_spread === "number" ? ` ${signed(wo.market_away_spread)}` : ""}.
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -276,7 +292,7 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
                   {factors.map((factor, index) => (
                     <span key={`${factor.market}-${factor.source}-${index}`}>
                       <Activity size={12} />
-                      {factor.market} {factor.source} {factor.side || ""}
+                      {factor.market} {factor.source} {factor.side ? teamify(factor.side, away, home) : ""}
                     </span>
                   ))}
                 </div>
