@@ -158,6 +158,26 @@ export interface EngineGame {
   };
 }
 
+export interface TrackRecordBlock {
+  plays: number;
+  wins: number;
+  losses: number;
+  pushes: number;
+  pending: number;
+  win_rate: number | null;
+  clv_plays: number;
+  avg_clv: number | null;
+  beat_close_rate: number | null;
+}
+
+export interface LiveTrackRecord {
+  season: number;
+  generated_at: string;
+  overall: TrackRecordBlock;
+  by_market: Record<string, TrackRecordBlock>;
+  note?: string;
+}
+
 export interface EdgeMarket {
   market: "spread" | "total" | "moneyline";
   side: string | null;
@@ -740,6 +760,7 @@ export interface EngineFeed {
   edge_board_count?: number;
   current_context?: CurrentContext;
   line_move_alert?: LineMoveAlert | null;
+  live_track_record?: LiveTrackRecord | null;
   weekly_command_center?: WeeklyCommandCenter;
   model_readiness?: {
     available: boolean;

@@ -1,7 +1,7 @@
 import { Activity, AlertTriangle, BadgeCheck, CircleSlash, Gauge, Info, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect } from "react";
 import { teamLogos } from "../data/nflData";
-import type { EdgeBoardGame, EdgeMarket, LineMoveAlert, WarpsMarketOverlay } from "../types";
+import type { EdgeBoardGame, EdgeMarket, LineMoveAlert, LiveTrackRecord, TrackRecordBlock, WarpsMarketOverlay } from "../types";
 import { betText, edgeBetText, favoriteLine, teamify, verdictOf, VERDICT_TEXT } from "../lib/betText";
 
 const DAY_ORDER: Record<string, number> = { Thu: 0, Fri: 1, Sat: 2, Sun: 3, Mon: 4, Tue: 5, Wed: 6 };
@@ -25,21 +25,36 @@ const MARKET_STATUS_TEXT: Record<string, string> = {
   unavailable: "No data",
 };
 
+// "blocked" covers several different reasons; say which one.
+function marketStatus(market: EdgeMarket): { text: string; reason: string | null } {
+  const blocker = market.blockers?.[0] ?? null;
+  if (market.status === "blocked") {
+    if (blocker?.startsWith("underdog ML")) return { text: "Not bet", reason: "Underdog moneylines aren't bet (32% historical win rate)" };
+    if (blocker?.includes("candidate unavailable")) return { text: "No data", reason: null };
+    if (blocker?.includes("conflict")) return { text: "Signals conflict", reason: (market.score ?? 0) === 0 ? null : blocker };
+    if ((market.score ?? 0) === 0 || blocker?.includes("required") || blocker?.startsWith("no sharp")) return { text: "No signal", reason: null };
+    return { text: "Ruled out", reason: blocker };
+  }
+  if (market.status === "lean" && (market.score ?? 0) === 0) return { text: "No signal", reason: null };
+  return { text: MARKET_STATUS_TEXT[market.status] ?? market.status.replace(/_/g, " "), reason: blocker };
+}
+
 function MarketMini({ market, awayTla, homeTla }: { market: EdgeMarket; awayTla: string; homeTla: string }) {
   const pct = market.score != null && market.threshold != null
     ? Math.min(100, Math.max(0, (market.score / market.threshold) * 100))
     : null;
   const pick = betText(market.market, market.side, market.line, awayTla, homeTla);
-  const blocker = market.blockers?.[0];
+  const { text, reason } = marketStatus(market);
+  const live = market.status === "playable" || (market.status === "lean" && (market.score ?? 0) > 0);
   return (
     <div className={`market-mini ${market.status}`}>
       <div>
         <strong>{market.market}</strong>
-        <span className="market-line">{pick ?? "No side"}</span>
-        {blocker && <span className="market-blocker">{teamify(blocker, awayTla, homeTla)}</span>}
+        <span className={`market-line${live ? "" : " market-line-muted"}`}>{pick ?? "No side"}</span>
+        {reason && <span className="market-blocker">{teamify(reason, awayTla, homeTla)}</span>}
       </div>
       <div className="market-mini-right">
-        <b>{market.score === 0 && market.status === "lean" ? "No signal" : MARKET_STATUS_TEXT[market.status] ?? market.status.replace(/_/g, " ")}</b>
+        <b>{text}</b>
         {market.score != null && market.threshold != null && (
           <span className="market-score">score {market.score.toFixed(1)} · needs {market.threshold.toFixed(1)}</span>
         )}
@@ -61,6 +76,20 @@ function signed(value?: number | null) {
 function percent(value?: number | null) {
   if (typeof value !== "number") return "n/a";
   return `${(value * 100).toFixed(1)}%`;
+}
+
+function TrackStat({ label, block }: { label: string; block: TrackRecordBlock }) {
+  return (
+    <div className="track-stat">
+      <span>{label}</span>
+      <b>{block.wins}–{block.losses}{block.pushes ? `–${block.pushes}` : ""}</b>
+      <span>
+        {block.avg_clv !== null ? `CLV ${block.avg_clv > 0 ? "+" : ""}${block.avg_clv.toFixed(2)}` : "CLV n/a"}
+        {block.beat_close_rate !== null ? ` · beat close ${Math.round(block.beat_close_rate * 100)}%` : ""}
+        {block.pending ? ` · ${block.pending} pending` : ""}
+      </span>
+    </div>
+  );
 }
 
 function expectationLine(
@@ -89,7 +118,7 @@ function winProbText(awayProb: number | null | undefined, homeProb: number | nul
   return awayProb >= homeProb ? `${away} ${percent(awayProb)}` : `${home} ${percent(homeProb)}`;
 }
 
-export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, warpsRows }: { games: EdgeBoardGame[]; focusGame?: string | null; onFocusClear?: () => void; lineMoveAlert?: LineMoveAlert | null; warpsRows?: WarpsMarketOverlay[] }) {
+export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, warpsRows, trackRecord }: { games: EdgeBoardGame[]; focusGame?: string | null; onFocusClear?: () => void; lineMoveAlert?: LineMoveAlert | null; warpsRows?: WarpsMarketOverlay[]; trackRecord?: LiveTrackRecord | null }) {
   useEffect(() => {
     if (!focusGame) return;
     const el = document.getElementById(`edge-${focusGame}`);
@@ -129,6 +158,25 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
           <span><Info size={14} />ML not priced yet</span>
         </div>
       </div>
+
+      {trackRecord && trackRecord.overall.plays > 0 && (
+        <div className="track-record-strip">
+          <div className="track-record-head">
+            <strong>Engine track record · {trackRecord.season}</strong>
+            <span>Pregame picks only, graded at the line taken</span>
+          </div>
+          <div className="track-record-stats">
+            <TrackStat label="All plays" block={trackRecord.overall} />
+            {Object.entries(trackRecord.by_market).map(([market, block]) => (
+              <TrackStat key={market} label={market === "total" ? "Totals" : market === "spread" ? "Spreads" : market} block={block} />
+            ))}
+          </div>
+          <p className="track-record-note">
+            CLV is points gained against the closing line. Consistently positive CLV is the earliest sign of a real edge.
+            {trackRecord.overall.wins + trackRecord.overall.losses < 50 ? " The sample is still small." : ""}
+          </p>
+        </div>
+      )}
 
       {lineMoveAlert && lineMoveAlert.total_moves > 0 && (
         <div className="line-move-alert">

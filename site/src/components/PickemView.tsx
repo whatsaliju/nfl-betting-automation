@@ -378,7 +378,9 @@ export function PickemView({
               const spreadTier = spreadConfidence(g.warpsOverlayEdge);
               const warpsLine = favoriteLine(g.warpsFairHomeSpread, g.awayTla, g.homeTla);
               const vegasLine = favoriteLine(g.homeSpread ?? (g.awaySpread !== null ? -g.awaySpread : null), g.awayTla, g.homeTla);
-              const splitPick = !!spreadPickTla && !!suPickTla && spreadPickTla !== suPickTla && spreadMktLine !== null;
+              // Under a point of edge, WARPS's "side" is noise; don't present it as a pick.
+              const spreadTossUp = g.warpsOverlayEdge !== null && Math.abs(g.warpsOverlayEdge) < 1;
+              const splitPick = !!spreadPickTla && !!suPickTla && spreadPickTla !== suPickTla && spreadMktLine !== null && !spreadTossUp;
 
               const engineBet = g.modelPickMarket === "spread" && myPick
                 ? `${myPick}${(g.modelPickSide === "AWAY" ? g.awaySpread : g.homeSpread) !== null ? ` ${signed((g.modelPickSide === "AWAY" ? g.awaySpread : g.homeSpread) as number)}` : ""}`
@@ -392,8 +394,11 @@ export function PickemView({
                 ? ((awayWon && suPickTla === g.awayTla) || (homeWon && suPickTla === g.homeTla) ? "win" : "loss")
                 : null;
 
+              const enginePickTla = g.modelPickMarket === "spread" ? myPick : null;
+              const modelsDisagree = !!enginePickTla && !!spreadPickTla && !spreadTossUp && enginePickTla !== spreadPickTla;
+
               let atsResult: "win" | "loss" | "push" | null = null;
-              if (g.isCompleted && spreadPickTla && g.awayScore !== null && g.homeScore !== null) {
+              if (g.isCompleted && spreadPickTla && !spreadTossUp && g.awayScore !== null && g.homeScore !== null) {
                 if (spreadPickSide === "AWAY" && g.awaySpread !== null) {
                   const margin = g.awayScore + g.awaySpread - g.homeScore;
                   atsResult = margin > 0 ? "win" : margin < 0 ? "loss" : "push";
@@ -480,7 +485,14 @@ export function PickemView({
                       <div className="pk-row">
                         <span className="pk-row-label">Spread</span>
                         <div className="pk-row-main">
-                          {spreadPickTla ? (
+                          {spreadPickTla && spreadTossUp ? (
+                            <>
+                              <div className="pk-row-pick"><strong>Toss-up</strong></div>
+                              <span className="pk-row-detail">
+                                {warpsLine ? `WARPS line ${warpsLine}` : "WARPS"}{vegasLine ? ` vs Vegas ${vegasLine}` : ""} · no real edge
+                              </span>
+                            </>
+                          ) : spreadPickTla ? (
                             <>
                               <div className="pk-row-pick">
                                 <img src={teamLogos[spreadPickTla]} alt="" className="pk-row-logo" />
@@ -495,7 +507,7 @@ export function PickemView({
                             <span className="pk-row-detail">No line yet</span>
                           )}
                         </div>
-                        {spreadPickTla && spreadTier && <span className={`pk-confidence pk-conf-${spreadTier}`}>{spreadTier}</span>}
+                        {spreadPickTla && !spreadTossUp && spreadTier && <span className={`pk-confidence pk-conf-${spreadTier}`}>{spreadTier}</span>}
                       </div>
 
                       <div className="pk-row">
@@ -523,8 +535,13 @@ export function PickemView({
                     {splitPick && !g.isCompleted && spreadTier !== "lean" && (
                       <p className="pk-summary">WARPS has {suPickTla} winning, but by less than the spread, so {spreadPickTla} {signed(spreadMktLine as number)} covers.</p>
                     )}
+                    {modelsDisagree && !g.isCompleted && (
+                      <p className="pk-summary">
+                        Models disagree: WARPS takes {spreadPickTla} {spreadMktLine !== null ? signed(spreadMktLine) : ""}, the betting engine takes {engineBet}. Neither has a proven record yet.
+                      </p>
+                    )}
                     {engineBet && (
-                      <div className="pk-engine">Betting engine: <strong>{engineBet}</strong></div>
+                      <div className="pk-engine">Betting engine: <strong>{engineBet}</strong>{spreadTossUp && enginePickTla ? " · WARPS sees no edge here" : ""}</div>
                     )}
                   </div>
                 </div>
