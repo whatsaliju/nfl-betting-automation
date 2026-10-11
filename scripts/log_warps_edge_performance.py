@@ -25,6 +25,8 @@ sys.path.insert(0, str(ROOT / "analyzers"))
 from nfl_common import get_current_season
 
 LOG_PATH = ROOT / "data" / "historical" / "warps_edge_log.csv"
+# Same order as builders/build_week_master_table.py
+STAGES = ["initial", "pre_tnf", "update", "lock", "pre_mnf", "final"]
 
 LOG_FIELDS = [
     "season", "week", "matchup_key", "away_tla", "home_tla", "game_date",
@@ -68,6 +70,20 @@ def parse_total(line_str):
         return None
     m = re.search(r"[ou](\d+\.?\d*)", str(line_str), re.I)
     return float(m.group(1)) if m else None
+
+
+def picked_home_spread(line_str, side):
+    """Home-relative spread from the picked side's half of 'away | home' (the halves can disagree)."""
+    if not line_str or side not in ("AWAY", "HOME"):
+        return None
+    parts = str(line_str).split("|")
+    if len(parts) != 2:
+        return None
+    m = re.match(r"\s*([+-]?\d+\.?\d*)", parts[1 if side == "HOME" else 0])
+    if not m:
+        return None
+    v = float(m.group(1))
+    return v if side == "HOME" else -v
 
 
 def load_existing_log():
@@ -188,19 +204,21 @@ def main():
                 mkt_total = t
                 break
 
-        # Find engine play across stages
+        # Engine play = the pick at the latest stage the engine ran (what the site showed last).
+        # An earlier stage's pick that a later run withdrew is not a play.
         engine_confirmed = False
         engine_market = engine_side = engine_stage = ""
-        for stage in ["final", "lock", "update", "initial"]:
-            if not g.get(f"has_{stage}"):
-                continue
-            pm = g.get(f"{stage}_pick_market", "")
-            if pm and str(pm).lower() not in ("none", ""):
+        latest = next((st for st in reversed(STAGES) if g.get(f"has_{st}")), None)
+        if latest:
+            pm = g.get(f"{latest}_pick_market", "")
+            if pm and str(pm).lower() != "none":
                 engine_confirmed = True
                 engine_market = pm
-                engine_side = g.get(f"{stage}_pick_side", "") or ""
-                engine_stage = stage
-                break
+                engine_side = g.get(f"{latest}_pick_side", "") or ""
+                engine_stage = latest
+
+        if mkt_spread_f is None and engine_confirmed and engine_market == "spread":
+            mkt_spread_f = picked_home_spread(g.get(f"{engine_stage}_sharp_spread_line"), engine_side.upper())
 
         # Grade engine_spread_result — engine's confirmed pick side takes precedence over overlay
         # side; falls back to overlay_side when not confirmed or not a spread pick.
