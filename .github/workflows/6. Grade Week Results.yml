@@ -170,10 +170,11 @@ jobs:
               if em == 'total':
                   line = r.get('market_total', '?')
                   ou = r.get('ou_result', 'no_data')
-                  outcome = 'HIT ✓' if ou == 'over' else ('MISS ✗' if ou == 'under' else 'PUSH')
+                  pick = (es or 'OVER').lower()
+                  outcome = 'PUSH' if ou == 'push' else ('HIT ✓' if ou == pick else ('MISS ✗' if ou in ('over', 'under') else ou.upper()))
                   total = (float(a_s) + float(h_s)) if a_s and h_s else None
                   total_str = f" = {total:.0f} total" if total else ""
-                  lines.append(f"  {mk}: OVER {line} | {score_str}{total_str} | {ou.upper()} → {outcome}")
+                  lines.append(f"  {mk}: {(es or 'OVER').upper()} {line} | {score_str}{total_str} | {ou.upper()} → {outcome}")
               elif em == 'spread':
                   # Use overlay CSV for the pick's actual line
                   if es == 'HOME':
@@ -198,10 +199,13 @@ jobs:
 
               sr = r.get('engine_spread_result', '')
               ou = r.get('ou_result', '')
-              primary = sr if em == 'spread' else (ou if em == 'total' else '')
-              if primary == 'cover' or primary == 'over':
+              if em == 'total':
+                  primary = 'push' if ou == 'push' else ('cover' if ou == (es or 'OVER').lower() else ('miss' if ou in ('over', 'under') else ''))
+              else:
+                  primary = sr if em == 'spread' else ''
+              if primary == 'cover':
                   hits += 1
-              elif primary == 'miss' or primary == 'under':
+              elif primary == 'miss':
                   misses += 1
               elif primary == 'push':
                   pushes += 1
