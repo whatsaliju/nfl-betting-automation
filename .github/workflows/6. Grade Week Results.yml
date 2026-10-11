@@ -25,6 +25,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Full history: the live pick ledger rebuilds the week's line snapshots from master-file commits.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v4
         with:
@@ -112,6 +115,8 @@ jobs:
 
       - name: Build Live Pick Ledger
         run: |
+          python3 scripts/snapshot_engine_lines.py --season ${{ steps.resolve.outputs.season }} \
+            --week ${{ steps.resolve.outputs.week }} --from-git
           python3 scripts/build_live_pick_ledger.py --season ${{ steps.resolve.outputs.season }}
 
       - name: Log WARPS Edge Performance
