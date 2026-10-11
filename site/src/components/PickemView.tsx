@@ -2,6 +2,7 @@ import { teamLogos } from "../data/nflData";
 import gameTimesData from "../data/gameTimes.json";
 import pickemRecordData from "../data/warpsPickemRecord.json";
 import type { EngineFeed, WarpsMarketOverlay } from "../types";
+import { betText, favoriteLine } from "../lib/betText";
 
 const gameTimes = (gameTimesData as { weeks: Record<string, Record<string, string>> }).weeks;
 
@@ -79,10 +80,9 @@ type ConfidenceTier = "lean" | "moderate" | "high" | "strong";
 
 function suConfidence(pct: number | null): ConfidenceTier | null {
   if (pct === null) return null;
-  const d = Math.abs(pct - 50);
-  if (d >= 15) return "strong";
-  if (d >= 7)  return "high";
-  if (d >= 3)  return "moderate";
+  if (pct >= 70) return "strong";
+  if (pct >= 62) return "high";
+  if (pct >= 55) return "moderate";
   return "lean";
 }
 
@@ -195,11 +195,11 @@ function parseGame(
     modelPickSide: (lat.pick_side as string) || null,
     modelPickMarket: (lat.pick_market as string) || null,
     classification: (lat.classification as string) || null,
-    warpsAwayWinProb: warps?.away_win_prob ?? null,
-    warpsFairHomeSpread: warps?.fair_home_spread ?? null,
+    warpsAwayWinProb: toNum(warps?.away_win_prob),
+    warpsFairHomeSpread: toNum(warps?.fair_home_spread),
     warpsOverlaySide: warps?.spread_overlay_side ?? null,
     warpsOverlayTeam: warps?.spread_overlay_team ?? null,
-    warpsOverlayEdge: typeof warps?.spread_overlay_edge_points === "number" ? warps.spread_overlay_edge_points : null,
+    warpsOverlayEdge: toNum(warps?.spread_overlay_edge_points),
   };
 }
 
@@ -217,6 +217,11 @@ export function PickemView({
 
   const warpsIndex = new Map(warpsRows.map((r) => [normalizeKey(r.matchup_key), r]));
   const weekTimes: Record<string, string> = gameTimes[String(ctx.week)] ?? {};
+  const edgeIndex = new Map(
+    (feed.edge_board ?? [])
+      .filter((e) => e.season === ctx.season && String(e.week) === String(ctx.week))
+      .map((e) => [normalizeKey(e.matchup_key), e])
+  );
 
   const weekGames = (feed.games ?? []).filter(
     (g) =>
@@ -358,30 +363,28 @@ export function PickemView({
               <div className="pickem-grid">
               {slotGames.map((g) => {
               const myPick = g.modelPickSide === "HOME" ? g.homeTla : g.modelPickSide === "AWAY" ? g.awayTla : null;
-              const modelFadesVegas = myPick && myPick !== g.favTla;
               const tag = classTag(g.classification);
 
-              // WARPS: does WARPS agree with Vegas fav or back the dog?
-              const warpsAgreesWithFav = g.warpsOverlayTeam && g.warpsOverlayTeam === g.favTla;
-              const warpsBetsAwayWinPct = g.warpsAwayWinProb !== null ? Math.round(g.warpsAwayWinProb * 100) : null;
-              const warpsHomeWinPct = warpsBetsAwayWinPct !== null ? 100 - warpsBetsAwayWinPct : null;
-              // SU pick: use WARPS win probability to pick the more likely winner, not the Vegas spread favorite.
-              // When these disagree (e.g. Vegas favors ARI but WARPS gives NYG 59%), show NYG 59% — not ARI 41%.
-              const suPickTla = warpsBetsAwayWinPct !== null
-                ? (warpsBetsAwayWinPct >= 50 ? g.awayTla : g.homeTla)
-                : g.favTla;
-              const suPickPct = suPickTla != null
-                ? (suPickTla === g.awayTla ? warpsBetsAwayWinPct : warpsHomeWinPct)
-                : null;
+              const awayPct = g.warpsAwayWinProb !== null ? Math.round(g.warpsAwayWinProb * 100) : null;
+              // SU pick follows WARPS win probability, which can disagree with the Vegas favorite.
+              const suPickTla = awayPct !== null ? (awayPct >= 50 ? g.awayTla : g.homeTla) : g.favTla;
+              const suPickPct = awayPct !== null && suPickTla ? (suPickTla === g.awayTla ? awayPct : 100 - awayPct) : null;
+              const suTier = suConfidence(suPickPct);
 
-              // Spread pick (WARPS overlay)
               const spreadPickTla = g.warpsOverlayTeam;
               const spreadPickSide = g.warpsOverlaySide;
               const spreadMktLine = spreadPickSide === "AWAY" ? g.awaySpread
                 : spreadPickSide === "HOME" ? g.homeSpread : null;
-              const spreadFairLine = spreadPickSide === "AWAY"
-                ? (g.warpsFairHomeSpread !== null ? -g.warpsFairHomeSpread : null)
-                : g.warpsFairHomeSpread;
+              const spreadTier = spreadConfidence(g.warpsOverlayEdge);
+              const warpsLine = favoriteLine(g.warpsFairHomeSpread, g.awayTla, g.homeTla);
+              const vegasLine = favoriteLine(g.homeSpread ?? (g.awaySpread !== null ? -g.awaySpread : null), g.awayTla, g.homeTla);
+              const splitPick = !!spreadPickTla && !!suPickTla && spreadPickTla !== suPickTla && spreadMktLine !== null;
+
+              const engineBet = g.modelPickMarket === "spread" && myPick
+                ? `${myPick}${(g.modelPickSide === "AWAY" ? g.awaySpread : g.homeSpread) !== null ? ` ${signed((g.modelPickSide === "AWAY" ? g.awaySpread : g.homeSpread) as number)}` : ""}`
+                : g.modelPickMarket === "total" && g.modelPickSide
+                  ? `${g.modelPickSide === "UNDER" ? "Under" : "Over"}${g.ou !== null ? ` ${g.ou.toFixed(1)}` : ""}`
+                  : g.modelPickMarket === "moneyline" && myPick ? `${myPick} moneyline` : null;
 
               const awayWon = g.isCompleted && g.awayScore !== null && g.homeScore !== null && g.awayScore > g.homeScore;
               const homeWon = g.isCompleted && g.awayScore !== null && g.homeScore !== null && g.homeScore > g.awayScore;
@@ -389,7 +392,6 @@ export function PickemView({
                 ? ((awayWon && suPickTla === g.awayTla) || (homeWon && suPickTla === g.homeTla) ? "win" : "loss")
                 : null;
 
-              // ATS result: did our spread pick cover?
               let atsResult: "win" | "loss" | "push" | null = null;
               if (g.isCompleted && spreadPickTla && g.awayScore !== null && g.homeScore !== null) {
                 if (spreadPickSide === "AWAY" && g.awaySpread !== null) {
@@ -401,6 +403,22 @@ export function PickemView({
                 }
               }
 
+              // Engine total lean (WARPS has no totals signal). Unproven, so shown as a lean without a confidence tier.
+              const totalMkt = edgeIndex.get(g.matchupKey)?.markets.total;
+              const totalLeanSide = totalMkt && totalMkt.side && (totalMkt.score ?? 0) > 0
+                && !["not_priced", "unavailable", "blocked"].includes(totalMkt.status)
+                ? (totalMkt.side.toUpperCase() === "UNDER" ? "UNDER" : "OVER") : null;
+              const totalLean = totalLeanSide
+                ? (betText("total", totalLeanSide, totalMkt?.line, g.awayTla, g.homeTla) ?? "").replace(/\s*\(.*\)$/, "")
+                : null;
+              const totalLeanStrength = totalMkt && totalMkt.score != null && totalMkt.threshold != null && totalMkt.score >= totalMkt.threshold
+                ? "strong signal" : "weak signal";
+
+              const actualTotal = g.isCompleted && g.awayScore !== null && g.homeScore !== null ? g.awayScore + g.homeScore : null;
+              const ouResult = actualTotal !== null && g.ou !== null
+                ? (actualTotal > g.ou ? "over" : actualTotal < g.ou ? "under" : "push")
+                : null;
+
               return (
                 <div key={g.matchupKey} className={`pickem-card ${g.isCompleted ? "pickem-final" : `pickem-${tag}`}`}>
                   {g.isCompleted && (
@@ -409,12 +427,18 @@ export function PickemView({
                       <div className="pk-result-chips">
                         {suResult && (
                           <div className={`pk-su-result pk-su-${suResult}`}>
-                            {suResult === "win" ? "✓" : "✗"} {suPickTla} SU
+                            {suResult === "win" ? "✓" : "✗"} {suPickTla} win
                           </div>
                         )}
                         {atsResult && (
                           <div className={`pk-su-result pk-ats-${atsResult}`}>
-                            {atsResult === "win" ? "✓" : atsResult === "push" ? "=" : "✗"} {spreadPickTla} ATS
+                            {atsResult === "win" ? "✓" : atsResult === "push" ? "=" : "✗"} {spreadPickTla} spread
+                          </div>
+                        )}
+                        {ouResult && (
+                          <div className={`pk-su-result ${totalLeanSide && ouResult !== "push" ? (ouResult === totalLeanSide.toLowerCase() ? "pk-ats-win" : "pk-ats-loss") : "pk-ou-chip"}`}>
+                            {totalLeanSide && ouResult !== "push" ? (ouResult === totalLeanSide.toLowerCase() ? "✓ " : "✗ ") : ""}
+                            {ouResult === "over" ? "Over" : ouResult === "under" ? "Under" : "Push"} · {actualTotal}
                           </div>
                         )}
                       </div>
@@ -434,110 +458,74 @@ export function PickemView({
                     </div>
                   </div>
 
-                  {/* Always show pre-game picks — dimmed after final so you can compare model vs result */}
+                  {/* Pre-game picks stay visible (dimmed) after the final so model vs result can be compared */}
                   <div className={g.isCompleted ? "pk-pregame-frozen" : undefined}>
-                    <div className="pickem-lines">
-                      {g.awaySpread !== null && (
-                        <span className="pk-line">{g.awayTla} {signed(g.awaySpread)} · O/U {g.ou?.toFixed(1) ?? "—"}</span>
-                      )}
-                    </div>
-
-                    <div className="pk-picks-row">
-                      {/* SU pick */}
-                      {(() => {
-                        const suTier = suConfidence(suPickPct ?? null);
-                        return (
-                          <div className="pk-pick-cell pk-cell-su">
-                            <span className="pk-cell-label">Straight up</span>
-                            <div className="pk-cell-pick">
-                              {suPickTla && <img src={teamLogos[suPickTla]} alt={suPickTla} className="pk-su-logo" />}
-                              <strong className="pk-su-team">{suPickTla ?? "—"}</strong>
-                              {suPickPct !== null && <span className="pk-win-prob">{suPickPct}%</span>}
-                            </div>
-                            {suTier && <span className={`pk-confidence pk-conf-${suTier}`}>{suTier}</span>}
-                          </div>
-                        );
-                      })()}
-
-                      {/* Spread pick */}
-                      {(() => {
-                        const spreadTier = spreadConfidence(g.warpsOverlayEdge);
-                        return (
-                          <div className={`pk-pick-cell pk-cell-spread ${spreadPickTla && g.warpsOverlayEdge !== null ? (warpsAgreesWithFav ? "spread-agree" : "spread-fade") : ""}`}>
-                            <span className="pk-cell-label">Against spread</span>
-                            {spreadPickTla ? (
-                              <>
-                                <div className="pk-cell-pick">
-                                  <img src={teamLogos[spreadPickTla]} alt={spreadPickTla} className="pk-su-logo" />
-                                  <strong className="pk-su-team">{spreadPickTla}</strong>
-                                  {spreadMktLine !== null && (
-                                    <span className="pk-spread-line">{signed(spreadMktLine)}</span>
-                                  )}
-                                </div>
-                                {g.warpsOverlayEdge !== null && (
-                                  <span className="pk-edge-badge">{g.warpsOverlayEdge.toFixed(1)}pt edge</span>
-                                )}
-                                {spreadTier && <span className={`pk-confidence pk-conf-${spreadTier}`}>{spreadTier}</span>}
-                              </>
-                            ) : (
-                              <span className="pk-cell-na">No line yet</span>
-                            )}
-                          </div>
-                        );
-                      })()}
-
-                      {/* O/U total */}
-                      {(() => {
-                        const actualTotal = g.isCompleted && g.awayScore !== null && g.homeScore !== null
-                          ? g.awayScore + g.homeScore : null;
-                        const ouResult = actualTotal !== null && g.ou !== null
-                          ? (actualTotal > g.ou ? "over" : actualTotal < g.ou ? "under" : "push")
-                          : null;
-                        return (
-                          <div className="pk-pick-cell pk-cell-total">
-                            <span className="pk-cell-label">Total</span>
-                            {g.ou !== null ? (
-                              <>
-                                {ouResult ? (
-                                  <div className={`pk-ou-result pk-ou-${ouResult}`}>
-                                    {ouResult === "over" ? "▲" : ouResult === "under" ? "▼" : "="} {ouResult.toUpperCase()} {actualTotal}
-                                  </div>
-                                ) : (
-                                  <div className="pk-ou-line">O/U {g.ou.toFixed(1)}</div>
-                                )}
-                                <div className="pk-ou-splits">
-                                  {g.awayImplied !== null && <span>{g.awayTla} {g.isCompleted ? g.awayScore : g.awayImplied?.toFixed(1)}</span>}
-                                  {g.homeImplied !== null && <span>{g.homeTla} {g.isCompleted ? g.homeScore : g.homeImplied?.toFixed(1)}</span>}
-                                </div>
-                              </>
-                            ) : (
-                              <span className="pk-cell-na">No total</span>
-                            )}
-                          </div>
-                        );
-                      })()}
-                    </div>
-
-                    {/* Fair vs market context */}
-                    {spreadFairLine !== null && spreadMktLine !== null && spreadPickTla && (
-                      <div className="pk-fair-note">
-                        fair {signed(Math.round(spreadFairLine * 10) / 10)} · mkt {signed(spreadMktLine)} {spreadPickTla}
-                      </div>
+                    {vegasLine && (
+                      <div className="pk-gameline">Vegas: {vegasLine}{g.ou !== null ? ` · O/U ${g.ou.toFixed(1)}` : ""}</div>
                     )}
 
-                    {myPick && (
-                      <div className={`pickem-model ${modelFadesVegas ? "model-fade" : "model-agree"}`}>
-                        {modelFadesVegas ? `Model fades → ${myPick}` : `Model: ${myPick} ✓`}
-                        {g.modelPickMarket && g.modelPickMarket !== "none" && (
-                          <span className="pk-market"> ({g.modelPickMarket})</span>
-                        )}
+                    <div className="pk-rows">
+                      <div className="pk-row">
+                        <span className="pk-row-label">Winner</span>
+                        <div className="pk-row-main">
+                          <div className="pk-row-pick">
+                            {suPickTla && <img src={teamLogos[suPickTla]} alt="" className="pk-row-logo" />}
+                            <strong>{suPickTla ?? "—"}</strong>
+                          </div>
+                          {suPickPct !== null && <span className="pk-row-detail">{suPickPct}% to win</span>}
+                        </div>
+                        {suTier && <span className={`pk-confidence pk-conf-${suTier}`}>{suTier}</span>}
                       </div>
-                    )}
 
-                    <div className="pickem-implied">
-                      {g.awayImplied !== null && <span>{g.awayTla}: {g.awayImplied.toFixed(1)}</span>}
-                      {g.homeImplied !== null && <span>{g.homeTla}: {g.homeImplied.toFixed(1)}</span>}
+                      <div className="pk-row">
+                        <span className="pk-row-label">Spread</span>
+                        <div className="pk-row-main">
+                          {spreadPickTla ? (
+                            <>
+                              <div className="pk-row-pick">
+                                <img src={teamLogos[spreadPickTla]} alt="" className="pk-row-logo" />
+                                <strong>{spreadPickTla}{spreadMktLine !== null ? ` ${signed(spreadMktLine)}` : ""}</strong>
+                              </div>
+                              <span className="pk-row-detail">
+                                {warpsLine ? `WARPS line ${warpsLine}` : "WARPS"}
+                                {g.warpsOverlayEdge !== null ? ` · ${g.warpsOverlayEdge.toFixed(1)} pts of value` : ""}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="pk-row-detail">No line yet</span>
+                          )}
+                        </div>
+                        {spreadPickTla && spreadTier && <span className={`pk-confidence pk-conf-${spreadTier}`}>{spreadTier}</span>}
+                      </div>
+
+                      <div className="pk-row">
+                        <span className="pk-row-label">Total</span>
+                        <div className="pk-row-main">
+                          {g.ou !== null ? (
+                            <>
+                              <div className="pk-row-pick"><strong>{totalLean || `O/U ${g.ou.toFixed(1)}`}</strong></div>
+                              <span className="pk-row-detail">
+                                {totalLean ? `Engine lean, ${totalLeanStrength} · unproven` : "No model pick"}
+                              </span>
+                              {g.awayImplied !== null && g.homeImplied !== null && (
+                                <span className="pk-row-detail">
+                                  Vegas implies {g.awayTla} {g.awayImplied.toFixed(1)}, {g.homeTla} {g.homeImplied.toFixed(1)}
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span className="pk-row-detail">No total yet</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
+
+                    {splitPick && !g.isCompleted && spreadTier !== "lean" && (
+                      <p className="pk-summary">WARPS has {suPickTla} winning, but by less than the spread, so {spreadPickTla} {signed(spreadMktLine as number)} covers.</p>
+                    )}
+                    {engineBet && (
+                      <div className="pk-engine">Betting engine: <strong>{engineBet}</strong></div>
+                    )}
                   </div>
                 </div>
               );
