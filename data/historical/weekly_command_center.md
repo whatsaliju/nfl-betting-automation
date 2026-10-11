@@ -22,12 +22,12 @@
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| CIN@MIA | watch | spread | AWAY | 4.0 |
-| BUF@LAR | watch | n/a | n/a | 3.0 |
-| CHI@GB | watch | n/a | n/a | 3.0 |
-| HOU@TEN | watch | n/a | n/a | 3.0 |
+| CIN@MIA | watch | n/a | n/a | 3.0 |
 | LV@NE | watch | spread | AWAY | 3.0 |
 | PHI@JAX | watch | n/a | n/a | 3.0 |
+| SF@SEA | watch | n/a | n/a | 3.0 |
+| CHI@GB | watch | n/a | n/a | 2.0 |
+| HOU@TEN | watch | n/a | n/a | 2.0 |
 
 ## Survivor
 
