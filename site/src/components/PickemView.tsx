@@ -2,7 +2,7 @@ import { teamLogos } from "../data/nflData";
 import gameTimesData from "../data/gameTimes.json";
 import pickemRecordData from "../data/warpsPickemRecord.json";
 import type { EngineFeed, WarpsMarketOverlay } from "../types";
-import { favoriteLine } from "../lib/betText";
+import { betText, favoriteLine } from "../lib/betText";
 
 const gameTimes = (gameTimesData as { weeks: Record<string, Record<string, string>> }).weeks;
 
@@ -217,6 +217,11 @@ export function PickemView({
 
   const warpsIndex = new Map(warpsRows.map((r) => [normalizeKey(r.matchup_key), r]));
   const weekTimes: Record<string, string> = gameTimes[String(ctx.week)] ?? {};
+  const edgeIndex = new Map(
+    (feed.edge_board ?? [])
+      .filter((e) => e.season === ctx.season && String(e.week) === String(ctx.week))
+      .map((e) => [normalizeKey(e.matchup_key), e])
+  );
 
   const weekGames = (feed.games ?? []).filter(
     (g) =>
@@ -398,6 +403,17 @@ export function PickemView({
                 }
               }
 
+              // Engine total lean (WARPS has no totals signal). Unproven, so shown as a lean without a confidence tier.
+              const totalMkt = edgeIndex.get(g.matchupKey)?.markets.total;
+              const totalLeanSide = totalMkt && totalMkt.side && (totalMkt.score ?? 0) > 0
+                && !["not_priced", "unavailable", "blocked"].includes(totalMkt.status)
+                ? (totalMkt.side.toUpperCase() === "UNDER" ? "UNDER" : "OVER") : null;
+              const totalLean = totalLeanSide
+                ? (betText("total", totalLeanSide, totalMkt?.line, g.awayTla, g.homeTla) ?? "").replace(/\s*\(.*\)$/, "")
+                : null;
+              const totalLeanStrength = totalMkt && totalMkt.score != null && totalMkt.threshold != null && totalMkt.score >= totalMkt.threshold
+                ? "strong signal" : "weak signal";
+
               const actualTotal = g.isCompleted && g.awayScore !== null && g.homeScore !== null ? g.awayScore + g.homeScore : null;
               const ouResult = actualTotal !== null && g.ou !== null
                 ? (actualTotal > g.ou ? "over" : actualTotal < g.ou ? "under" : "push")
@@ -420,7 +436,8 @@ export function PickemView({
                           </div>
                         )}
                         {ouResult && (
-                          <div className="pk-su-result pk-ou-chip">
+                          <div className={`pk-su-result ${totalLeanSide && ouResult !== "push" ? (ouResult === totalLeanSide.toLowerCase() ? "pk-ats-win" : "pk-ats-loss") : "pk-ou-chip"}`}>
+                            {totalLeanSide && ouResult !== "push" ? (ouResult === totalLeanSide.toLowerCase() ? "✓ " : "✗ ") : ""}
                             {ouResult === "over" ? "Over" : ouResult === "under" ? "Under" : "Push"} · {actualTotal}
                           </div>
                         )}
@@ -486,12 +503,15 @@ export function PickemView({
                         <div className="pk-row-main">
                           {g.ou !== null ? (
                             <>
-                              <div className="pk-row-pick"><strong>O/U {g.ou.toFixed(1)}</strong></div>
+                              <div className="pk-row-pick"><strong>{totalLean || `O/U ${g.ou.toFixed(1)}`}</strong></div>
                               <span className="pk-row-detail">
-                                {g.awayImplied !== null && g.homeImplied !== null
-                                  ? `Vegas implies ${g.awayTla} ${g.awayImplied.toFixed(1)}, ${g.homeTla} ${g.homeImplied.toFixed(1)}`
-                                  : "No model pick"}
+                                {totalLean ? `Engine lean, ${totalLeanStrength} · unproven` : "No model pick"}
                               </span>
+                              {g.awayImplied !== null && g.homeImplied !== null && (
+                                <span className="pk-row-detail">
+                                  Vegas implies {g.awayTla} {g.awayImplied.toFixed(1)}, {g.homeTla} {g.homeImplied.toFixed(1)}
+                                </span>
+                              )}
                             </>
                           ) : (
                             <span className="pk-row-detail">No total yet</span>
