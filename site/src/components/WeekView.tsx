@@ -4,6 +4,7 @@ import { cleanOpponent, flagEmoji, internationalBroadcaster, internationalCode }
 import type { EdgeBoardGame, EngineTeamCell, TeamProfile, WarpsMarketOverlay } from "../types";
 import { EngineBadge } from "./EngineBadge";
 import { WarpsMarketBadge } from "./WarpsMarketBadge";
+import { edgeBetText, verdictOf } from "../lib/betText";
 
 const gameTimesByWeek = (gameTimesData as { weeks: Record<string, Record<string, string>> }).weeks;
 
@@ -34,10 +35,9 @@ interface Props {
 
 function edgeSummary(edge?: EdgeBoardGame) {
   if (!edge) return null;
-  if (edge.best_edge.status === "play" && edge.best_edge.market) {
-    return `${edge.best_edge.market.toUpperCase()} ${edge.best_edge.side || ""} (${edge.best_edge.score ?? "n/a"})`;
-  }
-  return "PASS";
+  const bet = edgeBetText(edge);
+  if (!bet) return "No bet";
+  return verdictOf(edge) === "bet" ? `Bet ${bet}` : `Watch ${bet}`;
 }
 
 export function WeekView({ teams, weeks, week, dayFilter, engineCells, edgeIndex, warpsMarketIndex, onWeekChange, onDayChange }: Props) {

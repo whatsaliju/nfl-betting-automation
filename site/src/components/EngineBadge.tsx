@@ -1,5 +1,6 @@
 import { Activity, CheckCircle2, ShieldAlert } from "lucide-react";
 import type { EngineTeamCell } from "../types";
+import { betText } from "../lib/betText";
 
 
 export function EngineBadge({ cell }: { cell?: EngineTeamCell }) {
@@ -9,8 +10,11 @@ export function EngineBadge({ cell }: { cell?: EngineTeamCell }) {
   if (cell.latest_stage === "initial" && cell.score_for !== null && cell.score_against !== null) return null;
 
   const sourceRisk = !!(cell.source_health_status && cell.source_health_status !== "OK");
+  const awayTla = cell.home_away === "home" ? cell.opponent : cell.team;
+  const homeTla = cell.home_away === "home" ? cell.team : cell.opponent;
+  const pickSide = betText(cell.pick_market, cell.pick_side, null, awayTla, homeTla);
   const pickText = cell.pick_market && cell.pick_market !== "none"
-    ? `${cell.pick_market}${cell.pick_side ? ` ${cell.pick_side}` : ""}`
+    ? `${cell.pick_market}${pickSide ? ` ${pickSide}` : ""}`
     : null;
 
   const tooltip = [
