@@ -142,7 +142,8 @@ def fetch_week_schedule(season: int, week, season_type: str = None):
             "home_team": home["team"]["displayName"],
             "away_tla": away["team"]["abbreviation"],
             "home_tla": home["team"]["abbreviation"],
-            "game": away["team"]["displayName"] + " @ " + home["team"]["displayName"]
+            "game": away["team"]["displayName"] + " @ " + home["team"]["displayName"],
+            "kickoff_utc": event.get("date"),
         })
 
     return pd.DataFrame(games)
@@ -299,6 +300,34 @@ def attach_results(df, season, week, season_type: str = None):
     return df
 
 
+def freeze_started_games(df, existing, now=None):
+    """Keep each started game's engine fields as they were at its last pregame build.
+
+    Runs after kickoff analyze in-game lines; nothing can be bet then, so those
+    runs must not change the game's pick or lines.
+    """
+    if existing is None or "kickoff_utc" not in df.columns:
+        return df
+    now = now or pd.Timestamp.now(tz="UTC")
+    prefixes = tuple(f"{st}_" for st in STAGES)
+    stage_cols = [c for c in df.columns if c.startswith(prefixes) or c in {f"has_{st}" for st in STAGES}]
+    ex = existing.set_index("matchup_key")
+    frozen = 0
+    for idx, row in df.iterrows():
+        ko, mk = row.get("kickoff_utc"), row["matchup_key"]
+        if not isinstance(ko, str) or not ko or mk not in ex.index or pd.Timestamp(ko) > now:
+            continue
+        for c in stage_cols:
+            if c in ex.columns:
+                df.at[idx, c] = ex.at[mk, c]
+            else:
+                df.at[idx, c] = False if c.startswith("has_") else None
+        frozen += 1
+    if frozen:
+        print(f"🔒 Kept pregame engine fields for {frozen} game(s) already kicked off")
+    return df
+
+
 # -----------------------------
 # MAIN BUILDER
 # -----------------------------
@@ -365,6 +394,10 @@ def build_week_master(season: int, week, season_type: str = None):
         for col in existing.columns:
             if col.endswith("_recommendation_trace") or col.endswith("_pick_reasons"):
                 existing[col] = existing[col].astype(object)
+        for col in df.columns:
+            if col.startswith(tuple(f"{st}_" for st in STAGES)):
+                df[col] = df[col].astype(object)
+        df = freeze_started_games(df, existing)
         df = (
             df.set_index("matchup_key")
               .combine_first(
