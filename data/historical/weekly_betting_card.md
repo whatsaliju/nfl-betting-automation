@@ -9,7 +9,7 @@
 | 5 | CIN@MIA | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, team_rating; WARPS moneyline overlay: HOME +80.2% EV |  |
 | 5 | LV@NE | watch | spread | AWAY | standard | spread routed as best available market with status playable; WARPS conflict keeps risk elevated | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME | WARPS spread conflict |
 | 5 | PHI@JAX | watch |  |  | watch | Watchlist only; no final market selected. | Signals: injury; WARPS moneyline overlay: AWAY +42.0% EV |  |
-| 5 | BAL@ATL | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: AWAY +29.1% EV |  |
+| 5 | BAL@ATL | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: AWAY +29.1% EV |  |
 | 5 | CHI@GB | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: AWAY +1.3% EV |  |
 | 5 | HOU@TEN | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating; WARPS moneyline overlay: HOME +72.8% EV |  |
 | 5 | NYG@WAS | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, injury; WARPS moneyline overlay: AWAY +38.2% EV |  |

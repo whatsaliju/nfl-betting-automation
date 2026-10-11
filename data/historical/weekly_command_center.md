@@ -31,23 +31,23 @@
 
 ## Survivor
 
-- Primary: JAX vs PHI (70.2%)
-- Safest: HOU vs TEN (70.3%)
-- Path pick: NE vs LV (66.3%)
+- Primary: CIN vs MIA (74.1%)
+- Safest: HOU vs TEN (77.2%)
+- Path pick: CIN vs MIA (74.1%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) |
-| 100 | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) |
-| 500 | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) |
+| 25 | CIN vs MIA (74.1%) | CIN vs MIA (74.1%) | CIN vs MIA (74.1%) |
+| 100 | CIN vs MIA (74.1%) | CIN vs MIA (74.1%) | CIN vs MIA (74.1%) |
+| 500 | CIN vs MIA (74.1%) | CIN vs MIA (74.1%) | CIN vs MIA (74.1%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| JAX | vs PHI | 66.7% | -200 |
-| NE | vs LV | 61.9% | -162 |
+| JAX | vs PHI | 66.8% | -201 |
+| NE | vs LV | 62.5% | -167 |
+| CIN | @ MIA | 58.5% | -141 |
 | SEA | vs SF | 57.9% | -138 |
-| HOU | @ TEN | 57.6% | -136 |
-| DAL | vs TB | 56.2% | -128 |
+| MIN | @ NO | 57.7% | -136 |
 | LAR | vs BUF | 56.2% | -128 |
