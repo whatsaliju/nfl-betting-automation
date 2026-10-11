@@ -14,35 +14,34 @@
 
 ### best_edge_market
 - NONE: 100 games
-- spread: 7 games
-- total: 3 games
+- spread: 8 games
+- total: 2 games
 
 ### pythagorean_pick_alignment
-- aligned: 5 games
+- aligned: 6 games
 - conflict: 2 games
 - no_pick: 100 games
-- non_side_pick: 3 games
+- non_side_pick: 2 games
 
 ### value_gap_pick_alignment
-- aligned: 5 games
+- aligned: 6 games
 - conflict: 1 games
 - neutral: 1 games
 - no_pick: 100 games
-- non_side_pick: 3 games
+- non_side_pick: 2 games
 
 ### market_expectation_pick_alignment
-- aligned: 1 games
-- conflict: 4 games
-- neutral: 2 games
+- aligned: 2 games
+- conflict: 5 games
+- neutral: 1 games
 - no_pick: 100 games
-- non_side_pick: 3 games
+- non_side_pick: 2 games
 
 ### overperformance_pick_alignment
-- aligned: 1 games
-- conflict: 4 games
+- conflict: 6 games
 - neutral: 2 games
 - no_pick: 100 games
-- non_side_pick: 3 games
+- non_side_pick: 2 games
 
 ### division_game
 - false: 65 games

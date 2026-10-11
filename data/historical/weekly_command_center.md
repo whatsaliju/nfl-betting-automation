@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W5 · live
-- Recommended action: **PLAY**
-- Confidence tier: **A**
-- Reason: At least one selector play cleared the current command gate.
+- Recommended action: **WATCH**
+- Confidence tier: **C**
+- Reason: No plays cleared, but watchlist spots exist.
 
 ## Source Gates
 
@@ -16,30 +16,30 @@
 
 ## Betting Card
 
-- Plays: 1
-- Watch: 10
+- Plays: 0
+- Watch: 11
 - Passes: 4
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| SF@SEA | play | spread | AWAY | 3.0 |
-| HOU@TEN | watch | total | UNDER | 4.0 |
+| CIN@MIA | watch | spread | AWAY | 4.0 |
 | BUF@LAR | watch | n/a | n/a | 3.0 |
-| CIN@MIA | watch | n/a | n/a | 3.0 |
-| LV@NE | watch | n/a | n/a | 3.0 |
-| CHI@GB | watch | n/a | n/a | 2.0 |
+| CHI@GB | watch | n/a | n/a | 3.0 |
+| HOU@TEN | watch | n/a | n/a | 3.0 |
+| LV@NE | watch | spread | AWAY | 3.0 |
+| PHI@JAX | watch | n/a | n/a | 3.0 |
 
 ## Survivor
 
-- Primary: DAL vs TB (69.7%)
-- Safest: HOU vs TEN (72.2%)
-- Path pick: DAL vs TB (69.7%)
+- Primary: JAX vs PHI (70.2%)
+- Safest: HOU vs TEN (70.3%)
+- Path pick: NE vs LV (66.3%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | DAL vs TB (69.7%) | DAL vs TB (69.7%) | DAL vs TB (69.7%) |
-| 100 | DAL vs TB (69.7%) | DAL vs TB (69.7%) | DAL vs TB (69.7%) |
-| 500 | DAL vs TB (69.7%) | DAL vs TB (69.7%) | DAL vs TB (69.7%) |
+| 25 | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) |
+| 100 | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) |
+| 500 | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) | JAX vs PHI (70.2%) |
 
 ## WARPS Watch
 
