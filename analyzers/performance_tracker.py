@@ -43,6 +43,11 @@ class EnhancedPerformanceTracker:
             ])
             df.to_csv(self.results_file, index=False)
     
+    @staticmethod
+    def _week_mask(df, week, season):
+        # The week column mixes ints and preseason labels ("PRE2"), so pandas reads it as text.
+        return (df['week'].astype(str) == str(week)) & (df['season'].astype(str) == str(season))
+
     def fetch_week_scores(self, week: int, season: int = None) -> Dict[str, Dict]:
         """Fetch NFL scores for a specific week using ESPN API with proper historical parameters."""
         season = season or get_current_season()
@@ -51,7 +56,8 @@ class EnhancedPerformanceTracker:
             url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
             params = {
                 'seasontype': 2,  # Regular season
-                'week': week
+                'week': week,
+                'dates': season,
             }
             
             response = requests.get(url, params=params, timeout=10)
@@ -97,36 +103,37 @@ class EnhancedPerformanceTracker:
                             }
             
             print("🏈 Found " + str(len(games)) + " completed games for Week " + str(week))
-            return games
-            
+            return games or self._master_json_scores(week, season)
+
         except Exception as e:
             print("⚠️ Error fetching scores: " + str(e))
-            
-            # Fallback to Action Network data if available
-            return self._try_action_network_fallback(week)
-    
-    def _try_action_network_fallback(self, week: int) -> Dict[str, Dict]:
-        """Try to extract scores from Action Network CSV files as fallback."""
-        try:
-            # Look for Action Network files
-            action_files = [
-                # Dated fallback CSVs must be supplied at runtime
-                # (e.g. "action_all_markets_2026-11-16.csv")
-                "action_all_markets_" + str(week) + ".csv"
-            ]
-            
-            for file_path in action_files:
-                if os.path.exists(file_path):
-                    print("📊 Trying Action Network fallback: " + file_path)
-                    # Could parse final scores from Action Network data here
-                    # For now, return empty dict
-                    break
-            
+            return self._master_json_scores(week, season)
+
+    def _master_json_scores(self, week, season) -> Dict[str, Dict]:
+        """Final scores from data/historical/week{N}_master.json, in fetch_week_scores' shape."""
+        path = os.path.join(self.data_dir, "week" + str(week) + "_master.json")
+        if not os.path.exists(path):
             return {}
-            
-        except Exception as e:
-            print("⚠️ Action Network fallback failed: " + str(e))
-            return {}
+        with open(path) as f:
+            rows = json.load(f)
+        games = {}
+        for g in rows:
+            a, h = g.get('away_score'), g.get('home_score')
+            if str(g.get('season')) != str(season) or a is None or h is None or (a == 0 and h == 0):
+                continue
+            away, home = g.get('away_team', ''), g.get('home_team', '')
+            games[away + " @ " + home] = {
+                'away_team': away,
+                'home_team': home,
+                'away_score': int(a),
+                'home_score': int(h),
+                'total_score': int(a) + int(h),
+                'winner': away if a > h else home,
+                'margin': int(a) - int(h),
+                'final_score': away + " " + str(a) + "-" + str(h) + " " + home,
+            }
+        print("📁 Using master JSON scores: " + str(len(games)) + " completed games for Week " + str(week))
+        return games
     
     def update_pass_results(self, week: int, season: int = None):
         """Update the outcomes of games we passed on to validate our discipline"""
@@ -157,46 +164,50 @@ class EnhancedPerformanceTracker:
         return updated_count
         
     def update_week_results_auto(self, week: int, season: int = None):
-        """Automatically update results using NFL API or ESPN data"""
+        """Grade this week's logged spread/total bets against final ESPN scores."""
         season = season or get_current_season()
         try:
-            # Load existing results
             if not os.path.exists(self.results_file):
                 return {'error': 'No results file found'}
-            
+
             df = pd.read_csv(self.results_file)
-            week_bets = df[(df['week'] == week) & (df['season'] == season)]
-            
-            if week_bets.empty:
+            in_week = self._week_mask(df, week, season)
+            if not in_week.any():
                 return {'error': f'No bets found for Week {week}'}
-            
+
+            official = in_week & df['bet_type'].isin(['spread', 'total'])
+            ungraded = official & (df['final_score'].isna() | (df['final_score'].astype(str).str.strip() == ''))
+
             updated_games = 0
-            wins = 0
-            losses = 0
-            pushes = 0
-            
-            for idx, bet in week_bets.iterrows():
-                if bet['actual_result']:  # Already has result
-                    continue
-                    
-                # For now, mark as pending since we need NFL API integration
-                df.loc[idx, 'actual_result'] = 'pending'
-                df.loc[idx, 'result_date'] = datetime.now().isoformat()
-                updated_games += 1
-            
-            # Count existing results
-            completed_bets = week_bets[week_bets['actual_result'].notna() & (week_bets['actual_result'] != '')]
-            wins = len(completed_bets[completed_bets['won'] == True])
-            losses = len(completed_bets[completed_bets['won'] == False])
-            pushes = len(completed_bets[completed_bets['push'] == True])
-            
-            # Calculate win rate
-            total_completed = wins + losses
-            win_rate = (wins / total_completed * 100) if total_completed > 0 else 0
-            
-            # Save updated DataFrame
-            df.to_csv(self.results_file, index=False)
-            
+            if ungraded.any() and str(week).isdigit():
+                for col in ('won', 'push', 'final_score', 'actual_result', 'spread_result', 'total_result', 'result_date'):
+                    df[col] = df[col].astype(object)
+                scores = self.fetch_week_scores(int(week), season)
+                for idx in df.index[ungraded]:
+                    row = df.loc[idx]
+                    match = self._match_game_to_score(str(row['game']), scores)
+                    if not match:
+                        continue
+                    res = self._evaluate_bet(row, match)
+                    detail = res['spread_analysis'] or res['total_analysis']
+                    if detail.startswith('Invalid') or detail.startswith('Could not'):
+                        continue
+                    df.at[idx, 'push'] = bool(res['push'])
+                    df.at[idx, 'won'] = False if res['push'] else bool(res['won'])
+                    df.at[idx, 'final_score'] = str(match['away_score']) + "-" + str(match['home_score'])
+                    df.at[idx, 'actual_result'] = match['final_score']
+                    df.at[idx, 'spread_result'] = res['spread_analysis']
+                    df.at[idx, 'total_result'] = res['total_analysis']
+                    df.at[idx, 'result_date'] = datetime.now().isoformat()
+                    updated_games += 1
+                df.to_csv(self.results_file, index=False)
+
+            graded = df[official & df['final_score'].notna() & (df['final_score'].astype(str).str.strip() != '')]
+            pushes = int((graded['push'].astype(str) == 'True').sum())
+            wins = int((graded['won'].astype(str) == 'True').sum())
+            losses = len(graded) - wins - pushes
+            win_rate = (wins / (wins + losses) * 100) if (wins + losses) > 0 else 0
+
             return {
                 'updated_games': updated_games,
                 'wins': wins,
@@ -204,10 +215,10 @@ class EnhancedPerformanceTracker:
                 'pushes': pushes,
                 'win_rate': win_rate
             }
-            
+
         except Exception as e:
             return {'error': str(e)}
-            
+
     def _validate_pass_decision(self, pass_row, game_result):
         """Determine if passing on this game was the right call"""
         
@@ -399,9 +410,7 @@ class EnhancedPerformanceTracker:
         if os.path.exists(results_path):
             existing_df = pd.read_csv(results_path)
             # Filter out entries for the current week and season to prevent duplicates
-            existing_df = existing_df[
-                ~((existing_df['week'] == week) & (existing_df['season'] == season))
-            ]
+            existing_df = existing_df[~self._week_mask(existing_df, week, season)]
         else:
             existing_df = pd.DataFrame(columns=[
                 'week', 'season', 'game', 'recommendation', 'classification', 
@@ -433,7 +442,7 @@ class EnhancedPerformanceTracker:
                     'bet_type': bet_info.get('bet_type', 'unknown'),
                     'predicted_side': bet_info.get('predicted_side', 'unknown'),
                     'actual_result': '',
-                    'won': False, # Will be updated later
+                    'won': None,  # blank until graded; False would read as a loss
                     'confidence': game_data.get('confidence', 0),
                     'total_score': game_data.get('total_score', 0),
                     'sharp_score': game_data.get('sharp_analysis', {}).get('spread', {}).get('score', 0),
@@ -660,7 +669,7 @@ class EnhancedPerformanceTracker:
         """Generate a formatted report for a specific week's results."""
         try:
             df = pd.read_csv(self.results_file)
-            week_df = df[df['week'] == week].copy()
+            week_df = df[df['week'].astype(str) == str(week)].copy()
             
             if week_df.empty:
                 return "📊 Week " + str(week) + " Results: No bets found"
