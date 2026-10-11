@@ -25,21 +25,36 @@ const MARKET_STATUS_TEXT: Record<string, string> = {
   unavailable: "No data",
 };
 
+// "blocked" covers several different reasons; say which one.
+function marketStatus(market: EdgeMarket): { text: string; reason: string | null } {
+  const blocker = market.blockers?.[0] ?? null;
+  if (market.status === "blocked") {
+    if (blocker?.startsWith("underdog ML")) return { text: "Not bet", reason: "Underdog moneylines aren't bet (32% historical win rate)" };
+    if (blocker?.includes("candidate unavailable")) return { text: "No data", reason: null };
+    if (blocker?.includes("conflict")) return { text: "Signals conflict", reason: (market.score ?? 0) === 0 ? null : blocker };
+    if ((market.score ?? 0) === 0 || blocker?.includes("required") || blocker?.startsWith("no sharp")) return { text: "No signal", reason: null };
+    return { text: "Ruled out", reason: blocker };
+  }
+  if (market.status === "lean" && (market.score ?? 0) === 0) return { text: "No signal", reason: null };
+  return { text: MARKET_STATUS_TEXT[market.status] ?? market.status.replace(/_/g, " "), reason: blocker };
+}
+
 function MarketMini({ market, awayTla, homeTla }: { market: EdgeMarket; awayTla: string; homeTla: string }) {
   const pct = market.score != null && market.threshold != null
     ? Math.min(100, Math.max(0, (market.score / market.threshold) * 100))
     : null;
   const pick = betText(market.market, market.side, market.line, awayTla, homeTla);
-  const blocker = market.blockers?.[0];
+  const { text, reason } = marketStatus(market);
+  const live = market.status === "playable" || (market.status === "lean" && (market.score ?? 0) > 0);
   return (
     <div className={`market-mini ${market.status}`}>
       <div>
         <strong>{market.market}</strong>
-        <span className="market-line">{pick ?? "No side"}</span>
-        {blocker && <span className="market-blocker">{teamify(blocker, awayTla, homeTla)}</span>}
+        <span className={`market-line${live ? "" : " market-line-muted"}`}>{pick ?? "No side"}</span>
+        {reason && <span className="market-blocker">{teamify(reason, awayTla, homeTla)}</span>}
       </div>
       <div className="market-mini-right">
-        <b>{market.score === 0 && market.status === "lean" ? "No signal" : MARKET_STATUS_TEXT[market.status] ?? market.status.replace(/_/g, " ")}</b>
+        <b>{text}</b>
         {market.score != null && market.threshold != null && (
           <span className="market-score">score {market.score.toFixed(1)} · needs {market.threshold.toFixed(1)}</span>
         )}
