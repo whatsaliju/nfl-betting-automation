@@ -281,6 +281,14 @@ jobs:
             --week ${{ steps.info.outputs.week }} \
             --season-type ${{ steps.info.outputs.season_type }}
 
+      - name: Snapshot engine picks and lines
+        run: |
+          python3 scripts/snapshot_engine_lines.py \
+            --season ${{ steps.info.outputs.season }} \
+            --week ${{ steps.info.outputs.week }} \
+            --stage ${{ steps.info.outputs.stage }} || \
+          echo "WARNING: line snapshot failed — live CLV will miss this run"
+
       - name: Patch overlay with master sharp lines
         run: |
           python3 scripts/patch_overlay_from_master.py \

@@ -25,8 +25,6 @@ sys.path.insert(0, str(ROOT / "analyzers"))
 from nfl_common import get_current_season
 
 LOG_PATH = ROOT / "data" / "historical" / "warps_edge_log.csv"
-# Same order as builders/build_week_master_table.py
-STAGES = ["initial", "pre_tnf", "update", "lock", "pre_mnf", "final"]
 
 LOG_FIELDS = [
     "season", "week", "matchup_key", "away_tla", "home_tla", "game_date",
@@ -72,18 +70,12 @@ def parse_total(line_str):
     return float(m.group(1)) if m else None
 
 
-def picked_home_spread(line_str, side):
-    """Home-relative spread from the picked side's half of 'away | home' (the halves can disagree)."""
-    if not line_str or side not in ("AWAY", "HOME"):
-        return None
-    parts = str(line_str).split("|")
-    if len(parts) != 2:
-        return None
-    m = re.match(r"\s*([+-]?\d+\.?\d*)", parts[1 if side == "HOME" else 0])
-    if not m:
-        return None
-    v = float(m.group(1))
-    return v if side == "HOME" else -v
+def load_ledger_plays(season, week):
+    path = ROOT / "data" / "historical" / f"live_pick_ledger_{season}.csv"
+    if not path.exists():
+        return {}
+    with open(path) as f:
+        return {r["matchup_key"]: r for r in csv.DictReader(f) if r["week"] == str(week)}
 
 
 def load_existing_log():
@@ -172,6 +164,8 @@ def main():
     existing = [r for r in load_existing_log()
                 if not (r["season"] == str(season) and r["week"] == str(week))]
 
+    plays = load_ledger_plays(season, week)
+
     new_rows = []
     for mk, ov in sorted(overlay_rows.items()):
         g = master_games.get(mk, {})
@@ -204,21 +198,16 @@ def main():
                 mkt_total = t
                 break
 
-        # Engine play = the pick at the latest stage the engine ran (what the site showed last).
-        # An earlier stage's pick that a later run withdrew is not a play.
-        engine_confirmed = False
-        engine_market = engine_side = engine_stage = ""
-        latest = next((st for st in reversed(STAGES) if g.get(f"has_{st}")), None)
-        if latest:
-            pm = g.get(f"{latest}_pick_market", "")
-            if pm and str(pm).lower() != "none":
-                engine_confirmed = True
-                engine_market = pm
-                engine_side = g.get(f"{latest}_pick_side", "") or ""
-                engine_stage = latest
+        # Engine play = the pick in the engine's last run before kickoff (live pick ledger).
+        play = plays.get(mk)
+        engine_confirmed = play is not None
+        engine_market = play["market"] if play else ""
+        engine_side = play["side"] if play else ""
+        engine_stage = "pregame" if play else ""
 
-        if mkt_spread_f is None and engine_confirmed and engine_market == "spread":
-            mkt_spread_f = picked_home_spread(g.get(f"{engine_stage}_sharp_spread_line"), engine_side.upper())
+        if mkt_spread_f is None and play and engine_market == "spread" and play["pick_line"] != "":
+            line = float(play["pick_line"])
+            mkt_spread_f = line if engine_side == "HOME" else -line
 
         # Grade engine_spread_result — engine's confirmed pick side takes precedence over overlay
         # side; falls back to overlay_side when not confirmed or not a spread pick.

@@ -685,6 +685,14 @@ def warps_overlay_payload(game, overlay_index, best_edge):
     }
 
 
+def live_track_record_payload():
+    path = HISTORICAL_DIR / f"live_track_record_{ACTIVE_SEASON}.json"
+    if not path.exists():
+        return None
+    data = json.loads(path.read_text())
+    return {k: data.get(k) for k in ("season", "generated_at", "overall", "by_market", "plays", "note")}
+
+
 def expectation_matchup_payload(away, home, expectations):
     away_key = canonical_tla(away)
     home_key = canonical_tla(home)
@@ -1665,6 +1673,7 @@ def build_feed():
         "edge_board_count": len(edge_board),
         "current_context": current_context,
         "line_move_alert": line_move_alert,
+        "live_track_record": live_track_record_payload(),
         "weekly_command_center": command_center,
         "model_readiness": model_readiness_payload(),
         "research_summary": research_summary_payload(),

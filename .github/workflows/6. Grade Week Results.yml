@@ -110,6 +110,10 @@ jobs:
               --md-output "$BACKTEST_DIR/pick_explanations.md"
           fi
 
+      - name: Build Live Pick Ledger
+        run: |
+          python3 scripts/build_live_pick_ledger.py --season ${{ steps.resolve.outputs.season }}
+
       - name: Log WARPS Edge Performance
         run: |
           python3 scripts/log_warps_edge_performance.py \
@@ -138,77 +142,36 @@ jobs:
               print("No email credentials — skipping results email")
               exit(0)
 
-          log_path = 'data/historical/warps_edge_log.csv'
+          ledger_path = f'data/historical/live_pick_ledger_{season}.csv'
           try:
-              with open(log_path) as f:
+              with open(ledger_path) as f:
                   rows = list(csv.DictReader(f))
           except FileNotFoundError:
-              print(f"Edge log not found: {log_path}")
+              print(f"Live pick ledger not found: {ledger_path}")
               exit(0)
 
-          confirmed = [r for r in rows
-                       if r.get('week') == str(week)
-                       and r.get('season') == str(season)
-                       and r.get('engine_confirmed', '').lower() == 'true']
+          # Plays = the engine's pick in its last run before kickoff (see build_live_pick_ledger.py)
+          confirmed = [r for r in rows if r.get('week') == str(week)]
 
           if not confirmed:
-              print(f"No engine-confirmed picks for Week {week} — skipping email")
+              print(f"No pregame engine plays for Week {week} — skipping email")
               exit(0)
 
-          lines = [f"WARPS Engine Results — Week {week}", "=" * 50, ""]
+          lines = [f"Engine Results — Week {week}", "=" * 50, ""]
 
           hits = misses = pushes = 0
           for r in confirmed:
-              mk = r['matchup_key']
-              away, home = r['away_tla'], r['home_tla']
-              em = r.get('engine_market', '')
-              es = r.get('engine_side', '')
-              a_s = r.get('away_score', '')
-              h_s = r.get('home_score', '')
+              away, home = r['matchup_key'].split('@')
+              a_s, h_s = r.get('away_score', ''), r.get('home_score', '')
               score_str = f"{away} {a_s} @ {home} {h_s}" if a_s and h_s else "score pending"
-
-              if em == 'total':
-                  line = r.get('market_total', '?')
-                  ou = r.get('ou_result', 'no_data')
-                  pick = (es or 'OVER').lower()
-                  outcome = 'PUSH' if ou == 'push' else ('HIT ✓' if ou == pick else ('MISS ✗' if ou in ('over', 'under') else ou.upper()))
-                  total = (float(a_s) + float(h_s)) if a_s and h_s else None
-                  total_str = f" = {total:.0f} total" if total else ""
-                  lines.append(f"  {mk}: {(es or 'OVER').upper()} {line} | {score_str}{total_str} | {ou.upper()} → {outcome}")
-              elif em == 'spread':
-                  # Use overlay CSV for the pick's actual line
-                  if es == 'HOME':
-                      line = r.get('market_spread', '?')
-                      # market_spread in edge log is market_home_spread; negative=home fav
-                      try:
-                          lf = float(line)
-                          line_str = f"{home} {lf:+.1f}"
-                      except Exception:
-                          line_str = f"{home} {line}"
-                  else:
-                      try:
-                          lf = -float(r.get('market_spread', 0))
-                          line_str = f"{away} {lf:+.1f}"
-                      except Exception:
-                          line_str = f"{away} ?"
-                  sr = r.get('engine_spread_result', 'no_data')
-                  outcome = 'COVER ✓' if sr == 'cover' else ('MISS ✗' if sr == 'miss' else sr.upper())
-                  lines.append(f"  {mk}: {line_str} | {score_str} | ATS → {outcome}")
-              else:
-                  lines.append(f"  {mk}: {em} {es} | {score_str}")
-
-              sr = r.get('engine_spread_result', '')
-              ou = r.get('ou_result', '')
-              if em == 'total':
-                  primary = 'push' if ou == 'push' else ('cover' if ou == (es or 'OVER').lower() else ('miss' if ou in ('over', 'under') else ''))
-              else:
-                  primary = sr if em == 'spread' else ''
-              if primary == 'cover':
-                  hits += 1
-              elif primary == 'miss':
-                  misses += 1
-              elif primary == 'push':
-                  pushes += 1
+              res = r.get('result', '')
+              outcome = {'win': 'WIN ✓', 'loss': 'LOSS ✗', 'push': 'PUSH'}.get(res, 'PENDING')
+              clv = r.get('clv', '')
+              clv_str = f" | CLV {float(clv):+.1f}" if clv not in ('', None) else ""
+              lines.append(f"  {r['matchup_key']}: {r['pick']} | {score_str} | {outcome}{clv_str}")
+              hits += res == 'win'
+              misses += res == 'loss'
+              pushes += res == 'push'
 
           lines.append("")
           record = f"Record: {hits}-{misses}" + (f"-{pushes}" if pushes else "")

@@ -377,7 +377,7 @@ const seasonResults = useMemo(() => getSeasonResults(seasonSchedule), [seasonSch
         </>
       )}
 
-      {viewMode === "edges" && <EdgeBoardView games={edgeGames} warpsRows={warpsMarketOverlay as unknown as WarpsMarketOverlay[]} focusGame={focusedEdgeGame} onFocusClear={() => setFocusedEdgeGame(null)} lineMoveAlert={lineMoveAlert} />}
+      {viewMode === "edges" && <EdgeBoardView games={edgeGames} warpsRows={warpsMarketOverlay as unknown as WarpsMarketOverlay[]} focusGame={focusedEdgeGame} onFocusClear={() => setFocusedEdgeGame(null)} lineMoveAlert={lineMoveAlert} trackRecord={engineFeed?.live_track_record ?? null} />}
 
       {viewMode === "card" && <BettingCardView card={currentBettingCard} context={currentContext} focusCard={focusedCard} onFocusClear={() => setFocusedCard(null)} onViewAnalysis={(key) => { setFocusedEdgeGame(key); setViewMode("edges"); }} lineMoveAlert={lineMoveAlert} />}
 

@@ -1,7 +1,7 @@
 import { Activity, AlertTriangle, BadgeCheck, CircleSlash, Gauge, Info, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect } from "react";
 import { teamLogos } from "../data/nflData";
-import type { EdgeBoardGame, EdgeMarket, LineMoveAlert, WarpsMarketOverlay } from "../types";
+import type { EdgeBoardGame, EdgeMarket, LineMoveAlert, LiveTrackRecord, TrackRecordBlock, WarpsMarketOverlay } from "../types";
 import { betText, edgeBetText, favoriteLine, teamify, verdictOf, VERDICT_TEXT } from "../lib/betText";
 
 const DAY_ORDER: Record<string, number> = { Thu: 0, Fri: 1, Sat: 2, Sun: 3, Mon: 4, Tue: 5, Wed: 6 };
@@ -63,6 +63,20 @@ function percent(value?: number | null) {
   return `${(value * 100).toFixed(1)}%`;
 }
 
+function TrackStat({ label, block }: { label: string; block: TrackRecordBlock }) {
+  return (
+    <div className="track-stat">
+      <span>{label}</span>
+      <b>{block.wins}–{block.losses}{block.pushes ? `–${block.pushes}` : ""}</b>
+      <span>
+        {block.avg_clv !== null ? `CLV ${block.avg_clv > 0 ? "+" : ""}${block.avg_clv.toFixed(2)}` : "CLV n/a"}
+        {block.beat_close_rate !== null ? ` · beat close ${Math.round(block.beat_close_rate * 100)}%` : ""}
+        {block.pending ? ` · ${block.pending} pending` : ""}
+      </span>
+    </div>
+  );
+}
+
 function expectationLine(
   label: string,
   side: string | null | undefined,
@@ -89,7 +103,7 @@ function winProbText(awayProb: number | null | undefined, homeProb: number | nul
   return awayProb >= homeProb ? `${away} ${percent(awayProb)}` : `${home} ${percent(homeProb)}`;
 }
 
-export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, warpsRows }: { games: EdgeBoardGame[]; focusGame?: string | null; onFocusClear?: () => void; lineMoveAlert?: LineMoveAlert | null; warpsRows?: WarpsMarketOverlay[] }) {
+export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, warpsRows, trackRecord }: { games: EdgeBoardGame[]; focusGame?: string | null; onFocusClear?: () => void; lineMoveAlert?: LineMoveAlert | null; warpsRows?: WarpsMarketOverlay[]; trackRecord?: LiveTrackRecord | null }) {
   useEffect(() => {
     if (!focusGame) return;
     const el = document.getElementById(`edge-${focusGame}`);
@@ -129,6 +143,25 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
           <span><Info size={14} />ML not priced yet</span>
         </div>
       </div>
+
+      {trackRecord && trackRecord.overall.plays > 0 && (
+        <div className="track-record-strip">
+          <div className="track-record-head">
+            <strong>Engine track record · {trackRecord.season}</strong>
+            <span>Pregame picks only, graded at the line taken</span>
+          </div>
+          <div className="track-record-stats">
+            <TrackStat label="All plays" block={trackRecord.overall} />
+            {Object.entries(trackRecord.by_market).map(([market, block]) => (
+              <TrackStat key={market} label={market === "total" ? "Totals" : market === "spread" ? "Spreads" : market} block={block} />
+            ))}
+          </div>
+          <p className="track-record-note">
+            CLV is points gained against the closing line. Consistently positive CLV is the earliest sign of a real edge.
+            {trackRecord.overall.wins + trackRecord.overall.losses < 50 ? " The sample is still small." : ""}
+          </p>
+        </div>
+      )}
 
       {lineMoveAlert && lineMoveAlert.total_moves > 0 && (
         <div className="line-move-alert">
