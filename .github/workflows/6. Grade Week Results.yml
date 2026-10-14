@@ -119,6 +119,7 @@ jobs:
             --week ${{ steps.resolve.outputs.week }} --from-git
           python3 scripts/build_live_pick_ledger.py --season ${{ steps.resolve.outputs.season }}
           python3 scripts/build_team_trends.py --season ${{ steps.resolve.outputs.season }}
+          python3 scripts/build_top_picks.py || echo "WARNING: top picks not rebuilt"
 
       - name: Log WARPS Edge Performance
         run: |

@@ -5188,6 +5188,7 @@ select {
   --pk-rule: #e4e4e7;
   --pk-note-ink: #92400e;
   --pk-note-bg: #fffbeb;
+  --pk-card: #ffffff;
 }
 .pk-gameline { font-size: 12px; color: var(--pk-muted); font-variant-numeric: tabular-nums; }
 .pk-rows { display: flex; flex-direction: column; margin-top: 6px; border-top: 1px solid var(--pk-rule); }
@@ -5198,6 +5199,24 @@ select {
 .pk-row-pick strong { font-size: 15px; font-weight: 800; color: var(--pk-ink); font-variant-numeric: tabular-nums; }
 .pk-row-logo { width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; }
 .pk-row-detail { font-size: 11px; color: var(--pk-muted); font-variant-numeric: tabular-nums; }
+.tp { background: var(--pk-card); border: 1px solid var(--pk-rule); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 8px; }
+.tp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.tp-head h3 { margin: 0; font-size: 15px; font-weight: 800; color: var(--pk-ink); }
+.tp-head span { font-size: 12px; color: var(--pk-muted); }
+.tp-list { list-style: none; margin: 0; padding: 0; counter-reset: tp; }
+.tp-row { counter-increment: tp; display: grid; grid-template-columns: 22px 1fr minmax(110px, 38%); gap: 8px; align-items: center; padding: 8px 0; border-top: 1px solid var(--pk-rule); }
+.tp-row::before { content: counter(tp); font-size: 12px; font-weight: 800; color: var(--pk-muted); font-variant-numeric: tabular-nums; }
+.tp-main { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.tp-main strong { font-size: 14px; color: var(--pk-ink); font-variant-numeric: tabular-nums; }
+.tp-matchup, .tp-signal { font-size: 11px; color: var(--pk-muted); }
+.tp-conf { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 2px 8px; }
+.tp-conf b { font-size: 15px; color: var(--pk-ink); font-variant-numeric: tabular-nums; }
+.tp-bar { position: relative; height: 8px; border-radius: 4px; background: var(--pk-rule); }
+.tp-range { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: #86efac; }
+.tp-dot { position: absolute; top: -2px; width: 4px; height: 12px; margin-left: -2px; border-radius: 2px; background: #047857; }
+.tp-even { position: absolute; top: -4px; width: 2px; height: 16px; margin-left: -1px; background: var(--pk-ink); opacity: .55; }
+.tp-range-text { grid-column: 2; font-size: 10px; color: var(--pk-muted); font-variant-numeric: tabular-nums; }
+.tp-note { margin: 0; font-size: 11px; line-height: 1.45; color: var(--pk-muted); }
 .pk-dissent { color: var(--pk-note-ink); font-weight: 600; }
 .pk-summary { margin: 8px 0 0; padding: 6px 8px; border-radius: 6px; font-size: 12px; line-height: 1.4; color: var(--pk-note-ink); background: var(--pk-note-bg); }
 .pk-engine { margin-top: 6px; font-size: 11px; color: var(--pk-muted); }
@@ -5211,7 +5230,7 @@ select {
 
 
 @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .pickem-view { --pk-ink: #f4f4f5; --pk-muted: #a1a1aa; --pk-rule: #3f3f46; --pk-note-ink: #fcd34d; --pk-note-bg: #2a2108; }
+    :root:not([data-theme="light"]) .pickem-view { --pk-ink: #f4f4f5; --pk-muted: #a1a1aa; --pk-rule: #3f3f46; --pk-note-ink: #fcd34d; --pk-note-bg: #2a2108; --pk-card: #27272a; }
   :root:not([data-theme="light"]) .pickem-header h2 { color: #f4f4f5; }
   :root:not([data-theme="light"]) .pk-record-wl { color: #f4f4f5; }
   :root:not([data-theme="light"]) .pk-record-pct { background: #064e3b; color: #6ee7b7; }
@@ -5240,7 +5259,7 @@ select {
   :root:not([data-theme="light"]) .game-card-intl { border-color: #f59e0b44; }
   :root:not([data-theme="light"]) .pk-logo { background: rgba(255,255,255,0.15); border-radius: 50%; padding: 3px; }
 }
-:root[data-theme="dark"] .pickem-view { --pk-ink: #f4f4f5; --pk-muted: #a1a1aa; --pk-rule: #3f3f46; --pk-note-ink: #fcd34d; --pk-note-bg: #2a2108; }
+:root[data-theme="dark"] .pickem-view { --pk-ink: #f4f4f5; --pk-muted: #a1a1aa; --pk-rule: #3f3f46; --pk-note-ink: #fcd34d; --pk-note-bg: #2a2108; --pk-card: #27272a; }
 :root[data-theme="dark"] .pickem-header h2 { color: #f4f4f5; }
 :root[data-theme="dark"] .pk-record-wl { color: #f4f4f5; }
 :root[data-theme="dark"] .pk-record-pct { background: #064e3b; color: #6ee7b7; }

@@ -1,6 +1,7 @@
 import { teamLogos } from "../data/nflData";
 import gameTimesData from "../data/gameTimes.json";
 import trendsData from "../data/teamTrends.json";
+import { TopPicksPanel } from "./TopPicksPanel";
 import type { EngineFeed, WarpsMarketOverlay } from "../types";
 import { betText, favoriteLine } from "../lib/betText";
 
@@ -319,6 +320,8 @@ export function PickemView({
         </div>
         <p>Winner = Vegas favorite (66% historically, better than WARPS's 63%) · WARPS shown when it disagrees · implied totals from O/U + spread</p>
       </div>
+
+      <TopPicksPanel week={Number(ctx.week)} />
 
       <div className="pickem-tiebreakers">
         <div className="pickem-tb most">
