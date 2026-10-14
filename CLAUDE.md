@@ -90,7 +90,7 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 ## Workflow Chain (trigger order)
 1. **Wf 1** `1_referee_collection.yml` — Wed schedule → commits referee/SDQL data → fires `referee-data-ready`
 2. **Wf 2** `2_initial_market_data.yml` — `referee-data-ready` → scrapes Action Network → fires `initial-market-data`
-3. **Wf 3** `3_market_update.yml` — dispatched on time by the Cloudflare Worker in `scheduler/` (ET slots, stage passed explicitly); GitHub crons remain as a backup and skip if a dispatched run started in the last 8h (GitHub crons ran 2–8h late in 2026) → scrapes lines + lineups → fires `market-data-ready`
+3. **Wf 3** `3_market_update.yml` — dispatched on time by Claude Code scheduled tasks "NFL market update — <day> <time> ET (<stage>)" (Tue 3:52p update, Wed 8:52a opening, Thu 1:52p pre_tnf, Sat 8:52p update, Sun 8:22a lock, Sun 12:22p final, Mon 5:52p pre_mnf; Aug–Feb), which fire into the dev session and call workflow_dispatch; GitHub crons remain as a backup and skip if a dispatched run started in the last 8h (GitHub crons ran 2–8h late in 2026) → scrapes lines + lineups → fires `market-data-ready`
 4. **Wf 4.5** `4.5_enhanced_pro_workflow.yml` — `initial-market-data` or `market-data-ready` → runs engine → builds master JSON → **patches overlay CSV** → **rebuilds warpsMarketOverlay.json** → builds matrix feed → commits `data/` + `site/src/data/` → fires `analysis-complete`
 5. **Wf 5** `5_conversational_email.yml` — `analysis-complete` → sends betting card email (no commit)
 6. **Wf 6 Perf** `6_update-performance.yml` — Tue schedule → updates performance report → fires `performance-complete`

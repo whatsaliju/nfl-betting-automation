@@ -1,4 +1,5 @@
 import type { Conference, ScheduleRow } from "../types";
+import internationalGamesData from "./internationalGames.json";
 
 export const weeks = Array.from({ length: 18 }, (_, index) => index + 1);
 
@@ -114,21 +115,11 @@ export const historicalVegasLines: Record<string, Record<string, number>> = {
   "2026": { ARI:4.5,ATL:6.5,BAL:10.5,BUF:10.5,CAR:6.5,CHI:9.5,CIN:9.5,CLE:6.5,DAL:8.5,DEN:9.5,DET:10.5,GB:10.5,HOU:9.5,IND:8.5,JAX:9.5,KC:10.5,LAC:10.5,LAR:10.5,LV:5.5,MIA:4.5,MIN:8.5,NE:10.5,NO:7.5,NYG:7.5,NYJ:5.5,PHI:10.5,PIT:8.5,SEA:10.5,SF:10.5,TB:8.5,TEN:6.5,WAS:7.5 },
 };
 
-// 2026 NFL International Schedule (official)
+// 2026 NFL International Schedule (official), shared with the WARPS scripts via internationalGames.json.
 // Each week lists [teamA, teamB, countryCode, venueId, broadcaster] — both orderings included so
 // internationalCode() matches from either team's perspective.
 // countryCode drives the flag emoji; venueId keys intlVenue for city/stadium.
-export const intlGames: Record<number, Array<[string, string, string, string, string]>> = {
-  1:  [["SF", "LAR", "AU", "MCG", "Netflix"],      ["LAR", "SF", "AU", "MCG", "Netflix"]],
-  3:  [["BAL", "DAL", "BR", "RIO", "CBS"],          ["DAL", "BAL", "BR", "RIO", "CBS"]],
-  4:  [["IND", "WAS", "GB", "TOT", "NFL Network"],  ["WAS", "IND", "GB", "TOT", "NFL Network"]],
-  5:  [["PHI", "JAX", "GB", "TOT", "NFL Network"],  ["JAX", "PHI", "GB", "TOT", "NFL Network"]],
-  6:  [["HOU", "JAX", "GB", "WEM", "NFL Network"],  ["JAX", "HOU", "GB", "WEM", "NFL Network"]],
-  7:  [["PIT", "NO", "FR", "PAR", "NFL Network"],   ["NO", "PIT", "FR", "PAR", "NFL Network"]],
-  9:  [["CIN", "ATL", "ES", "BER", "NFL Network"],  ["ATL", "CIN", "ES", "BER", "NFL Network"]],
-  10: [["NE", "DET", "DE", "MUN", "Fox"],           ["DET", "NE", "DE", "MUN", "Fox"]],
-  11: [["MIN", "SF", "MX", "CDM", "NBC"],           ["SF", "MIN", "MX", "CDM", "NBC"]],
-};
+export const intlGames = internationalGamesData["2026"] as unknown as Record<number, Array<[string, string, string, string, string]>>;
 
 export const intlVenue: Record<string, { city: string; stadium: string; countryCode: string }> = {
   MCG: { city: "Melbourne", stadium: "Melbourne Cricket Ground", countryCode: "AU" },

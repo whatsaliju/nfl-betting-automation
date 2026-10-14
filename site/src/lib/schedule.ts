@@ -69,6 +69,12 @@ export function isDivisionGame(team: string, opponent: string) {
   return getDivision(team) === getDivision(cleanOpponent(opponent));
 }
 
+// International games: both teams travel, including the listed home team.
+export function teamTravels(team: string, opponent: string, week: number) {
+  if (internationalCode(team, week, opponent)) return true;
+  return opponent.startsWith("@") && isSignificantTravel(team, opponent, week);
+}
+
 export function isSignificantTravel(team: string, opponent: string, week: number) {
   if (internationalCode(team, week, opponent)) return true;
   const from = teamTimeZones[team];
@@ -148,7 +154,7 @@ export function buildTeams(schedule = getSeasonSchedule(DEFAULT_SEASON)): TeamPr
       weeks: teamWeeks,
       backToBackInfo: analyzeBackToBack(teamWeeks),
       restAdvantages: teamWeeks.filter((game) => game.daysRest !== null && game.daysRest >= 10).length,
-      significantTravel: teamWeeks.filter((game) => game.opponent.startsWith("@") && isSignificantTravel(team, game.opponent, game.week)).length,
+      significantTravel: teamWeeks.filter((game) => teamTravels(team, game.opponent, game.week)).length,
       remainingSOS: calculateRemainingSOS(team, schedule)
     };
   });

@@ -60,12 +60,21 @@ def pythagorean(pf, pa, exp=PYTH_EXP):
     return pf_e / denom if denom > 0 else 0.5
 
 
-def fair_hwp(home_wins, away_wins):
-    return logistic((home_wins - away_wins + HOME_FIELD_WINS) * LOGIT_SCALE)
+def fair_hwp(home_wins, away_wins, hfa=HOME_FIELD_WINS):
+    return logistic((home_wins - away_wins + hfa) * LOGIT_SCALE)
 
 
-def fair_spread(home_wins, away_wins):
-    return -(home_wins - away_wins + HOME_FIELD_WINS) * SPREAD_FACTOR
+def fair_spread(home_wins, away_wins, hfa=HOME_FIELD_WINS):
+    return -(home_wins - away_wins + hfa) * SPREAD_FACTOR
+
+
+def load_neutral_sites(season):
+    """{(week, frozenset({team_a, team_b}))} for international games, which get no home field."""
+    path = SITE_DATA / "internationalGames.json"
+    if not path.exists():
+        return set()
+    weeks = json.load(open(path)).get(str(season), {})
+    return {(str(wk), frozenset(normalize_tla(t) for t in game[:2])) for wk, games in weeks.items() for game in games}
 
 
 def ml_str(prob):
@@ -295,6 +304,7 @@ def run(season, through_week, shrinkage, dry_run):
         return
     fieldnames = list(original[0].keys())
 
+    neutral = load_neutral_sites(season)
     updated = []
     changed = 0
     for row in original:
@@ -307,9 +317,10 @@ def run(season, through_week, shrinkage, dry_run):
             updated.append(row)
             continue
 
-        hwp = fair_hwp(bhome, baway)
+        hfa = 0.0 if (str(row.get("week")), frozenset((away, home))) in neutral else HOME_FIELD_WINS
+        hwp = fair_hwp(bhome, baway, hfa)
         awp = 1.0 - hwp
-        fhs = fair_spread(bhome, baway)
+        fhs = fair_spread(bhome, baway, hfa)
         fas = -fhs
 
         old_hwp = float(row.get("home_win_prob") or 0)
