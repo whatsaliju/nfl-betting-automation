@@ -20,6 +20,13 @@ on:
         required: false
         type: string
 
+# One deploy at a time: back-to-back merges otherwise open bursts of SSH connections that
+# Bluehost throttles. A newer queued deploy replaces an older queued one; a running deploy
+# is never cancelled mid-upload, which could leave the site half-replaced.
+concurrency:
+  group: bluehost-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy-nfl-edge-hub:
     runs-on: ubuntu-latest
@@ -85,7 +92,10 @@ jobs:
             fi
             exit 1
           fi
-          ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts
+          # Bluehost sometimes drops keyscan probes when throttling; the upload uses
+          # StrictHostKeyChecking=accept-new, so an incomplete scan must not fail the run.
+          ssh-keyscan -p "$BLUEHOST_PORT_VALUE" "${{ secrets.BLUEHOST_HOST }}" >> ~/.ssh/known_hosts \
+            || echo "::warning::ssh-keyscan incomplete; host key will be accepted on first connect"
 
       - name: Swap personal hub as root index for Bluehost
         run: |
