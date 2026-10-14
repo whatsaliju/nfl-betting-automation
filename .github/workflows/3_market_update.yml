@@ -35,7 +35,35 @@ on:
         type: string
 
 jobs:
+  # GitHub's cron starts these runs hours late on game days. The Cloudflare
+  # scheduler (scheduler/) dispatches them on time; the cron stays as a backup
+  # and stands down if a dispatched run already started in the last 8 hours.
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          RECENT=$(gh run list --repo "${{ github.repository }}" --workflow 3_market_update.yml \
+            --event workflow_dispatch --limit 10 --json createdAt \
+            --jq '[.[] | select((now - (.createdAt | fromdateiso8601)) < 28800)] | length') || RECENT=0
+          echo "Dispatched runs in last 8h: $RECENT"
+          if [ "${RECENT:-0}" -gt 0 ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::On-time scheduler already ran; skipping late cron run."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
   update_market_data:
+    needs: gate
+    if: needs.gate.outputs.skip != 'true'
     runs-on: ubuntu-latest
     
     steps:
@@ -61,11 +89,16 @@ jobs:
             ${{ runner.os }}-pip-
       
       - name: Install dependencies
-        run: |
-          pip install pandas selenium lxml webdriver-manager
-          sudo rm -f /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google*.list || true
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
+        run: pip install pandas selenium lxml webdriver-manager
+
+      # Ubuntu's chromium-browser package installs from the Snap store, which timed out
+      # and failed the run on 2026-10-13. Same setup Workflow 2 uses.
+      - name: Install Google Chrome and ChromeDriver for Scraping
+        uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: 'stable'
+          install-dependencies: true
+          install-chromedriver: true
       
       - name: Get Week Number
         id: get_week
