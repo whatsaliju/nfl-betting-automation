@@ -35,9 +35,9 @@ on:
         type: string
 
 jobs:
-  # GitHub's cron starts these runs hours late on game days. The Cloudflare
-  # scheduler (scheduler/) dispatches them on time; the cron stays as a backup
-  # and stands down if a dispatched run already started in the last 8 hours.
+  # GitHub's cron starts these runs hours late on game days. Claude Code scheduled
+  # tasks dispatch them on time (ET slots, stage passed explicitly); the cron stays
+  # as a backup and stands down if a dispatched run already started in the last 8 hours.
   gate:
     runs-on: ubuntu-latest
     outputs:
