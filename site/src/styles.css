@@ -5200,6 +5200,10 @@ select {
 .pk-row-pick strong { font-size: 15px; font-weight: 800; color: var(--pk-ink); font-variant-numeric: tabular-nums; }
 .pk-row-logo { width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; }
 .pk-row-detail { font-size: 11px; color: var(--pk-muted); font-variant-numeric: tabular-nums; }
+.pk-tabs { display: inline-flex; gap: 4px; padding: 3px; margin-bottom: 14px; border-radius: 999px; background: var(--pk-rule); }
+.pk-tab { border: 0; background: transparent; font: inherit; font-size: 13px; font-weight: 700; color: var(--pk-muted); padding: 6px 16px; border-radius: 999px; cursor: pointer; }
+.pk-tab.active { background: var(--pk-card); color: var(--pk-ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.pk-tab:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
 .tp { background: var(--pk-card); border: 1px solid var(--pk-rule); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 8px; }
 .tp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
 .tp-head h3 { margin: 0; font-size: 15px; font-weight: 800; color: var(--pk-ink); }
@@ -5239,8 +5243,6 @@ select {
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) .pickem-view { --pk-ink: #f4f4f5; --pk-muted: #a1a1aa; --pk-rule: #3f3f46; --pk-note-ink: #fcd34d; --pk-note-bg: #2a2108; --pk-card: #27272a; --pk-good: #34d399; }
-  :root:not([data-theme="light"]) .pickem-header h2 { color: #f4f4f5; }
-  :root:not([data-theme="light"]) .pk-record-wl { color: #f4f4f5; }
   :root:not([data-theme="light"]) .pk-record-pct { background: #064e3b; color: #6ee7b7; }
   :root:not([data-theme="light"]) .pk-su-win { background: #064e3b; color: #6ee7b7; }
   :root:not([data-theme="light"]) .pk-su-loss { background: #450a0a; color: #fca5a5; }
@@ -5268,8 +5270,6 @@ select {
   :root:not([data-theme="light"]) .pk-logo { background: rgba(255,255,255,0.15); border-radius: 50%; padding: 3px; }
 }
 :root[data-theme="dark"] .pickem-view { --pk-ink: #f4f4f5; --pk-muted: #a1a1aa; --pk-rule: #3f3f46; --pk-note-ink: #fcd34d; --pk-note-bg: #2a2108; --pk-card: #27272a; --pk-good: #34d399; }
-:root[data-theme="dark"] .pickem-header h2 { color: #f4f4f5; }
-:root[data-theme="dark"] .pk-record-wl { color: #f4f4f5; }
 :root[data-theme="dark"] .pk-record-pct { background: #064e3b; color: #6ee7b7; }
 :root[data-theme="dark"] .pk-su-win { background: #064e3b; color: #6ee7b7; }
 :root[data-theme="dark"] .pk-su-loss { background: #450a0a; color: #fca5a5; }
