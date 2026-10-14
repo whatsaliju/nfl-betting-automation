@@ -61,6 +61,8 @@ def load_games():
             "over": None if total_margin == 0 else total_margin > 0,
             "home_cover": None if home_ats_margin == 0 else home_ats_margin > 0,
             "home_fav": float(r["spread_line"]) > 0,
+            # Straight-up result for the spread favorite (None for pick'em lines and ties).
+            "fav_won": None if float(r["spread_line"]) == 0 or hs == aws else (hs > aws) == (float(r["spread_line"]) > 0),
         })
     return games, unplayed
 
@@ -146,6 +148,7 @@ def build(season):
             "ou": record([g["over"] for g in cur]),
             "home_ats": record([g["home_cover"] for g in cur]),
             "fav_ats": record(favs),
+            "fav_su": record([g["fav_won"] for g in cur]),
         },
         "teams": per_team,
         "under_start": {
