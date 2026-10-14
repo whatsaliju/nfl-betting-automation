@@ -118,6 +118,7 @@ jobs:
           python3 scripts/snapshot_engine_lines.py --season ${{ steps.resolve.outputs.season }} \
             --week ${{ steps.resolve.outputs.week }} --from-git
           python3 scripts/build_live_pick_ledger.py --season ${{ steps.resolve.outputs.season }}
+          python3 scripts/build_team_trends.py --season ${{ steps.resolve.outputs.season }}
 
       - name: Log WARPS Edge Performance
         run: |

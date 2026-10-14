@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { historicalVegasLines, teamLogos } from "../data/nflData";
 import { historicalTeamData, consensusData } from "../data/warpsData";
+import { TeamTrendsPanel } from "./TeamTrendsPanel";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface TeamAuditRow {
@@ -406,6 +407,7 @@ export function TrackRecordView() {
           <>
             <SeasonChart summaries={summaries} />
             <AllSeasonsSummary summaries={summaries} onSelect={setDrillSeason} />
+            <TeamTrendsPanel />
           </>
         )
       }
