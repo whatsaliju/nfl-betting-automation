@@ -1,15 +1,15 @@
 # Weekly Command Center
 
-- Context: 2026 W5 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Context: 2026 W6 · live
+- Recommended action: **NO BET - DATA INCOMPLETE**
+- Confidence tier: **X**
+- Reason: Live betting inputs are not published for this context.
 
 ## Source Gates
 
 | Gate | Status |
 |---|---|
-| live betting card | PASS |
+| live betting card | BLOCKED |
 | preseason dry run | PASS |
 | warps priors | PASS |
 | survivor recommendations | PASS |
@@ -17,37 +17,33 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 11
-- Passes: 4
-
-| Game | Action | Market | Side | Score |
-|---|---|---|---|---:|
-| CIN@MIA | watch | n/a | n/a | 3.0 |
-| LV@NE | watch | spread | AWAY | 3.0 |
-| PHI@JAX | watch | n/a | n/a | 3.0 |
-| BAL@ATL | watch | n/a | n/a | 2.0 |
-| CHI@GB | watch | n/a | n/a | 2.0 |
-| HOU@TEN | watch | n/a | n/a | 2.0 |
+- Watch: 0
+- Passes: 0
 
 ## Survivor
 
-- Primary: NE vs LV (72.3%)
-- Safest: NE vs LV (72.3%)
-- Path pick: NE vs LV (72.3%)
+- Primary: LAR vs ARI (80.9%)
+- Safest: LAR vs ARI (80.9%)
+- Path pick: LAR vs ARI (80.9%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | NE vs LV (72.3%) | NE vs LV (72.3%) | NE vs LV (72.3%) |
-| 100 | NE vs LV (72.3%) | NE vs LV (72.3%) | NE vs LV (72.3%) |
-| 500 | NE vs LV (72.3%) | NE vs LV (72.3%) | NE vs LV (72.3%) |
+| 25 | LAR vs ARI (80.9%) | LAR vs ARI (80.9%) | LAR vs ARI (80.9%) |
+| 100 | LAR vs ARI (80.9%) | LAR vs ARI (80.9%) | LAR vs ARI (80.9%) |
+| 500 | LAR vs ARI (80.9%) | SF vs WAS (74.0%) | SF vs WAS (74.0%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| NE | vs LV | 68.1% | -214 |
-| JAX | vs PHI | 66.8% | -201 |
-| HOU | @ TEN | 62.4% | -166 |
-| SEA | vs SF | 57.9% | -138 |
-| MIN | @ NO | 57.8% | -137 |
-| CIN | @ MIA | 56.3% | -129 |
+| SF | vs WAS | 71.5% | -251 |
+| LAR | vs ARI | 70.2% | -236 |
+| NE | vs NYJ | 69.4% | -227 |
+| IND | vs TEN | 69.4% | -227 |
+| KC | vs LAC | 68.0% | -213 |
+| JAX | vs HOU | 62.4% | -166 |
+
+## Warnings
+
+- No live betting card is published for the current context.
+- No actionable betting plays or watchlist spots are active.
