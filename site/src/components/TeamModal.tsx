@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { teamLogos } from "../data/nflData";
-import { cleanOpponent, flagEmoji, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
+import { cleanOpponent, flagEmoji, internationalCode, isDivisionGame, teamTravels } from "../lib/schedule";
 import type { EngineTeamCell, TeamExpectation, TeamProfile } from "../types";
 import { EngineBadge } from "./EngineBadge";
 
@@ -77,7 +77,7 @@ export function TeamModal({ team, engineCells, expectation, metricLabel, onClose
                       {game.dayOfWeek !== "Sun" && <span>{game.dayOfWeek}</span>}
                       {game.daysRest !== null && game.daysRest !== 7 && <span>{game.daysRest}d</span>}
                       {flag && <span>{flag}</span>}
-                      {game.opponent.startsWith("@") && isSignificantTravel(team.name, opponent, game.week) && <span>Travel</span>}
+                      {teamTravels(team.name, game.opponent, game.week) && <span>Travel</span>}
                       {isDivisionGame(team.name, game.opponent) && <span>Div</span>}
                     </div>
                   )}

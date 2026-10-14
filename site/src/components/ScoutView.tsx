@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { teamLogos } from "../data/nflData";
-import { cleanOpponent, isDivisionGame, isSignificantTravel } from "../lib/schedule";
+import { cleanOpponent, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
+import { intlVenue } from "../data/nflData";
 import type { TeamProfile } from "../types";
 
 interface Props {
@@ -59,7 +60,10 @@ export function buildScoutGames(teams: TeamProfile[], vegasLines: Record<string,
       const awayVegas = vegasLines[awayTeam] ?? null;
       const warpsDelta = homeVegas !== null && awayVegas !== null ? homeVegas - awayVegas : null;
 
-      const awayHasTravel = isSignificantTravel(awayTeam, homeTeam, gameWeek.week);
+      // International games are neutral-site: both teams travel and neither has home field.
+      const venueId = internationalCode(homeTeam, gameWeek.week, awayTeam);
+      const neutralCity = venueId ? intlVenue[venueId]?.city ?? "abroad" : null;
+      const awayHasTravel = !neutralCity && isSignificantTravel(awayTeam, homeTeam, gameWeek.week);
       const awayIsB2B = awayProfile.backToBackInfo.some(b => b.week === gameWeek.week);
       const homeIsPostBye = homeDaysRest !== null && homeDaysRest >= 14;
       const homeIsShortRest = homeDaysRest !== null && homeDaysRest < 6;
@@ -68,7 +72,7 @@ export function buildScoutGames(teams: TeamProfile[], vegasLines: Record<string,
       const isDivision = isDivisionGame(homeTeam, `@${awayTeam}`);
 
       // Schedule-only score (excludes WARPS delta)
-      let scheduleScore = 1.0; // home field baseline
+      let scheduleScore = neutralCity ? 0 : 1.0; // home field baseline
       if (homeIsPostBye) scheduleScore += 2.0;
       if (homeIsShortRest) scheduleScore -= 2.0;
       if (awayIsShortRest) scheduleScore += 2.0;
@@ -85,6 +89,7 @@ export function buildScoutGames(teams: TeamProfile[], vegasLines: Record<string,
       if (awayIsShortRest) tags.push("Away Short Rest");
       if (awayIsPostBye) tags.push("Away Post-Bye");
       if (awayHasTravel) tags.push("Cross-Country");
+      if (neutralCity) tags.push(`Neutral · ${neutralCity}`);
       if (awayIsB2B) tags.push("B2B Road");
       if (isDivision) tags.push("Division");
 
@@ -94,6 +99,7 @@ export function buildScoutGames(teams: TeamProfile[], vegasLines: Record<string,
       if (awayIsShortRest) parts.push(`${awayTeam} on short rest`);
       if (awayIsB2B) parts.push(`${awayTeam} on 2nd straight road trip`);
       if (awayHasTravel) parts.push(`coast-to-coast travel for ${awayTeam}`);
+      if (neutralCity) parts.push(`neutral site in ${neutralCity}, both teams travel`);
       if (awayIsPostBye) parts.push(`${awayTeam} coming off bye`);
       if (warpsDelta !== null && warpsDelta > 2) parts.push(`WARPS favors ${homeTeam} by ${warpsDelta.toFixed(1)}w`);
       if (warpsDelta !== null && warpsDelta < -2) parts.push(`WARPS favors ${awayTeam} by ${Math.abs(warpsDelta).toFixed(1)}w`);

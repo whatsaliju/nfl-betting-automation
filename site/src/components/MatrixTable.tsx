@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { divisions, teamLogos } from "../data/nflData";
 import { qbChanges2026 } from "../data/qbData";
-import { classifyCell, cleanOpponent, flagEmoji, internationalCode, isDivisionGame, isSignificantTravel } from "../lib/schedule";
+import { classifyCell, cleanOpponent, flagEmoji, internationalCode, isDivisionGame, teamTravels } from "../lib/schedule";
 import type { EngineTeamCell, GameResult, TeamExpectation, TeamProfile, WarpsMarketOverlay } from "../types";
 import { EngineBadge } from "./EngineBadge";
 import { WarpsMarketBadge } from "./WarpsMarketBadge";
@@ -309,7 +309,7 @@ export function MatrixTable({ teams, weeks, teamStats, metricLabel, metricTitle,
                   const isDiv = isDivisionGame(team.name, opponent);
                   const dayTag = game?.dayOfWeek && game.dayOfWeek !== "Sun" ? game.dayOfWeek : null;
                   const isPrimetime = dayTag === "Thu" || dayTag === "Mon";
-                  const hasTravel = opponent.startsWith("@") && isSignificantTravel(team.name, opponent, week);
+                  const hasTravel = teamTravels(team.name, opponent, week);
                   const oppConf = opponentCode ? oppConference(opponentCode) : null;
                   const daysRest = game?.daysRest ?? null;
                   const showRest = daysRest !== null && daysRest !== 7 && (daysRest <= 5 || daysRest >= 10);
