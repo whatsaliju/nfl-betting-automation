@@ -1,6 +1,7 @@
 import { teamLogos } from "../data/nflData";
 import gameTimesData from "../data/gameTimes.json";
-import pickemRecordData from "../data/warpsPickemRecord.json";
+import trendsData from "../data/teamTrends.json";
+import { TopPicksPanel } from "./TopPicksPanel";
 import type { EngineFeed, WarpsMarketOverlay } from "../types";
 import { betText, favoriteLine } from "../lib/betText";
 
@@ -59,6 +60,7 @@ interface PickemGame {
   classification: string | null;
   // WARPS
   warpsAwayWinProb: number | null;
+  marketAwayWinProb: number | null;
   warpsFairHomeSpread: number | null;
   warpsOverlaySide: string | null;   // "AWAY" | "HOME"
   warpsOverlayTeam: string | null;
@@ -196,6 +198,7 @@ function parseGame(
     modelPickMarket: (lat.pick_market as string) || null,
     classification: (lat.classification as string) || null,
     warpsAwayWinProb: toNum(warps?.away_win_prob),
+    marketAwayWinProb: toNum(warps?.away_ml_no_vig_prob),
     warpsFairHomeSpread: toNum(warps?.fair_home_spread),
     warpsOverlaySide: warps?.spread_overlay_side ?? null,
     warpsOverlayTeam: warps?.spread_overlay_team ?? null,
@@ -294,14 +297,13 @@ export function PickemView({
     slot.games.push(g);
   }
 
-  const pickemRecord = pickemRecordData as {
-    season: string;
-    season_record: { wins: number; losses: number };
-  };
-  const recWins = pickemRecord.season_record.wins;
-  const recLosses = pickemRecord.season_record.losses;
+  const favRecord = (trendsData as { season: number; league: { fav_su?: { w: number; l: number } } });
+  const recWins = favRecord.league.fav_su?.w ?? 0;
+  const recLosses = favRecord.league.fav_su?.l ?? 0;
   const recTotal = recWins + recLosses;
   const recPct = recTotal > 0 ? Math.round((recWins / recTotal) * 100) : 0;
+  // WARPS spread leans only beat the closing line in Weeks 1-5 (55% vs 49.8% after, 2015-2025).
+  const warpsSpreadLive = Number(ctx.week) <= 5;
 
   return (
     <section className="pickem-view">
@@ -310,14 +312,16 @@ export function PickemView({
           <h2>Pick'em — {ctx.season_type} Week {ctx.week}</h2>
           {recTotal > 0 && (
             <div className="pk-season-record">
-              <span className="pk-record-label">{pickemRecord.season}</span>
+              <span className="pk-record-label">Favorites {favRecord.season}</span>
               <span className="pk-record-wl">{recWins}–{recLosses}</span>
               <span className="pk-record-pct">{recPct}%</span>
             </div>
           )}
         </div>
-        <p>SU picks from Vegas spreads · WARPS fair value · implied totals from O/U + spread</p>
+        <p>Winner = Vegas favorite (66% historically, better than WARPS's 63%) · WARPS shown when it disagrees · implied totals from O/U + spread</p>
       </div>
+
+      <TopPicksPanel week={Number(ctx.week)} />
 
       <div className="pickem-tiebreakers">
         <div className="pickem-tb most">
@@ -366,10 +370,18 @@ export function PickemView({
               const tag = classTag(g.classification);
 
               const awayPct = g.warpsAwayWinProb !== null ? Math.round(g.warpsAwayWinProb * 100) : null;
-              // SU pick follows WARPS win probability, which can disagree with the Vegas favorite.
-              const suPickTla = awayPct !== null ? (awayPct >= 50 ? g.awayTla : g.homeTla) : g.favTla;
-              const suPickPct = awayPct !== null && suPickTla ? (suPickTla === g.awayTla ? awayPct : 100 - awayPct) : null;
+              const warpsSuTla = awayPct !== null ? (awayPct >= 50 ? g.awayTla : g.homeTla) : null;
+              const warpsSuPct = warpsSuTla ? (warpsSuTla === g.awayTla ? awayPct : 100 - (awayPct as number)) : null;
+              // Winner pick = Vegas favorite (market beats WARPS straight up, 66% vs 63% 2015-2025);
+              // WARPS only when there is no line yet.
+              const suPickTla = g.favTla ?? warpsSuTla;
+              const suFromMarket = !!g.favTla;
+              const marketAwayPct = g.marketAwayWinProb !== null ? Math.round(g.marketAwayWinProb * 100) : null;
+              const suPickPct = suFromMarket
+                ? (marketAwayPct !== null ? (suPickTla === g.awayTla ? marketAwayPct : 100 - marketAwayPct) : null)
+                : warpsSuPct;
               const suTier = suConfidence(suPickPct);
+              const warpsDissent = suFromMarket && warpsSuTla && warpsSuTla !== suPickTla ? `${warpsSuTla} ${warpsSuPct}%` : null;
 
               const spreadPickTla = g.warpsOverlayTeam;
               const spreadPickSide = g.warpsOverlaySide;
@@ -379,7 +391,7 @@ export function PickemView({
               const warpsLine = favoriteLine(g.warpsFairHomeSpread, g.awayTla, g.homeTla);
               const vegasLine = favoriteLine(g.homeSpread ?? (g.awaySpread !== null ? -g.awaySpread : null), g.awayTla, g.homeTla);
               // Under a point of edge, WARPS's "side" is noise; don't present it as a pick.
-              const spreadTossUp = g.warpsOverlayEdge !== null && Math.abs(g.warpsOverlayEdge) < 1;
+              const spreadTossUp = !warpsSpreadLive || (g.warpsOverlayEdge !== null && Math.abs(g.warpsOverlayEdge) < 1);
               const splitPick = !!spreadPickTla && !!suPickTla && spreadPickTla !== suPickTla && spreadMktLine !== null && !spreadTossUp;
 
               const engineBet = g.modelPickMarket === "spread" && myPick
@@ -477,7 +489,10 @@ export function PickemView({
                             {suPickTla && <img src={teamLogos[suPickTla]} alt="" className="pk-row-logo" />}
                             <strong>{suPickTla ?? "—"}</strong>
                           </div>
-                          {suPickPct !== null && <span className="pk-row-detail">{suPickPct}% to win</span>}
+                          <span className="pk-row-detail">
+                            {suFromMarket ? `Vegas favorite${suPickPct !== null ? ` · ${suPickPct}% to win` : ""}` : `WARPS · ${suPickPct}% to win (no line yet)`}
+                          </span>
+                          {warpsDissent && <span className="pk-row-detail pk-dissent">WARPS dissent: {warpsDissent}</span>}
                         </div>
                         {suTier && <span className={`pk-confidence pk-conf-${suTier}`}>{suTier}</span>}
                       </div>
@@ -487,9 +502,10 @@ export function PickemView({
                         <div className="pk-row-main">
                           {spreadPickTla && spreadTossUp ? (
                             <>
-                              <div className="pk-row-pick"><strong>Toss-up</strong></div>
+                              <div className="pk-row-pick"><strong>{warpsSpreadLive ? "Toss-up" : "No model lean"}</strong></div>
                               <span className="pk-row-detail">
-                                {warpsLine ? `WARPS line ${warpsLine}` : "WARPS"}{vegasLine ? ` vs Vegas ${vegasLine}` : ""} · no real edge
+                                {warpsLine ? `WARPS line ${warpsLine}` : "WARPS"}{vegasLine ? ` vs Vegas ${vegasLine}` : ""}
+                                {warpsSpreadLive ? " · no real edge" : " · WARPS spread leans only hold up in Weeks\u00a01\u20115"}
                               </span>
                             </>
                           ) : spreadPickTla ? (
@@ -541,7 +557,7 @@ export function PickemView({
                       </p>
                     )}
                     {engineBet && (
-                      <div className="pk-engine">Betting engine: <strong>{engineBet}</strong>{spreadTossUp && enginePickTla ? " · WARPS sees no edge here" : ""}</div>
+                      <div className="pk-engine">Betting engine: <strong>{engineBet}</strong>{spreadTossUp && enginePickTla && warpsSpreadLive ? " · WARPS sees no edge here" : ""}</div>
                     )}
                   </div>
                 </div>
