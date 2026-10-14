@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { teamLogos } from "../data/nflData";
 import gameTimesData from "../data/gameTimes.json";
 import trendsData from "../data/teamTrends.json";
@@ -206,6 +207,17 @@ function parseGame(
   };
 }
 
+type PickemTab = "games" | "contest";
+
+function initialTab(): PickemTab {
+  try {
+    if (window.location.hash === "#contest") return "contest";
+    return localStorage.getItem("pickem-tab") === "contest" ? "contest" : "games";
+  } catch {
+    return "games";
+  }
+}
+
 export function PickemView({
   feed,
   warpsRows,
@@ -213,6 +225,11 @@ export function PickemView({
   feed: EngineFeed | null;
   warpsRows: WarpsMarketOverlay[];
 }) {
+  const [tab, setTabState] = useState<PickemTab>(initialTab);
+  const setTab = (t: PickemTab) => {
+    setTabState(t);
+    try { localStorage.setItem("pickem-tab", t); } catch { /* per-visit only */ }
+  };
   if (!feed) return <div className="pickem-empty">Loading engine feed…</div>;
 
   const ctx = feed.current_context;
@@ -321,8 +338,15 @@ export function PickemView({
         <p>Winner = Vegas favorite (66% historically, better than WARPS's 63%) · WARPS shown when it disagrees · implied totals from O/U + spread</p>
       </div>
 
-      <TopPicksPanel week={Number(ctx.week)} />
+      <div className="pk-tabs" role="tablist">
+        <button role="tab" aria-selected={tab === "games"} className={tab === "games" ? "pk-tab active" : "pk-tab"} onClick={() => setTab("games")}>Games</button>
+        <button role="tab" aria-selected={tab === "contest"} className={tab === "contest" ? "pk-tab active" : "pk-tab"} onClick={() => setTab("contest")}>Contest</button>
+      </div>
 
+      {tab === "contest" ? (
+        <TopPicksPanel week={Number(ctx.week)} />
+      ) : (
+      <>
       <div className="pickem-tiebreakers">
         <div className="pickem-tb most">
           <span className="tb-label">Most Points</span>
@@ -583,6 +607,8 @@ export function PickemView({
           ))}
         </div>
       </div>
+      </>
+      )}
     </section>
   );
 }

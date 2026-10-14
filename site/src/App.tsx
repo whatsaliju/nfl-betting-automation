@@ -51,6 +51,7 @@ function cardForContext(card?: WeeklyBettingCard, context?: CurrentContext): Wee
 function hashToView(): AppViewMode {
   const h = window.location.hash.replace("#", "") as AppViewMode;
   if (!h) return "overview";
+  if ((h as string) === "contest") return "pickem"; // Pick'em opens its Contest tab
   return VALID_VIEWS.has(h) ? h : "overview";
 }
 
