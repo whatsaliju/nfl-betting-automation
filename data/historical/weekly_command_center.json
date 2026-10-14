@@ -7,34 +7,388 @@
     "week": "6",
     "week_label": "W6",
     "stage": null,
-    "status": "LIVE_GAMES_NO_CARD",
+    "status": "LIVE_CARD",
     "mode": "live",
-    "has_betting_card": false,
+    "has_betting_card": true,
     "message": "Current active engine context from current_week.json."
   },
   "decision_mode": "live",
-  "recommended_action": "NO BET - DATA INCOMPLETE",
-  "confidence_tier": "X",
-  "action_reason": "Live betting inputs are not published for this context.",
+  "recommended_action": "WATCH",
+  "confidence_tier": "C",
+  "action_reason": "No plays cleared, but watchlist spots exist.",
   "source_gates": {
-    "live_betting_card": "BLOCKED",
+    "live_betting_card": "PASS",
     "preseason_dry_run": "PASS",
     "warps_priors": "PASS",
     "survivor_recommendations": "PASS"
   },
-  "do_nothing_warning": true,
-  "warnings": [
-    "No live betting card is published for the current context.",
-    "No actionable betting plays or watchlist spots are active."
-  ],
+  "do_nothing_warning": false,
+  "warnings": [],
   "betting_card": {
-    "available": false,
+    "available": true,
     "plays": 0,
-    "watch": 0,
-    "passes": 0,
-    "top_cards": []
+    "watch": 1,
+    "passes": 13,
+    "top_cards": [
+      {
+        "key": "2026:6:BUF@LV",
+        "season": 2026,
+        "season_type": "REG",
+        "week": "6",
+        "matchup_key": "BUF@LV",
+        "away_tla": "BUF",
+        "home_tla": "LV",
+        "action": "watch",
+        "market": "spread",
+        "side": "HOME",
+        "pick_label": "LV +4.5",
+        "confidence": "watch",
+        "selector_score": 4.0,
+        "classification": "\ud83c\udfaf TARGETED PLAY",
+        "recommendation": "\ud83c\udfaf TARGETED PLAY: Las Vegas Raiders +4.5",
+        "required_line": "Prefer HOME at a better number than WARPS fair +2.4",
+        "current_line": "-4.5 (-104) | +4.5 (+106)",
+        "warps_alignment": "aligned",
+        "warps_side": "HOME",
+        "source_health": "DEGRADED",
+        "data_quality": "DEGRADED",
+        "quality_gate": null,
+        "main_reasons": [
+          "\ud83c\udfaf TARGETED PLAY: Las Vegas Raiders +4.5"
+        ],
+        "risk_flags": [
+          "source warning DEGRADED"
+        ],
+        "market_status": "playable",
+        "spread_status": "playable",
+        "total_status": "lean",
+        "moneyline_status": "research_only",
+        "moneyline_promotion_status": "not_promoted",
+        "route_selected_market": "spread",
+        "route_reason": "spread routed as best available market with status playable; WARPS agrees",
+        "market_options": [
+          {
+            "market": "spread",
+            "side": "HOME",
+            "status": "playable",
+            "score": 4.0,
+            "threshold": 3.0,
+            "blockers": [],
+            "signals": [
+              {
+                "impact": 3,
+                "score": -3,
+                "side": "HOME",
+                "source": "sharp",
+                "status": "aligned"
+              },
+              {
+                "impact": 1,
+                "score": 1,
+                "side": "HOME",
+                "source": "team_rating",
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "warps_alignment": "aligned",
+            "warps_side": "HOME",
+            "warps_team": "LV",
+            "edge_value": 2.1
+          },
+          {
+            "market": "total",
+            "side": "OVER",
+            "status": "lean",
+            "score": 3.0,
+            "threshold": 4.0,
+            "blockers": [],
+            "signals": [
+              {
+                "impact": 3,
+                "score": 3,
+                "side": "OVER",
+                "source": "sharp",
+                "status": "aligned"
+              }
+            ],
+            "conflicts": [],
+            "warps_alignment": null,
+            "warps_side": null,
+            "warps_team": null,
+            "edge_value": null
+          },
+          {
+            "market": "moneyline",
+            "side": "HOME",
+            "status": "research_only",
+            "promotion_status": "not_promoted",
+            "score": 11.2,
+            "threshold": 5.0,
+            "blockers": [
+              "moneyline selector not promoted",
+              "underdog ML not predictive (32% win rate historically, all edge levels)"
+            ],
+            "signals": [],
+            "conflicts": [],
+            "warps_alignment": "research_only",
+            "warps_side": "HOME",
+            "warps_team": "LV",
+            "edge_value": 0.3542
+          }
+        ],
+        "referee": "Shawn Smith",
+        "referee_stats": {
+          "su_record": "29-12",
+          "su_pct": 70.7,
+          "ats_record": "17-22-2",
+          "ats_pct": 43.6,
+          "ou_record": "21-20",
+          "ou_pct": 51.2,
+          "sample_size": 41,
+          "game_type": "C",
+          "favorite": "AF"
+        }
+      }
+    ]
   },
-  "best_edges": [],
+  "best_edges": [
+    {
+      "season": 2026,
+      "season_type": "REG",
+      "week": "6",
+      "matchup_key": "BUF@LV",
+      "game": "Buffalo Bills @ Las Vegas Raiders",
+      "away_team": "Buffalo Bills",
+      "home_team": "Las Vegas Raiders",
+      "away_tla": "BUF",
+      "home_tla": "LV",
+      "stage": "initial",
+      "analysis_available": true,
+      "best_edge": {
+        "market": "spread",
+        "side": "HOME",
+        "score": 4.0,
+        "label": "\ud83c\udfaf TARGETED PLAY",
+        "recommendation": "\ud83c\udfaf TARGETED PLAY: Las Vegas Raiders +4.5",
+        "status": "play"
+      },
+      "markets": {
+        "spread": {
+          "market": "spread",
+          "side": "HOME",
+          "score": 4.0,
+          "threshold": 3.0,
+          "cleared_threshold": true,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 3,
+              "score": -3,
+              "side": "HOME",
+              "source": "sharp",
+              "status": "aligned"
+            },
+            {
+              "impact": 1,
+              "score": 1,
+              "side": "HOME",
+              "source": "team_rating",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp spread edge",
+            "team-rating edge aligns"
+          ],
+          "status": "playable",
+          "line": "-4.5 (-104) | +4.5 (+106)"
+        },
+        "total": {
+          "market": "total",
+          "side": "OVER",
+          "score": 3.0,
+          "threshold": 4.0,
+          "cleared_threshold": false,
+          "blocked": false,
+          "blockers": [],
+          "signals": [
+            {
+              "impact": 3,
+              "score": 3,
+              "side": "OVER",
+              "source": "sharp",
+              "status": "aligned"
+            }
+          ],
+          "conflicts": [],
+          "reasons": [
+            "sharp total edge"
+          ],
+          "status": "lean",
+          "line": "o52.5 (-111) | u52.5 (+111)"
+        },
+        "moneyline": {
+          "market": "moneyline",
+          "side": "HOME",
+          "score": 11.2,
+          "threshold": 5.0,
+          "cleared_threshold": false,
+          "status": "blocked",
+          "promotion_status": "not_promoted",
+          "blockers": [
+            "underdog ML not predictive (32% win rate historically, all edge levels)"
+          ],
+          "line": "-217 | +217",
+          "reason": "WARPS ML EV"
+        }
+      },
+      "referee": "Shawn Smith",
+      "referee_stats": {
+        "su_record": "29-12",
+        "su_pct": 70.7,
+        "ats_record": "17-22-2",
+        "ats_pct": 43.6,
+        "ou_record": "21-20",
+        "ou_pct": 51.2,
+        "sample_size": 41,
+        "game_type": "C",
+        "favorite": "AF"
+      },
+      "factor_summary": [
+        {
+          "market": "spread",
+          "source": "sharp",
+          "side": "HOME",
+          "impact": 3,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "team_rating",
+          "side": "HOME",
+          "impact": 1,
+          "status": "aligned"
+        },
+        {
+          "market": "total",
+          "source": "sharp",
+          "side": "OVER",
+          "impact": 3,
+          "status": "aligned"
+        },
+        {
+          "market": "spread",
+          "source": "WARPS fair-line prior",
+          "side": "HOME",
+          "impact": 2.1,
+          "status": "aligned"
+        }
+      ],
+      "warps_market_overlay": {
+        "available": true,
+        "status": "priced",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
+        "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
+        "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
+        "away_tla": "BUF",
+        "home_tla": "LV",
+        "away_warps_wins": 10.14,
+        "home_warps_wins": 6.58,
+        "fair_home_spread": 2.4,
+        "fair_away_spread": -2.4,
+        "home_win_prob": 0.4272,
+        "away_win_prob": 0.5728,
+        "home_fair_moneyline": "+134",
+        "away_fair_moneyline": "-134",
+        "market_home_spread": 4.5,
+        "market_away_spread": -4.5,
+        "market_home_moneyline": 217.0,
+        "market_away_moneyline": -217.0,
+        "spread_side": "HOME",
+        "spread_team": "LV",
+        "spread_edge_points": 2.1,
+        "spread_pick_alignment": "aligned",
+        "fair_spread_side": "AWAY",
+        "ml_side": "HOME",
+        "ml_team": "LV",
+        "ml_edge_prob": 0.1117,
+        "ml_ev": 0.3542,
+        "ml_pick_alignment": "research_only"
+      },
+      "schedule_context": {
+        "division_game": false,
+        "conference_game": true,
+        "away_division": "AFC East",
+        "home_division": "AFC West"
+      },
+      "expectation_context": {
+        "away_team": "BUF",
+        "home_team": "LV",
+        "away": {
+          "team": "BUF",
+          "conference": "AFC",
+          "division": "AFC East",
+          "games_tracked": 7,
+          "actual_wins": 4,
+          "actual_losses": 1,
+          "points_for": 164.0,
+          "points_against": 141.0,
+          "vegas_win_total": 10.5,
+          "actual_win_pct": 0.5714,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.5886,
+          "pythagorean_wins_tracked": 4.12,
+          "pythagorean_wins_17_game_pace": 10.01,
+          "actual_vs_pythagorean": -0.12,
+          "pythagorean_pace_vs_vegas": -0.49,
+          "actual_pace_vs_vegas": -0.79,
+          "expectation_band": "in_line"
+        },
+        "home": {
+          "team": "LV",
+          "conference": "AFC",
+          "division": "AFC West",
+          "games_tracked": 7,
+          "actual_wins": 3,
+          "actual_losses": 2,
+          "points_for": 132.0,
+          "points_against": 129.0,
+          "vegas_win_total": 5.5,
+          "actual_win_pct": 0.4286,
+          "pythagorean_exponent": 2.37,
+          "pythagorean_win_pct": 0.5136,
+          "pythagorean_wins_tracked": 3.6,
+          "pythagorean_wins_17_game_pace": 8.73,
+          "actual_vs_pythagorean": -0.6,
+          "pythagorean_pace_vs_vegas": 3.23,
+          "actual_pace_vs_vegas": 1.79,
+          "expectation_band": "in_line"
+        },
+        "games_tracked_min": 7,
+        "pythagorean_wins_delta": 1.28,
+        "vegas_win_total_delta": 5.0,
+        "pythagorean_vs_vegas_delta": -3.72,
+        "actual_vs_pythagorean_delta": 0.48,
+        "pythagorean_side": "AWAY",
+        "market_expectation_side": "AWAY",
+        "value_gap_side": "HOME",
+        "overperformance_side": "NEUTRAL",
+        "sample_warning": false
+      },
+      "source_health_status": "DEGRADED",
+      "data_quality_status": "DEGRADED",
+      "result": {
+        "away_score": 0,
+        "home_score": 0,
+        "final_margin": 0,
+        "final_total": 0
+      },
+      "explanation": null
+    }
+  ],
   "survivor": {
     "available": true,
     "week": 6,
@@ -533,6 +887,6 @@
       "checks_passed": 14,
       "next_live_command": "python3 builders/build_week_master_table.py --season 2026 --week 1 --season-type PRE"
     },
-    "card_available": false
+    "card_available": true
   }
 }
