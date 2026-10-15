@@ -17,24 +17,29 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 1
-- Passes: 13
+- Watch: 10
+- Passes: 4
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | BUF@LV | watch | spread | HOME | 4.0 |
+| WAS@SF | watch | n/a | n/a | 4.0 |
+| ARI@LAR | watch | n/a | n/a | 3.0 |
+| CAR@PHI | watch | n/a | n/a | 3.0 |
+| NO@NYG | watch | n/a | n/a | 3.0 |
+| CHI@ATL | watch | n/a | n/a | 2.0 |
 
 ## Survivor
 
-- Primary: LAR vs ARI (80.9%)
+- Primary: SF vs WAS (73.7%)
 - Safest: LAR vs ARI (80.9%)
 - Path pick: LAR vs ARI (80.9%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | LAR vs ARI (80.9%) | LAR vs ARI (80.9%) | LAR vs ARI (80.9%) |
-| 100 | LAR vs ARI (80.9%) | LAR vs ARI (80.9%) | LAR vs ARI (80.9%) |
-| 500 | LAR vs ARI (80.9%) | SF vs WAS (74.0%) | SF vs WAS (74.0%) |
+| 25 | SF vs WAS (73.7%) | LAR vs ARI (80.9%) | LAR vs ARI (80.9%) |
+| 100 | SF vs WAS (73.7%) | LAR vs ARI (80.9%) | SF vs WAS (73.7%) |
+| 500 | SF vs WAS (73.7%) | SF vs WAS (73.7%) | SF vs WAS (73.7%) |
 
 ## WARPS Watch
 
@@ -45,4 +50,4 @@
 | NE | vs NYJ | 69.4% | -227 |
 | IND | vs TEN | 69.4% | -227 |
 | KC | vs LAC | 68.0% | -213 |
-| JAX | vs HOU | 62.4% | -166 |
+| NYG | vs NO | 59.8% | -149 |
