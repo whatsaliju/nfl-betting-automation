@@ -7,10 +7,12 @@
 | W2 GB@NYJ | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward AWAY |
 | W2 SEA@ARI | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp, team_rating; WARPS fair-line prior conflicts toward AWAY |
 | W4 GB@TB | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp, team_rating, injury; Value-gap alignment supports the side; WARPS fair-line prior agrees with the spread side |
+| W6 NO@NYG | play | play | total | OVER | standard | Selector isolated total OVER; Signals: sharp, ref_weather_context; WARPS moneyline overlay: HOME +20.8% EV |
 | W2 JAX@DEN | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior agrees with the spread side |
 | W2 WAS@DAL | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment conflicts with the side; WARPS fair-line prior conflicts toward HOME |
 | W3 CIN@PIT | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; WARPS fair-line prior conflicts toward HOME; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| W6 BUF@LV | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior agrees with the spread side (+2.1 pts); WARPS moneyline overlay: HOME +31.6% EV |
+| W6 CAR@PHI | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME; WARPS moneyline overlay: HOME +49.3% EV |
+| W6 LAC@KC | play | play | total | OVER | standard | Selector isolated total OVER; Signals: sharp, ref_weather_context; WARPS moneyline overlay: AWAY +48.7% EV |
 | WPRE1 DEN@ATL | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Value-gap alignment conflicts with the side; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 GB@PIT | play | play | spread | HOME | standard | Selector isolated spread HOME; Value-gap alignment supports the side; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE3 SEA@KC | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp; Value-gap alignment conflicts with the side; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
@@ -18,7 +20,6 @@
 | WPRE3 ATL@MIA | pass | pass |  |  | none | No isolated selector edge |
 | W4 ARI@NYG | pass | pass |  |  | none | No isolated selector edge |
 | W4 KC@LV | pass | pass |  |  | none | No isolated selector edge |
-| W6 WAS@SF | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +26.6% EV |
 | WPRE2 KC@TB | pass | pass |  |  | none | No isolated selector edge |
 | WPRE3 CHI@TEN | pass | pass |  |  | none | No isolated selector edge |
 | W1 ATL@PIT | lean | watch |  |  | watch | Signals: sharp |
@@ -37,10 +38,7 @@
 | W4 LAC@SEA | pass | pass |  |  | none | No isolated selector edge |
 | W5 CIN@MIA | lean | watch |  |  | watch | Signals: sharp, team_rating |
 | W5 PHI@JAX | lean | watch |  |  | watch | Signals: injury |
-| W6 ARI@LAR | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +138.4% EV |
-| W6 CAR@PHI | lean | watch |  |  | watch | Signals: team_rating; WARPS moneyline overlay: HOME +60.4% EV |
-| W6 NO@NYG | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: HOME +23.2% EV |
-| W6 TEN@IND | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +19.8% EV |
+| W6 WAS@SF | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +31.2% EV |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | No isolated selector edge |
 | W1 DEN@KC | lean | watch |  |  | watch | Signals: sharp |
@@ -53,8 +51,6 @@
 | W5 HOU@TEN | lean | watch |  |  | watch | Signals: team_rating |
 | W5 NYG@WAS | lean | watch |  |  | watch | Signals: sharp, injury |
 | W5 SF@SEA | lean | watch |  |  | watch | Signals: team_rating |
-| W6 CHI@ATL | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +6.2% EV |
-| W6 HOU@JAX | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +0.2% EV |
 | W10 ARI@SEA | lean | watch |  |  | watch | Signals: injury; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W10 BUF@MIA | lean | watch |  |  | watch | Signals: injury; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 NYJ@PIT | pass | pass |  |  | none | No isolated selector edge |
@@ -63,6 +59,7 @@
 | W3 BAL@DAL | lean | watch |  |  | watch | Signals: sharp; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W5 CLE@NYJ | lean | watch |  |  | watch | Signals: sharp, injury |
 | W5 DET@ARI | lean | watch |  |  | watch | Signals: sharp |
+| W6 BAL@CLE | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +14.6% EV |
 | WPRE1 ARI@LV | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 CAR@BUF | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 CLE@CHI | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
@@ -82,3 +79,6 @@
 | WPRE2 CAR@JAX | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 CHI@CIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 GB@DEN | pass | pass |  |  | none | No isolated selector edge |
+| WPRE2 LV@HOU | pass | pass |  |  | none | No isolated selector edge |
+| WPRE2 NO@LAR | pass | pass |  |  | none | No isolated selector edge |
+| WPRE2 NYG@MIA | pass | pass |  |  | none | No isolated selector edge |

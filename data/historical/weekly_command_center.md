@@ -22,23 +22,23 @@
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| BUF@LV | watch | spread | HOME | 4.0 |
-| WAS@SF | watch | n/a | n/a | 4.0 |
-| ARI@LAR | watch | n/a | n/a | 3.0 |
-| CAR@PHI | watch | n/a | n/a | 3.0 |
-| NO@NYG | watch | n/a | n/a | 3.0 |
-| CHI@ATL | watch | n/a | n/a | 2.0 |
+| NO@NYG | watch | total | OVER | 5.0 |
+| CAR@PHI | watch | spread | AWAY | 4.0 |
+| LAC@KC | watch | total | OVER | 4.0 |
+| WAS@SF | watch | n/a | n/a | 3.0 |
+| ARI@LAR | watch | n/a | n/a | n/a |
+| BUF@LV | watch | n/a | n/a | n/a |
 
 ## Survivor
 
 - Primary: SF vs WAS (73.7%)
-- Safest: LAR vs ARI (80.9%)
-- Path pick: LAR vs ARI (80.9%)
+- Safest: LAR vs ARI (79.9%)
+- Path pick: LAR vs ARI (79.9%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | SF vs WAS (73.7%) | LAR vs ARI (80.9%) | LAR vs ARI (80.9%) |
-| 100 | SF vs WAS (73.7%) | LAR vs ARI (80.9%) | SF vs WAS (73.7%) |
+| 25 | SF vs WAS (73.7%) | LAR vs ARI (79.9%) | LAR vs ARI (79.9%) |
+| 100 | SF vs WAS (73.7%) | SF vs WAS (73.7%) | SF vs WAS (73.7%) |
 | 500 | SF vs WAS (73.7%) | SF vs WAS (73.7%) | SF vs WAS (73.7%) |
 
 ## WARPS Watch
