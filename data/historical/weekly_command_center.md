@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W6 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Recommended action: **PLAY**
+- Confidence tier: **A**
+- Reason: At least one selector play cleared the current command gate.
 
 ## Source Gates
 
@@ -16,30 +16,30 @@
 
 ## Betting Card
 
-- Plays: 0
-- Watch: 10
-- Passes: 4
+- Plays: 1
+- Watch: 5
+- Passes: 8
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| NO@NYG | watch | total | OVER | 5.0 |
+| NO@NYG | play | total | OVER | 5.0 |
 | CAR@PHI | watch | spread | AWAY | 4.0 |
-| LAC@KC | watch | total | OVER | 4.0 |
 | WAS@SF | watch | n/a | n/a | 3.0 |
-| ARI@LAR | watch | n/a | n/a | n/a |
-| BUF@LV | watch | n/a | n/a | n/a |
+| BAL@CLE | watch | n/a | n/a | 1.0 |
+| LAC@KC | watch | n/a | n/a | n/a |
+| PIT@TB | watch | n/a | n/a | n/a |
 
 ## Survivor
 
-- Primary: SF vs WAS (73.7%)
-- Safest: LAR vs ARI (79.9%)
-- Path pick: LAR vs ARI (79.9%)
+- Primary: SF vs WAS (74.4%)
+- Safest: LAR vs ARI (80.3%)
+- Path pick: SF vs WAS (74.4%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | SF vs WAS (73.7%) | LAR vs ARI (79.9%) | LAR vs ARI (79.9%) |
-| 100 | SF vs WAS (73.7%) | SF vs WAS (73.7%) | SF vs WAS (73.7%) |
-| 500 | SF vs WAS (73.7%) | SF vs WAS (73.7%) | SF vs WAS (73.7%) |
+| 25 | SF vs WAS (74.4%) | LAR vs ARI (80.3%) | LAR vs ARI (80.3%) |
+| 100 | SF vs WAS (74.4%) | LAR vs ARI (80.3%) | LAR vs ARI (80.3%) |
+| 500 | SF vs WAS (74.4%) | SF vs WAS (74.4%) | SF vs WAS (74.4%) |
 
 ## WARPS Watch
 
