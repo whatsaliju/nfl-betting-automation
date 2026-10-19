@@ -12,6 +12,11 @@ on:
     - cron: '0 18 * 8-12,1-2 4'
     # Sunday 1:00 AM UTC (Sat 9pm ET) - update: Saturday night line snapshot
     - cron: '0 1 * 8-12,1-2 0'
+    # Sunday 11:00 / 13:00 UTC (7am / 9am ET) - backups for the scheduled-task runs: GitHub
+    # starts these 2-3h late, so they still land before the 1pm ET kickoffs. The gate job
+    # skips them when a dispatched run already started in the last 8 hours.
+    - cron: '0 11 * 8-12,1-2 0'
+    - cron: '0 13 * 8-12,1-2 0'
     # Sunday 4:30 PM UTC (Sun 12:30pm ET) - final: game-day check before early kickoffs
     - cron: '30 16 * 8-12,1-2 0'
     # Monday 10:00 PM UTC (Mon 6pm ET) - pre_mnf: snapshot before Monday Night Football (~8:15pm ET)

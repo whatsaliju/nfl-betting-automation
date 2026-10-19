@@ -3,6 +3,7 @@ import json
 import os
 import re
 import smtplib
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -51,6 +52,19 @@ overlay_week = [r for r in overlay_rows if str(r.get("week")) == cur_week_str]
 def _norm_mk(mk):
     return mk.replace("WSH", "WAS")
 overlay_by_mk = {_norm_mk(r["matchup_key"]): r for r in overlay_week}
+
+# Leave out games that have kicked off: they can't be bet, and a late run would otherwise email them.
+kickoffs = {}
+try:
+    with open(f"data/historical/week{cur_week_str}_master.json") as f:
+        for g in json.load(f):
+            if g.get("kickoff_utc"):
+                kickoffs[_norm_mk(g["matchup_key"])] = datetime.fromisoformat(g["kickoff_utc"].replace("Z", "+00:00"))
+except (FileNotFoundError, json.JSONDecodeError, ValueError):
+    pass
+_now = datetime.now(timezone.utc)
+started = [c for c in cards if kickoffs.get(_norm_mk(c.get("matchup_key", "")), _now) < _now]
+cards = [c for c in cards if c not in started]
 
 plays   = [c for c in cards if c.get("action") == "play"]
 watches = [c for c in cards if c.get("action") in ("watch", "lean")]
@@ -282,6 +296,10 @@ def build_pickem_section():
 pickem_section = build_pickem_section()
 
 # ── Build sections ────────────────────────────────────────────────────────────
+started_note = (
+    f"<p style='color:#6b7280;font-size:13px;margin:6px 0 10px;'>{len(started)} game{'s' if len(started) != 1 else ''} "
+    f"already kicked off and {'are' if len(started) != 1 else 'is'} left out.</p>"
+) if started else ""
 plays_html = "".join(render_card(c) for c in plays) if plays else (
     "<p style='color:#9ca3af;font-size:14px;margin:8px 0;'>No plays this week.</p>"
 )
@@ -358,6 +376,7 @@ body = f"""<html>
     <h2 style="font-size:16px;color:#111827;border-bottom:2px solid #e5e7eb;padding-bottom:8px;margin:0 0 4px;">
       Plays &nbsp;<span style="color:#16a34a;font-weight:400;">{len(plays)}</span>
     </h2>
+    {started_note}
     {plays_html}
     {watch_section}
     {pass_section}
