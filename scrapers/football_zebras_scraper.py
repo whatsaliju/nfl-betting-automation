@@ -340,11 +340,13 @@ def _build_url_candidates(week, year: int) -> list[str]:
     return candidates
 
 
-def scrape_week_referees(week, year=None) -> pd.DataFrame:
+def scrape_week_referees(week, year=None, strict=False) -> pd.DataFrame:
     """
     Scrape referee assignments from Football Zebras.
     week: int (1-18) or label (PRE1/PRE2/PRE3/WC/DIV/CONF/SB)
     year: NFL season year; defaults to current calendar year.
+    strict: only accept this week's own assignments page. The category fallback
+            matches by date and can return last week's crews before this week posts.
     """
     year = _get_year(year)
     print(f"Fetching week {week} ({year}) referee assignments from Football Zebras...")
@@ -365,6 +367,10 @@ def scrape_week_referees(week, year=None) -> pd.DataFrame:
             print("  ⚠️  Page found but no assignment_list — continuing")
         except requests.exceptions.RequestException as e:
             print(f"  ❌ {e}")
+
+    if strict:
+        print(f"⚠️  Week {week} assignments page not posted yet")
+        return pd.DataFrame()
 
     # ── Step 2: Try category page discovery (covers any week type) ──────────────
     print("  Falling back to /category/assignments/ discovery...")
@@ -453,15 +459,16 @@ def parse_matchup(matchup: str):
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
-def save_referees(week, year=None, output_file=None) -> pd.DataFrame | None:
+def save_referees(week, year=None, output_file=None, strict=False) -> pd.DataFrame | None:
     """
     Scrape and save referee assignments to CSV.
     Tries Football Zebras (multi-game → archive discovery), then nflverse.
+    strict: Football Zebras' page for this week only, no fallbacks.
     """
     year = _get_year(year)
 
-    df = scrape_week_referees(week, year)
-    if df.empty:
+    df = scrape_week_referees(week, year, strict=strict)
+    if df.empty and not strict:
         df = scrape_nflverse_referees(week, year)
 
     if df.empty:
