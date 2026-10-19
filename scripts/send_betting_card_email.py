@@ -67,27 +67,39 @@ _now = datetime.now(timezone.utc)
 started = [c for c in cards if kickoffs.get(_norm_mk(c.get("matchup_key", "")), _now) < _now]
 cards = [c for c in cards if c not in started]
 
-# Email only at decision points; every other run just refreshes the site.
-#   Thu noon-8pm ET: contest lines are set (posted before 4pm), before TNF.
-#   Sun before 1pm ET: when a game kicks off within 2.5h (the 9:30 international game, or the 1pm slate).
+plays   = [c for c in cards if c.get("action") == "play"]
+watches = [c for c in cards if c.get("action") in ("watch", "lean")]
+passes  = [c for c in cards if c.get("action") == "pass"]
+
+# Email only when there's something to act on; every other run just refreshes the site.
+# Always:
+#   Thu noon-5pm ET: contest lines are set (posted before 4pm).
+#   Fri 4pm-midnight ET: after the final injury report (Out/Doubtful), a full day to bet and set lineups.
+#   Sun before 1pm ET when a game kicks off within 2.5h: after inactives for the 9:30 / 1pm games.
+# Only with a play on a game kicking off within 3h (after its inactives):
+#   Thu evening (TNF), Sun afternoon/evening (4pm window, SNF), Mon (MNF).
 # A manual run of Workflow 5 always sends.
+def _kicks_soon(mk_list, hours):
+    return any(_now < k < _now + timedelta(hours=hours) for k in (kickoffs.get(_norm_mk(m)) for m in mk_list) if k)
+
 def _decision_point():
     et = _now.astimezone(ZoneInfo("America/New_York"))
-    if et.weekday() == 3:
-        return 12 <= et.hour < 20
-    if et.weekday() == 6 and et.hour < 13:
+    day, hour = et.weekday(), et.hour
+    if day == 3 and 12 <= hour < 17:
+        return True
+    if day == 4 and hour >= 16:
+        return True
+    if day == 6 and hour < 13:
         if not kickoffs:  # no master kickoff times: fall back to the 1pm slate
-            return et.hour >= 10
+            return hour >= 10
         return any(_now < k < _now + timedelta(hours=2.5) for k in kickoffs.values())
+    if day in (0, 3, 6):
+        return _kicks_soon([c.get("matchup_key", "") for c in plays], 3)
     return False
 
 if os.getenv("FORCE_SEND") != "true" and not _decision_point():
     print("Not a decision point: site refreshed, no email sent.")
     raise SystemExit(0)
-
-plays   = [c for c in cards if c.get("action") == "play"]
-watches = [c for c in cards if c.get("action") in ("watch", "lean")]
-passes  = [c for c in cards if c.get("action") == "pass"]
 
 ctx_season     = ctx.get("season", "")
 ctx_week_label = ctx.get("week_label", f"Week {week}")
