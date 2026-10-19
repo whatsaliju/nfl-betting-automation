@@ -103,4 +103,6 @@ jobs:
           SUBJECT_PREFIX: ${{ steps.file_vars.outputs.subject_prefix }}
           INTRO_TEXT: ${{ steps.file_vars.outputs.intro_text }}
           FLIP_ALERT: ${{ steps.file_vars.outputs.flip_alert }}
+          # Pipeline runs email only Thu afternoon and Sunday pre-kickoff; a manual run always sends.
+          FORCE_SEND: ${{ github.event_name == 'workflow_dispatch' }}
         run: python3 scripts/send_betting_card_email.py
