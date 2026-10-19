@@ -88,7 +88,7 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 - **Win probability**: Pythagorean expectation — beats statistical baseline in 25 of 26 seasons.
 
 ## Workflow Chain (trigger order)
-1. **Wf 1** `1_referee_collection.yml` — Wed schedule → commits referee/SDQL data → fires `referee-data-ready`
+1. **Wf 1** `1_referee_collection.yml` — polls Tue 10a/2p/6p and Wed 9a/noon/3p ET for Football Zebras' own page for the week (strict, no date-matched fallback) → once found, commits referee/SDQL data → fires `referee-data-ready`; later runs stand down once `week{N}_referees.csv` has ≥10 rows; the Wed 3pm run allows fallbacks and starts the pipeline regardless. Refs posted by Tue evening in Weeks 1 and 4 of 2026.
 2. **Wf 2** `2_initial_market_data.yml` — `referee-data-ready` → scrapes Action Network → fires `initial-market-data`
 3. **Wf 3** `3_market_update.yml` — dispatched on time by Claude Code scheduled tasks "NFL market update — <day> <time> ET (<stage>)" (Tue 3:52p update, Wed 8:52a opening, Thu 3:22p pre_tnf, Sat 8:52p update, Sun 8:22a lock, Sun 11:52a final, Sun 3:07p update, Mon 5:52p pre_mnf; Aug–Feb; a full run takes ~5 min), which fire into the dev session and call workflow_dispatch; GitHub crons remain as a backup and skip if a dispatched run started in the last 3h (GitHub crons ran 2–8h late in 2026) → scrapes lines + lineups → fires `market-data-ready`
 4. **Wf 4.5** `4.5_enhanced_pro_workflow.yml` — `initial-market-data` or `market-data-ready` → runs engine → builds master JSON → **patches overlay CSV** → **rebuilds warpsMarketOverlay.json** → builds matrix feed → commits `data/` + `site/src/data/` → fires `analysis-complete`
