@@ -24,13 +24,23 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Skip if initial stage (nfl_reporter.py handles that email)
+      # The referee workflow runs up to three times on Wednesday, and each run reaches here
+      # with stage=initial. Only the first one each week sends the first-look email.
+      - name: Check first-look email for this week
+        id: first_look
+        if: github.event.client_payload.stage == 'initial'
+        uses: actions/cache/restore@v4
+        with:
+          path: .first-look-sent
+          key: first-look-${{ github.event.client_payload.season }}-wk${{ github.event.client_payload.week }}
+          lookup-only: true
+
+      - name: Skip repeat initial runs
         id: gate
         run: |
-          STAGE="${{ github.event.client_payload.stage }}"
-          if [ "$STAGE" = "initial" ]; then
+          if [ "${{ github.event.client_payload.stage }}" = "initial" ] && [ "${{ steps.first_look.outputs.cache-hit }}" = "true" ]; then
             echo "SKIP=true" >> $GITHUB_OUTPUT
-            echo "⏭️  SKIP: stage=initial — nfl_reporter.py already sent the opening email. This workflow only runs for update/final/pre_mnf stages."
+            echo "First-look email already sent for this week; skipping."
           else
             echo "SKIP=false" >> $GITHUB_OUTPUT
           fi
@@ -103,4 +113,17 @@ jobs:
           SUBJECT_PREFIX: ${{ steps.file_vars.outputs.subject_prefix }}
           INTRO_TEXT: ${{ steps.file_vars.outputs.intro_text }}
           FLIP_ALERT: ${{ steps.file_vars.outputs.flip_alert }}
+          # Pipeline runs email only Wed first look, Thu afternoon and Sunday pre-kickoff; a manual run always sends.
+          FORCE_SEND: ${{ github.event_name == 'workflow_dispatch' || github.event.client_payload.stage == 'initial' }}
         run: python3 scripts/send_betting_card_email.py
+
+      - name: Record first-look email
+        if: github.event.client_payload.stage == 'initial' && steps.gate.outputs.SKIP != 'true'
+        run: touch .first-look-sent
+
+      - name: Save first-look marker
+        if: github.event.client_payload.stage == 'initial' && steps.gate.outputs.SKIP != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .first-look-sent
+          key: first-look-${{ github.event.client_payload.season }}-wk${{ github.event.client_payload.week }}

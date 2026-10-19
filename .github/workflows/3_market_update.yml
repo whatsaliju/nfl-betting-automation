@@ -14,11 +14,11 @@ on:
     - cron: '0 1 * 8-12,1-2 0'
     # Sunday 11:00 / 13:00 UTC (7am / 9am ET) - backups for the scheduled-task runs: GitHub
     # starts these 2-3h late, so they still land before the 1pm ET kickoffs. The gate job
-    # skips them when a dispatched run already started in the last 8 hours.
+    # skips them when a dispatched run already started in the last 3 hours.
     - cron: '0 11 * 8-12,1-2 0'
     - cron: '0 13 * 8-12,1-2 0'
-    # Sunday 4:30 PM UTC (Sun 12:30pm ET) - final: game-day check before early kickoffs
-    - cron: '30 16 * 8-12,1-2 0'
+    # Sunday 3:30 PM UTC (Sun 11:30am ET) - final: backup for the 11:52am cut before 1pm kickoffs
+    - cron: '30 15 * 8-12,1-2 0'
     # Monday 10:00 PM UTC (Mon 6pm ET) - pre_mnf: snapshot before Monday Night Football (~8:15pm ET)
     - cron: '0 22 * 8-12,1-2 1'
   workflow_dispatch:
@@ -42,7 +42,7 @@ on:
 jobs:
   # GitHub's cron starts these runs hours late on game days. Claude Code scheduled
   # tasks dispatch them on time (ET slots, stage passed explicitly); the cron stays
-  # as a backup and stands down if a dispatched run already started in the last 8 hours.
+  # as a backup and stands down if a dispatched run already started in the last 3 hours.
   gate:
     runs-on: ubuntu-latest
     outputs:
@@ -57,8 +57,8 @@ jobs:
           fi
           RECENT=$(gh run list --repo "${{ github.repository }}" --workflow 3_market_update.yml \
             --event workflow_dispatch --limit 10 --json createdAt \
-            --jq '[.[] | select((now - (.createdAt | fromdateiso8601)) < 28800)] | length') || RECENT=0
-          echo "Dispatched runs in last 8h: $RECENT"
+            --jq '[.[] | select((now - (.createdAt | fromdateiso8601)) < 10800)] | length') || RECENT=0
+          echo "Dispatched runs in last 3h: $RECENT"
           if [ "${RECENT:-0}" -gt 0 ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
             echo "::notice::On-time scheduler already ran; skipping late cron run."
@@ -240,7 +240,7 @@ jobs:
               # Determine from schedule based on cron times
               # cron: '0 0 * * 5'   # Friday 12:00 AM UTC (Thu 7:00 PM ET)
               # cron: '0 1 * * 0'   # Sunday 1:00 AM UTC (Sat 8:00 PM ET)  
-              # cron: '30 16 * * 0' # Sunday 5:00 PM UTC (Sun 1:00 PM ET)
+              # cron: '30 15 * * 0' # Sunday 3:30 PM UTC (Sun 11:30 AM ET)
               
               if day_utc == 2 and hour_utc in (13, 14, 20):  # Wednesday 9 AM, 10 AM, or 4 PM ET
                   analysis_type_output = "opening"
@@ -251,9 +251,9 @@ jobs:
               elif day_utc == 6 and hour_utc == 1:   # Sunday 1:00 AM UTC = Sat 9 PM ET
                   analysis_type_output = "update"
                   print("📅 Detected: UPDATE analysis (Saturday 9 PM ET — pre-weekend games)")
-              elif day_utc == 6 and hour_utc == 16:  # Sunday 4:30 PM UTC = Sun 12:30 PM ET
+              elif day_utc == 6 and hour_utc in (15, 16):  # Sunday 3:30 PM UTC = Sun 11:30 AM ET
                   analysis_type_output = "final"
-                  print("📅 Detected: FINAL analysis (Sunday 12:30 PM ET — game-day before main slate)")
+                  print("📅 Detected: FINAL analysis (Sunday 11:30 AM ET — game-day before main slate)")
               elif day_utc == 1 and hour_utc == 22:  # Monday 10:00 PM UTC = Mon 6 PM ET
                   analysis_type_output = "pre_mnf"
                   print("📅 Detected: PRE-MNF analysis (Monday 6 PM ET — before Monday Night Football)")

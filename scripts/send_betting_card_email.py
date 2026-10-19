@@ -3,7 +3,8 @@ import json
 import os
 import re
 import smtplib
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -65,6 +66,24 @@ except (FileNotFoundError, json.JSONDecodeError, ValueError):
 _now = datetime.now(timezone.utc)
 started = [c for c in cards if kickoffs.get(_norm_mk(c.get("matchup_key", "")), _now) < _now]
 cards = [c for c in cards if c not in started]
+
+# Email only at decision points; every other run just refreshes the site.
+#   Thu noon-8pm ET: contest lines are set (posted before 4pm), before TNF.
+#   Sun before 1pm ET: when a game kicks off within 2.5h (the 9:30 international game, or the 1pm slate).
+# A manual run of Workflow 5 always sends.
+def _decision_point():
+    et = _now.astimezone(ZoneInfo("America/New_York"))
+    if et.weekday() == 3:
+        return 12 <= et.hour < 20
+    if et.weekday() == 6 and et.hour < 13:
+        if not kickoffs:  # no master kickoff times: fall back to the 1pm slate
+            return et.hour >= 10
+        return any(_now < k < _now + timedelta(hours=2.5) for k in kickoffs.values())
+    return False
+
+if os.getenv("FORCE_SEND") != "true" and not _decision_point():
+    print("Not a decision point: site refreshed, no email sent.")
+    raise SystemExit(0)
 
 plays   = [c for c in cards if c.get("action") == "play"]
 watches = [c for c in cards if c.get("action") in ("watch", "lean")]
