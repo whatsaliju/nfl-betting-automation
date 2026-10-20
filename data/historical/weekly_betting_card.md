@@ -1,22 +1,22 @@
 # Weekly Betting Card
 
-- Plays: 1
-- Watch: 5
-- Passes: 8
+- Plays: 0
+- Watch: 8
+- Passes: 6
 
 | Week | Game | Action | Market | Side | Confidence | Route | Reasons | Risk |
 |---:|---|---|---|---|---|---|---|---|
-| 6 | NO@NYG | play | total | OVER | standard | total routed as best available market with status playable | Selector isolated total OVER; Signals: sharp, ref_weather_context; WARPS moneyline overlay: HOME +20.8% EV |  |
-| 6 | CAR@PHI | watch | spread | AWAY | standard | spread routed as best available market with status playable; WARPS conflict keeps risk elevated | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME | WARPS spread conflict |
-| 6 | BAL@CLE | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +14.6% EV |  |
-| 6 | LAC@KC | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: AWAY +48.7% EV |  |
-| 6 | PIT@TB | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +20.1% EV |  |
-| 6 | WAS@SF | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +32.6% EV |  |
-| 6 | ARI@LAR | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 6 | BUF@LV | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 6 | CHI@ATL | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 6 | DAL@GB | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 6 | HOU@JAX | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 6 | NYJ@NE | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 6 | SEA@DEN | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 6 | TEN@IND | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 7 | DAL@PHI | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +69.8% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED | quality gate warn |
+| 7 | NYG@HOU | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +80.0% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED | quality gate warn |
+| 7 | CIN@BAL | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +4.8% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED | quality gate warn |
+| 7 | GB@DET | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: AWAY +2.0% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED | quality gate warn |
+| 7 | KC@SEA | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +3.9% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED | quality gate warn |
+| 7 | TB@CAR | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating; WARPS moneyline overlay: AWAY +11.2% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED | quality gate warn |
+| 7 | IND@MIN | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating; WARPS moneyline overlay: AWAY +28.0% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED | quality gate warn |
+| 7 | SF@ATL | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +21.4% EV; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED | quality gate warn |
+| 7 | CLE@TEN | pass |  |  | none | Blocked by risk/source flags: quality gate warn | Selector did not clear an actionable market threshold | quality gate warn |
+| 7 | DEN@ARI | pass |  |  | none | Blocked by risk/source flags: quality gate warn | Selector did not clear an actionable market threshold | quality gate warn |
+| 7 | LAR@LV | pass |  |  | none | Blocked by risk/source flags: quality gate warn | Selector did not clear an actionable market threshold | quality gate warn |
+| 7 | MIA@NYJ | pass |  |  | none | Blocked by risk/source flags: quality gate warn | Selector did not clear an actionable market threshold | quality gate warn |
+| 7 | NE@CHI | pass |  |  | none | Blocked by risk/source flags: quality gate warn | Selector did not clear an actionable market threshold | quality gate warn |
+| 7 | PIT@NO | pass |  |  | none | Blocked by risk/source flags: quality gate warn | Selector did not clear an actionable market threshold | quality gate warn |

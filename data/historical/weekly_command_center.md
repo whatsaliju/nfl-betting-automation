@@ -1,9 +1,9 @@
 # Weekly Command Center
 
-- Context: 2026 W6 · live
-- Recommended action: **PLAY**
-- Confidence tier: **A**
-- Reason: At least one selector play cleared the current command gate.
+- Context: 2026 W7 · live
+- Recommended action: **WATCH**
+- Confidence tier: **C**
+- Reason: No plays cleared, but watchlist spots exist.
 
 ## Source Gates
 
@@ -16,38 +16,38 @@
 
 ## Betting Card
 
-- Plays: 1
-- Watch: 5
-- Passes: 8
+- Plays: 0
+- Watch: 8
+- Passes: 6
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| NO@NYG | play | total | OVER | 5.0 |
-| CAR@PHI | watch | spread | AWAY | 4.0 |
-| BAL@CLE | watch | n/a | n/a | 1.0 |
-| LAC@KC | watch | n/a | n/a | n/a |
-| PIT@TB | watch | n/a | n/a | n/a |
-| WAS@SF | watch | n/a | n/a | n/a |
+| DAL@PHI | watch | n/a | n/a | 3.0 |
+| NYG@HOU | watch | n/a | n/a | 3.0 |
+| CIN@BAL | watch | n/a | n/a | 2.0 |
+| GB@DET | watch | n/a | n/a | 2.0 |
+| KC@SEA | watch | n/a | n/a | 2.0 |
+| TB@CAR | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
-- Primary: SF vs WAS (72.6%)
-- Safest: NE vs NYJ (73.2%)
-- Path pick: SF vs WAS (72.6%)
+- Primary: HOU vs NYG (75.9%)
+- Safest: HOU vs NYG (75.9%)
+- Path pick: HOU vs NYG (75.9%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | SF vs WAS (72.6%) | SF vs WAS (72.6%) | SF vs WAS (72.6%) |
-| 100 | SF vs WAS (72.6%) | SF vs WAS (72.6%) | SF vs WAS (72.6%) |
-| 500 | SF vs WAS (72.6%) | SF vs WAS (72.6%) | SF vs WAS (72.6%) |
+| 25 | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) |
+| 100 | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) |
+| 500 | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| NE | vs NYJ | 72.1% | -259 |
-| SF | vs WAS | 71.5% | -251 |
-| IND | vs TEN | 71.1% | -246 |
-| LAR | vs ARI | 70.2% | -236 |
-| KC | vs LAC | 68.0% | -213 |
-| GB | vs DAL | 58.7% | -142 |
+| MIN | vs IND | 63.5% | -174 |
+| HOU | vs NYG | 63.3% | -172 |
+| DET | vs GB | 60.8% | -155 |
+| BAL | vs CIN | 60.2% | -151 |
+| NYJ | vs MIA | 58.7% | -142 |
+| PHI | vs DAL | 58.6% | -141 |

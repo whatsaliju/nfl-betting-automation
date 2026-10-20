@@ -12,8 +12,8 @@
 | 3 | DET | NYJ@DET | 74.4% | 67.1 | primary | WARPS win probability 74.4%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 4 | CHI | NYJ@CHI | 68.3% | 68.3 | primary | WARPS win probability 68.3%; Home-field survivor spot; Low future opportunity cost |
 | 5 | NE | LV@NE | 72.3% | 66.0 | primary | WARPS win probability 72.3%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
-| 6 | SF | WAS@SF | 72.6% | 68.9 | primary | WARPS 66.4% blended with market 76.0% → 72.6%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 1 future elite spot(s) |
-| 7 | HOU | NYG@HOU | 75.6% | 71.9 | primary | WARPS 67.5% blended with market 80.0% → 75.6%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
+| 6 | NE | NYJ@NE | 73.2% | 67.8 | primary | WARPS win probability 73.2%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Division game raises upset volatility |
+| 7 | HOU | NYG@HOU | 75.9% | 72.2 | primary | WARPS 67.5% blended with market 80.4% → 75.9%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 8 | CIN | TEN@CIN | 62.4% | 62.4 | secondary | WARPS win probability 62.4%; Home-field survivor spot; Low future opportunity cost |
 | 9 | SF | LV@SF | 71.1% | 72.1 | primary | WARPS win probability 71.1%; Home-field survivor spot; Low future opportunity cost; Team off bye |
 | 10 | IND | MIA@IND | 65.9% | 63.5 | secondary | WARPS win probability 65.9%; Home-field survivor spot |
@@ -35,7 +35,7 @@
 | 1 | 500 | top_heavy | JAX (68.9%) | PHI (77.4) | PHI (13.7% public) |
 | 2 | 25 | top_heavy | BAL (63.2%) | LAC (63.0) | LAC (7.4% public) |
 | 2 | 100 | top_heavy | BAL (63.2%) | LAC (64.5) | LAC (8.9% public) |
-| 2 | 500 | top_heavy | BAL (63.2%) | BAL (75.1) | SF (14.1% public) |
+| 2 | 500 | top_heavy | BAL (63.2%) | SF (76.7) | SF (14.1% public) |
 | 3 | 25 | top_heavy | DET (74.4%) | DET (67.1) | DET (16.7% public) |
 | 3 | 100 | top_heavy | DET (74.4%) | DET (69.5) | DET (18.2% public) |
 | 3 | 500 | top_heavy | DET (74.4%) | DET (83.5) | DET (18.2% public) |
@@ -45,12 +45,12 @@
 | 5 | 25 | top_heavy | NE (72.3%) | NE (66.1) | NE (13.9% public) |
 | 5 | 100 | top_heavy | NE (72.3%) | NE (68.3) | NE (15.4% public) |
 | 5 | 500 | top_heavy | NE (72.3%) | NE (81.2) | NE (15.4% public) |
-| 6 | 25 | top_heavy | SF (72.6%) | SF (67.9) | SF (16.6% public) |
-| 6 | 100 | top_heavy | SF (72.6%) | SF (70.5) | SF (18.1% public) |
-| 6 | 500 | top_heavy | SF (72.6%) | SF (85.4) | SF (18.1% public) |
-| 7 | 25 | top_heavy | HOU (75.6%) | HOU (71.2) | HOU (14.0% public) |
-| 7 | 100 | top_heavy | HOU (75.6%) | HOU (73.1) | HOU (15.5% public) |
-| 7 | 500 | top_heavy | HOU (75.6%) | HOU (84.4) | HOU (15.5% public) |
+| 6 | 25 | top_heavy | NE (73.2%) | NE (67.5) | NE (13.1% public) |
+| 6 | 100 | top_heavy | NE (73.2%) | NE (69.5) | NE (14.6% public) |
+| 6 | 500 | top_heavy | NE (73.2%) | NE (81.2) | PHI (14.5% public) |
+| 7 | 25 | top_heavy | HOU (75.9%) | HOU (71.4) | HOU (14.2% public) |
+| 7 | 100 | top_heavy | HOU (75.9%) | HOU (73.3) | HOU (15.7% public) |
+| 7 | 500 | top_heavy | HOU (75.9%) | HOU (84.6) | HOU (15.7% public) |
 | 8 | 25 | top_heavy | CIN (62.4%) | CIN (61.5) | CIN (8.3% public) |
 | 8 | 100 | top_heavy | CIN (62.4%) | CIN (63.4) | CIN (9.8% public) |
 | 8 | 500 | top_heavy | CIN (62.4%) | GB (74.5) | GB (10.4% public) |
