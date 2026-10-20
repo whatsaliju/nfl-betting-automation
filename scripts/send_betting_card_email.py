@@ -3,8 +3,13 @@ import json
 import os
 import re
 import smtplib
+import sys
+from glob import glob
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "analyzers"))
+from nfl_common import canonical_team
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -359,6 +364,95 @@ if passes:
         "</div>"
     )
 
+# ── Injury & lineup changes ──────────────────────────────────────────────────
+# Injury report: latest Action Network file vs the previous day's. Starting QBs:
+# latest RotoWire lineup file for the week vs the week's first one. Limited to
+# teams with games that haven't kicked off.
+STATUS_RANK = {"out": 0, "doubtful": 1, "questionable": 2}
+SKILL = {"QB", "RB", "WR", "TE"}
+
+def _last_name(name):
+    return (name or "").replace(".", " ").split()[-1].lower() if (name or "").strip() else ""
+
+def _read_csv(path):
+    import csv
+    try:
+        with open(path, newline="") as f:
+            return list(csv.DictReader(f))
+    except (FileNotFoundError, OSError):
+        return []
+
+def injury_changes(week, teams):
+    reports = sorted(glob("data/action_injuries_*.csv"))
+    changes = []
+    since = None
+    if len(reports) >= 2:
+        since = datetime.strptime(reports[-2].split("_")[2], "%Y-%m-%d").strftime("%b %-d")
+        def by_player(rows):
+            return {(canonical_team(r.get("team")), r.get("player", "")): r for r in rows if r.get("player")}
+        old, new = by_player(_read_csv(reports[-2])), by_player(_read_csv(reports[-1]))
+        for key, r in new.items():
+            if key[0] not in teams:
+                continue
+            status = (r.get("status") or "").strip()
+            before = (old.get(key, {}).get("status") or "").strip()
+            if status.lower() != before.lower():
+                changes.append({"team": key[0], "player": key[1], "pos": r.get("pos", ""),
+                                "now": status, "was": before or "not listed", "injury": r.get("injury", "")})
+        for key, r in old.items():
+            if key[0] in teams and key not in new and r.get("pos") in SKILL:
+                changes.append({"team": key[0], "player": key[1], "pos": r.get("pos", ""),
+                                "now": "Cleared", "was": r.get("status", ""), "injury": r.get("injury", "")})
+    changes.sort(key=lambda c: (c["pos"] != "QB", c["pos"] not in SKILL, STATUS_RANK.get(c["now"].lower(), 3), c["team"]))
+
+    qb_changes = []
+    lineups = sorted(glob(f"data/rotowire_lineups_week{week}_*.csv"))
+    if len(lineups) >= 2:
+        def qbs(rows):
+            out = {}
+            for r in rows:
+                for side in ("away", "home"):
+                    out[canonical_team(r.get(side))] = r.get(f"{side}_qb", "")
+            return out
+        first, last = qbs(_read_csv(lineups[0])), qbs(_read_csv(lineups[-1]))
+        for team, qb in sorted(last.items()):
+            was = first.get(team, "")
+            if team in teams and qb and was and _last_name(qb) != _last_name(was):
+                qb_changes.append({"team": team, "now": qb, "was": was})
+    return qb_changes, changes, since
+
+def build_injury_section():
+    teams = {c.get("away_tla") for c in cards} | {c.get("home_tla") for c in cards}
+    teams = {canonical_team(t) for t in teams if t}
+    qb_changes, changes, since = injury_changes(cur_week_str, teams)
+    if not qb_changes and not changes:
+        return ""
+    rows = [
+        f"<tr><td style='padding:4px 8px 4px 0;font-weight:600;'>{q['team']} QB</td>"
+        f"<td style='padding:4px 0;'><b>{q['now']}</b> starting <span style='color:#6b7280;'>(was {q['was']})</span></td></tr>"
+        for q in qb_changes
+    ]
+    shown = changes[:12]
+    for c in shown:
+        color = "#b91c1c" if c["now"].lower() in ("out", "doubtful") else "#15803d" if c["now"] == "Cleared" else "#b45309"
+        rows.append(
+            f"<tr><td style='padding:4px 8px 4px 0;font-weight:600;white-space:nowrap;'>{c['team']} {c['pos']}</td>"
+            f"<td style='padding:4px 0;'>{c['player']}: <b style='color:{color};'>{c['now']}</b>"
+            f" <span style='color:#6b7280;'>(was {c['was']}{', ' + c['injury'] if c['injury'] else ''})</span></td></tr>"
+        )
+    more = f"<div style='font-size:12px;color:#6b7280;margin-top:6px;'>+{len(changes) - len(shown)} more on the dashboard</div>" if len(changes) > len(shown) else ""
+    since_txt = f" since {since}" if since else ""
+    return (
+        f"<h2 style='font-size:16px;color:#111827;border-bottom:2px solid #e5e7eb;"
+        f"padding-bottom:8px;margin:28px 0 8px;'>Injury &amp; lineup changes{since_txt}</h2>"
+        f"<table style='width:100%;border-collapse:collapse;font-size:13px;color:#111827;'>{''.join(rows)}</table>"
+        f"{more}"
+        "<div style='font-size:12px;color:#6b7280;margin-top:6px;'>The line usually moves on this news before we see it; "
+        "check the current number before betting.</div>"
+    )
+
+injury_section = build_injury_section()
+
 flip_section = ""
 if flip_alert:
     flip_section = (
@@ -410,6 +504,7 @@ body = f"""<html>
     {started_note}
     {plays_html}
     {watch_section}
+    {injury_section}
     {pass_section}
     {pickem_section}
     <table style="width:100%;border-collapse:collapse;margin-top:28px;">

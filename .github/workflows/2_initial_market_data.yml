@@ -115,6 +115,15 @@ jobs:
           echo "🩹 Scraping Action Network injuries & weather..."
           python3 scrapers/action_network_injuries_weather.py
 
+      # RotoWire posts projected starters for the next week by Tuesday; without this the
+      # first-look run marks rotowire as missing (DEGRADED). Best effort: never blocks the run.
+      - name: Scrape RotoWire Lineups
+        if: steps.idempotency.outputs.SKIP != 'true'
+        continue-on-error: true
+        run: |
+          echo "🏈 Scraping RotoWire lineups & injuries for Week ${{ steps.get_week.outputs.week }}..."
+          python3 scrapers/rotowire_scraper.py ${{ steps.get_week.outputs.week }}
+
       - name: Capture Generated Input Files
         if: steps.idempotency.outputs.SKIP != 'true'
         id: generated_files
@@ -126,6 +135,9 @@ jobs:
           ACTION_MARKETS_FILE=$(latest_file "data/action_all_markets_*.csv")
           ACTION_INJURIES_FILE=$(latest_file "data/action_injuries_*.csv")
           ACTION_WEATHER_FILE=$(latest_file "data/action_weather_*.csv")
+          ROTOWIRE_FILE=$(latest_file "data/rotowire_lineups_week${{ steps.get_week.outputs.week }}_*.csv")
+          echo "rotowire_file=$ROTOWIRE_FILE" >> $GITHUB_OUTPUT
+          echo "RotoWire: $ROTOWIRE_FILE"
           echo "action_markets_file=$ACTION_MARKETS_FILE" >> $GITHUB_OUTPUT
           echo "action_injuries_file=$ACTION_INJURIES_FILE" >> $GITHUB_OUTPUT
           echo "action_weather_file=$ACTION_WEATHER_FILE" >> $GITHUB_OUTPUT
@@ -140,7 +152,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/action_all_markets_*.csv \
                   data/action_injuries_*.csv \
-                  data/action_weather_*.csv || true
+                  data/action_weather_*.csv \
+                  data/rotowire_lineups_*.csv || true
 
           # 1. Commit changes
           git commit -m "📊 Week ${{ steps.get_week.outputs.week }} initial market data" || echo "No changes to commit"
@@ -157,7 +170,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: initial-market-data
-          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "initial", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}"}'
+          client-payload: '{"week": "${{ steps.get_week.outputs.week }}", "season": "${{ steps.get_week.outputs.season }}", "analysis_type": "initial", "action_markets_file": "${{ steps.generated_files.outputs.action_markets_file }}", "action_injuries_file": "${{ steps.generated_files.outputs.action_injuries_file }}", "action_weather_file": "${{ steps.generated_files.outputs.action_weather_file }}", "rotowire_file": "${{ steps.generated_files.outputs.rotowire_file }}"}'
 
       - name: Summary
         run: |
