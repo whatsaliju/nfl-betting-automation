@@ -105,6 +105,10 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 - Build new `warps_{season}_game_priors.csv` for the new season
 - `validate_engine_contracts.py` has hardcoded schedule dates for known seasons — add new season's Week 1 date
 
+### History Model (research only, not on the betting card)
+- `scripts/build_history_model.py [--games games.csv]` — numpy-only L2 logistic models, walk-forward 2018–2025 (train 2015..S-1), 2026 scored by the 2015–2025 model; graded at the closing line (break-even 52.4%). Writes `data/backtests/history_model/{summary.json,report.md,predictions_2026.csv}`.
+- Full models (10 side / 9 total inputs) don't beat a coin flip (log loss 0.696). Lean models do slightly: sides (`warps_edge_early`, `home_dog`, team ATS form — mean-reverting) 53%+ picks 406-346 (54.0%, 6/8 seasons); totals (`wind`, `under_start`, team O/U form) 436-354 (55.2%, 5/8). Lean inputs were chosen after seeing 2015–2025, so 2026 is the clean test. Confidence isn't monotone (sides 55%+ is 49.7%), so treat it as a weak lean signal.
+
 ### Known Deferred Gap
 - **Wf 11 doesn't rebuild engine feed**: After Wf 11's daily Odds API refresh, `warpsMarketOverlay.json` has fresh prices but `matrix_engine_feed.json` is stale until Wf 4.5 next runs. Deferred — engine feed needs master JSON context that Wf 11 doesn't run. The window is at most one day since Wf 4.5 runs multiple times weekly.
 
