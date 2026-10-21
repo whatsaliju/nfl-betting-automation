@@ -453,6 +453,43 @@ def build_injury_section():
 
 injury_section = build_injury_section()
 
+# ── Model view (learning model, second opinion) ──────────────────────────────
+def build_model_view_section():
+    try:
+        with open("site/src/data/modelView.json") as f:
+            mv = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return ""
+    if str(mv.get("week")) != cur_week_str:
+        return ""
+    live_teams = {c.get("away_tla") for c in cards} | {c.get("home_tla") for c in cards}
+    thr = mv.get("lean_threshold", 0.53)
+    leans = []
+    for g in mv.get("games", []):
+        if g.get("away") not in live_teams and g.get("home") not in live_teams:
+            continue  # already kicked off
+        for pick, conf in ((g["side_pick"], g["side_conf"]), (g["total_pick"], g["total_conf"])):
+            if conf >= thr:
+                leans.append((conf, pick, g["matchup"]))
+    if not leans:
+        return ""
+    leans.sort(reverse=True)
+    rows = "".join(
+        f"<tr><td style='padding:4px 8px 4px 0;font-weight:600;'>{pick}</td>"
+        f"<td style='padding:4px 8px;color:#6b7280;'>{matchup}</td>"
+        f"<td style='padding:4px 0;text-align:right;font-weight:600;'>{round(conf * 100)}%</td></tr>"
+        for conf, pick, matchup in leans[:8]
+    )
+    return (
+        "<h2 style='font-size:16px;color:#111827;border-bottom:2px solid #e5e7eb;"
+        "padding-bottom:8px;margin:28px 0 8px;'>Model view</h2>"
+        f"<table style='width:100%;border-collapse:collapse;font-size:13px;color:#111827;'>{rows}</table>"
+        "<div style='font-size:12px;color:#6b7280;margin-top:6px;'>Learning model leans (2015&ndash;2025 history plus "
+        "2026 sharp money and line moves). A second opinion beside the engine, not a play; weak edges near 52.4% break-even.</div>"
+    )
+
+model_view_section = build_model_view_section()
+
 flip_section = ""
 if flip_alert:
     flip_section = (
@@ -504,6 +541,7 @@ body = f"""<html>
     {started_note}
     {plays_html}
     {watch_section}
+    {model_view_section}
     {injury_section}
     {pass_section}
     {pickem_section}
