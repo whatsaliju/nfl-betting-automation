@@ -38,7 +38,7 @@
 | W5 CIN@MIA | lean | watch |  |  | watch | Signals: sharp, team_rating |
 | W5 PHI@JAX | lean | watch |  |  | watch | Signals: injury |
 | W7 DAL@PHI | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +69.8% EV |
-| W7 NYG@HOU | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +80.0% EV |
+| W7 NYG@HOU | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +83.7% EV |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | No isolated selector edge |
 | W1 DEN@KC | lean | watch |  |  | watch | Signals: sharp |
@@ -53,7 +53,7 @@
 | W5 SF@SEA | lean | watch |  |  | watch | Signals: team_rating |
 | W7 CIN@BAL | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +4.8% EV |
 | W7 GB@DET | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +2.0% EV |
-| W7 KC@SEA | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +2.0% EV |
+| W7 KC@SEA | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +1.8% EV |
 | W10 ARI@SEA | lean | watch |  |  | watch | Signals: injury; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W10 BUF@MIA | lean | watch |  |  | watch | Signals: injury; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE2 NYJ@PIT | pass | pass |  |  | none | No isolated selector edge |
