@@ -106,6 +106,10 @@ function expectationLine(
   return <span>{label}: {team} {joiner} {Math.abs(delta).toFixed(1)} wins</span>;
 }
 
+// After Week 5, WARPS spread edges went 48.8% against the closing line (2015-2025,
+// in-season blend included): the market has caught up, so show them as context only.
+const WARPS_SPREAD_WEEKS = 5;
+
 const WARPS_ALIGNMENT_TEXT: Record<string, string> = {
   conflict: "Disagrees",
   aligned: "Agrees",
@@ -312,10 +316,10 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
               )}
 
               {wo?.available && (
-                <div className={`warps-edge-strip ${wo.spread_pick_alignment || "context"}`}>
+                <div className={`warps-edge-strip ${game.week > WARPS_SPREAD_WEEKS ? "neutral" : wo.spread_pick_alignment || "context"}`}>
                   <div>
                     <strong>WARPS</strong>
-                    <span>{WARPS_ALIGNMENT_TEXT[wo.spread_pick_alignment ?? ""] ?? "Context"}</span>
+                    <span>{game.week > WARPS_SPREAD_WEEKS ? "Info only" : WARPS_ALIGNMENT_TEXT[wo.spread_pick_alignment ?? ""] ?? "Context"}</span>
                   </div>
                   <div>
                     <span>Fair line</span>
@@ -325,7 +329,12 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
                     <span>Win prob</span>
                     <b>{winProbText(wo.away_win_prob, wo.home_win_prob, away, home)}</b>
                   </div>
-                  {wo.spread_pick_alignment === "conflict" && wo.spread_team && (
+                  {game.week > WARPS_SPREAD_WEEKS ? (
+                    <p className="warps-note info">
+                      After Week {WARPS_SPREAD_WEEKS}, WARPS spread edges have gone 49% against the closing line
+                      (2015–2025). Use its win probability for pick'em and survivor, not for spreads.
+                    </p>
+                  ) : wo.spread_pick_alignment === "conflict" && wo.spread_team && (
                     <p className="warps-note">
                       WARPS disagrees with the pick and sees value on {wo.spread_team}
                       {wo.spread_side === "HOME" && typeof wo.market_home_spread === "number" ? ` ${signed(wo.market_home_spread)}` : ""}

@@ -80,6 +80,9 @@ liju   → liju.html     (personal hub — Bluehost root after cp swap)
 - `scripts/log_warps_edge_performance.py` — appends one row per priced game after grading; idempotent (removes existing week rows before appending). Run by Workflow 6 (Grade Week Results).
 - `scripts/refresh_warps_market_overlay.py` — full rebuild from WARPS priors + Odds API (or `--fair-line-only`). Writes both CSV and JSON.
 
+- `data/historical/warps_{season}_inseason_adjustments.csv` — manual rating changes the scores can't see yet (team, wins_delta in 17-game wins, from_week, to_week blank = open, reason). Applied by `update_warps_inseason.py` (Wf 11) to games in that week range. 2026: PHI −1.5 from Week 7 (Hurts out, blood clot; McKee starting) — set to_week when Hurts returns.
+- Blend check (2015–2025, through Week 6): preseason weighted as 4–8 games is the best rest-of-season win predictor (RMSE 0.194 vs 0.208 preseason-only, 0.246 record-only), but no blend beats the closing spread after Week 6 (48.8–50.2%). Edge Board and the WARPS badge label spread edges "info only" after Week 5.
+
 ### Overlay Schema
 Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spread`, `home_win_prob`, `away_win_prob`, `market_home_spread`, `market_away_spread`, `market_home_moneyline`, `market_away_moneyline`, `market_total` (added PR#189), edge columns, `status` (priced/fair_line_only), `source`
 

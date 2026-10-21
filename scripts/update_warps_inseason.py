@@ -176,6 +176,35 @@ def load_preseason_priors(season):
     return priors
 
 
+def load_adjustments(season):
+    """Manual in-season rating changes the scores can't see yet (e.g. a starting QB out).
+
+    data/historical/warps_{season}_inseason_adjustments.csv: team, wins_delta (17-game
+    win units), from_week, to_week (blank = open-ended), reason.
+    """
+    path = DATA_HIST / f"warps_{season}_inseason_adjustments.csv"
+    if not path.exists():
+        return []
+    out = []
+    with open(path) as f:
+        for row in csv.DictReader(f):
+            if not row.get("team") or not row.get("wins_delta"):
+                continue
+            out.append({
+                "team": normalize_tla(row["team"]),
+                "delta": float(row["wins_delta"]),
+                "from": int(row["from_week"]) if row.get("from_week") else 1,
+                "to": int(row["to_week"]) if row.get("to_week") else 99,
+                "reason": row.get("reason", ""),
+            })
+    return out
+
+
+def adjusted(rating, team, week, adjustments):
+    return rating + sum(a["delta"] for a in adjustments
+                        if a["team"] == team and a["from"] <= week <= a["to"])
+
+
 # ── Blend ─────────────────────────────────────────────────────────────────────
 
 def blend(prior_17, pyth_rate, games_played, shrinkage):
@@ -305,6 +334,9 @@ def run(season, through_week, shrinkage, dry_run):
     fieldnames = list(original[0].keys())
 
     neutral = load_neutral_sites(season)
+    adjustments = load_adjustments(season)
+    for a in adjustments:
+        print(f"Adjustment {a['team']} {a['delta']:+.1f} wins, weeks {a['from']}-{a['to'] if a['to'] < 99 else 'end'}: {a['reason']}")
     updated = []
     changed = 0
     for row in original:
@@ -316,6 +348,9 @@ def run(season, through_week, shrinkage, dry_run):
         if baway is None or bhome is None:
             updated.append(row)
             continue
+        week_num = int(float(row.get("week") or 0))
+        baway = adjusted(baway, away, week_num, adjustments)
+        bhome = adjusted(bhome, home, week_num, adjustments)
 
         hfa = 0.0 if (str(row.get("week")), frozenset((away, home))) in neutral else HOME_FIELD_WINS
         hwp = fair_hwp(bhome, baway, hfa)
