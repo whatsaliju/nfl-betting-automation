@@ -165,6 +165,8 @@ def build_referee_trends(
     min_sample: int = 5,
     write_week_copy: bool = True,
     season_type: str = None,
+    before_season: int = None,
+    before_week: int = None,
 ) -> pd.DataFrame:
     week_str = str(week)
     if week_str.isdigit():
@@ -180,6 +182,12 @@ def build_referee_trends(
     game_types = tuple(nflverse_game_types(season_type))
     schedules = load_schedules(game_types)
     schedules = schedules[schedules["season"] >= since].copy()
+    if before_season is not None:
+        # Replays: only games played before the week being replayed (no look-ahead).
+        earlier = schedules["season"] < before_season
+        if before_week is not None:
+            earlier |= (schedules["season"] == before_season) & (schedules["week"] < before_week)
+        schedules = schedules[earlier].copy()
 
     out_rows = []
     for _, query_row in queries.iterrows():

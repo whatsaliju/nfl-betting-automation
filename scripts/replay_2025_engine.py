@@ -129,7 +129,8 @@ def replay_week(season: int, week: int, stage: str, output_root: Path, season_ty
 
     referee_trends = week_output / "referee_trends.csv"
     try:
-        build_referee_trends(week, output=str(referee_trends), write_week_copy=False, season_type=season_type)
+        build_referee_trends(week, output=str(referee_trends), write_week_copy=False, season_type=season_type,
+                             before_season=season, before_week=week)
     except FileNotFoundError as exc:
         summary = {
             "week": week,
