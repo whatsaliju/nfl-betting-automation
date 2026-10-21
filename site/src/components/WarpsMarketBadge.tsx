@@ -64,6 +64,7 @@ export function WarpsMarketBadge({ overlay, team, compact = false }: Props) {
       {overlay.status === "priced" && overlay.spread_overlay_team && (
         <div className="warps-market-edge">
           Spread edge {overlay.spread_overlay_team} {signed(Number(overlay.spread_overlay_edge_points))}
+          {Number(overlay.week) > 5 ? " · info only after Week 5" : ""}
         </div>
       )}
     </div>
