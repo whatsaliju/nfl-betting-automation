@@ -117,6 +117,12 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 - `scripts/build_history_model.py [--games games.csv]` — numpy-only L2 logistic models, walk-forward 2018–2025 (train 2015..S-1), 2026 scored by the 2015–2025 model; graded at the closing line (break-even 52.4%). Writes `data/backtests/history_model/{summary.json,report.md,predictions_2026.csv}`.
 - Full models (10 side / 9 total inputs) don't beat a coin flip (log loss 0.696). Lean models do slightly: sides (`warps_edge_early`, `home_dog`, team ATS form — mean-reverting) 53%+ picks 406-346 (54.0%, 6/8 seasons); totals (`wind`, `under_start`, team O/U form) 436-354 (55.2%, 5/8). Lean inputs were chosen after seeing 2015–2025, so 2026 is the clean test. Confidence isn't monotone (sides 55%+ is 49.7%), so treat it as a weak lean signal.
 
+### Learning Model (Model view — second opinion, not on the betting card)
+- `scripts/build_learning_model.py [games.csv]` — 2026 layer on top of the history lean models: logistic with the history logit as offset, new inputs `sharp_home`/`sharp_over` (Action Network money% − bets%, last pregame read from `data/action_all_markets_{season}-*.csv`) and `move_home`/`move_total` (now vs first line in `engine_line_snapshots_{season}.csv`). Weights start at 0 with L2 = 150 pseudo-games, so a few weeks only nudge them; needs 2 graded weeks. Walk-forward within the season.
+- Writes `data/backtests/history_model/learning_{season}.json` and `site/src/data/modelView.json` (upcoming week's side/total picks + confidence). Shown as "Model view" on the Edge Board (`ModelViewPanel.tsx`, leans ≥53%) and in the email (`build_model_view_section`).
+- Runs: Wf 4.5 after the feed build (fresh splits each run); Wf 6 Grade on Tuesday refits `build_history_model.py` then the learning layer.
+- Oct 21 2026 walk-forward (2026 Wk 1–6, 53%+): sides history-only 22-13 → with layer 23-12; totals 15-12 → 21-11. Tiny samples.
+
 ### Known Deferred Gap
 - **Wf 11 doesn't rebuild engine feed**: After Wf 11's daily Odds API refresh, `warpsMarketOverlay.json` has fresh prices but `matrix_engine_feed.json` is stale until Wf 4.5 next runs. Deferred — engine feed needs master JSON context that Wf 11 doesn't run. The window is at most one day since Wf 4.5 runs multiple times weekly.
 
