@@ -36,7 +36,9 @@ def _load_schedule_rest(season):
         return {}
 
 from analyzers.nfl_common import get_current_season as _get_current_season
-_CURRENT_SEASON = _get_current_season()
+# NFL_SEASON (set by Workflow 4.5 and the replay) wins over current_week.json, so a
+# 2025 replay loads 2025 rest days.
+_CURRENT_SEASON = int(os.getenv("NFL_SEASON") or _get_current_season())
 SCHEDULE_REST_DATA = _load_schedule_rest(_CURRENT_SEASON)
 sys.path.append(os.path.dirname(__file__))
 import performance_tracker
