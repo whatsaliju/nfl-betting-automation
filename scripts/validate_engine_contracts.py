@@ -92,7 +92,8 @@ def validate_model_config(path, failures):
     check(not missing_weights, f"model config missing weights: {missing_weights}", failures)
     check(weights.get("game_theory_score") == 0.0, "game_theory_score should remain 0.0", failures)
     check(selector.get("require_sharp_spread_edge") is True, "spread selector should require sharp edge", failures)
-    check(selector.get("total_threshold", 0) >= 4, "total threshold should be at least 4", failures)
+    # 3 = the strongest sharp total edge on its own; referee O/U no longer adds a point (2026.9).
+    check(selector.get("total_threshold", 0) >= 3, "total threshold should be at least 3", failures)
     check(
         selector.get("injury_context_threshold_bump", 0) >= 0,
         "injury context threshold bump should be configured as a non-negative number",

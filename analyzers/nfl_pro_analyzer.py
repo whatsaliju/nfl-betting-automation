@@ -74,7 +74,7 @@ def debug_log(message):
 # ================================================================
 
 DEFAULT_MODEL_CONFIG = {
-    'model_version': '2026.8',
+    'model_version': '2026.9',
     'factor_weights': {
         'sharp_consensus_score': 1.5,
         'referee_ou_score': 0.0,   # walk-forward backtest: 50.2% accuracy, noise
@@ -88,7 +88,7 @@ DEFAULT_MODEL_CONFIG = {
     'selector': {
         'spread_threshold_strong_signal': 3,
         'spread_threshold_default': 4,
-        'total_threshold': 4,
+        'total_threshold': 3,
         'targeted_score': 4,
         'strong_score': 6,
         'require_sharp_spread_edge': True,
@@ -921,8 +921,8 @@ class RefereeAnalyzer:
     def score_ats(ats_pct):
         if ats_pct >= 60: return 3
         if ats_pct >= 55: return 2
-        if ats_pct <= 40: return -2
         if ats_pct <= 35: return -3
+        if ats_pct <= 40: return -2
         return 0
     
     @staticmethod
@@ -2669,7 +2669,8 @@ class RecommendationSelector:
         score = 0
         factors = []
 
-        ou_score = referee_analysis.get('ou_score', 0)
+        # Referee O/U history tested as noise (50.2% walk-forward); it only counts if re-weighted.
+        ou_score = referee_analysis.get('ou_score', 0) if FACTOR_WEIGHTS.get('referee_ou_score', 0) > 0 else 0
         if ou_score > 0:
             score += ou_score
             factors.append("referee over trend")
@@ -2847,10 +2848,11 @@ class RecommendationSelector:
 
         injury_score = game_analysis.get('injury_analysis', {}).get('score', 0) or 0
         injury_context_present = False
+        # score = home_impact - away_impact: positive means the home team is more hurt.
         if injury_score > 0:
-            injury_side = 'HOME'
-        elif injury_score < 0:
             injury_side = 'AWAY'
+        elif injury_score < 0:
+            injury_side = 'HOME'
         else:
             injury_side = 'NEUTRAL'
         if injury_side in {'AWAY', 'HOME'}:
@@ -2997,16 +2999,14 @@ class RecommendationSelector:
         # Early REG (wk 1-10, ex wk 7): 53.8% win rate (+3% ROI)
         # Late REG (wk 11-14): 46% win rate (-13% ROI)
         # Late REG (wk 15-18): 47% win rate (-11% ROI)
-        # Week 7: 40.4% avg win rate (-25% ROI) — consistently poor across 7/11 seasons
+        # Week 7 (40.4% for WARPS-edge picks) is no longer penalised: the +2 put the bar above
+        # the highest possible spread score (5), so no spread could be picked that week.
         # Divisional round (wk 20): 40.9% win rate (-24% ROI)
         _wk = game_analysis.get('week')
         _season_type = game_analysis.get('season_type', 'REG')
         _week_num = get_week_number(_wk) if _wk is not None else 0
         if _week_num > 0:
-            if _season_type == 'REG' and _week_num == 7:
-                spread_threshold += 2
-                spread_threshold_adjustments.append({"reason": "week 7 historically poor ATS (40.4% avg)", "delta": 2})
-            elif _season_type == 'REG' and _week_num >= 15:
+            if _season_type == 'REG' and _week_num >= 15:
                 spread_threshold += 1
                 spread_threshold_adjustments.append({"reason": "late REG season (wk 15+) historically poor ATS", "delta": 1})
             elif _season_type == 'REG' and _week_num in (11, 12):
@@ -3186,6 +3186,16 @@ class RecommendationSelector:
                     })
             except (ValueError, TypeError):
                 pass
+
+        # Sharp (max 3) + team rating (max 2) is the most a spread can score. Stacked
+        # adjustments must not push the bar past it, or the strongest games can't be picked.
+        max_spread_score = SELECTOR_CONFIG.get('max_spread_score', 5)
+        if spread_threshold > max_spread_score:
+            spread_threshold_adjustments.append({
+                "reason": f"capped at the highest possible spread score ({max_spread_score})",
+                "delta": max_spread_score - spread_threshold,
+            })
+            spread_threshold = max_spread_score
 
         total_threshold = SELECTOR_CONFIG.get('total_threshold', 4)
 
