@@ -105,6 +105,11 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 - Build new `warps_{season}_game_priors.csv` for the new season
 - `validate_engine_contracts.py` has hardcoded schedule dates for known seasons — add new season's Week 1 date
 
+### Engine (`analyzers/nfl_pro_analyzer.py`, config `config/model_config.json`, version 2026.9)
+- Hand-tuned rules, not fitted. Spread score = sharp (0-3) + team rating (0-2), max 5; threshold 3-4 plus calendar/injury/WARPS adjustments, **capped at 5** (`max_spread_score`). Total score = |sharp total| + weather context; threshold 3. `config/model_config.json` overrides the code defaults — change both.
+- Oct 21 2026 review fixes: week 7 +2 penalty removed (made spreads unpickable); injury side corrected (score = home - away, positive → AWAY); referee ATS <=35 branch reachable; referee O/U weight 0 (also gated out of totals).
+- Known, left as is: SituationalAnalyzer never receives game_time (primetime/travel rules dormant); week 15+ -1 applies to every game; calendar/WARPS hard blocks were mined on WARPS-edge picks, not sharp picks; the only full-engine replay (2025 Wk 11-18, 14-4) predates most rules and leaks referee data.
+
 ### History Model (research only, not on the betting card)
 - `scripts/build_history_model.py [--games games.csv]` — numpy-only L2 logistic models, walk-forward 2018–2025 (train 2015..S-1), 2026 scored by the 2015–2025 model; graded at the closing line (break-even 52.4%). Writes `data/backtests/history_model/{summary.json,report.md,predictions_2026.csv}`.
 - Full models (10 side / 9 total inputs) don't beat a coin flip (log loss 0.696). Lean models do slightly: sides (`warps_edge_early`, `home_dog`, team ATS form — mean-reverting) 53%+ picks 406-346 (54.0%, 6/8 seasons); totals (`wind`, `under_start`, team O/U form) 436-354 (55.2%, 5/8). Lean inputs were chosen after seeing 2015–2025, so 2026 is the clean test. Confidence isn't monotone (sides 55%+ is 49.7%), so treat it as a weak lean signal.
