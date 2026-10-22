@@ -63,7 +63,7 @@
 | W5 CLE@NYJ | lean | watch |  |  | watch | Signals: sharp, injury |
 | W5 DET@ARI | lean | watch |  |  | watch | Signals: sharp |
 | W6 BAL@CLE | lean | watch |  |  | watch | Signals: sharp |
-| W7 CIN@BAL | lean | watch |  |  | watch | Signals: sharp, injury; WARPS moneyline overlay: HOME +24.0% EV |
+| W7 CIN@BAL | lean | watch |  |  | watch | Signals: sharp, injury; WARPS moneyline overlay: HOME +14.4% EV |
 | W7 KC@SEA | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +1.8% EV |
 | WPRE1 ARI@LV | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 CAR@BUF | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |

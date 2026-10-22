@@ -16,30 +16,30 @@
 
 ## Betting Card
 
-- Plays: 1
-- Watch: 8
-- Passes: 5
+- Plays: 2
+- Watch: 6
+- Passes: 6
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | CLE@TEN | play | total | UNDER | 3.0 |
-| SF@ATL | watch | total | OVER | 3.0 |
+| SF@ATL | play | total | OVER | 3.0 |
 | TB@CAR | watch | n/a | n/a | 3.0 |
-| GB@DET | watch | n/a | n/a | 2.0 |
+| NYG@HOU | watch | n/a | n/a | 2.0 |
 | CIN@BAL | watch | n/a | n/a | 1.0 |
 | KC@SEA | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
-- Primary: HOU vs NYG (75.6%)
-- Safest: HOU vs NYG (75.6%)
-- Path pick: HOU vs NYG (75.6%)
+- Primary: HOU vs NYG (75.9%)
+- Safest: HOU vs NYG (75.9%)
+- Path pick: HOU vs NYG (75.9%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | HOU vs NYG (75.6%) | HOU vs NYG (75.6%) | HOU vs NYG (75.6%) |
-| 100 | HOU vs NYG (75.6%) | HOU vs NYG (75.6%) | HOU vs NYG (75.6%) |
-| 500 | HOU vs NYG (75.6%) | HOU vs NYG (75.6%) | HOU vs NYG (75.6%) |
+| 25 | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) |
+| 100 | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) |
+| 500 | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) |
 
 ## WARPS Watch
 
