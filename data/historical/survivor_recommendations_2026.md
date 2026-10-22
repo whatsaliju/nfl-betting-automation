@@ -13,7 +13,7 @@
 | 4 | CHI | NYJ@CHI | 68.3% | 68.3 | primary | WARPS win probability 68.3%; Home-field survivor spot; Low future opportunity cost |
 | 5 | NE | LV@NE | 72.3% | 62.3 | secondary | WARPS win probability 72.3%; Home-field survivor spot; Save risk: 2 future elite spot(s) |
 | 6 | NE | NYJ@NE | 73.2% | 64.1 | secondary | WARPS win probability 73.2%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Division game raises upset volatility; Save risk: 1 future elite spot(s) |
-| 7 | HOU | NYG@HOU | 75.6% | 71.9 | primary | WARPS 67.5% blended with market 80.0% → 75.6%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 1 future elite spot(s) |
+| 7 | HOU | NYG@HOU | 75.9% | 72.2 | primary | WARPS 67.5% blended with market 80.4% → 75.9%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 8 | CIN | TEN@CIN | 75.0% | 75.0 | primary | WARPS 62.4% blended with market 81.7% → 75.0%; Home-field survivor spot; Low future opportunity cost |
 | 9 | SF | LV@SF | 71.1% | 72.1 | primary | WARPS win probability 71.1%; Home-field survivor spot; Low future opportunity cost; Team off bye |
 | 10 | IND | MIA@IND | 65.9% | 63.5 | secondary | WARPS win probability 65.9%; Home-field survivor spot |
@@ -48,9 +48,9 @@
 | 6 | 25 | top_heavy | NE (73.2%) | NE (64.9) | NE (13.1% public) |
 | 6 | 100 | top_heavy | NE (73.2%) | NE (66.9) | NE (14.6% public) |
 | 6 | 500 | top_heavy | NE (73.2%) | PHI (79.4) | PHI (14.5% public) |
-| 7 | 25 | top_heavy | HOU (75.6%) | HOU (71.2) | HOU (14.0% public) |
-| 7 | 100 | top_heavy | HOU (75.6%) | HOU (73.1) | HOU (15.5% public) |
-| 7 | 500 | top_heavy | HOU (75.6%) | HOU (84.4) | HOU (15.5% public) |
+| 7 | 25 | top_heavy | HOU (75.9%) | HOU (71.4) | HOU (14.2% public) |
+| 7 | 100 | top_heavy | HOU (75.9%) | HOU (73.3) | HOU (15.7% public) |
+| 7 | 500 | top_heavy | HOU (75.9%) | HOU (84.6) | HOU (15.7% public) |
 | 8 | 25 | top_heavy | CIN (75.0%) | CIN (72.8) | CIN (16.1% public) |
 | 8 | 100 | top_heavy | CIN (75.0%) | CIN (75.1) | CIN (17.6% public) |
 | 8 | 500 | top_heavy | CIN (75.0%) | CIN (88.3) | CIN (17.6% public) |
