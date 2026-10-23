@@ -16,18 +16,18 @@
 
 ## Betting Card
 
-- Plays: 2
-- Watch: 6
+- Plays: 1
+- Watch: 7
 - Passes: 6
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| CLE@TEN | play | total | UNDER | 3.0 |
 | SF@ATL | play | total | OVER | 3.0 |
-| TB@CAR | watch | n/a | n/a | 3.0 |
+| CIN@BAL | watch | n/a | n/a | 2.0 |
 | NYG@HOU | watch | n/a | n/a | 2.0 |
-| CIN@BAL | watch | n/a | n/a | 1.0 |
+| CLE@TEN | watch | n/a | n/a | 1.0 |
 | KC@SEA | watch | n/a | n/a | 1.0 |
+| TB@CAR | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
