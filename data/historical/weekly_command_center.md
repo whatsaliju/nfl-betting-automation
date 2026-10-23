@@ -23,8 +23,8 @@
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | SF@ATL | play | total | OVER | 3.0 |
-| CIN@BAL | watch | n/a | n/a | 2.0 |
 | NYG@HOU | watch | n/a | n/a | 2.0 |
+| CIN@BAL | watch | n/a | n/a | 1.0 |
 | CLE@TEN | watch | n/a | n/a | 1.0 |
 | KC@SEA | watch | n/a | n/a | 1.0 |
 | TB@CAR | watch | n/a | n/a | 1.0 |

@@ -37,8 +37,8 @@
 
 ### overperformance_pick_alignment
 - aligned: 1 games
-- conflict: 6 games
-- neutral: 1 games
+- conflict: 5 games
+- neutral: 2 games
 - no_pick: 126 games
 - non_side_pick: 4 games
 
