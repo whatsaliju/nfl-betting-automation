@@ -157,11 +157,27 @@ def latest_valid(rows):
     return None, total
 
 
+def load_contest_lines(season, week):
+    """Lines the contest actually posted, entered by hand (data/contest/contest_lines_{season}_wk{week}.csv:
+    matchup_key, home_spread, total; blank = not entered). They beat any snapshot: the contest's
+    numbers can differ from ours (Week 7 2026: contest CIN -1 while our Thursday snapshot had CIN +1.5)."""
+    path = ROOT / "data" / "contest" / f"contest_lines_{season}_wk{week}.csv"
+    out = {}
+    if path.exists():
+        for r in csv.DictReader(open(path)):
+            mk = (r.get("matchup_key") or "").strip().replace("WSH", "WAS")
+            if mk:
+                out[mk] = (float(r["home_spread"]) if r.get("home_spread") else None,
+                           float(r["total"]) if r.get("total") else None)
+    return out
+
+
 def contest_cutoff(week_games):
-    """Thursday 4pm ET of the week: lines are posted before then."""
+    """Thursday 4:30pm ET of the week: the contest posts lines by 2pm MT (4pm ET), and the
+    Thursday 4:22pm ET run captures the market right after."""
     first = min(datetime.fromisoformat(g["gameday"]).date() for g in week_games)
     thursday = first - timedelta(days=(first.weekday() - 3) % 7)
-    return datetime(thursday.year, thursday.month, thursday.day, 16, 0, tzinfo=ET)
+    return datetime(thursday.year, thursday.month, thursday.day, 16, 30, tzinfo=ET)
 
 
 def build(season, week):
@@ -202,6 +218,7 @@ def build(season, week):
             engine_play[e["matchup_key"]] = (best.get("market"), (best.get("side") or "").upper())
 
     now = datetime.now(timezone.utc)
+    contest_lines = load_contest_lines(season, week)
     games = sorted(set(snaps) | set(overlay) | set(kickoffs))
     candidates = []
     for mk in games:
@@ -226,6 +243,11 @@ def build(season, week):
             line_source = "provisional"               # contest lines not posted yet
         else:
             line_source = "thursday" if before else ("first_snapshot" if rows else "market")
+        entered = contest_lines.get(mk)
+        if entered:
+            c_home = entered[0] if entered[0] is not None else c_home
+            c_total = entered[1] if entered[1] is not None else c_total
+            line_source = "contest"
         play = engine_play.get(mk)
 
         markets = []

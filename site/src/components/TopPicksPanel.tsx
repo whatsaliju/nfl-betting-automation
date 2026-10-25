@@ -41,7 +41,8 @@ function readUsed(): number {
 }
 
 function lineNote(p: Pick) {
-  const source = p.line_source === "provisional" ? "Contest line (provisional until Thu 4pm)" : "Contest line";
+  const source = p.line_source === "provisional" ? "Contest line (provisional until the contest posts Thu 4pm ET)"
+    : p.line_source === "contest" ? "Posted contest line" : "Contest line (our Thursday snapshot)";
   if (p.line_value === 0) return `${source} matches the market`;
   return `${source} is ${signedPts(p.line_value)} pts ${p.line_value > 0 ? "better" : "worse"} than the market now`;
 }
