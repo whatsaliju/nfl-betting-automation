@@ -319,7 +319,7 @@ export function PickemView({
   const recLosses = favRecord.league.fav_su?.l ?? 0;
   const recTotal = recWins + recLosses;
   const recPct = recTotal > 0 ? Math.round((recWins / recTotal) * 100) : 0;
-  // WARPS spread leans only beat the closing line in Weeks 1-5 (55% vs 49.8% after, 2015-2025).
+  // WARPS spread edges fade as the season goes: 52.5% in Weeks 1-5, 50% after (2000-2025), so no lean after Week 5.
   const warpsSpreadLive = Number(ctx.week) <= 5;
 
   return (
@@ -529,7 +529,7 @@ export function PickemView({
                               <div className="pk-row-pick"><strong>{warpsSpreadLive ? "Toss-up" : "No model lean"}</strong></div>
                               <span className="pk-row-detail">
                                 {warpsLine ? `WARPS line ${warpsLine}` : "WARPS"}{vegasLine ? ` vs Vegas ${vegasLine}` : ""}
-                                {warpsSpreadLive ? " · no real edge" : " · WARPS spread leans only hold up in Weeks\u00a01\u20115"}
+                                {warpsSpreadLive ? " · no real edge" : " · WARPS spread edges fade to about 50% after the first month"}
                               </span>
                             </>
                           ) : spreadPickTla ? (
