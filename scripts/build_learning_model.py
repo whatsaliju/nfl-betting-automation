@@ -218,7 +218,7 @@ def main():
     upcoming_week = min((r["week"] for r in live if not r["played"]), default=None)
     view = []
     for r in live:
-        if r["week"] != upcoming_week:
+        if r["week"] != upcoming_week or r["played"]:
             continue
         item = {"matchup": r["matchup"], "away": r["away"], "home": r["home"],
                 "home_spread": r["home_spread_line"], "total": r["total_line_raw"]}

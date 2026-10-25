@@ -107,8 +107,8 @@ function expectationLine(
   return <span>{label}: {team} {joiner} {Math.abs(delta).toFixed(1)} wins</span>;
 }
 
-// After Week 5, WARPS spread edges went 48.8% against the closing line (2015-2025,
-// in-season blend included): the market has caught up, so show them as context only.
+// After Week 5, WARPS spread edges went 50% against the closing line (2000-2025;
+// 52.5% in Weeks 1-5, 48.8% from Week 13): the market has caught up, so show them as context only.
 const WARPS_SPREAD_WEEKS = 5;
 
 const WARPS_ALIGNMENT_TEXT: Record<string, string> = {
@@ -334,8 +334,8 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
                   </div>
                   {game.week > WARPS_SPREAD_WEEKS ? (
                     <p className="warps-note info">
-                      After Week {WARPS_SPREAD_WEEKS}, WARPS spread edges have gone 49% against the closing line
-                      (2015–2025). Use its win probability for pick'em and survivor, not for spreads.
+                      After Week {WARPS_SPREAD_WEEKS}, WARPS spread edges have gone 50% against the closing line
+                      (2000–2025, 49% from Week 13). Use its win probability for pick'em and survivor, not for spreads.
                     </p>
                   ) : wo.spread_pick_alignment === "conflict" && wo.spread_team && (
                     <p className="warps-note">
