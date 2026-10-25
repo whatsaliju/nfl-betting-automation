@@ -17,16 +17,16 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 9
-- Passes: 5
+- Watch: 6
+- Passes: 8
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| SF@ATL | watch | n/a | n/a | 3.0 |
-| NYG@HOU | watch | n/a | n/a | 2.0 |
+| DAL@PHI | watch | n/a | n/a | 2.0 |
 | CIN@BAL | watch | n/a | n/a | 1.0 |
-| CLE@TEN | watch | n/a | n/a | 1.0 |
-| DAL@PHI | watch | n/a | n/a | n/a |
+| KC@SEA | watch | n/a | n/a | 1.0 |
+| MIA@NYJ | watch | n/a | n/a | 1.0 |
+| TB@CAR | watch | n/a | n/a | 1.0 |
 | IND@MIN | watch | n/a | n/a | n/a |
 
 ## Survivor
