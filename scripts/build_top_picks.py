@@ -124,15 +124,37 @@ def num(text):
 
 
 def parse_lines(snap):
-    """(home spread, total) from a snapshot row. The home half of the spread is used:
-    the scraped halves can disagree and the away half has carried bad values."""
+    """(home spread, total) from a snapshot row.
+
+    The scraped away|home halves can disagree (an alternate line on one side, e.g.
+    "+10.5 | +16.5"), and either half has carried the bad value. When they disagree,
+    keep the half whose sign matches the moneyline favorite; if that can't be told,
+    return None so the caller falls back to an earlier snapshot."""
     parts = [p.strip() for p in str(snap.get("spread_line") or "").split("|")]
+    away_h = num(parts[0]) if len(parts) == 2 else None
     home = num(parts[1]) if len(parts) == 2 else None
-    if home is None and len(parts) == 2 and num(parts[0]) is not None:
-        home = -num(parts[0])
+    if home is None and away_h is not None:
+        home = -away_h
+    elif home is not None and away_h is not None and abs(home + away_h) > 1:
+        ml = [num(p) for p in str(snap.get("moneyline_line") or "").split("|")]
+        home_fav = ml[1] < ml[0] if len(ml) == 2 and None not in ml else None
+        candidates = [h for h in (home, -away_h) if home_fav is None or (h < 0) == home_fav or h == 0]
+        home = candidates[0] if len(candidates) == 1 else (
+            candidates[-1] if home_fav is not None and candidates else None)
     tparts = [p.strip() for p in str(snap.get("total_line") or "").split("|")]
     total = num(tparts[0]) if tparts and tparts[0] else None
     return home, total
+
+
+def latest_valid(rows):
+    """First row (in the order given) with a usable spread, and its total."""
+    total = None
+    for r in rows:
+        home, t = parse_lines(r)
+        total = total if total is not None else t
+        if home is not None:
+            return home, (t if t is not None else total)
+    return None, total
 
 
 def contest_cutoff(week_games):
@@ -189,11 +211,9 @@ def build(season, week):
         away, home = mk.split("@")
         rows = sorted(snaps.get(mk, []), key=lambda r: r["captured_at"])
         before = [r for r in rows if datetime.fromisoformat(r["captured_at"]) <= cutoff]
-        contest_row = before[-1] if before else (rows[0] if rows else None)
-        latest_row = rows[-1] if rows else None
         ov = overlay.get(mk, {})
-        c_home, c_total = parse_lines(contest_row) if contest_row else (None, None)
-        m_home, m_total = parse_lines(latest_row) if latest_row else (None, None)
+        c_home, c_total = latest_valid(before[::-1] if before else rows[:1])
+        m_home, m_total = latest_valid(rows[::-1])
         if c_home is None and ov.get("market_home_spread") not in (None, ""):
             c_home = m_home = float(ov["market_home_spread"])
         if c_total is None and ov.get("market_total") not in (None, ""):
