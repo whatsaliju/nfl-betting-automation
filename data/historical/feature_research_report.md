@@ -6,7 +6,6 @@
 
 ## Key Observations
 
-- Value-gap alignment looks promising but is still a small sample: aligned 0-0 vs conflict 0-0.
 - Pythagorean side alignment is also promising: aligned 0-0 vs conflict 0-0.
 - Do not make this a hard gate yet; every expectation row in the current replay uses a thin result sample.
 
@@ -18,16 +17,14 @@
 - total: 3 games
 
 ### pythagorean_pick_alignment
-- aligned: 3 games
+- aligned: 4 games
 - conflict: 4 games
-- neutral: 1 games
 - no_pick: 127 games
 - non_side_pick: 3 games
 
 ### value_gap_pick_alignment
 - aligned: 6 games
-- conflict: 1 games
-- neutral: 1 games
+- neutral: 2 games
 - no_pick: 127 games
 - non_side_pick: 3 games
 

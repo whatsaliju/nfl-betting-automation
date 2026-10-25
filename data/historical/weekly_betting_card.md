@@ -8,8 +8,8 @@
 |---:|---|---|---|---|---|---|---|---|
 | 7 | NYG@HOU | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +88.5% EV |  |
 | 7 | DAL@PHI | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, team_rating; WARPS moneyline overlay: HOME +63.3% EV |  |
-| 7 | IND@MIN | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: AWAY +42.9% EV |  |
-| 7 | TB@CAR | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: AWAY +5.6% EV |  |
+| 7 | IND@MIN | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: AWAY +37.5% EV |  |
+| 7 | TB@CAR | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: AWAY +3.0% EV |  |
 | 7 | KC@SEA | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: AWAY +4.4% EV |  |
 | 7 | CIN@BAL | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, injury; WARPS moneyline overlay: HOME +45.0% EV |  |
 | 7 | MIA@NYJ | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: AWAY +19.8% EV |  |
