@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
-"""History layer: walk-forward side and total models on 2015-2025, scored on 2026.
+"""History layer: walk-forward side and total models on 2003-2025, scored on 2026.
 
 One logistic model per market, trained only on information known before kickoff
 and available for every past season (nflverse schedules + WARPS preseason priors):
 
   Sides  (target: home team covers the closing spread)
-    WARPS edge vs the close (and its Weeks 1-5 version), spread size, home dog,
-    rest difference, divisional, neutral site, each team's ATS form this season,
-    the referee's home-cover history.
+    WARPS edge vs the close plus a version that fades by week, spread size, home
+    dog, rest difference, divisional, neutral site, each team's ATS form this
+    season, the referee's home-cover history.
   Totals (target: game goes over the closing total)
     total line, wind, temperature, dome, divisional, each team's over/under form
     this season, under-start teams (<=1 over in Weeks 1-5) after Week 5, the
-    referee's over history.
+    referee's over history, Weeks 10-14, Sunday/Monday night.
 
-Walk-forward: season S is predicted by a model trained only on 2015..S-1, so the
-2018-2025 record is out of sample. 2026 uses the model trained on 2015-2025.
+Walk-forward: season S is predicted by a model trained only on 2003..S-1, so the
+2008-2025 record is out of sample. 2026 uses the model trained on 2003-2025.
 Records are graded at the closing line, so a pick has to clear 52.4% to beat -110.
 
-Two versions per market: all inputs, and a lean four-input model.
+Two versions per market: all inputs, and a lean model.
 
 Writes data/backtests/history_model/{summary.json,report.md,predictions_2026.csv}.
 Research output only: nothing here feeds the betting card.
@@ -43,11 +43,14 @@ WARPS_HISTORY = ROOT / "warps_backtest_team_results_v2_3.csv"
 WARPS_2026 = ROOT / "warps_2026_game_priors.csv"
 TLA = {"LA": "LAR", "WSH": "WAS", "OAK": "LV", "SD": "LAC", "STL": "LAR"}
 
-FIRST_SEASON = 2012          # earlier seasons only build referee history
-TRAIN_START = 2015
-TEST_SEASONS = range(2018, 2026)
+FIRST_SEASON = 2000          # 2000-2002 only build referee history
+TRAIN_START = 2003
+TEST_SEASONS = range(2008, 2026)
 LIVE_SEASON = 2026
 EARLY_WEEKS = 5
+# WARPS is a preseason rating; its weight fades as the market learns from real games.
+# warps_edge_decay = edge x (18 - week) / 17, so the model fits weight(week) = a + b x (18 - week) / 17.
+REG_WEEKS = 17
 L2 = 1.0
 THRESHOLDS = (0.53, 0.55, 0.57)
 BREAKEVEN = 110 / 210
@@ -58,18 +61,20 @@ WIN_GAP_LOGIT_SCALE = 0.15
 NFL_MARGIN_SD = 13.45
 
 SIDE_FEATURES = [
-    "warps_edge", "warps_edge_early", "home_spread", "home_dog", "rest_diff",
+    "warps_edge", "warps_edge_decay", "home_spread", "home_dog", "rest_diff",
     "div_game", "neutral", "home_ats_form", "away_ats_form", "ref_home_cover",
 ]
 TOTAL_FEATURES = [
     "total_line", "wind", "temp_dev", "dome", "div_game",
-    "home_ou_form", "away_ou_form", "under_start", "ref_over",
+    "home_ou_form", "away_ou_form", "under_start", "ref_over", "late_season", "primetime",
 ]
-# Lean models keep the four inputs per market with a consistent sign in the full
-# model, and regularise harder. These inputs were picked after looking at
-# 2015-2025, so their walk-forward record flatters them; 2026 is the clean test.
-LEAN_SIDE_FEATURES = ["warps_edge_early", "home_dog", "home_ats_form", "away_ats_form"]
-LEAN_TOTAL_FEATURES = ["wind", "under_start", "home_ou_form", "away_ou_form"]
+# Lean models keep the inputs with a consistent sign in the full model and regularise
+# harder. WARPS enters as edge + edge x (18 - week) / 17 so its weight fades by week
+# instead of switching off after Week 5. Week 10-14 and Sunday/Monday night games lean
+# under. The lean inputs were picked after looking at the data, so their walk-forward
+# record flatters them a little; the current season is the clean test.
+LEAN_SIDE_FEATURES = ["warps_edge", "warps_edge_decay", "home_dog", "home_ats_form", "away_ats_form"]
+LEAN_TOTAL_FEATURES = ["wind", "under_start", "home_ou_form", "away_ou_form", "late_season", "primetime"]
 LEAN_L2 = 50.0
 MODELS = [
     # key, label, features, target, l2
@@ -156,6 +161,7 @@ def build_rows(schedule, warps):
             "home_spread_line": home_spread, "total_line_raw": total, "played": played,
             "warps_edge": warps_edge if warps_edge is not None else 0.0,
             "warps_edge_early": (warps_edge or 0.0) if week <= EARLY_WEEKS else 0.0,
+            "warps_edge_decay": (warps_edge or 0.0) * max(0.0, (REG_WEEKS + 1 - week) / REG_WEEKS),
             "has_warps": warps_edge is not None,
             "home_spread": home_spread,
             "home_dog": 1.0 if home_spread > 0 else 0.0,
@@ -173,6 +179,10 @@ def build_rows(schedule, warps):
             "away_ou_form": shrunk(*ou[(season, away)]),
             "under_start": 1.0 if under_start(home) or under_start(away) else 0.0,
             "ref_over": shrunk(*ref_over[ref], prior=40) if ref else 0.0,
+            # Sunday/Monday night (not Thursday, not international) and the Week 10-14 stretch.
+            "primetime": 1.0 if not neutral and (g.get("weekday") == "Monday" or (
+                g.get("weekday") == "Sunday" and (g.get("gametime") or "13:00") >= "19:00")) else 0.0,
+            "late_season": 1.0 if 10 <= week <= 14 else 0.0,
             "home_cover": None, "over": None,
         }
         if played:
