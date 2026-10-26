@@ -31,23 +31,23 @@
 
 ## Survivor
 
-- Primary: CAR vs TB (56.8%)
-- Safest: HOU vs NYG (75.9%)
-- Path pick: HOU vs NYG (75.9%)
+- Primary: LAR vs LV (65.2%)
+- Safest: HOU vs NYG (67.5%)
+- Path pick: HOU vs NYG (67.5%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | CAR vs TB (56.8%) | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) |
-| 100 | CAR vs TB (56.8%) | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) |
-| 500 | CAR vs TB (56.8%) | HOU vs NYG (75.9%) | HOU vs NYG (75.9%) |
+| 25 | LAR vs LV (65.2%) | HOU vs NYG (67.5%) | HOU vs NYG (67.5%) |
+| 100 | LAR vs LV (65.2%) | HOU vs NYG (67.5%) | HOU vs NYG (67.5%) |
+| 500 | LAR vs LV (65.2%) | HOU vs NYG (67.5%) | HOU vs NYG (67.5%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| MIN | vs IND | 63.5% | -174 |
-| HOU | vs NYG | 63.3% | -172 |
-| DET | vs GB | 60.8% | -155 |
-| BAL | vs CIN | 60.2% | -151 |
-| NYJ | vs MIA | 58.7% | -142 |
-| CAR | vs TB | 57.2% | -134 |
+| MIN | vs IND | 64.8% | -184 |
+| HOU | vs NYG | 61.6% | -160 |
+| DET | vs GB | 61.2% | -157 |
+| LAR | @ LV | 58.5% | -141 |
+| NYJ | vs MIA | 57.9% | -137 |
+| PIT | @ NO | 57.6% | -136 |
