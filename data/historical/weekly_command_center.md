@@ -1,9 +1,9 @@
 # Weekly Command Center
 
-- Context: 2026 W7 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Context: 2026 W8 · live
+- Recommended action: **PLAY**
+- Confidence tier: **A**
+- Reason: At least one selector play cleared the current command gate.
 
 ## Source Gates
 
@@ -16,38 +16,34 @@
 
 ## Betting Card
 
-- Plays: 0
-- Watch: 7
-- Passes: 7
+- Plays: 1
+- Watch: 1
+- Passes: 12
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| NYG@HOU | watch | n/a | n/a | 4.0 |
-| DAL@PHI | watch | n/a | n/a | 2.0 |
-| IND@MIN | watch | n/a | n/a | 2.0 |
-| TB@CAR | watch | n/a | n/a | 2.0 |
-| KC@SEA | watch | n/a | n/a | 1.0 |
-| CIN@BAL | watch | n/a | n/a | n/a |
+| BAL@BUF | play | total | OVER | 3.0 |
+| TEN@CIN | watch | spread | HOME | 5.0 |
 
 ## Survivor
 
-- Primary: LAR vs LV (65.2%)
-- Safest: HOU vs NYG (67.5%)
-- Path pick: HOU vs NYG (67.5%)
+- Primary: CIN vs TEN (75.6%)
+- Safest: CIN vs TEN (75.6%)
+- Path pick: CIN vs TEN (75.6%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | LAR vs LV (65.2%) | HOU vs NYG (67.5%) | HOU vs NYG (67.5%) |
-| 100 | LAR vs LV (65.2%) | HOU vs NYG (67.5%) | HOU vs NYG (67.5%) |
-| 500 | LAR vs LV (65.2%) | HOU vs NYG (67.5%) | HOU vs NYG (67.5%) |
+| 25 | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) |
+| 100 | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) |
+| 500 | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| MIN | vs IND | 64.8% | -184 |
-| HOU | vs NYG | 61.6% | -160 |
-| DET | vs GB | 61.2% | -157 |
-| LAR | @ LV | 58.5% | -141 |
-| NYJ | vs MIA | 57.9% | -137 |
-| PIT | @ NO | 57.6% | -136 |
+| CIN | vs TEN | 69.0% | -223 |
+| LAR | vs LAC | 68.8% | -221 |
+| JAX | vs IND | 66.1% | -195 |
+| DAL | vs ARI | 63.6% | -175 |
+| PIT | vs CLE | 63.4% | -173 |
+| SEA | vs CHI | 62.8% | -169 |
