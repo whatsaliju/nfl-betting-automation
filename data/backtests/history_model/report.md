@@ -1,6 +1,6 @@
 # History layer: walk-forward side and total models
 
-Generated 2026-10-25T12:47:36+00:00. Trained on 2003-2025; each test season uses only earlier seasons. Graded at the closing line; break-even at -110 is 52.4%.
+Generated 2026-10-27T14:19:25+00:00. Trained on 2003-2025; each test season uses only earlier seasons. Graded at the closing line; break-even at -110 is 52.4%.
 
 ## Sides, all inputs (home cover)
 
@@ -32,7 +32,7 @@ Pooled 2008-2025: 4567 games, log loss 0.6943 (coin flip = 0.6931).
 | 2023 | 258 | 0.6931 | 52-46 | 53.1% |
 | 2024 | 268 | 0.702 | 31-53 | 36.9% |
 | 2025 | 271 | 0.6905 | 33-31 | 51.6% |
-| **2026 to date** | 88 | 0.6828 | 17-7 | 70.8% |
+| **2026 to date** | 101 | 0.6799 | 21-7 | 75.0% |
 
 Final-model weights (per standard deviation; positive pushes toward home cover):
 
@@ -77,7 +77,7 @@ Pooled 2008-2025: 4632 games, log loss 0.6926 (coin flip = 0.6931).
 | 2023 | 270 | 0.6943 | 69-60 | 53.5% |
 | 2024 | 269 | 0.6997 | 51-63 | 44.7% |
 | 2025 | 272 | 0.6911 | 63-49 | 56.2% |
-| **2026 to date** | 94 | 0.6944 | 17-12 | 58.6% |
+| **2026 to date** | 107 | 0.692 | 21-13 | 61.8% |
 
 Final-model weights (per standard deviation; positive pushes toward over):
 
@@ -123,7 +123,7 @@ Pooled 2008-2025: 4567 games, log loss 0.6925 (coin flip = 0.6931).
 | 2023 | 258 | 0.6931 | 32-37 | 46.4% |
 | 2024 | 268 | 0.6984 | 31-40 | 43.7% |
 | 2025 | 271 | 0.6914 | 22-22 | 50.0% |
-| **2026 to date** | 88 | 0.6882 | 13-5 | 72.2% |
+| **2026 to date** | 101 | 0.6857 | 17-5 | 77.3% |
 
 Final-model weights (per standard deviation; positive pushes toward home cover):
 
@@ -163,7 +163,7 @@ Pooled 2008-2025: 4632 games, log loss 0.6921 (coin flip = 0.6931).
 | 2023 | 270 | 0.6932 | 60-49 | 55.0% |
 | 2024 | 269 | 0.6962 | 49-57 | 46.2% |
 | 2025 | 272 | 0.6903 | 54-43 | 55.7% |
-| **2026 to date** | 94 | 0.6892 | 9-7 | 56.2% |
+| **2026 to date** | 107 | 0.6868 | 12-8 | 60.0% |
 
 Final-model weights (per standard deviation; positive pushes toward over):
 
