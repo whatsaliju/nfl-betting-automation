@@ -11,8 +11,8 @@
 | 8 | ATL@TB | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +5.3% EV |  |
 | 8 | LAC@LAR | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, injury; WARPS moneyline overlay: AWAY +17.4% EV |  |
 | 8 | PHI@WAS | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, injury; WARPS moneyline overlay: AWAY +38.3% EV |  |
-| 8 | NE@MIA | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +65.7% EV |  |
 | 8 | MIN@DET | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: AWAY +24.8% EV |  |
+| 8 | NE@MIA | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +65.7% EV |  |
 | 8 | ARI@DAL | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
 | 8 | CAR@GB | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
 | 8 | CHI@SEA | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
