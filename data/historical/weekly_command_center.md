@@ -17,13 +17,17 @@
 ## Betting Card
 
 - Plays: 1
-- Watch: 1
-- Passes: 12
+- Watch: 6
+- Passes: 7
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | BAL@BUF | play | total | OVER | 3.0 |
 | TEN@CIN | watch | spread | HOME | 5.0 |
+| ATL@TB | watch | n/a | n/a | 3.0 |
+| LAC@LAR | watch | n/a | n/a | 2.0 |
+| PHI@WAS | watch | n/a | n/a | 2.0 |
+| NE@MIA | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
