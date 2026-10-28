@@ -17,29 +17,29 @@
 ## Betting Card
 
 - Plays: 1
-- Watch: 6
-- Passes: 7
+- Watch: 7
+- Passes: 6
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | BAL@BUF | play | total | OVER | 3.0 |
-| TEN@CIN | watch | spread | HOME | 5.0 |
-| ATL@TB | watch | n/a | n/a | 3.0 |
+| TEN@CIN | watch | n/a | n/a | 4.0 |
+| ATL@TB | watch | total | UNDER | 3.0 |
+| CHI@SEA | watch | n/a | n/a | 3.0 |
 | LAC@LAR | watch | n/a | n/a | 1.0 |
-| NE@MIA | watch | n/a | n/a | 1.0 |
-| PHI@WAS | watch | n/a | n/a | 1.0 |
+| MIN@DET | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
-- Primary: CIN vs TEN (75.6%)
-- Safest: CIN vs TEN (75.6%)
-- Path pick: CIN vs TEN (75.6%)
+- Primary: CIN vs TEN (73.8%)
+- Safest: CIN vs TEN (73.8%)
+- Path pick: CIN vs TEN (73.8%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) |
-| 100 | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) |
-| 500 | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) | CIN vs TEN (75.6%) |
+| 25 | CIN vs TEN (73.8%) | CIN vs TEN (73.8%) | CIN vs TEN (73.8%) |
+| 100 | CIN vs TEN (73.8%) | CIN vs TEN (73.8%) | CIN vs TEN (73.8%) |
+| 500 | CIN vs TEN (73.8%) | CIN vs TEN (73.8%) | CIN vs TEN (73.8%) |
 
 ## WARPS Watch
 
