@@ -279,7 +279,7 @@
               "warps_alignment": "no_spread_pick",
               "warps_side": "AWAY",
               "warps_team": "BAL",
-              "edge_value": 0.3
+              "edge_value": -0.2
             },
             {
               "market": "total",
@@ -1031,7 +1031,7 @@
         "warps_market_overlay": {
           "available": true,
           "status": "priced",
-          "source": "WARPS v2.3 game prior + master sharp lines (update)",
+          "source": "WARPS v2.3 game prior + master sharp lines (initial)",
           "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
           "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
           "away_tla": "TEN",
@@ -1308,7 +1308,7 @@
         "warps_market_overlay": {
           "available": true,
           "status": "priced",
-          "source": "WARPS v2.3 game prior + master sharp lines (update)",
+          "source": "WARPS v2.3 game prior + master sharp lines (initial)",
           "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
           "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
           "away_tla": "BAL",
@@ -1322,12 +1322,12 @@
           "home_fair_moneyline": "-147",
           "away_fair_moneyline": "+147",
           "market_home_spread": -3.5,
-          "market_away_spread": 3.5,
+          "market_away_spread": 3.0,
           "market_home_moneyline": -167.0,
           "market_away_moneyline": 167.0,
           "spread_side": "AWAY",
           "spread_team": "BAL",
-          "spread_edge_points": 0.3,
+          "spread_edge_points": -0.2,
           "spread_pick_alignment": "no_spread_pick",
           "fair_spread_side": "HOME",
           "ml_side": "AWAY",
@@ -3056,7 +3056,7 @@
             "warps_alignment": "no_spread_pick",
             "warps_side": "AWAY",
             "warps_team": "BAL",
-            "edge_value": 0.3
+            "edge_value": -0.2
           },
           {
             "market": "total",
@@ -3693,7 +3693,7 @@
         "quality_gate": "clear",
         "main_reasons": [
           "Signals: sharp",
-          "WARPS moneyline overlay: HOME +65.7% EV"
+          "WARPS moneyline overlay: HOME +64.9% EV"
         ],
         "risk_flags": [],
         "market_status": null,
@@ -3850,7 +3850,7 @@
             "side": "AWAY",
             "status": "research_only",
             "promotion_status": "not_promoted",
-            "score": 8.9,
+            "score": 10.9,
             "threshold": 5.0,
             "blockers": [
               "moneyline selector not promoted",
@@ -3861,7 +3861,7 @@
             "warps_alignment": "research_only",
             "warps_side": "AWAY",
             "warps_team": "ARI",
-            "edge_value": 0.3275
+            "edge_value": 0.4257
           }
         ],
         "referee": "Ron Torbert",
@@ -4236,7 +4236,7 @@
             "side": "AWAY",
             "status": "research_only",
             "promotion_status": "not_promoted",
-            "score": 13.8,
+            "score": 13.4,
             "threshold": 5.0,
             "blockers": [
               "moneyline selector not promoted",
@@ -4247,7 +4247,7 @@
             "warps_alignment": "research_only",
             "warps_side": "AWAY",
             "warps_team": "IND",
-            "edge_value": 0.6925
+            "edge_value": 0.6519
           }
         ],
         "referee": "Adrian Hill",
@@ -54639,22 +54639,72 @@
       "stages": {
         "initial": {
           "available": true,
-          "classification": "\u26a0\ufe0f PASS",
-          "signal_classification": "\u26a0\ufe0f LANDMINE",
-          "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+          "classification": "\ud83d\udcca WATCH",
+          "signal_classification": "\ud83d\udcca LEAN",
+          "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
           "pick_market": "none",
           "pick_side": null,
-          "selector_score": null,
+          "selector_score": 3,
           "pick_reasons": "",
           "recommendation_trace": {
             "final_decision": {
               "market": "none",
-              "reason": "signal classification was LANDMINE",
+              "reason": "no market cleared threshold",
               "side": null
             },
             "market_candidates": {
-              "spread": {},
-              "total": {}
+              "spread": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "has_sharp_edge": true,
+                "market": "spread",
+                "reasons": [
+                  "sharp spread edge",
+                  "team-rating edge aligns"
+                ],
+                "requires_sharp_edge": true,
+                "score": 3,
+                "side": "HOME",
+                "signals": [
+                  {
+                    "impact": 1,
+                    "score": -1,
+                    "side": "HOME",
+                    "source": "sharp",
+                    "status": "aligned"
+                  },
+                  {
+                    "impact": 2,
+                    "score": 2,
+                    "side": "HOME",
+                    "source": "team_rating",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4.5,
+                "threshold_adjustments": [
+                  {
+                    "delta": 0.5,
+                    "reason": "market ML implies 74% win prob for pick side: overconfidence zone"
+                  }
+                ]
+              },
+              "total": {
+                "blocked": true,
+                "blockers": [
+                  "no sharp total side"
+                ],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "market": "total",
+                "reasons": [],
+                "score": 0,
+                "side": "NEUTRAL",
+                "signals": [],
+                "threshold": 3
+              }
             },
             "selector_version": "2026.9",
             "source_policy": {
@@ -54667,10 +54717,10 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+6.5 (+102) | -6.5 (+100)",
-          "sharp_total_line": "o54.5 (+102) | u54.5 (-102)",
-          "sharp_moneyline_line": "+265 | -264"
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+6.5 (+104) | -7.5 (+117)",
+          "sharp_total_line": "o53.5 (-115) | u54.5 (-104)",
+          "sharp_moneyline_line": "+292 | -292"
         },
         "pre_tnf": {
           "available": false,
@@ -54952,9 +55002,9 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+2.5 (-102) | -2.5 (+104)",
-          "sharp_total_line": "o46.5 (+113) | u46.5 (-113)",
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+2.5 (-104) | -2.5 (+104)",
+          "sharp_total_line": "o45.5 (+104) | u44.5 (+113)",
           "sharp_moneyline_line": "+125 | -125"
         },
         "pre_tnf": {
@@ -55263,7 +55313,7 @@
                   },
                   {
                     "impact": 0,
-                    "score": -7.0,
+                    "score": -2.0,
                     "side": "HOME",
                     "source": "injury",
                     "status": "conflict"
@@ -55281,8 +55331,8 @@
                 "side": "AWAY",
                 "signals": [
                   {
-                    "impact": 2,
-                    "score": 2,
+                    "impact": 3,
+                    "score": 3,
                     "side": "AWAY",
                     "source": "sharp",
                     "status": "aligned"
@@ -55330,9 +55380,9 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+3.5 (-108) | -3.5 (+108)",
-          "sharp_total_line": "o54.5 (+111) | u54.5 (-111)",
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+3 (+101) | -3.5 (+115)",
+          "sharp_total_line": "o54.5 (+106) | u54.5 (-104)",
           "sharp_moneyline_line": "+167 | -167"
         },
         "pre_tnf": {
@@ -55594,9 +55644,9 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
           "sharp_spread_line": "+3.5 (+102) | -3.5 (-102)",
-          "sharp_total_line": "o48.5 (+106) | u48.5 (-106)",
+          "sharp_total_line": "o47.5 (+100) | u46.5 (+117)",
           "sharp_moneyline_line": "+182 | -182"
         },
         "pre_tnf": {
@@ -55761,22 +55811,57 @@
       "stages": {
         "initial": {
           "available": true,
-          "classification": "\u26a0\ufe0f PASS",
-          "signal_classification": "\u26a0\ufe0f LANDMINE",
-          "recommendation": "\u26a0\ufe0f PASS: Mixed signals, no clear edge identified",
+          "classification": "\ud83d\udcca WATCH",
+          "signal_classification": "\ud83d\udcca LEAN",
+          "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
           "pick_market": "none",
           "pick_side": null,
-          "selector_score": null,
+          "selector_score": 3,
           "pick_reasons": "",
           "recommendation_trace": {
             "final_decision": {
               "market": "none",
-              "reason": "signal classification was LANDMINE",
+              "reason": "no market cleared threshold",
               "side": null
             },
             "market_candidates": {
-              "spread": {},
-              "total": {}
+              "spread": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "has_sharp_edge": true,
+                "market": "spread",
+                "reasons": [
+                  "sharp spread edge"
+                ],
+                "requires_sharp_edge": true,
+                "score": 3,
+                "side": "HOME",
+                "signals": [
+                  {
+                    "impact": 3,
+                    "score": -3,
+                    "side": "HOME",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
+                "threshold": 4,
+                "threshold_adjustments": []
+              },
+              "total": {
+                "blocked": false,
+                "blockers": [],
+                "cleared_threshold": false,
+                "conflicts": [],
+                "market": "total",
+                "reasons": [],
+                "score": 0,
+                "side": "OVER",
+                "signals": [],
+                "threshold": 3
+              }
             },
             "selector_version": "2026.9",
             "source_policy": {
@@ -55789,8 +55874,8 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+3.5 (-117) | -3.5 (+117)",
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+3.5 (-113) | -3.5 (+113)",
           "sharp_total_line": "o46.5 (+100) | u46.5 (+100)",
           "sharp_moneyline_line": "+160 | -160"
         },
@@ -55984,10 +56069,10 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+3.5 (-111) | -3.5 (+111)",
-          "sharp_total_line": "o39.5 (+108) | u64.5 (+100)",
-          "sharp_moneyline_line": "+182 | -175"
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+3.5 (-106) | -3.5 (+106)",
+          "sharp_total_line": "o39.5 (+104) | u38.5 (+106)",
+          "sharp_moneyline_line": "+182 | -182"
         },
         "pre_tnf": {
           "available": false,
@@ -56179,10 +56264,10 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+7.5 (+108) | -8.5 (+106)",
-          "sharp_total_line": "o46.5 (+102) | u46.5 (+100)",
-          "sharp_moneyline_line": "+365 | -365"
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+9.5 (+104) | -9.5 (-104)",
+          "sharp_total_line": "o46.5 (+100) | u46.5 (+100)",
+          "sharp_moneyline_line": "+388 | -388"
         },
         "pre_tnf": {
           "available": false,
@@ -56374,9 +56459,9 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "-1.5 (+104) | +1.5 (-102)",
-          "sharp_total_line": "o40.5 (-104) | u40.5 (+104)",
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "-1.5 (+108) | +1.5 (-108)",
+          "sharp_total_line": "o40.5 (+100) | u40.5 (+100)",
           "sharp_moneyline_line": "-111 | +111"
         },
         "pre_tnf": {
@@ -56589,12 +56674,12 @@
       "stages": {
         "initial": {
           "available": true,
-          "classification": "\ud83c\udfaf WATCH",
-          "signal_classification": "\ud83c\udfaf TARGETED PLAY",
+          "classification": "\ud83d\udcca WATCH",
+          "signal_classification": "\ud83d\udcca LEAN",
           "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
           "pick_market": "none",
           "pick_side": null,
-          "selector_score": 2,
+          "selector_score": 1,
           "pick_reasons": "",
           "recommendation_trace": {
             "final_decision": {
@@ -56615,25 +56700,25 @@
                   "injury context aligns"
                 ],
                 "requires_sharp_edge": true,
-                "score": 2,
+                "score": 1,
                 "side": "AWAY",
                 "signals": [
                   {
-                    "impact": 2,
-                    "score": 2,
+                    "impact": 1,
+                    "score": 1,
                     "side": "AWAY",
                     "source": "sharp",
                     "status": "aligned"
                   },
                   {
                     "impact": 0,
-                    "score": 2.8,
+                    "score": 2.0,
                     "side": "AWAY",
                     "source": "injury",
                     "status": "aligned"
                   }
                 ],
-                "threshold": 4,
+                "threshold": 5,
                 "threshold_adjustments": [
                   {
                     "delta": 1,
@@ -56647,10 +56732,20 @@
                 "cleared_threshold": false,
                 "conflicts": [],
                 "market": "total",
-                "reasons": [],
-                "score": 0,
+                "reasons": [
+                  "sharp total edge"
+                ],
+                "score": 1,
                 "side": "OVER",
-                "signals": [],
+                "signals": [
+                  {
+                    "impact": 1,
+                    "score": 1,
+                    "side": "OVER",
+                    "source": "sharp",
+                    "status": "aligned"
+                  }
+                ],
                 "threshold": 3
               }
             },
@@ -56665,9 +56760,9 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+6.5 (+102) | -6.5 (-102)",
-          "sharp_total_line": "o44.5 (+115) | u43.5 (+108)",
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+6.5 (+100) | -6.5 (+102)",
+          "sharp_total_line": "o44.5 (-109) | u44.5 (+113)",
           "sharp_moneyline_line": "+277 | -277"
         },
         "pre_tnf": {
@@ -56908,10 +57003,10 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+1.5 (-104) | -1.5 (+104)",
-          "sharp_total_line": "o46.5 (+115) | u46.5 (-115)",
-          "sharp_moneyline_line": "+111 | -111"
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+1.5 (-102) | -1.5 (+102)",
+          "sharp_total_line": "o46.5 (+117) | u45.5 (-104)",
+          "sharp_moneyline_line": "+115 | -115"
         },
         "pre_tnf": {
           "available": false,
@@ -57120,12 +57215,12 @@
       "stages": {
         "initial": {
           "available": true,
-          "classification": "\ud83c\udfaf WATCH",
-          "signal_classification": "\ud83c\udfaf TARGETED PLAY",
+          "classification": "\ud83d\udcca WATCH",
+          "signal_classification": "\ud83d\udcca LEAN",
           "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
           "pick_market": "none",
           "pick_side": null,
-          "selector_score": 1,
+          "selector_score": 0,
           "pick_reasons": "",
           "recommendation_trace": {
             "final_decision": {
@@ -57159,14 +57254,14 @@
                 "side": "HOME",
                 "signals": [
                   {
-                    "impact": 3,
-                    "score": -3,
+                    "impact": 2,
+                    "score": -2,
                     "side": "HOME",
                     "source": "sharp",
                     "status": "aligned"
                   }
                 ],
-                "threshold": 3,
+                "threshold": 4,
                 "threshold_adjustments": []
               },
               "total": {
@@ -57175,20 +57270,10 @@
                 "cleared_threshold": false,
                 "conflicts": [],
                 "market": "total",
-                "reasons": [
-                  "sharp total edge"
-                ],
-                "score": 1,
+                "reasons": [],
+                "score": 0,
                 "side": "UNDER",
-                "signals": [
-                  {
-                    "impact": 1,
-                    "score": -1,
-                    "side": "UNDER",
-                    "source": "sharp",
-                    "status": "aligned"
-                  }
-                ],
+                "signals": [],
                 "threshold": 3
               }
             },
@@ -57203,9 +57288,9 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+3.5 (-104) | -3.5 (+108)",
-          "sharp_total_line": "o46.5 (+111) | u46.5 (-108)",
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+3.5 (-111) | -3.5 (+111)",
+          "sharp_total_line": "o46.5 (+113) | u45.5 (+100)",
           "sharp_moneyline_line": "+167 | -167"
         },
         "pre_tnf": {
@@ -57473,8 +57558,8 @@
       "stages": {
         "initial": {
           "available": true,
-          "classification": "\ud83c\udfaf WATCH",
-          "signal_classification": "\ud83c\udfaf TARGETED PLAY",
+          "classification": "\ud83d\udcca WATCH",
+          "signal_classification": "\ud83d\udcca LEAN",
           "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
           "pick_market": "none",
           "pick_side": null,
@@ -57520,14 +57605,14 @@
                 "side": "HOME",
                 "signals": [
                   {
-                    "impact": 2,
-                    "score": -2,
+                    "impact": 1,
+                    "score": -1,
                     "side": "HOME",
                     "source": "sharp",
                     "status": "aligned"
                   }
                 ],
-                "threshold": 4,
+                "threshold": 5,
                 "threshold_adjustments": [
                   {
                     "delta": 1,
@@ -57569,10 +57654,10 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "-6.5 (-111) | +6.5 (+111)",
-          "sharp_total_line": "o44.5 (+111) | u43.5 (+104)",
-          "sharp_moneyline_line": "-308 | +310"
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "-6.5 (-106) | +6.5 (+108)",
+          "sharp_total_line": "o44.5 (+113) | u44 (-105)",
+          "sharp_moneyline_line": "-308 | +308"
         },
         "pre_tnf": {
           "available": false,
@@ -57910,7 +57995,7 @@
                   },
                   {
                     "impact": 0,
-                    "score": -3.5999999999999996,
+                    "score": -4.05,
                     "side": "HOME",
                     "source": "injury",
                     "status": "aligned"
@@ -57958,9 +58043,9 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+5.5 (-102) | -5.5 (+102)",
-          "sharp_total_line": "o40.5 (+102) | u40.5 (-102)",
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+5.5 (+100) | -5.5 (+100)",
+          "sharp_total_line": "o40.5 (+102) | u39.5 (+108)",
           "sharp_moneyline_line": "+217 | -217"
         },
         "pre_tnf": {
@@ -58347,9 +58432,9 @@
           "data_quality_status": "OK",
           "source_health_status": "OK",
           "source_health_warnings": "",
-          "source_health_reference_time": "2026-10-27T19:19:20.851539+00:00",
-          "sharp_spread_line": "+10.5 (-106) | -10.5 (+106)",
-          "sharp_total_line": "o46.5 (-102) | u46.5 (+102)",
+          "source_health_reference_time": "2026-10-28T13:02:08.831120+00:00",
+          "sharp_spread_line": "+10.5 (-104) | -10.5 (+108)",
+          "sharp_total_line": "o46.5 (+100) | u46.5 (+100)",
           "sharp_moneyline_line": "+471 | -471"
         },
         "pre_tnf": {
@@ -79314,7 +79399,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "TEN",
@@ -81582,7 +81667,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "BAL",
@@ -81596,12 +81681,12 @@
         "home_fair_moneyline": "-147",
         "away_fair_moneyline": "+147",
         "market_home_spread": -3.5,
-        "market_away_spread": 3.5,
+        "market_away_spread": 3.0,
         "market_home_moneyline": -167.0,
         "market_away_moneyline": 167.0,
         "spread_side": "AWAY",
         "spread_team": "BAL",
-        "spread_edge_points": 0.3,
+        "spread_edge_points": -0.2,
         "spread_pick_alignment": "no_spread_pick",
         "fair_spread_side": "HOME",
         "ml_side": "AWAY",
@@ -87150,7 +87235,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "ATL",
@@ -91179,7 +91264,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "LAC",
@@ -93914,7 +93999,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "PHI",
@@ -94025,7 +94110,7 @@
         "confidence": "watch",
         "market": "",
         "side": "",
-        "selector_score": "2.0",
+        "selector_score": "1.0",
         "label": "\ud83c\udfaf WATCH",
         "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
         "source_health_status": "OK",
@@ -114691,7 +114776,7 @@
         "moneyline": {
           "market": "moneyline",
           "side": "AWAY",
-          "score": 8.9,
+          "score": 10.9,
           "threshold": 5.0,
           "cleared_threshold": false,
           "status": "blocked",
@@ -114719,7 +114804,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "ARI",
@@ -114732,10 +114817,10 @@
         "away_win_prob": 0.3637,
         "home_fair_moneyline": "-175",
         "away_fair_moneyline": "+175",
-        "market_home_spread": -6.5,
+        "market_home_spread": -7.5,
         "market_away_spread": 6.5,
-        "market_home_moneyline": -264.0,
-        "market_away_moneyline": 265.0,
+        "market_home_moneyline": -292.0,
+        "market_away_moneyline": 292.0,
         "spread_side": "AWAY",
         "spread_team": "ARI",
         "spread_edge_points": 1.9,
@@ -114743,8 +114828,8 @@
         "fair_spread_side": "HOME",
         "ml_side": "AWAY",
         "ml_team": "ARI",
-        "ml_edge_prob": 0.0895,
-        "ml_ev": 0.3275,
+        "ml_edge_prob": 0.1086,
+        "ml_ev": 0.4257,
         "ml_pick_alignment": "research_only"
       },
       "schedule_context": {
@@ -114942,7 +115027,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "CAR",
@@ -115165,7 +115250,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "CHI",
@@ -115378,7 +115463,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "CLE",
@@ -115573,7 +115658,7 @@
         "moneyline": {
           "market": "moneyline",
           "side": "AWAY",
-          "score": 13.8,
+          "score": 13.4,
           "threshold": 5.0,
           "cleared_threshold": false,
           "status": "blocked",
@@ -115591,7 +115676,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "IND",
@@ -115607,7 +115692,7 @@
         "market_home_spread": -9.5,
         "market_away_spread": 9.5,
         "market_home_moneyline": -388.0,
-        "market_away_moneyline": 400.0,
+        "market_away_moneyline": 388.0,
         "spread_side": "AWAY",
         "spread_team": "IND",
         "spread_edge_points": 3.9,
@@ -115615,8 +115700,8 @@
         "fair_spread_side": "HOME",
         "ml_side": "AWAY",
         "ml_team": "IND",
-        "ml_edge_prob": 0.1375,
-        "ml_ev": 0.6925,
+        "ml_edge_prob": 0.1336,
+        "ml_ev": 0.6519,
         "ml_pick_alignment": "research_only"
       },
       "schedule_context": {
@@ -115724,7 +115809,7 @@
           "warps_moneyline": "research_only"
         },
         "reasons": [
-          "WARPS moneyline overlay: AWAY +52.3% EV"
+          "WARPS moneyline overlay: AWAY +69.2% EV"
         ],
         "result": "",
         "margin_to_line": ""
@@ -115804,7 +115889,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "KC",
@@ -116027,7 +116112,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "LV",
@@ -116160,7 +116245,7 @@
           "warps_moneyline": "research_only"
         },
         "reasons": [
-          "WARPS moneyline overlay: HOME +4.7% EV"
+          "WARPS moneyline overlay: HOME +3.0% EV"
         ],
         "result": "",
         "margin_to_line": ""
@@ -116264,7 +116349,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "MIN",
@@ -116514,7 +116599,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "NE",
@@ -116625,8 +116710,8 @@
         "confidence": "watch",
         "market": "",
         "side": "",
-        "selector_score": "1.0",
-        "label": "\ud83c\udfaf WATCH",
+        "selector_score": "0.0",
+        "label": "\ud83d\udcca WATCH",
         "recommendation": "\u26a0\ufe0f PASS: Edge score did not isolate a playable market",
         "source_health_status": "OK",
         "data_quality_status": "OK",
@@ -116653,7 +116738,7 @@
         },
         "reasons": [
           "Signals: sharp",
-          "WARPS moneyline overlay: HOME +65.7% EV"
+          "WARPS moneyline overlay: HOME +64.9% EV"
         ],
         "result": "",
         "margin_to_line": ""
