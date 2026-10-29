@@ -128,6 +128,10 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 - 100 picks/season, ≤10/week, ATS sides + O/U; lines posted Thursday by 2pm MT (4pm ET), picks lock at kickoff; win 1, push 0.5.
 - Contest line = `data/contest/contest_lines_{season}_wk{week}.csv` (matchup_key, home_spread, total — entered from what Liju's contest shows; line_source "contest"), else the last snapshot before Thu 4:30pm ET. The contest's numbers can differ from ours (Wk 7 2026: contest CIN −1 vs our snapshot CIN +1.5), so ask for the posted lines each Thursday.
 
+### Straight-up pool (Liju: ~56 players, weekly winner + season winner; was 59-47 vs leader 70-36 after Week 7)
+- Vegas favorite SU 2026 Wk 1–7: 68-38; site recommendation (WARPS Wk 1–5, favorite Wk 6+) ≈ 67-39.
+- `UpsetPicksPanel.tsx` (Pick'em Games tab): up to 6 closest open games (favorite ≤ 3.5) with the underdog, Model view agreement (≥52%), and the last game's total as tiebreaker. Simulated weekly-win odds for 56 players: all favorites 0.2%, 5–6 upsets ~4.5% (even share 1.8%).
+
 ### Known Deferred Gap
 - **Wf 11 doesn't rebuild engine feed**: After Wf 11's daily Odds API refresh, `warpsMarketOverlay.json` has fresh prices but `matrix_engine_feed.json` is stale until Wf 4.5 next runs. Deferred — engine feed needs master JSON context that Wf 11 doesn't run. The window is at most one day since Wf 4.5 runs multiple times weekly.
 
