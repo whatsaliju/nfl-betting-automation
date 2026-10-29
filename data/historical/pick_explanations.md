@@ -16,13 +16,13 @@
 | WPRE1 GB@PIT | play | play | spread | HOME | standard | Selector isolated spread HOME; Value-gap alignment supports the side; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE3 SEA@KC | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W5 LV@NE | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME |
-| W8 ATL@TB | play | play | total | UNDER | standard | Selector isolated total UNDER; Signals: sharp; WARPS moneyline overlay: HOME +4.6% EV |
+| W8 ATL@TB | play | play | total | UNDER | standard | Selector isolated total UNDER; Signals: sharp; WARPS moneyline overlay: HOME +5.3% EV |
 | W8 BAL@BUF | play | play | total | OVER | standard | Selector isolated total OVER; Signals: sharp; WARPS moneyline overlay: AWAY +8.0% EV |
 | WPRE3 ATL@MIA | pass | pass |  |  | none | No isolated selector edge |
 | W4 ARI@NYG | pass | pass |  |  | none | No isolated selector edge |
 | W4 KC@LV | pass | pass |  |  | none | No isolated selector edge |
 | W7 NYG@HOU | lean | watch |  |  | watch | Signals: sharp, team_rating |
-| W8 TEN@CIN | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +87.6% EV |
+| W8 TEN@CIN | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +99.7% EV |
 | WPRE2 KC@TB | pass | pass |  |  | none | No isolated selector edge |
 | WPRE3 CHI@TEN | pass | pass |  |  | none | No isolated selector edge |
 | W1 ATL@PIT | lean | watch |  |  | watch | Signals: sharp |
@@ -41,7 +41,7 @@
 | W4 LAC@SEA | pass | pass |  |  | none | No isolated selector edge |
 | W5 CIN@MIA | lean | watch |  |  | watch | Signals: sharp, team_rating |
 | W5 PHI@JAX | lean | watch |  |  | watch | Signals: injury |
-| W8 ARI@DAL | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +42.6% EV |
+| W8 ARI@DAL | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +43.7% EV |
 | W8 CHI@SEA | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +2.0% EV |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | No isolated selector edge |
