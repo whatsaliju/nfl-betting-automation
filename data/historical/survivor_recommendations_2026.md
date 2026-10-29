@@ -14,7 +14,7 @@
 | 5 | NE | LV@NE | 72.3% | 64.8 | secondary | WARPS win probability 72.3%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 6 | NE | NYJ@NE | 73.2% | 66.6 | primary | WARPS win probability 73.2%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Division game raises upset volatility |
 | 7 | PHI | DAL@PHI | 65.7% | 62.7 | secondary | WARPS win probability 65.7%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Division game raises upset volatility; Low future opportunity cost |
-| 8 | CIN | TEN@CIN | 73.8% | 73.8 | primary | WARPS 62.4% blended with market 80.0% → 73.8%; Home-field survivor spot; Low future opportunity cost |
+| 8 | CIN | TEN@CIN | 75.6% | 75.6 | primary | WARPS 62.4% blended with market 82.7% → 75.6%; Home-field survivor spot; Low future opportunity cost |
 | 9 | SF | LV@SF | 77.2% | 78.2 | primary | WARPS 71.1% blended with market 80.4% → 77.2%; Home-field survivor spot; Low future opportunity cost; Team off bye |
 | 10 | IND | MIA@IND | 65.9% | 63.5 | secondary | WARPS win probability 65.9%; Home-field survivor spot |
 | 11 | LAC | NYJ@LAC | 68.3% | 68.3 | primary | WARPS win probability 68.3%; Home-field survivor spot; Low future opportunity cost |
@@ -51,9 +51,9 @@
 | 7 | 25 | top_heavy | PHI (65.7%) | HOU (63.2) | HOU (8.9% public) |
 | 7 | 100 | top_heavy | PHI (65.7%) | HOU (65.0) | HOU (10.4% public) |
 | 7 | 500 | top_heavy | PHI (65.7%) | PHI (77.6) | PHI (12.9% public) |
-| 8 | 25 | top_heavy | CIN (73.8%) | CIN (71.8) | CIN (15.4% public) |
-| 8 | 100 | top_heavy | CIN (73.8%) | CIN (74.1) | CIN (16.9% public) |
-| 8 | 500 | top_heavy | CIN (73.8%) | CIN (87.4) | CIN (16.9% public) |
+| 8 | 25 | top_heavy | CIN (75.6%) | CIN (73.4) | CIN (16.5% public) |
+| 8 | 100 | top_heavy | CIN (75.6%) | CIN (75.7) | CIN (18.0% public) |
+| 8 | 500 | top_heavy | CIN (75.6%) | CIN (88.8) | CIN (18.0% public) |
 | 9 | 25 | top_heavy | SF (77.2%) | SF (75.3) | SF (19.4% public) |
 | 9 | 100 | top_heavy | SF (77.2%) | SF (77.8) | SF (20.9% public) |
 | 9 | 500 | top_heavy | SF (77.2%) | SF (92.1) | SF (20.9% public) |
