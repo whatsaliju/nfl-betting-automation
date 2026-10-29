@@ -2,6 +2,7 @@ import { useState } from "react";
 import { teamLogos } from "../data/nflData";
 import gameTimesData from "../data/gameTimes.json";
 import trendsData from "../data/teamTrends.json";
+import modelViewData from "../data/modelView.json";
 import { TopPicksPanel } from "./TopPicksPanel";
 import type { EngineFeed, WarpsMarketOverlay } from "../types";
 import { betText, favoriteLine } from "../lib/betText";
@@ -321,6 +322,13 @@ export function PickemView({
   const recPct = recTotal > 0 ? Math.round((recWins / recTotal) * 100) : 0;
   // WARPS spread edges fade as the season goes: 52.5% in Weeks 1-5, 50% after (2000-2025), so no lean after Week 5.
   const warpsSpreadLive = Number(ctx.week) <= 5;
+  // After Week 5 the spread row shows the learning model's side lean (Model view) when it clears 53%.
+  const mv = modelViewData as { week: number | null; lean_threshold: number; games: { away: string; home: string; side_pick: string; side_conf: number }[] };
+  const modelSide = (away: string, home: string) => {
+    if (warpsSpreadLive || mv.week !== Number(ctx.week)) return null;
+    const m = mv.games.find((x) => x.away === away && x.home === home);
+    return m && m.side_conf >= mv.lean_threshold ? m : null;
+  };
 
   return (
     <section className="pickem-view">
@@ -526,10 +534,17 @@ export function PickemView({
                         <div className="pk-row-main">
                           {spreadPickTla && spreadTossUp ? (
                             <>
-                              <div className="pk-row-pick"><strong>{warpsSpreadLive ? "Toss-up" : "No model lean"}</strong></div>
+                              <div className="pk-row-pick"><strong>{
+                                warpsSpreadLive ? "Toss-up"
+                                  : modelSide(g.awayTla, g.homeTla) ? `Model lean: ${modelSide(g.awayTla, g.homeTla)!.side_pick}`
+                                  : "No spread lean"
+                              }</strong></div>
                               <span className="pk-row-detail">
-                                {warpsLine ? `WARPS line ${warpsLine}` : "WARPS"}{vegasLine ? ` vs Vegas ${vegasLine}` : ""}
-                                {warpsSpreadLive ? " · no real edge" : " · WARPS spread edges fade to about 50% after the first month"}
+                                {warpsSpreadLive
+                                  ? `${warpsLine ? `WARPS line ${warpsLine}` : "WARPS"}${vegasLine ? ` vs Vegas ${vegasLine}` : ""} · no real edge`
+                                  : modelSide(g.awayTla, g.homeTla)
+                                    ? `Learning model ${Math.round(modelSide(g.awayTla, g.homeTla)!.side_conf * 100)}% · weak lean, sides run near break-even`
+                                    : `${vegasLine ? `Vegas ${vegasLine}` : "Vegas line"} · no model edge`}
                               </span>
                             </>
                           ) : spreadPickTla ? (
