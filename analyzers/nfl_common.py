@@ -109,10 +109,20 @@ def _line_parts(line_text):
 
 
 def spread_line_for_side(line_text, side):
-    home = home_spread_from_line(line_text)
-    if home is None:
+    """The requested half of an away|home spread. Halves within a point of each other
+    (two books half a point apart) are used as quoted; halves that disagree by more
+    (an alternate line on one side) go through home_spread_from_line."""
+    side = str(side or "").upper()
+    parts = _line_parts(line_text)
+    if len(parts) < 2:
+        return first_number(line_text)
+    away, home = first_number(parts[0]), first_number(parts[1])
+    if away is not None and home is not None and abs(away + home) <= 1:
+        return away if side == "AWAY" else home
+    resolved = home_spread_from_line(line_text)
+    if resolved is None:
         return None
-    return -home if str(side or "").upper() == "AWAY" else home
+    return -resolved if side == "AWAY" else resolved
 
 
 def total_line_for_side(line_text, side):
