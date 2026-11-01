@@ -17,25 +17,26 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 2
-- Passes: 12
+- Watch: 3
+- Passes: 11
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | BAL@BUF | watch | n/a | n/a | 2.0 |
 | PHI@WAS | watch | n/a | n/a | 2.0 |
+| LAC@LAR | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
-- Primary: CIN vs TEN (76.2%)
-- Safest: CIN vs TEN (76.2%)
-- Path pick: CIN vs TEN (76.2%)
+- Primary: BUF vs BAL (74.6%)
+- Safest: JAX vs IND (78.1%)
+- Path pick: PIT vs CLE (71.2%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | CIN vs TEN (76.2%) | CIN vs TEN (76.2%) | CIN vs TEN (76.2%) |
-| 100 | CIN vs TEN (76.2%) | CIN vs TEN (76.2%) | CIN vs TEN (76.2%) |
-| 500 | CIN vs TEN (76.2%) | CIN vs TEN (76.2%) | CIN vs TEN (76.2%) |
+| 25 | BUF vs BAL (74.6%) | JAX vs IND (78.1%) | JAX vs IND (78.1%) |
+| 100 | BUF vs BAL (74.6%) | JAX vs IND (78.1%) | JAX vs IND (78.1%) |
+| 500 | BUF vs BAL (74.6%) | BUF vs BAL (74.6%) | BUF vs BAL (74.6%) |
 
 ## WARPS Watch
 
