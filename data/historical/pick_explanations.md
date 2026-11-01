@@ -65,8 +65,8 @@
 | W5 DET@ARI | lean | watch |  |  | watch | Signals: sharp |
 | W6 BAL@CLE | lean | watch |  |  | watch | Signals: sharp |
 | W7 KC@SEA | lean | watch |  |  | watch | No isolated selector edge |
-| W8 LAC@LAR | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +17.4% EV |
-| W8 NE@MIA | pass | pass |  |  | none | WARPS moneyline overlay: HOME +69.8% EV |
+| W8 LAC@LAR | lean | watch |  |  | watch | Signals: sharp, injury; WARPS moneyline overlay: AWAY +17.4% EV |
+| W8 NE@MIA | pass | pass |  |  | none | WARPS moneyline overlay: HOME +64.9% EV |
 | WPRE1 ARI@LV | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 CAR@BUF | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 CLE@CHI | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
