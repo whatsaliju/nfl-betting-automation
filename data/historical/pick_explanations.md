@@ -21,7 +21,6 @@
 | W4 ARI@NYG | pass | pass |  |  | none | No isolated selector edge |
 | W4 KC@LV | pass | pass |  |  | none | No isolated selector edge |
 | W7 NYG@HOU | lean | watch |  |  | watch | Signals: sharp, team_rating |
-| W8 TEN@CIN | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +129.4% EV |
 | WPRE2 KC@TB | pass | pass |  |  | none | No isolated selector edge |
 | WPRE3 CHI@TEN | pass | pass |  |  | none | No isolated selector edge |
 | W1 ATL@PIT | lean | watch |  |  | watch | Signals: sharp |
@@ -67,6 +66,7 @@
 | W6 BAL@CLE | lean | watch |  |  | watch | Signals: sharp |
 | W7 KC@SEA | lean | watch |  |  | watch | No isolated selector edge |
 | W8 LAC@LAR | lean | watch |  |  | watch | Signals: sharp, injury; WARPS moneyline overlay: AWAY +17.4% EV |
+| W8 NE@MIA | lean | watch |  |  | watch | Signals: sharp, injury; WARPS moneyline overlay: HOME +65.7% EV |
 | WPRE1 ARI@LV | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 CAR@BUF | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 CLE@CHI | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
