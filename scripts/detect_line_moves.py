@@ -30,7 +30,7 @@ except ImportError:
     print("pandas not installed")
     sys.exit(0)
 
-from analyzers.nfl_common import normalize_matchup_key
+from analyzers.nfl_common import home_spread_from_line, normalize_matchup_key
 
 TEAM_NAME_TO_TLA = {
     "Arizona Cardinals": "ARI", "Atlanta Falcons": "ATL", "Baltimore Ravens": "BAL",
@@ -48,13 +48,14 @@ TEAM_NAME_TO_TLA = {
 
 
 def parse_line(line_str, side="away"):
-    """Extract numeric line for away or home side from 'AWAY_LINE (odds) | HOME_LINE (odds)'."""
+    """Away or home spread from 'AWAY_LINE (odds) | HOME_LINE (odds)', resolving halves
+    that disagree (an alternate line on one side) via home_spread_from_line."""
     if not line_str or str(line_str).strip().lower() in ("nan", "none", ""):
         return None
-    parts = str(line_str).split("|")
-    part = parts[0] if side == "away" else (parts[1] if len(parts) > 1 else parts[0])
-    m = re.search(r"([+-]?\d+(?:\.\d+)?)", part.strip())
-    return float(m.group(1)) if m else None
+    home = home_spread_from_line(line_str)
+    if home is None:
+        return None
+    return home if side == "home" else -home
 
 
 def load_master_lines(week: str) -> dict:
@@ -111,6 +112,10 @@ def load_current_lines(markets_csv: str) -> dict:
         return {}
 
     df = pd.read_csv(path)
+    # Only games still to be played: Action Network shows a kickoff time (AM/PM) before
+    # the game and a clock or "Final" after, when the posted lines are live or stale.
+    if "Game Time" in df.columns:
+        df = df[df["Game Time"].astype(str).str.contains(r"\b(?:AM|PM)\b", regex=True)]
     spread_rows = df[df["Market"].str.strip().str.lower() == "spread"]
     total_rows = df[df["Market"].str.strip().str.lower() == "total"]
 
