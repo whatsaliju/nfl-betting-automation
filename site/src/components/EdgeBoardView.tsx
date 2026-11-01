@@ -1,5 +1,6 @@
 import { Activity, AlertTriangle, BadgeCheck, CircleSlash, Gauge, Info, TrendingDown, TrendingUp } from "lucide-react";
 import { ModelViewPanel } from "./ModelViewPanel";
+import { LineCheckBanner } from "./LineCheckBanner";
 import { useEffect } from "react";
 import { teamLogos } from "../data/nflData";
 import type { EdgeBoardGame, EdgeMarket, LineMoveAlert, LiveTrackRecord, TrackRecordBlock, WarpsMarketOverlay } from "../types";
@@ -183,6 +184,7 @@ export function EdgeBoardView({ games, focusGame, onFocusClear, lineMoveAlert, w
         </div>
       )}
 
+      {games[0] && <LineCheckBanner week={games[0].week} />}
       {games[0] && <ModelViewPanel week={games[0].week} />}
 
       {lineMoveAlert && lineMoveAlert.total_moves > 0 && (

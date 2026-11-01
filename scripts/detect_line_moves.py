@@ -217,6 +217,27 @@ def detect_moves(stored: dict, current: dict, threshold: float, season_type: str
     return moves
 
 
+def drop_unconfirmed(moves, week, season):
+    """Keep only moves whose new line agrees with nflverse's consensus (within 2.5 pts).
+    A move nflverse doesn't see is almost always a misread scrape, not a real move."""
+    try:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from check_lines import nflverse_week_lines
+        ref = nflverse_week_lines(int(season), int(week))
+    except Exception:
+        ref = None
+    if not ref:
+        return moves
+    kept = []
+    for m in moves:
+        r = ref.get(m["matchup_key"])
+        if r and r[0] is not None and abs(-m["new_away_spread"] - r[0]) > 2.5:
+            print(f"  ignored {m['matchup_key']}: new line {m['new_away_spread']:+} disagrees with consensus (home {r[0]:+})")
+            continue
+        kept.append(m)
+    return kept
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("week", help="NFL week label (PRE1, PRE2, 1-18, WC...)")
@@ -253,6 +274,13 @@ def main():
         sys.exit(0)
 
     moves = detect_moves(stored, current, threshold, args.season_type)
+    if str(week).isdigit():
+        try:
+            season = json.loads((ROOT / "data" / "current_week.json").read_text()).get("season")
+        except (OSError, ValueError):
+            season = None
+        if season:
+            moves = drop_unconfirmed(moves, week, season)
 
     summary = {
         "week": week,

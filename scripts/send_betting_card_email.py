@@ -490,6 +490,30 @@ def build_model_view_section():
 
 model_view_section = build_model_view_section()
 
+
+# ── Line check (our lines vs nflverse consensus) ─────────────────────────────
+def build_line_check_section():
+    try:
+        with open("site/src/data/lineCheck.json") as f:
+            lc = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return ""
+    if str(lc.get("week")) != cur_week_str or not lc.get("flagged"):
+        return ""
+    rows = "".join(
+        f"<li>{g['matchup_key']} {i['field']}: we read {i['ours']}, consensus {i['consensus']}</li>"
+        for g in lc["flagged"] for i in g["issues"]
+    )
+    return (
+        "<div style='margin:20px 0;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;'>"
+        "<div style='font-weight:700;color:#991b1b;margin-bottom:4px;'>Line check: these lines don't match the consensus</div>"
+        f"<ul style='margin:0;padding-left:18px;font-size:13px;color:#7f1d1d;'>{rows}</ul>"
+        "<div style='font-size:12px;color:#7f1d1d;margin-top:6px;'>Likely a scrape misread. Check the line at your book before betting these games.</div>"
+        "</div>"
+    )
+
+line_check_section = build_line_check_section()
+
 flip_section = ""
 if flip_alert:
     flip_section = (
@@ -541,6 +565,7 @@ body = f"""<html>
     {started_note}
     {plays_html}
     {watch_section}
+    {line_check_section}
     {model_view_section}
     {injury_section}
     {pass_section}

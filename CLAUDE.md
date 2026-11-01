@@ -132,6 +132,10 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 - Vegas favorite SU 2026 Wk 1–7: 68-38; site recommendation (WARPS Wk 1–5, favorite Wk 6+) ≈ 67-39.
 - `UpsetPicksPanel.tsx` (Pick'em Games tab): up to 6 closest open games (favorite ≤ 3.5) with the underdog, Model view agreement (≥52%), and the last game's total as tiebreaker. Simulated weekly-win odds for 56 players: all favorites 0.2%, 5–6 upsets ~4.5% (even share 1.8%).
 
+### Line sanity (Action Network halves can carry an alternate line, e.g. NE@MIA '+16.5 | +6.5' when NE was −7)
+- `nfl_common.home_spread_from_line(line, moneyline)` resolves halves that disagree by >1 pt (moneyline favorite, else the smaller number); `spread_line_for_side` keeps halves within a point as quoted (contract check). Site `lineForSide` mirrors this.
+- `scripts/check_lines.py` (Wf 4.5 after the feed build) compares each unplayed game's spread/total with nflverse's consensus; gaps > 2.5 (spread) / 3 (total) go to `site/src/data/lineCheck.json` → Edge Board `LineCheckBanner` + email "Line check" box. `detect_line_moves.py` drops moves nflverse doesn't confirm and skips started games.
+
 ### Known Deferred Gap
 - **Wf 11 doesn't rebuild engine feed**: After Wf 11's daily Odds API refresh, `warpsMarketOverlay.json` has fresh prices but `matrix_engine_feed.json` is stale until Wf 4.5 next runs. Deferred — engine feed needs master JSON context that Wf 11 doesn't run. The window is at most one day since Wf 4.5 runs multiple times weekly.
 
