@@ -23,7 +23,7 @@
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | BAL@BUF | play | total | OVER | 3.0 |
-| LAC@LAR | watch | n/a | n/a | 2.0 |
+| LAC@LAR | watch | n/a | n/a | 1.0 |
 | NE@MIA | watch | n/a | n/a | 1.0 |
 | PHI@WAS | watch | n/a | n/a | 1.0 |
 | MIN@DET | watch | n/a | n/a | n/a |

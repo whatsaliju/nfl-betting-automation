@@ -7,7 +7,7 @@
 | Week | Game | Action | Market | Side | Confidence | Route | Reasons | Risk |
 |---:|---|---|---|---|---|---|---|---|
 | 8 | BAL@BUF | play | total | OVER | standard | total routed as best available market with status playable | Selector isolated total OVER; Signals: sharp; WARPS moneyline overlay: AWAY +5.1% EV |  |
-| 8 | LAC@LAR | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, injury; WARPS moneyline overlay: AWAY +17.4% EV |  |
+| 8 | LAC@LAR | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, injury; WARPS moneyline overlay: AWAY +13.4% EV |  |
 | 8 | NE@MIA | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating, injury; WARPS moneyline overlay: HOME +64.9% EV |  |
 | 8 | PHI@WAS | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, injury; WARPS moneyline overlay: AWAY +47.9% EV |  |
 | 8 | MIN@DET | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: AWAY +24.8% EV |  |
