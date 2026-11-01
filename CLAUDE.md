@@ -128,6 +128,22 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 - 100 picks/season, ≤10/week, ATS sides + O/U; lines posted Thursday by 2pm MT (4pm ET), picks lock at kickoff; win 1, push 0.5.
 - Contest line = `data/contest/contest_lines_{season}_wk{week}.csv` (matchup_key, home_spread, total — entered from what Liju's contest shows; line_source "contest"), else the last snapshot before Thu 4:30pm ET. The contest's numbers can differ from ours (Wk 7 2026: contest CIN −1 vs our snapshot CIN +1.5), so ask for the posted lines each Thursday.
 
+### Straight-up pool (Liju: ~56 players, weekly winner + season winner; was 59-47 vs leader 70-36 after Week 7)
+- Vegas favorite SU 2026 Wk 1–7: 68-38; site recommendation (WARPS Wk 1–5, favorite Wk 6+) ≈ 67-39.
+- `UpsetPicksPanel.tsx` (Pick'em Games tab): up to 6 closest open games (favorite ≤ 3.5) with the underdog, Model view agreement (≥52%), and the last game's total as tiebreaker. Simulated weekly-win odds for 56 players: all favorites 0.2%, 5–6 upsets ~4.5% (even share 1.8%).
+
+### Line sanity (Action Network halves can carry an alternate line, e.g. NE@MIA '+16.5 | +6.5' when NE was −7)
+- `nfl_common.home_spread_from_line(line, moneyline)` resolves halves that disagree by >1 pt (moneyline favorite, else the smaller number); `spread_line_for_side` keeps halves within a point as quoted (contract check). Site `lineForSide` mirrors this.
+- **Scrape corrections, layered so the Odds API is the last resort** (`scripts/verify_scraped_lines.py WEEK`, Wf 2 and Wf 3 right after the Action Network scrape; rewrites the scrape CSV in place so engine/feed/contest/site/email all use the fixed number):
+  1. the scrape itself: a bad spread is one real half + an alternate, so the real half is usually there;
+  2. free references pick the half / confirm the line: nflverse consensus + Wf 11's morning `data/current_odds_api.json` (≤30h);
+  3. our cached paid call `data/odds_api_cache.json` (≤3h, committed);
+  4. a live Odds API call only for unsettled games, only the markets needed (1 credit each), not within 30 min of the last call or when quota < 60 (read from the `x-requests-remaining` header);
+  5. else the free reference value. Moneylines have no free source, so a bad one needs 2–4.
+  Checks: spread halves within 1 pt and ≤2.5 off reference; over/under match and ≤3 off; moneyline implied sum 0.97–1.15 with the same favorite as the spread. Log `data/line_corrections_{season}.csv`; latest `data/line_verify_latest.json`. Nov 1 2026: 5 of 13 spreads had a bad half, all fixed from the scrape with 0 credits.
+- `canonical_team('LA')` returns LAR (nflverse writes the Rams as LA; the substring match used to read it as ATL).
+- `scripts/check_lines.py` (Wf 4.5 after the feed build) compares each unplayed game's spread/total with nflverse's consensus; gaps > 2.5 (spread) / 3 (total) go to `site/src/data/lineCheck.json` along with the scrape corrections and data warnings (stale scrape > 8h, scheduled game missing or duplicated, total outside 30–65) → Edge Board `LineCheckBanner` + email "Line check" box. `detect_line_moves.py` drops moves nflverse doesn't confirm and skips started games.
+
 ### Known Deferred Gap
 - **Wf 11 doesn't rebuild engine feed**: After Wf 11's daily Odds API refresh, `warpsMarketOverlay.json` has fresh prices but `matrix_engine_feed.json` is stale until Wf 4.5 next runs. Deferred — engine feed needs master JSON context that Wf 11 doesn't run. The window is at most one day since Wf 4.5 runs multiple times weekly.
 

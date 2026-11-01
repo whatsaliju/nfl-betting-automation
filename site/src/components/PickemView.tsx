@@ -4,6 +4,7 @@ import gameTimesData from "../data/gameTimes.json";
 import trendsData from "../data/teamTrends.json";
 import modelViewData from "../data/modelView.json";
 import { TopPicksPanel } from "./TopPicksPanel";
+import { UpsetPicksPanel } from "./UpsetPicksPanel";
 import type { EngineFeed, WarpsMarketOverlay } from "../types";
 import { betText, favoriteLine } from "../lib/betText";
 
@@ -355,6 +356,7 @@ export function PickemView({
         <TopPicksPanel week={Number(ctx.week)} />
       ) : (
       <>
+      <UpsetPicksPanel games={games} week={Number(ctx.week)} />
       <div className="pickem-tiebreakers">
         <div className="pickem-tb most">
           <span className="tb-label">Most Points</span>

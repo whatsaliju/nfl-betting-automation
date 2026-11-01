@@ -31,6 +31,10 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "analyzers"))
+from nfl_common import home_spread_from_line  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 HIST = ROOT / "data" / "historical"
 SITE_DATA = ROOT / "site" / "src" / "data"
@@ -124,23 +128,9 @@ def num(text):
 
 
 def parse_lines(snap):
-    """(home spread, total) from a snapshot row.
-
-    The scraped away|home halves can disagree (an alternate line on one side, e.g.
-    "+10.5 | +16.5"), and either half has carried the bad value. When they disagree,
-    keep the half whose sign matches the moneyline favorite; if that can't be told,
-    return None so the caller falls back to an earlier snapshot."""
-    parts = [p.strip() for p in str(snap.get("spread_line") or "").split("|")]
-    away_h = num(parts[0]) if len(parts) == 2 else None
-    home = num(parts[1]) if len(parts) == 2 else None
-    if home is None and away_h is not None:
-        home = -away_h
-    elif home is not None and away_h is not None and abs(home + away_h) > 1:
-        ml = [num(p) for p in str(snap.get("moneyline_line") or "").split("|")]
-        home_fav = ml[1] < ml[0] if len(ml) == 2 and None not in ml else None
-        candidates = [h for h in (home, -away_h) if home_fav is None or (h < 0) == home_fav or h == 0]
-        home = candidates[0] if len(candidates) == 1 else (
-            candidates[-1] if home_fav is not None and candidates else None)
+    """(home spread, total) from a snapshot row. home_spread_from_line resolves halves
+    that disagree (an alternate line on one side) using the moneyline favorite."""
+    home = home_spread_from_line(snap.get("spread_line"), snap.get("moneyline_line"))
     tparts = [p.strip() for p in str(snap.get("total_line") or "").split("|")]
     total = num(tparts[0]) if tparts and tparts[0] else None
     return home, total

@@ -161,6 +161,12 @@ jobs:
           echo "📊 Scraping Action Network..."
           python3 scrapers/action_network_scraper_cookies.py ${{ steps.get_week.outputs.week }}
       
+      - name: Verify Scraped Lines (correct misreads vs Odds API / nflverse)
+        continue-on-error: true
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: python3 scripts/verify_scraped_lines.py ${{ steps.get_week.outputs.week }}
+
       - name: Scrape Action Network Injuries & Weather
         run: |
           echo "🩹 Scraping Action Network injuries & weather..."
@@ -629,6 +635,9 @@ jobs:
             "data/week${{ steps.get_week.outputs.week }}/week${{ steps.get_week.outputs.week }}_line_flips_*.csv"
             "data/week${{ steps.get_week.outputs.week }}/line_movement_log.csv"
             "data/historical/sdql_results.csv"
+            "data/line_corrections_*.csv"
+            "data/line_verify_latest.json"
+            "data/odds_api_cache.json"
           )
 
           for pattern in "${FILES_TO_ADD[@]}"; do

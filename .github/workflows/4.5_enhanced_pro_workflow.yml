@@ -335,6 +335,8 @@ jobs:
           python3 scripts/build_top_picks.py || echo "WARNING: top picks not rebuilt"
           # Learning model's Model view with the latest sharp splits and line moves.
           python3 scripts/build_learning_model.py || echo "WARNING: model view not rebuilt"
+          # Cross-check published spreads/totals against nflverse's consensus (flags misreads).
+          python3 scripts/check_lines.py || echo "WARNING: line check not run"
           python3 builders/build_game_feature_table.py
           python3 scripts/audit_game_features.py
           python3 scripts/generate_feature_research_report.py \

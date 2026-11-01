@@ -109,6 +109,13 @@ jobs:
           echo "📊 Scraping Action Network..."
           python3 scrapers/action_network_scraper_cookies.py ${{ steps.get_week.outputs.week }}
 
+      - name: Verify Scraped Lines (correct misreads vs Odds API / nflverse)
+        if: steps.idempotency.outputs.SKIP != 'true'
+        continue-on-error: true
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: python3 scripts/verify_scraped_lines.py ${{ steps.get_week.outputs.week }}
+
       - name: Scrape Action Network Injuries & Weather
         if: steps.idempotency.outputs.SKIP != 'true'
         run: |
@@ -154,6 +161,7 @@ jobs:
                   data/action_injuries_*.csv \
                   data/action_weather_*.csv \
                   data/rotowire_lineups_*.csv || true
+          git add data/line_corrections_*.csv data/line_verify_latest.json data/odds_api_cache.json 2>/dev/null || true
 
           # 1. Commit changes
           git commit -m "📊 Week ${{ steps.get_week.outputs.week }} initial market data" || echo "No changes to commit"

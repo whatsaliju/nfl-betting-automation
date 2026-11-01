@@ -64,6 +64,9 @@ def canonical_team(team_raw):
         return team.upper()
     if team in FULL_NAME_TO_TLA:
         return FULL_NAME_TO_TLA[team]
+    # nflverse writes the Rams as "LA"; the substring match below would read it as Atlanta.
+    if team == "la":
+        return "LAR"
 
     for tla, full_name in TEAM_MAP.items():
         lowered = full_name.lower()
@@ -109,11 +112,20 @@ def _line_parts(line_text):
 
 
 def spread_line_for_side(line_text, side):
+    """The requested half of an away|home spread. Halves within a point of each other
+    (two books half a point apart) are used as quoted; halves that disagree by more
+    (an alternate line on one side) go through home_spread_from_line."""
     side = str(side or "").upper()
     parts = _line_parts(line_text)
     if len(parts) < 2:
         return first_number(line_text)
-    return first_number(parts[0] if side == "AWAY" else parts[1])
+    away, home = first_number(parts[0]), first_number(parts[1])
+    if away is not None and home is not None and abs(away + home) <= 1:
+        return away if side == "AWAY" else home
+    resolved = home_spread_from_line(line_text)
+    if resolved is None:
+        return None
+    return -resolved if side == "AWAY" else resolved
 
 
 def total_line_for_side(line_text, side):
@@ -124,8 +136,14 @@ def total_line_for_side(line_text, side):
     return first_number(parts[0] if side == "OVER" else parts[1])
 
 
-def home_spread_from_line(line_text):
-    """Extract the home team's spread from an away|home market string."""
+def home_spread_from_line(line_text, moneyline_text=None):
+    """Extract the home team's spread from an away|home market string.
+
+    Action Network sometimes puts an alternate line in one half ("+10.5 | +16.5",
+    "+16.5 | +6.5"), so the halves disagree. Then keep the half whose favorite
+    matches the moneyline; without one, the half with the smaller number (the
+    alternate lines are the long ones).
+    """
     if not line_text:
         return None
 
@@ -135,15 +153,27 @@ def home_spread_from_line(line_text):
 
     numbers = []
     for part in _line_parts(text):
-        match = re.search(r"([+-]\d+\.?\d*)", part)
+        match = re.search(r"([+-]?\d+\.?\d*)", part)
         if match:
             numbers.append(float(match.group(1)))
 
-    if len(numbers) >= 2:
-        return numbers[1]
     if len(numbers) == 1:
         return -numbers[0]
-    return None
+    if len(numbers) < 2:
+        return None
+    away, home = numbers[0], numbers[1]
+    if abs(away + home) <= 1:
+        return home
+    candidates = [home, -away]
+    ml = [first_number(p) for p in _line_parts(moneyline_text)] if moneyline_text else []
+    if len(ml) == 2 and None not in ml and ml[0] != ml[1]:
+        home_fav = ml[1] < ml[0]
+        agree = [c for c in candidates if c == 0 or (c < 0) == home_fav]
+        if len(agree) == 1:
+            return agree[0]
+        if agree:
+            candidates = agree
+    return min(candidates, key=abs)
 
 
 def normalize_season_type(season_type=None, week=None):

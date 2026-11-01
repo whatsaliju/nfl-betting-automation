@@ -7,6 +7,18 @@ export function lineForSide(line: string | null | undefined, side: string | null
   const parts = line.split("|").map((p) => p.trim());
   const s = (side || "").toUpperCase();
   const idx = s === "HOME" || s === "UNDER" ? 1 : 0;
+  // Spreads only: if the halves disagree by more than a point, one side carries an
+  // alternate line ("+16.5 | +6.5"); the shorter number is the real one, mirrored.
+  if ((s === "HOME" || s === "AWAY") && parts.length === 2) {
+    const num = (t: string) => { const m = t.match(/^([+-]?\d+(?:\.\d+)?)/); return m ? Number(m[1]) : null; };
+    const a = num(parts[0]);
+    const h = num(parts[1]);
+    if (a !== null && h !== null && Math.abs(a + h) > 1) {
+      const home = Math.abs(h) <= Math.abs(a) ? h : -a;
+      const v = s === "HOME" ? home : -home;
+      return `${v > 0 ? "+" : ""}${v}`;
+    }
+  }
   return parts[idx] || null;
 }
 
