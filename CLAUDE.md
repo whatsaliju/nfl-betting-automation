@@ -134,7 +134,13 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 
 ### Line sanity (Action Network halves can carry an alternate line, e.g. NE@MIA '+16.5 | +6.5' when NE was −7)
 - `nfl_common.home_spread_from_line(line, moneyline)` resolves halves that disagree by >1 pt (moneyline favorite, else the smaller number); `spread_line_for_side` keeps halves within a point as quoted (contract check). Site `lineForSide` mirrors this.
-- **Source of truth = The Odds API median across US books** (fallback nflverse consensus). `scripts/verify_scraped_lines.py WEEK` runs in Wf 2 and Wf 3 right after the Action Network scrape and rewrites bad pregame lines in the scrape CSV in place (halves >1 pt apart, >2.5 spread / >3 total off consensus, moneyline that doesn't form a market or whose favorite disagrees with the spread), so engine/feed/contest/site/email all use the corrected number. Log: `data/line_corrections_{season}.csv`; latest run: `data/line_verify_latest.json`. Costs 3 Odds API credits per run. Nov 1 2026: 5 of 13 spreads had a bad half (ARI@DAL, IND@JAX, TEN@CIN, LAC@LAR, NE@MIA).
+- **Scrape corrections, layered so the Odds API is the last resort** (`scripts/verify_scraped_lines.py WEEK`, Wf 2 and Wf 3 right after the Action Network scrape; rewrites the scrape CSV in place so engine/feed/contest/site/email all use the fixed number):
+  1. the scrape itself: a bad spread is one real half + an alternate, so the real half is usually there;
+  2. free references pick the half / confirm the line: nflverse consensus + Wf 11's morning `data/current_odds_api.json` (≤30h);
+  3. our cached paid call `data/odds_api_cache.json` (≤3h, committed);
+  4. a live Odds API call only for unsettled games, only the markets needed (1 credit each), not within 30 min of the last call or when quota < 60 (read from the `x-requests-remaining` header);
+  5. else the free reference value. Moneylines have no free source, so a bad one needs 2–4.
+  Checks: spread halves within 1 pt and ≤2.5 off reference; over/under match and ≤3 off; moneyline implied sum 0.97–1.15 with the same favorite as the spread. Log `data/line_corrections_{season}.csv`; latest `data/line_verify_latest.json`. Nov 1 2026: 5 of 13 spreads had a bad half, all fixed from the scrape with 0 credits.
 - `canonical_team('LA')` returns LAR (nflverse writes the Rams as LA; the substring match used to read it as ATL).
 - `scripts/check_lines.py` (Wf 4.5 after the feed build) compares each unplayed game's spread/total with nflverse's consensus; gaps > 2.5 (spread) / 3 (total) go to `site/src/data/lineCheck.json` along with the scrape corrections and data warnings (stale scrape > 8h, scheduled game missing or duplicated, total outside 30–65) → Edge Board `LineCheckBanner` + email "Line check" box. `detect_line_moves.py` drops moves nflverse doesn't confirm and skips started games.
 

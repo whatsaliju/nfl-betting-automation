@@ -161,7 +161,7 @@ jobs:
                   data/action_injuries_*.csv \
                   data/action_weather_*.csv \
                   data/rotowire_lineups_*.csv || true
-          git add data/line_corrections_*.csv data/line_verify_latest.json 2>/dev/null || true
+          git add data/line_corrections_*.csv data/line_verify_latest.json data/odds_api_cache.json 2>/dev/null || true
 
           # 1. Commit changes
           git commit -m "📊 Week ${{ steps.get_week.outputs.week }} initial market data" || echo "No changes to commit"
