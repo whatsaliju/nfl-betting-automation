@@ -64,6 +64,9 @@ def canonical_team(team_raw):
         return team.upper()
     if team in FULL_NAME_TO_TLA:
         return FULL_NAME_TO_TLA[team]
+    # nflverse writes the Rams as "LA"; the substring match below would read it as Atlanta.
+    if team == "la":
+        return "LAR"
 
     for tla, full_name in TEAM_MAP.items():
         lowered = full_name.lower()

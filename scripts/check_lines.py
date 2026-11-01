@@ -8,7 +8,10 @@ the week, so it makes a cheap independent check.
 
 For each current-week game that hasn't kicked off, compare the engine feed's spread and
 total with nflverse; a gap of more than SPREAD_TOL / TOTAL_TOL points is flagged.
-Writes site/src/data/lineCheck.json (Edge Board banner, email warning). If nflverse can't
+Also carries the corrections verify_scraped_lines.py made to the scrape this week
+(data/line_verify_latest.json) and a few data checks: a stale scrape (> STALE_HOURS old),
+scheduled games missing from the feed or listed twice, and totals outside 30-65.
+Writes site/src/data/lineCheck.json (Edge Board banner, email box). If nflverse can't
 be reached the file says so and nothing is flagged.
 
 Also importable: nflverse_week_lines(season, week) for other scripts (detect_line_moves).
@@ -22,6 +25,7 @@ import sys
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "analyzers"))
@@ -32,6 +36,9 @@ FEED = ROOT / "data" / "historical" / "matrix_engine_feed.json"
 OUT = ROOT / "site" / "src" / "data" / "lineCheck.json"
 SPREAD_TOL = 2.5
 TOTAL_TOL = 3.0
+STALE_HOURS = 8
+TOTAL_RANGE = (30.0, 65.0)
+VERIFY = ROOT / "data" / "line_verify_latest.json"
 
 _cache = {}
 
@@ -65,17 +72,58 @@ def first_total(text):
     return float(m.group(1)) if m else None
 
 
+def add_corrections(result, week):
+    """Corrections made to this week's scrape, latest per game and market."""
+    try:
+        v = json.loads(VERIFY.read_text())
+    except (FileNotFoundError, json.JSONDecodeError):
+        return
+    if str(v.get("week")) != str(week):
+        return
+    result["corrected"] = [{**c, "source": v.get("source")} for c in v.get("corrected", [])]
+    result["verified_at"] = v.get("generated_at")
+
+
+def add_data_checks(result, feed, week, ref):
+    warn = result["warnings"]
+    games = [g for g in feed.get("edge_board", []) if str(g.get("week")) == str(week)]
+    keys = [normalize_matchup_key(g.get("matchup_key", "")) for g in games]
+    for mk in sorted({k for k in keys if keys.count(k) > 1}):
+        warn.append(f"{mk} appears {keys.count(mk)} times in the feed")
+    if ref:
+        for mk in sorted(set(ref) - set(keys)):
+            warn.append(f"{mk} is on the schedule but has no lines in the feed")
+    for g, mk in zip(games, keys):
+        tot = first_total(((g.get("markets") or {}).get("total") or {}).get("line"))
+        if tot is not None and not TOTAL_RANGE[0] <= tot <= TOTAL_RANGE[1]:
+            warn.append(f"{mk} total {tot:g} is outside {TOTAL_RANGE[0]:g}-{TOTAL_RANGE[1]:g}")
+    scrapes = sorted((ROOT / "data").glob("action_all_markets_*.csv"), key=lambda f: f.name)
+    if scrapes:
+        with open(scrapes[-1], newline="") as fh:
+            stamps = [r.get("Fetched", "") for r in csv.DictReader(fh) if r.get("Fetched")]
+        try:
+            fetched = datetime.strptime(max(stamps), "%Y-%m-%d %H:%M").replace(tzinfo=ZoneInfo("America/New_York"))
+            hours = (datetime.now(timezone.utc) - fetched).total_seconds() / 3600
+            if hours > STALE_HOURS:
+                warn.append(f"latest scrape is {hours:.0f}h old ({max(stamps)} ET)")
+        except ValueError:
+            pass
+
+
 def main():
     feed = json.loads(FEED.read_text())
     ctx = feed.get("current_context", {})
     season, week = ctx.get("season"), ctx.get("week")
     result = {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-              "season": season, "week": week, "source": "nflverse", "checked": 0, "flagged": []}
+              "season": season, "week": week, "source": "nflverse", "checked": 0, "flagged": [],
+              "corrected": [], "warnings": []}
     try:
         week_num = int(float(week))
     except (TypeError, ValueError):
         week_num = None
     ref = nflverse_week_lines(season, week_num) if season and week_num else None
+    add_corrections(result, week)
+    add_data_checks(result, feed, week, ref)
     if ref is None:
         result["source"] = "unavailable"
     else:
@@ -101,7 +149,12 @@ def main():
             if issues:
                 result["flagged"].append({"matchup_key": mk, "issues": issues})
     OUT.write_text(json.dumps(result, indent=2) + "\n")
-    print(f"Line check week {week}: {result['checked']} games vs {result['source']}, {len(result['flagged'])} flagged")
+    print(f"Line check week {week}: {result['checked']} games vs {result['source']}, {len(result['flagged'])} flagged, "
+          f"{len(result['corrected'])} corrected at scrape, {len(result['warnings'])} warnings")
+    for c in result["corrected"]:
+        print(f"  corrected {c['matchup_key']} {c['market']}: '{c['scraped']}' -> '{c['corrected']}'")
+    for w in result["warnings"]:
+        print(f"  warning: {w}")
     for f in result["flagged"]:
         for i in f["issues"]:
             print(f"  {f['matchup_key']} {i['field']}: ours {i['ours']} vs consensus {i['consensus']} (raw '{i['raw']}')")

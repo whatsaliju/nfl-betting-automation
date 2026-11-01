@@ -498,19 +498,34 @@ def build_line_check_section():
             lc = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return ""
-    if str(lc.get("week")) != cur_week_str or not lc.get("flagged"):
+    if str(lc.get("week")) != cur_week_str:
         return ""
-    rows = "".join(
-        f"<li>{g['matchup_key']} {i['field']}: we read {i['ours']}, consensus {i['consensus']}</li>"
-        for g in lc["flagged"] for i in g["issues"]
-    )
-    return (
-        "<div style='margin:20px 0;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;'>"
-        "<div style='font-weight:700;color:#991b1b;margin-bottom:4px;'>Line check: these lines don't match the consensus</div>"
-        f"<ul style='margin:0;padding-left:18px;font-size:13px;color:#7f1d1d;'>{rows}</ul>"
-        "<div style='font-size:12px;color:#7f1d1d;margin-top:6px;'>Likely a scrape misread. Check the line at your book before betting these games.</div>"
-        "</div>"
-    )
+    out = ""
+    if lc.get("flagged") or lc.get("warnings"):
+        rows = "".join(
+            f"<li>{g['matchup_key']} {i['field']}: we read {i['ours']}, consensus {i['consensus']}</li>"
+            for g in lc.get("flagged", []) for i in g["issues"]
+        ) + "".join(f"<li>{w}</li>" for w in lc.get("warnings", []))
+        out += (
+            "<div style='margin:20px 0;padding:12px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;'>"
+            "<div style='font-weight:700;color:#991b1b;margin-bottom:4px;'>Line check: needs a look</div>"
+            f"<ul style='margin:0;padding-left:18px;font-size:13px;color:#7f1d1d;'>{rows}</ul>"
+            "<div style='font-size:12px;color:#7f1d1d;margin-top:6px;'>Check the line at your book before betting these games.</div>"
+            "</div>"
+        )
+    if lc.get("corrected"):
+        rows = "".join(
+            f"<li>{c['matchup_key']} {c['market'].lower()}: scraped {c['scraped']}, now {c['corrected']} ({c['reason']})</li>"
+            for c in lc["corrected"]
+        )
+        out += (
+            "<div style='margin:20px 0;padding:12px 16px;background:#f2f6fc;border:1px solid #bcd3ee;border-radius:6px;'>"
+            f"<div style='font-weight:700;color:#013369;margin-bottom:4px;'>Corrected {len(lc['corrected'])} scraped line(s) to the books' consensus</div>"
+            f"<ul style='margin:0;padding-left:18px;font-size:13px;color:#12325c;'>{rows}</ul>"
+            f"<div style='font-size:12px;color:#12325c;margin-top:6px;'>Source: {lc['corrected'][0].get('source') or 'consensus'}. Picks below use the corrected number.</div>"
+            "</div>"
+        )
+    return out
 
 line_check_section = build_line_check_section()
 
