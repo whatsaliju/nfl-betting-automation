@@ -18,15 +18,15 @@
 - total: 3 games
 
 ### pythagorean_pick_alignment
-- aligned: 4 games
+- aligned: 3 games
 - conflict: 4 games
+- neutral: 1 games
 - no_pick: 141 games
 - non_side_pick: 3 games
 
 ### value_gap_pick_alignment
 - aligned: 5 games
-- conflict: 2 games
-- neutral: 1 games
+- conflict: 3 games
 - no_pick: 141 games
 - non_side_pick: 3 games
 
@@ -39,8 +39,8 @@
 
 ### overperformance_pick_alignment
 - aligned: 1 games
-- conflict: 5 games
-- neutral: 2 games
+- conflict: 4 games
+- neutral: 3 games
 - no_pick: 141 games
 - non_side_pick: 3 games
 
