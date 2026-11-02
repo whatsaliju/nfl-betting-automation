@@ -26,7 +26,8 @@
 
 ### value_gap_pick_alignment
 - aligned: 5 games
-- conflict: 3 games
+- conflict: 2 games
+- neutral: 1 games
 - no_pick: 141 games
 - non_side_pick: 3 games
 
