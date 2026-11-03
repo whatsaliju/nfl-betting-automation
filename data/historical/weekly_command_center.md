@@ -1,9 +1,9 @@
 # Weekly Command Center
 
-- Context: 2026 W8 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Context: 2026 W9 · live
+- Recommended action: **PLAY**
+- Confidence tier: **A**
+- Reason: At least one selector play cleared the current command gate.
 
 ## Source Gates
 
@@ -16,35 +16,37 @@
 
 ## Betting Card
 
-- Plays: 0
+- Plays: 2
 - Watch: 3
-- Passes: 11
+- Passes: 10
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| BAL@BUF | watch | n/a | n/a | 2.0 |
-| PHI@WAS | watch | n/a | n/a | 2.0 |
-| LAC@LAR | watch | n/a | n/a | 1.0 |
+| NYJ@KC | play | spread | AWAY | 5.0 |
+| DAL@IND | play | total | OVER | 3.0 |
+| HOU@LAC | watch | spread | AWAY | 5.0 |
+| ARI@SEA | watch | spread | AWAY | 4.0 |
+| NYG@PHI | watch | spread | AWAY | 4.0 |
 
 ## Survivor
 
-- Primary: GB vs CAR (62.7%)
-- Safest: LAR vs LAC (65.2%)
-- Path pick: PIT vs CLE (63.6%)
+- Primary: SF vs LV (77.7%)
+- Safest: SEA vs ARI (78.7%)
+- Path pick: KC vs NYJ (76.9%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | GB vs CAR (62.7%) | CIN vs TEN (62.4%) | CIN vs TEN (62.4%) |
-| 100 | GB vs CAR (62.7%) | CIN vs TEN (62.4%) | CIN vs TEN (62.4%) |
-| 500 | GB vs CAR (62.7%) | GB vs CAR (62.7%) | GB vs CAR (62.7%) |
+| 25 | SF vs LV (77.7%) | SF vs LV (77.7%) | SF vs LV (77.7%) |
+| 100 | SF vs LV (77.7%) | SF vs LV (77.7%) | SF vs LV (77.7%) |
+| 500 | SF vs LV (77.7%) | SF vs LV (77.7%) | SF vs LV (77.7%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| JAX | vs IND | 71.1% | -246 |
-| LAR | vs LAC | 70.9% | -244 |
-| CIN | vs TEN | 68.6% | -219 |
-| PIT | vs CLE | 67.4% | -207 |
-| BUF | vs BAL | 63.8% | -176 |
-| SEA | vs CHI | 62.8% | -169 |
+| SEA | vs ARI | 71.8% | -254 |
+| SF | vs LV | 69.8% | -231 |
+| KC | vs NYJ | 69.3% | -226 |
+| DET | @ MIA | 60.4% | -153 |
+| NE | vs GB | 59.7% | -148 |
+| NO | vs CLE | 58.1% | -139 |
