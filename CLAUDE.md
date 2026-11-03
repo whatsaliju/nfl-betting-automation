@@ -124,6 +124,12 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 - Runs: Wf 4.5 after the feed build (fresh splits each run); Wf 6 Grade on Tuesday refits `build_history_model.py` then the learning layer.
 - Oct 21 2026 walk-forward (2026 Wk 1–6, 53%+): sides history-only 22-13 → with layer 23-12; totals 15-12 → 21-11. Tiny samples.
 
+### Season Forecast (futures / win totals, research only)
+- `scripts/season_forecast.py [--week N]` — three team-strength views at the cutoff week (WARPS preseason wins, ridge/MAP rating from this season's margins, ridge rating from this season's closing spreads) stacked by a logistic model trained on 2003..S-1 games after the cutoff (leave-one-season-out); then 20k simulations of standings, seeds, playoffs, Super Bowl, best record. Writes `data/backtests/season_forecast_{season}.json`.
+- Nov 3 2026 (cutoff Week 8) held-out log loss: all three 0.634 (64.8% winners) vs margin-only 0.639, market-only 0.643, old K=8 Pythagorean blend 0.645, preseason only 0.672. With margin + market in, the preseason prior gets ~0 weight.
+- Liju's bets: win totals BAL U11.5 $200/$129, NE O9.5 $250/$156, LAC U10.5 $450/$300, DAL U9.5 $500/$416, JAX O9.5 $500/$550, CIN U9.5 $650/$975, ARI O4.5 $700/$875, MIA O4.5 $750/$1,012; futures MIN NFC North −105 $150, MIN NFC +825 $60, MIN SB +2000 $25, JAX AFC +600 $40, JAX SB +1250 $25; MVP Mahomes +850 $20, Murray (MIN) +11000 $10.
+- Contests after Week 8: KillerSports ATS 24-7-1, 24.5 pts, 32 of 100 picks used (#1: 45 pts, 73 used); Yahoo straight-up 70-50, 33rd (#1 81-39).
+
 ### Pick'em Contest (`scripts/build_top_picks.py` → `site/src/data/topPicks.json`, Contest tab)
 - 100 picks/season, ≤10/week, ATS sides + O/U; lines posted Thursday by 2pm MT (4pm ET), picks lock at kickoff; win 1, push 0.5.
 - Contest line = `data/contest/contest_lines_{season}_wk{week}.csv` (matchup_key, home_spread, total — entered from what Liju's contest shows; line_source "contest"), else the last snapshot before Thu 4:30pm ET. The contest's numbers can differ from ours (Wk 7 2026: contest CIN −1 vs our snapshot CIN +1.5), so ask for the posted lines each Thursday.
