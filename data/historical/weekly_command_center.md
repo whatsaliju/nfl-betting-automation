@@ -16,17 +16,18 @@
 
 ## Betting Card
 
-- Plays: 2
-- Watch: 3
-- Passes: 10
+- Plays: 1
+- Watch: 6
+- Passes: 8
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| NYJ@KC | play | spread | AWAY | 5.0 |
-| DAL@IND | play | total | OVER | 3.0 |
+| ARI@SEA | play | spread | AWAY | 4.0 |
 | HOU@LAC | watch | spread | AWAY | 5.0 |
-| ARI@SEA | watch | spread | AWAY | 4.0 |
+| NYJ@KC | watch | n/a | n/a | 5.0 |
 | NYG@PHI | watch | spread | AWAY | 4.0 |
+| DAL@IND | watch | n/a | n/a | 3.0 |
+| CLE@NO | watch | n/a | n/a | 2.0 |
 
 ## Survivor
 
