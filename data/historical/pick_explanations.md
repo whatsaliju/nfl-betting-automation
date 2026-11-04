@@ -8,19 +8,19 @@
 | W2 SEA@ARI | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward AWAY |
 | W4 GB@TB | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp, team_rating, injury; Value-gap alignment supports the side; WARPS fair-line prior agrees with the spread side |
 | W6 NO@NYG | play | play | total | OVER | standard | Selector isolated total OVER; Signals: sharp, ref_weather_context |
-| W9 HOU@LAC | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME; WARPS moneyline overlay: HOME +28.9% EV |
+| W9 HOU@LAC | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME; WARPS moneyline overlay: HOME +32.8% EV |
 | W2 JAX@DEN | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior agrees with the spread side |
 | W2 WAS@DAL | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; WARPS fair-line prior conflicts toward HOME |
 | W3 CIN@PIT | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment conflicts with the side; WARPS fair-line prior conflicts toward HOME; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W6 CAR@PHI | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME |
-| W9 ARI@SEA | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior agrees with the spread side (+2.8 pts); WARPS moneyline overlay: AWAY +76.5% EV |
+| W9 ARI@SEA | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior agrees with the spread side (+2.8 pts); WARPS moneyline overlay: AWAY +83.6% EV |
 | W9 NYG@PHI | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating, injury; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME; WARPS moneyline overlay: HOME +27.4% EV |
 | WPRE1 DEN@ATL | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Value-gap alignment conflicts with the side; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 GB@PIT | play | play | spread | HOME | standard | Selector isolated spread HOME; Value-gap alignment supports the side; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE3 SEA@KC | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp; Value-gap alignment conflicts with the side; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W5 LV@NE | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME |
 | WPRE3 ATL@MIA | pass | pass |  |  | none | No isolated selector edge |
-| W9 NYJ@KC | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +62.5% EV |
+| W9 NYJ@KC | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +61.0% EV |
 | W4 ARI@NYG | pass | pass |  |  | none | No isolated selector edge |
 | W4 KC@LV | pass | pass |  |  | none | No isolated selector edge |
 | W7 NYG@HOU | lean | watch |  |  | watch | Signals: sharp, team_rating |
