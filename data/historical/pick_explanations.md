@@ -43,7 +43,7 @@
 | W5 CIN@MIA | lean | watch |  |  | watch | Signals: sharp, team_rating |
 | W5 PHI@JAX | lean | watch |  |  | watch | Signals: injury |
 | W9 ARI@SEA | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +28.5% EV |
-| W9 JAX@BAL | lean | watch |  |  | watch | Signals: sharp, team_rating, injury; WARPS moneyline overlay: HOME +120.3% EV |
+| W9 JAX@BAL | lean | watch |  |  | watch | Signals: sharp, team_rating, injury; WARPS moneyline overlay: HOME +110.4% EV |
 | W9 NYJ@KC | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +61.0% EV |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | No isolated selector edge |
