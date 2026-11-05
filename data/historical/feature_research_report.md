@@ -13,37 +13,37 @@
 ## Factor Groups
 
 ### best_edge_market
-- NONE: 153 games
-- spread: 11 games
-- total: 3 games
+- NONE: 152 games
+- spread: 10 games
+- total: 5 games
 
 ### pythagorean_pick_alignment
 - aligned: 5 games
-- conflict: 5 games
+- conflict: 4 games
 - neutral: 1 games
-- no_pick: 153 games
-- non_side_pick: 3 games
+- no_pick: 152 games
+- non_side_pick: 5 games
 
 ### value_gap_pick_alignment
-- aligned: 9 games
+- aligned: 8 games
 - conflict: 1 games
 - neutral: 1 games
-- no_pick: 153 games
-- non_side_pick: 3 games
+- no_pick: 152 games
+- non_side_pick: 5 games
 
 ### market_expectation_pick_alignment
 - aligned: 1 games
-- conflict: 9 games
+- conflict: 8 games
 - neutral: 1 games
-- no_pick: 153 games
-- non_side_pick: 3 games
+- no_pick: 152 games
+- non_side_pick: 5 games
 
 ### overperformance_pick_alignment
-- aligned: 2 games
+- aligned: 1 games
 - conflict: 5 games
 - neutral: 4 games
-- no_pick: 153 games
-- non_side_pick: 3 games
+- no_pick: 152 games
+- non_side_pick: 5 games
 
 ### division_game
 - false: 102 games
