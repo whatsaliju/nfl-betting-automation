@@ -16,30 +16,30 @@
 
 ## Betting Card
 
-- Plays: 2
-- Watch: 6
+- Plays: 1
+- Watch: 7
 - Passes: 7
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | DAL@IND | play | total | OVER | 3.0 |
-| DET@MIA | play | total | OVER | 3.0 |
-| HOU@LAC | watch | spread | AWAY | 5.0 |
-| NYG@PHI | watch | spread | AWAY | 4.0 |
+| HOU@LAC | watch | spread | AWAY | 4.0 |
 | ARI@SEA | watch | n/a | n/a | 3.0 |
+| DET@MIA | watch | n/a | n/a | 3.0 |
 | JAX@BAL | watch | n/a | n/a | 3.0 |
+| NYG@PHI | watch | n/a | n/a | 2.0 |
 
 ## Survivor
 
-- Primary: SF vs LV (77.2%)
-- Safest: KC vs NYJ (78.0%)
-- Path pick: SF vs LV (77.2%)
+- Primary: SF vs LV (76.6%)
+- Safest: KC vs NYJ (77.6%)
+- Path pick: SF vs LV (76.6%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | SF vs LV (77.2%) | SF vs LV (77.2%) | SF vs LV (77.2%) |
-| 100 | SF vs LV (77.2%) | SF vs LV (77.2%) | SF vs LV (77.2%) |
-| 500 | SF vs LV (77.2%) | SF vs LV (77.2%) | SF vs LV (77.2%) |
+| 25 | SF vs LV (76.6%) | SF vs LV (76.6%) | SF vs LV (76.6%) |
+| 100 | SF vs LV (76.6%) | SF vs LV (76.6%) | SF vs LV (76.6%) |
+| 500 | SF vs LV (76.6%) | SF vs LV (76.6%) | SF vs LV (76.6%) |
 
 ## WARPS Watch
 
