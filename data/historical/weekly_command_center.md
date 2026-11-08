@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W9 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Recommended action: **PLAY**
+- Confidence tier: **A**
+- Reason: At least one selector play cleared the current command gate.
 
 ## Source Gates
 
@@ -16,30 +16,30 @@
 
 ## Betting Card
 
-- Plays: 0
-- Watch: 8
-- Passes: 7
+- Plays: 1
+- Watch: 6
+- Passes: 8
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
+| NYG@PHI | play | total | UNDER | 3.0 |
 | DAL@IND | watch | n/a | n/a | 3.0 |
 | JAX@BAL | watch | n/a | n/a | 3.0 |
-| NYG@PHI | watch | total | UNDER | 3.0 |
 | NYJ@KC | watch | n/a | n/a | 3.0 |
 | DET@MIA | watch | n/a | n/a | 2.0 |
 | HOU@LAC | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
-- Primary: SF vs LV (76.6%)
-- Safest: SEA vs ARI (76.7%)
-- Path pick: SF vs LV (76.6%)
+- Primary: SF vs LV (75.7%)
+- Safest: SEA vs ARI (76.1%)
+- Path pick: KC vs NYJ (74.0%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | SF vs LV (76.6%) | SF vs LV (76.6%) | SF vs LV (76.6%) |
-| 100 | SF vs LV (76.6%) | SF vs LV (76.6%) | SF vs LV (76.6%) |
-| 500 | SF vs LV (76.6%) | SF vs LV (76.6%) | SF vs LV (76.6%) |
+| 25 | SF vs LV (75.7%) | SF vs LV (75.7%) | SF vs LV (75.7%) |
+| 100 | SF vs LV (75.7%) | SF vs LV (75.7%) | SF vs LV (75.7%) |
+| 500 | SF vs LV (75.7%) | SF vs LV (75.7%) | SF vs LV (75.7%) |
 
 ## WARPS Watch
 
