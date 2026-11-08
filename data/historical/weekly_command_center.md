@@ -17,17 +17,17 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 8
-- Passes: 7
+- Watch: 6
+- Passes: 9
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| CIN@ATL | watch | spread | AWAY | 4.0 |
-| HOU@LAC | watch | spread | AWAY | 4.0 |
-| DAL@IND | watch | n/a | n/a | 3.0 |
+| BUF@MIN | watch | total | UNDER | 3.0 |
+| HOU@LAC | watch | spread | AWAY | 3.0 |
 | JAX@BAL | watch | n/a | n/a | 3.0 |
-| NYG@PHI | watch | n/a | n/a | 3.0 |
 | TB@CHI | watch | n/a | n/a | 2.0 |
+| CIN@ATL | watch | n/a | n/a | n/a |
+| NYG@PHI | watch | n/a | n/a | n/a |
 
 ## Survivor
 
