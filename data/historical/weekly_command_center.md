@@ -22,12 +22,12 @@
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| HOU@LAC | watch | spread | AWAY | 3.0 |
+| DAL@IND | watch | n/a | n/a | 3.0 |
 | JAX@BAL | watch | n/a | n/a | 3.0 |
-| DAL@IND | watch | n/a | n/a | 2.0 |
+| NYG@PHI | watch | total | UNDER | 3.0 |
+| NYJ@KC | watch | n/a | n/a | 3.0 |
 | DET@MIA | watch | n/a | n/a | 2.0 |
-| NYJ@KC | watch | n/a | n/a | 1.0 |
-| BUF@MIN | watch | n/a | n/a | n/a |
+| HOU@LAC | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
