@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W9 · live
-- Recommended action: **PLAY**
-- Confidence tier: **A**
-- Reason: At least one selector play cleared the current command gate.
+- Recommended action: **WATCH**
+- Confidence tier: **C**
+- Reason: No plays cleared, but watchlist spots exist.
 
 ## Source Gates
 
@@ -16,23 +16,23 @@
 
 ## Betting Card
 
-- Plays: 1
-- Watch: 7
+- Plays: 0
+- Watch: 8
 - Passes: 7
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| DAL@IND | play | total | OVER | 3.0 |
+| CIN@ATL | watch | spread | AWAY | 4.0 |
 | HOU@LAC | watch | spread | AWAY | 4.0 |
-| ARI@SEA | watch | n/a | n/a | 3.0 |
-| DET@MIA | watch | n/a | n/a | 3.0 |
+| DAL@IND | watch | n/a | n/a | 3.0 |
 | JAX@BAL | watch | n/a | n/a | 3.0 |
-| NYG@PHI | watch | n/a | n/a | 2.0 |
+| NYG@PHI | watch | n/a | n/a | 3.0 |
+| TB@CHI | watch | n/a | n/a | 2.0 |
 
 ## Survivor
 
 - Primary: SF vs LV (76.6%)
-- Safest: KC vs NYJ (77.6%)
+- Safest: SEA vs ARI (76.7%)
 - Path pick: SF vs LV (76.6%)
 
 | Pool | Safe | Balanced | Leverage |
