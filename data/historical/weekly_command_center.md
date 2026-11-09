@@ -31,23 +31,23 @@
 
 ## Survivor
 
-- Primary: SF vs LV (75.7%)
-- Safest: SEA vs ARI (76.1%)
-- Path pick: KC vs NYJ (74.0%)
+- Primary: SF vs LV (71.1%)
+- Safest: SEA vs ARI (72.2%)
+- Path pick: SF vs LV (71.1%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | SF vs LV (75.7%) | SF vs LV (75.7%) | SF vs LV (75.7%) |
-| 100 | SF vs LV (75.7%) | SF vs LV (75.7%) | SF vs LV (75.7%) |
-| 500 | SF vs LV (75.7%) | SF vs LV (75.7%) | SF vs LV (75.7%) |
+| 25 | SF vs LV (71.1%) | SF vs LV (71.1%) | SF vs LV (71.1%) |
+| 100 | SF vs LV (71.1%) | SF vs LV (71.1%) | SF vs LV (71.1%) |
+| 500 | SF vs LV (71.1%) | SF vs LV (71.1%) | SF vs LV (71.1%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| SEA | vs ARI | 71.8% | -254 |
-| SF | vs LV | 69.8% | -231 |
-| KC | vs NYJ | 69.3% | -226 |
-| DET | @ MIA | 60.4% | -153 |
-| NE | vs GB | 59.7% | -148 |
-| NO | vs CLE | 58.1% | -139 |
+| SEA | vs ARI | 73.5% | -277 |
+| KC | vs NYJ | 72.3% | -261 |
+| SF | vs LV | 71.9% | -255 |
+| DET | @ MIA | 61.7% | -161 |
+| HOU | @ LAC | 60.5% | -153 |
+| JAX | @ BAL | 60.2% | -152 |
