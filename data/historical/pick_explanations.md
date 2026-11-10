@@ -72,7 +72,7 @@
 | W7 KC@SEA | lean | watch |  |  | watch | No isolated selector edge |
 | W8 LAC@LAR | lean | watch |  |  | watch | Signals: sharp, injury |
 | W8 NE@MIA | pass | pass |  |  | none | No isolated selector edge |
-| W9 HOU@LAC | lean | watch |  |  | watch | Signals: team_rating; WARPS moneyline overlay: HOME +27.7% EV |
+| W9 HOU@LAC | lean | watch |  |  | watch | Signals: team_rating; WARPS moneyline overlay: HOME +30.6% EV |
 | WPRE1 ARI@LV | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 CAR@BUF | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | WPRE1 CLE@CHI | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
