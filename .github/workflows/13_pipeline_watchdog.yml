@@ -1,0 +1,62 @@
+name: 13 Pipeline Watchdog
+
+# Emails an alert when the weekly pipeline breaks or stalls (scripts/pipeline_watchdog.py).
+# - Right away when a watched workflow fails (workflow_run).
+# - Twice a day: failed runs in the last 26h, week pointer not advanced after the
+#   week's games are final, site feed out of sync, stale scrapes, missing referees.
+
+on:
+  workflow_run:
+    workflows:
+      - "1. Referee Data Collection"
+      - "2. Initial Market Data"
+      - "3. Market Update (with Line-Flip Detection)"
+      - "4.5 Pro Analysis & Email (Enhanced Organized)"
+      - "5. Send Conversational Analysis Email"
+      - "6. Enhanced Performance Tracker"
+      - "6. Grade Week Results"
+      - "8 NFL Edge Hub Site Build"
+      - "10 Deploy NFL Edge Hub to Bluehost"
+      - "11 Refresh WARPS Market Overlay"
+    types: [completed]
+  schedule:
+    - cron: '37 15 * 8-12,1-2 *'   # 10:37am ET (EST; 11:37 EDT)
+    - cron: '37 23 * 8-12,1-2 *'   # 6:37pm ET (EST; 7:37 EDT)
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  alert_on_failure:
+    if: github.event_name == 'workflow_run' && contains(fromJSON('["failure","timed_out","startup_failure"]'), github.event.workflow_run.conclusion)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Email failure alert
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RUN_NAME: ${{ github.event.workflow_run.name }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        run: python3 scripts/pipeline_watchdog.py --failed-run "$RUN_NAME" "$RUN_URL"
+
+  health_check:
+    if: github.event_name != 'workflow_run'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check pipeline health
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GMAIL_USER: ${{ secrets.GMAIL_USERNAME }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python3 scripts/pipeline_watchdog.py

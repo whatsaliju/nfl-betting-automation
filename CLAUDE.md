@@ -103,6 +103,8 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 10. **Wf 8** `8_matrix_site_build.yml` — push to main (path filter: `site/**`, engine feed, overlay CSV) → builds static site
 11. **Wf 10** `10_bluehost_labs_deploy.yml` — push to main (same path filter) → deploys to Bluehost
 
+12. **Wf 13** `13_pipeline_watchdog.yml` — emails Liju (`scripts/pipeline_watchdog.py`) right away when a watched pipeline workflow fails (`workflow_run`), and twice daily (10:37am / 6:37pm ET, Aug–Feb) checks: failed runs in the last 26h, week pointer not advanced 30h after the week's last game is final, feed week ≠ `current_week.json`, newest scrape > 3 days old, no `week{N}_referees.csv` from Wed 4pm ET on. Added Nov 12 2026 after Wf 6 failed on Python 3.9 (Ubuntu 26.04 runners dropped it) and the site sat on Week 9 for three days; all workflows now pin Python 3.11+.
+
 ### Seasonal Maintenance (start of each season)
 - Update `warps_2026_market_overlay.csv` path filters in `8_matrix_site_build.yml` and `10_bluehost_labs_deploy.yml` to the new season year
 - Build new `warps_{season}_game_priors.csv` for the new season
