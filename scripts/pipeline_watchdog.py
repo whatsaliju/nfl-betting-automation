@@ -116,6 +116,17 @@ def week_checks(now):
         return issues
     games = [g for g in csv.DictReader(io.StringIO(text))
              if g["season"] == season and g["week"] == week and g["game_type"] == "REG"]
+    tla = lambda x: {"LA": "LAR", "WSH": "WAS"}.get(x, x)
+    scheduled = {f"{tla(g['away_team'])}@{tla(g['home_team'])}" for g in games}
+    try:
+        board = json.loads(feed.read_text()).get("edge_board", [])
+        on_site = {str(r.get("matchup_key")).replace("WSH", "WAS") for r in board if str(r.get("week")) == week}
+        extra = sorted(on_site - scheduled) if scheduled else []
+        if extra:
+            issues.append(f"Site shows {len(extra)} Week {week} games that aren't on the schedule "
+                          f"(stale files from another season or a test run?): {', '.join(extra)}")
+    except (FileNotFoundError, json.JSONDecodeError):
+        pass
     if games and all(g["home_score"] for g in games):
         last = max(datetime.fromisoformat(f"{g['gameday']}T{g.get('gametime') or '13:00'}").replace(tzinfo=ET)
                    for g in games)

@@ -103,7 +103,7 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 10. **Wf 8** `8_matrix_site_build.yml` — push to main (path filter: `site/**`, engine feed, overlay CSV) → builds static site
 11. **Wf 10** `10_bluehost_labs_deploy.yml` — push to main (same path filter) → deploys to Bluehost
 
-12. **Wf 13** `13_pipeline_watchdog.yml` — emails Liju (`scripts/pipeline_watchdog.py`) right away when a watched pipeline workflow fails (`workflow_run`), and twice daily (10:37am / 6:37pm ET, Aug–Feb) checks: failed runs in the last 26h, week pointer not advanced 30h after the week's last game is final, feed week ≠ `current_week.json`, newest scrape > 3 days old, no `week{N}_referees.csv` from Wed 4pm ET on. Added Nov 12 2026 after Wf 6 failed on Python 3.9 (Ubuntu 26.04 runners dropped it) and the site sat on Week 9 for three days; all workflows now pin Python 3.11+.
+12. **Wf 13** `13_pipeline_watchdog.yml` — emails Liju (`scripts/pipeline_watchdog.py`) right away when a watched pipeline workflow fails (`workflow_run`), and twice daily (10:37am / 6:37pm ET, Aug–Feb) checks: failed runs in the last 26h, week pointer not advanced 30h after the week's last game is final, feed week ≠ `current_week.json`, newest scrape > 3 days old, no `week{N}_referees.csv` from Wed 4pm ET on, site games for the week that aren't on the nflverse schedule. Added Nov 12 2026 after Wf 6 failed on Python 3.9 (Ubuntu 26.04 runners dropped it) and the site sat on Week 9 for three days; all workflows now pin Python 3.11+.
 
 ### Seasonal Maintenance (start of each season)
 - Update `warps_2026_market_overlay.csv` path filters in `8_matrix_site_build.yml` and `10_bluehost_labs_deploy.yml` to the new season year
@@ -153,6 +153,10 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
   Checks: spread halves within 1 pt and ≤2.5 off reference; over/under match and ≤3 off; moneyline implied sum 0.97–1.15 with the same favorite as the spread. Log `data/line_corrections_{season}.csv`; latest `data/line_verify_latest.json`. Nov 1 2026: 5 of 13 spreads had a bad half, all fixed from the scrape with 0 credits.
 - `canonical_team('LA')` returns LAR (nflverse writes the Rams as LA; the substring match used to read it as ATL).
 - `scripts/check_lines.py` (Wf 4.5 after the feed build) compares each unplayed game's spread/total with nflverse's consensus; gaps > 2.5 (spread) / 3 (total) go to `site/src/data/lineCheck.json` along with the scrape corrections and data warnings (stale scrape > 8h, scheduled game missing or duplicated, total outside 30–65) → Edge Board `LineCheckBanner` + email "Line check" box. `detect_line_moves.py` drops moves nflverse doesn't confirm and skips started games.
+
+### Stale week folders (data/week{N}/ is not split by season)
+- `data/week{N}/` and `data/historical/week{N}_master.*` are reused every season, so they can hold last season's files or an old dry run (Week 10 2026: an Aug 12 dry-run `final.json` with another schedule's 14 games, plus a stray `WSH@NYG` row — 29 rows on the site; weeks 16–18 still hold 2025 masters).
+- `build_week_master_table.py` (Nov 12 2026): ignores a stage whose `metadata.json` timestamp is > 10 days older than the newest stage, starts fresh when the existing master is from another season, and drops existing rows not on this week's ESPN schedule.
 
 ### Known Deferred Gap
 - **Wf 11 doesn't rebuild engine feed**: After Wf 11's daily Odds API refresh, `warpsMarketOverlay.json` has fresh prices but `matrix_engine_feed.json` is stale until Wf 4.5 next runs. Deferred — engine feed needs master JSON context that Wf 11 doesn't run. The window is at most one day since Wf 4.5 runs multiple times weekly.
