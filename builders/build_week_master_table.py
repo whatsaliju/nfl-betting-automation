@@ -5,7 +5,7 @@ import os
 import sys
 import requests
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
@@ -160,6 +160,38 @@ def load_snapshot(path):
         data = json.load(f)
 
     return {g["matchup_key"]: g for g in data}
+
+
+STALE_STAGE_DAYS = 10
+
+
+def fresh_stages(week_dir):
+    """Stages whose snapshot belongs to this run of the week.
+
+    data/week{N}/ isn't split by season, so it can hold a stage from last season or an
+    old dry run (Week 10 2026 had an August 'final' with another schedule's 14 games).
+    A stage older than STALE_STAGE_DAYS before the newest stage in metadata.json is
+    ignored. Stages missing from metadata.json are kept.
+    """
+    meta_path = os.path.join(week_dir, "metadata.json")
+    try:
+        with open(meta_path) as f:
+            entries = json.load(f).get("stages", [])
+    except (OSError, ValueError, AttributeError):
+        return set(STAGES)
+    stamps = {}
+    for e in entries:
+        try:
+            stamps[e["stage"]] = datetime.fromisoformat(str(e["timestamp"])[:19])
+        except (KeyError, ValueError, TypeError):
+            continue
+    if not stamps:
+        return set(STAGES)
+    newest = max(stamps.values())
+    stale = {s for s, ts in stamps.items() if ts < newest - timedelta(days=STALE_STAGE_DAYS)}
+    for s in sorted(stale):
+        print(f"  ⚠️  Ignoring stale '{s}' snapshot from {stamps[s]:%Y-%m-%d} (newest stage {newest:%Y-%m-%d}).")
+    return set(STAGES) - stale
 
 
 def load_source_health(path):
@@ -331,11 +363,11 @@ def freeze_started_games(df, existing, now=None):
 # -----------------------------
 # MAIN BUILDER
 # -----------------------------
-def augment_from_snapshots(df, week_dir, season, season_type, week_key_str):
+def augment_from_snapshots(df, week_dir, season, season_type, week_key_str, stages=STAGES):
     """Add games found in analytics snapshots that ESPN's scoreboard didn't return."""
     known_keys = set(df["matchup_key"].values)
     new_rows = []
-    for stage in STAGES:
+    for stage in stages:
         snap = normalize_snapshot_keys(load_snapshot(os.path.join(week_dir, f"{stage}.json")))
         for mk, game_data in snap.items():
             if mk in known_keys:
@@ -368,12 +400,20 @@ def build_week_master(season: int, week, season_type: str = None):
 
     week_dir = os.path.join(DATA_DIR, "week" + slug)
 
+    live = fresh_stages(week_dir)
+    schedule_known = len(df) > 0
+
     # Augment ESPN schedule with any games present in analytics but missing from ESPN
-    df = augment_from_snapshots(df, week_dir, season, season_type, key)
+    df = augment_from_snapshots(df, week_dir, season, season_type, key,
+                                stages=[s for s in STAGES if s in live])
 
     print("📥 Loading snapshots...")
     print("🧩 Attaching snapshots...")
     for stage in STAGES:
+        if stage not in live:
+            df = attach_snapshot(df, {}, stage)
+            df = attach_source_health(df, {}, stage)
+            continue
         snapshot = normalize_snapshot_keys(load_snapshot(os.path.join(week_dir, f"{stage}.json")))
         source_health = load_source_health(os.path.join(week_dir, f"{stage}_source_health.json"))
         df = attach_snapshot(df, snapshot, stage)
@@ -386,8 +426,23 @@ def build_week_master(season: int, week, season_type: str = None):
     out_path = os.path.join(OUTPUT_BASE, f"week{slug}_master.csv")
     out_json_path = os.path.join(OUTPUT_BASE, f"week{slug}_master.json")
 
-    if os.path.exists(out_path):
-        existing = pd.read_csv(out_path)
+    existing = pd.read_csv(out_path) if os.path.exists(out_path) else None
+    if existing is not None and "season" in existing.columns and len(existing):
+        if set(existing["season"].dropna().astype(int)) - {int(season)}:
+            print(f"  ⚠️  Existing {os.path.basename(out_path)} is from another season; starting fresh.")
+            existing = None
+    if existing is not None:
+        # Only games on this week's schedule (or fresh snapshots) carry over, and stale
+        # stages don't come back through combine_first.
+        if schedule_known:
+            dropped = sorted(set(existing["matchup_key"]) - set(df["matchup_key"]))
+            if dropped:
+                print(f"  ⚠️  Dropping {len(dropped)} games not on this week's schedule: {', '.join(map(str, dropped))}")
+            existing = existing[existing["matchup_key"].isin(set(df["matchup_key"]))]
+        stale_cols = [c for c in existing.columns
+                      if any(c.startswith(f"{st}_") or c == f"has_{st}" for st in STAGES if st not in live)]
+        existing = existing.drop(columns=stale_cols)
+    if existing is not None:
         # Prevent dtype coercion during combine_first: pandas upcasts an all-NaN
         # column to float64 which silently converts any string values to NaN.
         # Force JSON-string and other object columns to stay as object dtype.
