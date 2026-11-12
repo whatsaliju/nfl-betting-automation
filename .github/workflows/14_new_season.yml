@@ -1,0 +1,66 @@
+name: 14 New Season Rollover
+
+# Run once a year, before the preseason (the watchdog emails a reminder in August).
+# Moves last season's week folders and master tables to data/archive/before_{season}/
+# (scripts/archive_season.py) so they can't mix into the new season's pages, and can
+# reset data/current_week.json to Week 1 of the new season.
+
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "The new season (e.g. 2027)"
+        required: true
+        type: string
+      cutoff:
+        description: "Archive stages written before this date (YYYY-MM-DD). Blank = two days before the season's first game, else Aug 1."
+        required: false
+        default: ""
+        type: string
+      reset_week:
+        description: "Also set current_week.json to Week 1 of the new season"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  rollover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Reset week pointer
+        if: ${{ inputs.reset_week }}
+        run: |
+          python3 - <<'EOF'
+          import json, datetime
+          from pathlib import Path
+          p = Path("data/current_week.json")
+          p.write_text(json.dumps({"season": int("${{ inputs.season }}"), "season_type": "REG", "week": "1",
+                                   "updated_at": datetime.datetime.now().isoformat()}, indent=2) + "\n")
+          print(p.read_text())
+          EOF
+
+      - name: Archive last season's week files
+        run: |
+          ARGS="--season ${{ inputs.season }} --apply"
+          [ -n "${{ inputs.cutoff }}" ] && ARGS="$ARGS --cutoff ${{ inputs.cutoff }}"
+          python3 scripts/archive_season.py $ARGS
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A data/
+          if git diff --cached --quiet; then
+            echo "Nothing to archive."
+          else
+            git commit -m "🗄️ New season ${{ inputs.season }}: archive earlier week files"
+            git push
+          fi

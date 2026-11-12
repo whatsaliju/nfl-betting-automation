@@ -171,7 +171,8 @@ def fresh_stages(week_dir):
     data/week{N}/ isn't split by season, so it can hold a stage from last season or an
     old dry run (Week 10 2026 had an August 'final' with another schedule's 14 games).
     A stage older than STALE_STAGE_DAYS before the newest stage in metadata.json is
-    ignored. Stages missing from metadata.json are kept.
+    ignored, and so is a stage file metadata.json doesn't list. Without metadata.json
+    every stage is used.
     """
     meta_path = os.path.join(week_dir, "metadata.json")
     try:
@@ -189,8 +190,13 @@ def fresh_stages(week_dir):
         return set(STAGES)
     newest = max(stamps.values())
     stale = {s for s, ts in stamps.items() if ts < newest - timedelta(days=STALE_STAGE_DAYS)}
+    # The analyzer records every stage it writes, so a stage file metadata.json doesn't
+    # list is left over from an older run (2025 Weeks 13 and 15 had initial/update/lock
+    # files with no metadata at all).
+    stale |= {s for s in STAGES if s not in stamps and os.path.exists(os.path.join(week_dir, f"{s}.json"))}
     for s in sorted(stale):
-        print(f"  ⚠️  Ignoring stale '{s}' snapshot from {stamps[s]:%Y-%m-%d} (newest stage {newest:%Y-%m-%d}).")
+        when = f"from {stamps[s]:%Y-%m-%d}" if s in stamps else "not in metadata.json"
+        print(f"  ⚠️  Ignoring stale '{s}' snapshot ({when}; newest stage {newest:%Y-%m-%d}).")
     return set(STAGES) - stale
 
 
