@@ -1,23 +1,36 @@
 # Weekly Betting Card
 
 - Plays: 1
-- Watch: 6
-- Passes: 8
+- Watch: 2
+- Passes: 25
 
 | Week | Game | Action | Market | Side | Confidence | Route | Reasons | Risk |
 |---:|---|---|---|---|---|---|---|---|
-| 9 | NYG@PHI | play | total | UNDER | standard | total routed as best available market with status playable | Selector isolated total UNDER; Signals: sharp; WARPS moneyline overlay: HOME +22.8% EV |  |
-| 9 | DAL@IND | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +76.2% EV |  |
-| 9 | JAX@BAL | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, team_rating, injury; WARPS moneyline overlay: HOME +115.1% EV |  |
-| 9 | NYJ@KC | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +55.0% EV |  |
-| 9 | DET@MIA | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +53.4% EV |  |
-| 9 | HOU@LAC | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating; WARPS moneyline overlay: HOME +24.6% EV |  |
-| 9 | CLE@NO | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: AWAY +6.0% EV |  |
-| 9 | ARI@SEA | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 9 | BUF@MIN | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 9 | CIN@ATL | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 9 | DEN@CAR | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 9 | GB@NE | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 9 | LAR@WAS | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 9 | LV@SF | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 9 | TB@CHI | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 10 | WAS@NYG | play | total | UNDER | standard | total routed as best available market with status playable | 👀 LEAN: UNDER 41.5 |  |
+| 10 | NE@DET | watch | spread | HOME | watch | spread routed as best available market with status playable; WARPS conflict keeps risk elevated | 🎯 TARGETED PLAY: Detroit Lions -2.5 | WARPS spread conflict |
+| 10 | BUF@MIA | watch |  |  | watch | Watchlist only; no final market selected. | Signals: injury; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED | source warning DEGRADED; quality gate warn |
+| 10 | ARI@SEA | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED | Selector did not clear an actionable market threshold | source warning DEGRADED |
+| 10 | ATL@IND | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | BAL@MIN | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | BUF@NYJ | pass |  |  | none | Candidate markets did not clear the quality gate. | Selector did not clear an actionable market threshold |  |
+| 10 | CAR@NO | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 10 | CLE@NYJ | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | DET@WAS | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | HOU@CLE | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 10 | JAX@HOU | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | JAX@TEN | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 10 | KC@ATL | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 10 | LAC@BAL | pass |  |  | none | Candidate markets did not clear the quality gate. | Selector did not clear an actionable market threshold |  |
+| 10 | LAR@ARI | pass |  |  | none | Candidate markets did not clear the quality gate. | Selector did not clear an actionable market threshold |  |
+| 10 | LAR@SF | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | LV@DEN | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | MIA@IND | pass |  |  | none | Candidate markets did not clear the quality gate. | Selector did not clear an actionable market threshold |  |
+| 10 | MIN@GB | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 10 | NE@TB | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | NO@CAR | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | NYG@CHI | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | PHI@GB | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | PIT@CIN | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 10 | PIT@LAC | pass |  |  | none | Blocked by risk/source flags: source warning DEGRADED, quality gate warn | Selector did not clear an actionable market threshold | source warning DEGRADED; quality gate warn |
+| 10 | SEA@LV | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 10 | SF@DAL | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
