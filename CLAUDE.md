@@ -106,6 +106,7 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 12. **Wf 13** `13_pipeline_watchdog.yml` — emails Liju (`scripts/pipeline_watchdog.py`) right away when a watched pipeline workflow fails (`workflow_run`), and twice daily (10:37am / 6:37pm ET, Aug–Feb) checks: failed runs in the last 26h, week pointer not advanced 30h after the week's last game is final, feed week ≠ `current_week.json`, newest scrape > 3 days old, no `week{N}_referees.csv` from Wed 4pm ET on, site games for the week that aren't on the nflverse schedule. Added Nov 12 2026 after Wf 6 failed on Python 3.9 (Ubuntu 26.04 runners dropped it) and the site sat on Week 9 for three days; all workflows now pin Python 3.11+.
 
 ### Seasonal Maintenance (start of each season)
+- **Run `14 New Season Rollover`** (workflow_dispatch: season = new year, reset_week on) before the preseason: `scripts/archive_season.py` moves last season's `data/week*/` folders and `data/historical/week*_master.*` to `data/archive/before_{season}/` (weekPRE* untouched) and resets `current_week.json` to Week 1. The watchdog emails a reminder in August if `current_week.json` is still on last season.
 - Update `warps_2026_market_overlay.csv` path filters in `8_matrix_site_build.yml` and `10_bluehost_labs_deploy.yml` to the new season year
 - Build new `warps_{season}_game_priors.csv` for the new season
 - `validate_engine_contracts.py` has hardcoded schedule dates for known seasons — add new season's Week 1 date
@@ -156,7 +157,8 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 
 ### Stale week folders (data/week{N}/ is not split by season)
 - `data/week{N}/` and `data/historical/week{N}_master.*` are reused every season, so they can hold last season's files or an old dry run (Week 10 2026: an Aug 12 dry-run `final.json` with another schedule's 14 games, plus a stray `WSH@NYG` row — 29 rows on the site; weeks 16–18 still hold 2025 masters).
-- `build_week_master_table.py` (Nov 12 2026): ignores a stage whose `metadata.json` timestamp is > 10 days older than the newest stage, starts fresh when the existing master is from another season, and drops existing rows not on this week's ESPN schedule.
+- `build_week_master_table.py` (Nov 12 2026): ignores a stage whose `metadata.json` timestamp is > 10 days older than the newest stage or that `metadata.json` doesn't list, starts fresh when the existing master is from another season, and drops existing rows not on this week's ESPN schedule.
+- Nov 12 2026 cleanup: `archive_season.py --season 2026 --apply` moved 2025's Weeks 11–18 and playoff folders/masters and the Aug 12 Week 10 dry-run `final*` files to `data/archive/before_2026/` (209 files).
 
 ### Known Deferred Gap
 - **Wf 11 doesn't rebuild engine feed**: After Wf 11's daily Odds API refresh, `warpsMarketOverlay.json` has fresh prices but `matrix_engine_feed.json` is stale until Wf 4.5 next runs. Deferred — engine feed needs master JSON context that Wf 11 doesn't run. The window is at most one day since Wf 4.5 runs multiple times weekly.

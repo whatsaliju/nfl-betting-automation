@@ -82,6 +82,10 @@ def week_checks(now):
     except (FileNotFoundError, json.JSONDecodeError):
         return ["data/current_week.json is missing or unreadable."]
     season, week = str(cw.get("season")), str(cw.get("week"))
+    local_now = now.astimezone(ET)
+    if local_now.month in (7, 8) and season.isdigit() and int(season) < local_now.year:
+        issues.append(f"current_week.json is still season {season}. Run '14 New Season Rollover' with season "
+                      f"{local_now.year} (reset_week on) so last season's week files are archived before Week 1.")
 
     feed = ROOT / "data" / "historical" / "matrix_engine_feed.json"
     try:
