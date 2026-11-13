@@ -22,24 +22,24 @@
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| NE@DET | watch | spread | HOME | 4.0 |
 | LAC@BAL | watch | n/a | n/a | 3.0 |
+| NE@DET | watch | n/a | n/a | 3.0 |
 | SEA@LV | watch | n/a | n/a | 2.0 |
 | WAS@NYG | watch | n/a | n/a | 2.0 |
-| LAR@ARI | watch | n/a | n/a | 1.0 |
-| BUF@NYJ | watch | n/a | n/a | n/a |
+| BUF@NYJ | watch | n/a | n/a | 1.0 |
+| KC@ATL | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
-- Primary: LAR vs ARI (73.3%)
-- Safest: JAX vs TEN (74.7%)
-- Path pick: LAR vs ARI (73.3%)
+- Primary: LAR vs ARI (73.1%)
+- Safest: JAX vs TEN (75.8%)
+- Path pick: LAR vs ARI (73.1%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | LAR vs ARI (73.3%) | LAR vs ARI (73.3%) | LAR vs ARI (73.3%) |
-| 100 | LAR vs ARI (73.3%) | LAR vs ARI (73.3%) | LAR vs ARI (73.3%) |
-| 500 | LAR vs ARI (73.3%) | BAL vs LAC (64.5%) | BAL vs LAC (64.5%) |
+| 25 | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) |
+| 100 | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) |
+| 500 | LAR vs ARI (73.1%) | BAL vs LAC (63.7%) | BAL vs LAC (63.7%) |
 
 ## WARPS Watch
 
