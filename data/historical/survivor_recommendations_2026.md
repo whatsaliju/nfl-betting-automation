@@ -8,16 +8,16 @@
 | Week | Pick | Game | Win Prob | Survivor Score | Tier | Reasons |
 |---:|---|---|---:|---:|---|---|
 | 1 | PHI | WAS@PHI | 67.0% | 60.4 | secondary | WARPS win probability 67.0%; Home-field survivor spot; Division game raises upset volatility |
-| 2 | LAC | LV@LAC | 67.3% | 58.3 | deep_pool | WARPS win probability 67.3%; ⚠️ Adverse line movement: -6.0pt score penalty; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Division game raises upset volatility; Low future opportunity cost |
+| 2 | SF | MIA@SF | 66.2% | 59.2 | deep_pool | WARPS win probability 66.2%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 3 | DET | NYJ@DET | 74.4% | 67.1 | primary | WARPS win probability 74.4%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
-| 4 | CHI | NYJ@CHI | 68.3% | 63.8 | secondary | WARPS win probability 68.3%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
+| 4 | CHI | NYJ@CHI | 68.3% | 68.3 | primary | WARPS win probability 68.3%; Home-field survivor spot; Low future opportunity cost |
 | 5 | NE | LV@NE | 72.3% | 66.0 | primary | WARPS win probability 72.3%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
 | 6 | NE | NYJ@NE | 73.2% | 67.8 | primary | WARPS win probability 73.2%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Division game raises upset volatility |
 | 7 | PHI | DAL@PHI | 65.7% | 61.5 | secondary | WARPS win probability 65.7%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Division game raises upset volatility |
 | 8 | GB | CAR@GB | 62.7% | 61.3 | secondary | WARPS win probability 62.7%; ⚠️ Engine issued PASS on this game; Home-field survivor spot |
-| 9 | SF | LV@SF | 71.1% | 70.9 | primary | WARPS win probability 71.1%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Team off bye |
-| 10 | IND | MIA@IND | 65.8% | 63.4 | secondary | WARPS 65.9% blended with market 65.8% → 65.8%; ⚠️ Engine issued PASS on this game; Home-field survivor spot |
-| 11 | KC | ARI@KC | 79.0% | 75.3 | primary | WARPS 65.4% blended with market 86.3% → 79.0%; Home-field survivor spot; Save risk: 1 future elite spot(s) |
+| 9 | SF | LV@SF | 71.1% | 72.1 | primary | WARPS win probability 71.1%; ⚠️ Engine issued PASS on this game; Home-field survivor spot; Low future opportunity cost; Team off bye |
+| 10 | HOU | HOU@CLE | 74.5% | 67.3 | primary | WARPS 59.1% blended with market 82.9% → 74.5%; ⚠️ Engine issued PASS on this game; Road favorite requires extra caution; Save risk: 1 future elite spot(s) |
+| 11 | LAC | NYJ@LAC | 68.3% | 68.3 | primary | WARPS win probability 68.3%; Home-field survivor spot; Low future opportunity cost |
 | 12 | JAX | TEN@JAX | 71.4% | 67.2 | primary | WARPS win probability 71.4%; Home-field survivor spot; Division game raises upset volatility |
 | 13 | SEA | DAL@SEA | 70.9% | 69.7 | primary | WARPS win probability 70.9%; Home-field survivor spot |
 | 14 | DET | TEN@DET | 71.3% | 70.1 | primary | WARPS win probability 71.3%; Home-field survivor spot |
@@ -30,18 +30,18 @@
 
 | Week | Pool | Payout | Safe | Balanced | Leverage |
 |---:|---:|---|---|---|---|
-| 1 | 25 | top_heavy | PHI (67.0%) | PHI (60.6) | PHI (12.2% public) |
+| 1 | 25 | top_heavy | PHI (67.0%) | JAX (61.2) | JAX (9.8% public) |
 | 1 | 100 | top_heavy | PHI (67.0%) | PHI (63.0) | PHI (13.7% public) |
 | 1 | 500 | top_heavy | PHI (67.0%) | PHI (76.6) | PHI (13.7% public) |
-| 2 | 25 | top_heavy | LAC (67.3%) | LAC (64.0) | LAC (7.4% public) |
-| 2 | 100 | top_heavy | LAC (67.3%) | LAC (65.5) | LAC (8.9% public) |
-| 2 | 500 | top_heavy | LAC (67.3%) | SF (75.9) | SF (14.1% public) |
+| 2 | 25 | top_heavy | SF (66.2%) | LAC (63.0) | LAC (7.4% public) |
+| 2 | 100 | top_heavy | SF (66.2%) | LAC (64.5) | LAC (8.9% public) |
+| 2 | 500 | top_heavy | SF (66.2%) | SF (76.7) | SF (14.1% public) |
 | 3 | 25 | top_heavy | DET (74.4%) | DET (67.1) | DET (16.7% public) |
 | 3 | 100 | top_heavy | DET (74.4%) | DET (69.5) | DET (18.2% public) |
 | 3 | 500 | top_heavy | DET (74.4%) | DET (83.5) | DET (18.2% public) |
-| 4 | 25 | top_heavy | CHI (68.3%) | BAL (64.3) | BAL (13.5% public) |
-| 4 | 100 | top_heavy | CHI (68.3%) | BAL (66.8) | BAL (15.0% public) |
-| 4 | 500 | top_heavy | CHI (68.3%) | BAL (81.0) | BAL (15.0% public) |
+| 4 | 25 | top_heavy | CHI (68.3%) | CHI (66.9) | CHI (11.4% public) |
+| 4 | 100 | top_heavy | CHI (68.3%) | CHI (69.0) | CHI (12.9% public) |
+| 4 | 500 | top_heavy | CHI (68.3%) | CHI (81.3) | BAL (15.0% public) |
 | 5 | 25 | top_heavy | NE (72.3%) | NE (66.1) | NE (13.9% public) |
 | 5 | 100 | top_heavy | NE (72.3%) | NE (68.3) | NE (15.4% public) |
 | 5 | 500 | top_heavy | NE (72.3%) | NE (81.2) | NE (15.4% public) |
@@ -54,15 +54,15 @@
 | 8 | 25 | top_heavy | GB (62.7%) | CIN (61.5) | CIN (8.3% public) |
 | 8 | 100 | top_heavy | GB (62.7%) | CIN (63.4) | CIN (9.8% public) |
 | 8 | 500 | top_heavy | GB (62.7%) | GB (74.5) | GB (10.4% public) |
-| 9 | 25 | top_heavy | SF (71.1%) | SF (69.1) | SF (15.7% public) |
-| 9 | 100 | top_heavy | SF (71.1%) | SF (71.7) | SF (17.2% public) |
-| 9 | 500 | top_heavy | SF (71.1%) | SF (86.6) | SF (17.2% public) |
-| 10 | 25 | top_heavy | IND (65.8%) | LAR (63.8) | LAR (11.7% public) |
-| 10 | 100 | top_heavy | IND (65.8%) | LAR (65.6) | LAR (13.2% public) |
-| 10 | 500 | top_heavy | IND (65.8%) | BAL (76.9) | BAL (12.1% public) |
-| 11 | 25 | top_heavy | KC (79.0%) | BUF (73.9) | BUF (21.6% public) |
-| 11 | 100 | top_heavy | KC (79.0%) | KC (75.9) | KC (23.1% public) |
-| 11 | 500 | top_heavy | KC (79.0%) | KC (90.4) | KC (23.1% public) |
+| 9 | 25 | top_heavy | SF (71.1%) | SF (69.9) | SF (15.7% public) |
+| 9 | 100 | top_heavy | SF (71.1%) | SF (72.5) | SF (17.2% public) |
+| 9 | 500 | top_heavy | SF (71.1%) | SF (87.4) | SF (17.2% public) |
+| 10 | 25 | top_heavy | HOU (74.5%) | HOU (67.6) | HOU (11.5% public) |
+| 10 | 100 | top_heavy | HOU (74.5%) | HOU (69.3) | HOU (13.0% public) |
+| 10 | 500 | top_heavy | HOU (74.5%) | HOU (79.2) | KC (15.3% public) |
+| 11 | 25 | top_heavy | LAC (68.3%) | LAC (67.2) | LAC (9.4% public) |
+| 11 | 100 | top_heavy | LAC (68.3%) | LAC (68.9) | LAC (10.9% public) |
+| 11 | 500 | top_heavy | LAC (68.3%) | DEN (79.8) | KC (14.6% public) |
 | 12 | 25 | top_heavy | JAX (71.4%) | JAX (66.9) | JAX (10.0% public) |
 | 12 | 100 | top_heavy | JAX (71.4%) | JAX (68.6) | JAX (11.5% public) |
 | 12 | 500 | top_heavy | JAX (71.4%) | JAX (78.4) | JAX (11.5% public) |
