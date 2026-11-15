@@ -17,29 +17,29 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 8
-- Passes: 6
+- Watch: 7
+- Passes: 7
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | LAC@BAL | watch | n/a | n/a | 3.0 |
+| MIA@IND | watch | total | UNDER | 3.0 |
 | NE@DET | watch | n/a | n/a | 3.0 |
-| SEA@LV | watch | n/a | n/a | 2.0 |
+| SF@DAL | watch | n/a | n/a | 3.0 |
 | WAS@NYG | watch | n/a | n/a | 2.0 |
 | BUF@NYJ | watch | n/a | n/a | 1.0 |
-| KC@ATL | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
-- Primary: LAR vs ARI (73.1%)
-- Safest: JAX vs TEN (75.8%)
+- Primary: IND vs MIA (65.8%)
+- Safest: JAX vs TEN (76.3%)
 - Path pick: LAR vs ARI (73.1%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) |
-| 100 | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) |
-| 500 | LAR vs ARI (73.1%) | BAL vs LAC (63.7%) | BAL vs LAC (63.7%) |
+| 25 | IND vs MIA (65.8%) | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) |
+| 100 | IND vs MIA (65.8%) | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) |
+| 500 | IND vs MIA (65.8%) | BAL vs LAC (63.7%) | BAL vs LAC (63.7%) |
 
 ## WARPS Watch
 
