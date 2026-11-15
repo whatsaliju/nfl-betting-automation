@@ -17,9 +17,9 @@
 - total: 4 games
 
 ### pythagorean_pick_alignment
-- aligned: 3 games
+- aligned: 4 games
 - conflict: 3 games
-- neutral: 2 games
+- neutral: 1 games
 - no_pick: 139 games
 - non_side_pick: 4 games
 

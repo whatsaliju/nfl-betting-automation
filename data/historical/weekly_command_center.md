@@ -17,8 +17,8 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 6
-- Passes: 8
+- Watch: 7
+- Passes: 7
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
@@ -31,15 +31,15 @@
 
 ## Survivor
 
-- Primary: IND vs MIA (65.8%)
-- Safest: JAX vs TEN (76.3%)
-- Path pick: LAR vs ARI (73.1%)
+- Primary: HOU vs CLE (74.5%)
+- Safest: BUF vs NYJ (76.5%)
+- Path pick: BUF vs NYJ (76.5%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | IND vs MIA (65.8%) | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) |
-| 100 | IND vs MIA (65.8%) | LAR vs ARI (73.1%) | LAR vs ARI (73.1%) |
-| 500 | IND vs MIA (65.8%) | BAL vs LAC (63.7%) | BAL vs LAC (63.7%) |
+| 25 | HOU vs CLE (74.5%) | HOU vs CLE (74.5%) | HOU vs CLE (74.5%) |
+| 100 | HOU vs CLE (74.5%) | HOU vs CLE (74.5%) | HOU vs CLE (74.5%) |
+| 500 | HOU vs CLE (74.5%) | HOU vs CLE (74.5%) | KC vs ATL (69.4%) |
 
 ## WARPS Watch
 
