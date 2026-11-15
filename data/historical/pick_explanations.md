@@ -43,9 +43,8 @@
 | W9 DAL@IND | lean | watch |  |  | watch | Signals: sharp |
 | W9 JAX@BAL | lean | watch |  |  | watch | Signals: sharp, team_rating, injury |
 | W9 NYJ@KC | lean | watch |  |  | watch | Signals: sharp, team_rating |
-| W10 LAC@BAL | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +9.0% EV |
+| W10 LAC@BAL | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +7.5% EV |
 | W10 NE@DET | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +9.2% EV |
-| W10 SF@DAL | pass | pass |  |  | none | WARPS moneyline overlay: HOME +30.6% EV |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | No isolated selector edge |
 | W1 DEN@KC | lean | watch |  |  | watch | Signals: sharp |
@@ -65,6 +64,7 @@
 | W8 PHI@WAS | lean | watch |  |  | watch | Signals: sharp, injury |
 | W9 DET@MIA | lean | watch |  |  | watch | Signals: sharp |
 | W10 SEA@LV | pass | pass |  |  | none | WARPS moneyline overlay: HOME +40.5% EV |
+| W10 SF@DAL | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +30.6% EV |
 | W10 WAS@NYG | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +12.6% EV |
 | WPRE2 NYJ@PIT | pass | pass |  |  | none | No isolated selector edge |
 | W2 IND@KC | lean | watch |  |  | watch | Signals: sharp |
@@ -78,7 +78,7 @@
 | W8 NE@MIA | pass | pass |  |  | none | No isolated selector edge |
 | W9 HOU@LAC | lean | watch |  |  | watch | Signals: team_rating |
 | W10 BUF@NYJ | pass | pass |  |  | none | WARPS moneyline overlay: HOME +76.6% EV |
-| W10 KC@ATL | lean | watch |  |  | watch | Signals: sharp, injury; WARPS moneyline overlay: HOME +17.6% EV |
+| W10 JAX@TEN | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +96.0% EV |
+| W10 KC@ATL | lean | watch |  |  | watch | Signals: sharp, injury; WARPS moneyline overlay: HOME +15.8% EV |
 | W10 LAR@ARI | pass | pass |  |  | none | WARPS moneyline overlay: HOME +92.2% EV |
 | WPRE1 ARI@LV | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
-| WPRE1 CAR@BUF | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
