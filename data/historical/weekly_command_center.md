@@ -31,23 +31,23 @@
 
 ## Survivor
 
-- Primary: HOU vs CLE (74.5%)
-- Safest: BUF vs NYJ (76.5%)
-- Path pick: BUF vs NYJ (76.5%)
+- Primary: IND vs MIA (65.9%)
+- Safest: SEA vs LV (66.6%)
+- Path pick: BAL vs LAC (64.1%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | HOU vs CLE (74.5%) | HOU vs CLE (74.5%) | HOU vs CLE (74.5%) |
-| 100 | HOU vs CLE (74.5%) | HOU vs CLE (74.5%) | HOU vs CLE (74.5%) |
-| 500 | HOU vs CLE (74.5%) | HOU vs CLE (74.5%) | KC vs ATL (69.4%) |
+| 25 | IND vs MIA (65.9%) | IND vs MIA (65.9%) | IND vs MIA (65.9%) |
+| 100 | IND vs MIA (65.9%) | IND vs MIA (65.9%) | IND vs MIA (65.9%) |
+| 500 | IND vs MIA (65.9%) | BAL vs LAC (64.1%) | BAL vs LAC (64.1%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| JAX | @ TEN | 67.7% | -209 |
-| IND | vs MIA | 63.0% | -170 |
+| JAX | @ TEN | 68.4% | -217 |
+| LAR | @ ARI | 65.1% | -187 |
+| BUF | @ NYJ | 64.9% | -185 |
 | BAL | vs LAC | 62.9% | -170 |
-| BUF | @ NYJ | 62.9% | -169 |
-| LAR | @ ARI | 61.6% | -160 |
-| SEA | @ LV | 61.4% | -159 |
+| IND | vs MIA | 62.8% | -169 |
+| SEA | @ LV | 62.0% | -163 |
