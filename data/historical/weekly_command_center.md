@@ -1,15 +1,15 @@
 # Weekly Command Center
 
-- Context: 2026 W10 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Context: 2026 W11 · live
+- Recommended action: **NO BET - DATA INCOMPLETE**
+- Confidence tier: **X**
+- Reason: Live betting inputs are not published for this context.
 
 ## Source Gates
 
 | Gate | Status |
 |---|---|
-| live betting card | PASS |
+| live betting card | BLOCKED |
 | preseason dry run | PASS |
 | warps priors | PASS |
 | survivor recommendations | PASS |
@@ -17,37 +17,33 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 7
-- Passes: 7
-
-| Game | Action | Market | Side | Score |
-|---|---|---|---|---:|
-| LAC@BAL | watch | n/a | n/a | 3.0 |
-| KC@ATL | watch | n/a | n/a | 2.0 |
-| SF@DAL | watch | n/a | n/a | 2.0 |
-| WAS@NYG | watch | n/a | n/a | 2.0 |
-| JAX@TEN | watch | n/a | n/a | 1.0 |
-| MIA@IND | watch | n/a | n/a | 1.0 |
+- Watch: 0
+- Passes: 0
 
 ## Survivor
 
-- Primary: IND vs MIA (65.9%)
-- Safest: SEA vs LV (66.6%)
-- Path pick: BAL vs LAC (64.1%)
+- Primary: KC vs ARI (81.6%)
+- Safest: BUF vs MIA (82.3%)
+- Path pick: KC vs ARI (81.6%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | IND vs MIA (65.9%) | IND vs MIA (65.9%) | IND vs MIA (65.9%) |
-| 100 | IND vs MIA (65.9%) | IND vs MIA (65.9%) | IND vs MIA (65.9%) |
-| 500 | IND vs MIA (65.9%) | BAL vs LAC (64.1%) | BAL vs LAC (64.1%) |
+| 25 | KC vs ARI (81.6%) | KC vs ARI (81.6%) | KC vs ARI (81.6%) |
+| 100 | KC vs ARI (81.6%) | KC vs ARI (81.6%) | KC vs ARI (81.6%) |
+| 500 | KC vs ARI (81.6%) | KC vs ARI (81.6%) | KC vs ARI (81.6%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| JAX | @ TEN | 68.4% | -217 |
-| LAR | @ ARI | 65.1% | -187 |
-| BUF | @ NYJ | 64.9% | -185 |
-| BAL | vs LAC | 62.9% | -170 |
-| IND | vs MIA | 62.8% | -169 |
-| SEA | @ LV | 62.0% | -163 |
+| KC | vs ARI | 74.6% | -293 |
+| BUF | vs MIA | 74.4% | -291 |
+| DEN | vs LV | 66.7% | -201 |
+| CHI | vs NO | 65.4% | -189 |
+| HOU | vs IND | 64.5% | -182 |
+| DAL | vs TEN | 64.2% | -180 |
+
+## Warnings
+
+- No live betting card is published for the current context.
+- No actionable betting plays or watchlist spots are active.
