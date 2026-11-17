@@ -42,7 +42,7 @@
 | W9 DAL@IND | lean | watch |  |  | watch | Signals: sharp |
 | W9 JAX@BAL | lean | watch |  |  | watch | Signals: sharp, team_rating, injury |
 | W9 NYJ@KC | lean | watch |  |  | watch | Signals: sharp, team_rating |
-| W10 LAC@BAL | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +14.2% EV |
+| W10 LAC@BAL | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +9.0% EV |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | No isolated selector edge |
 | W1 DEN@KC | lean | watch |  |  | watch | Signals: sharp |
