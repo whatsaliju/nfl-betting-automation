@@ -1,36 +1,41 @@
 # Weekly Command Center
 
 - Context: 2026 W11 · live
-- Recommended action: **NO BET - DATA INCOMPLETE**
-- Confidence tier: **X**
-- Reason: Live betting inputs are not published for this context.
+- Recommended action: **PLAY**
+- Confidence tier: **A**
+- Reason: At least one selector play cleared the current command gate.
 
 ## Source Gates
 
 | Gate | Status |
 |---|---|
-| live betting card | BLOCKED |
+| live betting card | PASS |
 | preseason dry run | PASS |
 | warps priors | PASS |
 | survivor recommendations | PASS |
 
 ## Betting Card
 
-- Plays: 0
+- Plays: 2
 - Watch: 0
-- Passes: 0
+- Passes: 11
+
+| Game | Action | Market | Side | Score |
+|---|---|---|---|---:|
+| NYJ@LAC | play | spread | AWAY | 5.0 |
+| CIN@WAS | play | total | OVER | 3.0 |
 
 ## Survivor
 
-- Primary: KC vs ARI (81.6%)
+- Primary: KC vs ARI (81.3%)
 - Safest: BUF vs MIA (82.3%)
-- Path pick: KC vs ARI (81.6%)
+- Path pick: KC vs ARI (81.3%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | KC vs ARI (81.6%) | KC vs ARI (81.6%) | KC vs ARI (81.6%) |
-| 100 | KC vs ARI (81.6%) | KC vs ARI (81.6%) | KC vs ARI (81.6%) |
-| 500 | KC vs ARI (81.6%) | KC vs ARI (81.6%) | KC vs ARI (81.6%) |
+| 25 | KC vs ARI (81.3%) | KC vs ARI (81.3%) | KC vs ARI (81.3%) |
+| 100 | KC vs ARI (81.3%) | KC vs ARI (81.3%) | KC vs ARI (81.3%) |
+| 500 | KC vs ARI (81.3%) | KC vs ARI (81.3%) | KC vs ARI (81.3%) |
 
 ## WARPS Watch
 
@@ -40,10 +45,5 @@
 | BUF | vs MIA | 74.4% | -291 |
 | DEN | vs LV | 66.7% | -201 |
 | CHI | vs NO | 65.4% | -189 |
+| DAL | vs TEN | 64.7% | -184 |
 | HOU | vs IND | 64.5% | -182 |
-| DAL | vs TEN | 64.2% | -180 |
-
-## Warnings
-
-- No live betting card is published for the current context.
-- No actionable betting plays or watchlist spots are active.
