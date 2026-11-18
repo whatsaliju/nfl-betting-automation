@@ -27,8 +27,8 @@
   "betting_card": {
     "available": true,
     "plays": 2,
-    "watch": 6,
-    "passes": 5,
+    "watch": 5,
+    "passes": 6,
     "top_cards": [
       {
         "key": "2026:11:NYJ@LAC",
@@ -302,7 +302,7 @@
         "data_quality": "OK",
         "quality_gate": "clear",
         "main_reasons": [
-          "Signals: team_rating, injury, model_confidence",
+          "Signals: sharp, team_rating, injury",
           "WARPS moneyline overlay: AWAY +6.8% EV"
         ],
         "risk_flags": [],
@@ -534,6 +534,7 @@
         "data_quality": "OK",
         "quality_gate": "clear",
         "main_reasons": [
+          "Signals: team_rating",
           "WARPS moneyline overlay: HOME +43.9% EV"
         ],
         "risk_flags": [],
@@ -648,8 +649,8 @@
         "data_quality": "OK",
         "quality_gate": "clear",
         "main_reasons": [
-          "Signals: injury",
-          "WARPS moneyline overlay: AWAY +32.6% EV"
+          "Signals: team_rating",
+          "WARPS moneyline overlay: AWAY +53.7% EV"
         ],
         "risk_flags": [],
         "market_status": null,
@@ -719,7 +720,7 @@
             "side": "AWAY",
             "status": "research_only",
             "promotion_status": "not_promoted",
-            "score": 13.0,
+            "score": 12.9,
             "threshold": 5.0,
             "blockers": [
               "moneyline selector not promoted",
@@ -730,7 +731,7 @@
             "warps_alignment": "research_only",
             "warps_side": "AWAY",
             "warps_team": "TB",
-            "edge_value": 0.5372
+            "edge_value": 0.5065
           }
         ],
         "referee": "Adrian Hill",
@@ -886,7 +887,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "NYJ",
@@ -983,14 +984,14 @@
         "final_total": 0
       },
       "explanation": {
-        "key": "NYJ@LAC:initial",
+        "key": "NYJ@LAC:update",
         "season": "2026",
         "season_type": "REG",
         "week": "11",
         "matchup_key": "NYJ@LAC",
         "away_tla": "NYJ",
         "home_tla": "LAC",
-        "stage": "initial",
+        "stage": "update",
         "raw_action": "play",
         "quality_action": "play",
         "quality_gate": "clear",
@@ -1175,7 +1176,7 @@
       "warps_market_overlay": {
         "available": true,
         "status": "priced",
-        "source": "WARPS v2.3 game prior + master sharp lines (update)",
+        "source": "WARPS v2.3 game prior + master sharp lines (initial)",
         "recommendation_policy": "overlay_only_until_weekly_engine_confirmation",
         "historical_policy": "WARPS game priors are context/fair-line inputs; spread-only backtests were slightly negative after vig, and ML remains research-only.",
         "away_tla": "CIN",
@@ -1272,14 +1273,14 @@
         "final_total": 0
       },
       "explanation": {
-        "key": "CIN@WAS:initial",
+        "key": "CIN@WAS:update",
         "season": "2026",
         "season_type": "REG",
         "week": "11",
         "matchup_key": "CIN@WAS",
         "away_tla": "CIN",
         "home_tla": "WAS",
-        "stage": "initial",
+        "stage": "update",
         "raw_action": "play",
         "quality_action": "play",
         "quality_gate": "clear",
@@ -1288,7 +1289,7 @@
         "side": "OVER",
         "selector_score": "3.0",
         "label": "\ud83d\udcca LEAN",
-        "recommendation": "\ud83d\udc40 LEAN: OVER 52.5",
+        "recommendation": "\ud83d\udc40 LEAN: OVER 53",
         "source_health_status": "OK",
         "data_quality_status": "OK",
         "promoted_matches": [],

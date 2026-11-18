@@ -17,8 +17,8 @@
 ## Betting Card
 
 - Plays: 2
-- Watch: 6
-- Passes: 5
+- Watch: 5
+- Passes: 6
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
