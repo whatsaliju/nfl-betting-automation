@@ -31,15 +31,15 @@
 
 ## Survivor
 
-- Primary: KC vs ARI (81.0%)
+- Primary: KC vs ARI (81.2%)
 - Safest: BUF vs MIA (82.3%)
-- Path pick: KC vs ARI (81.0%)
+- Path pick: KC vs ARI (81.2%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | KC vs ARI (81.0%) | KC vs ARI (81.0%) | KC vs ARI (81.0%) |
-| 100 | KC vs ARI (81.0%) | KC vs ARI (81.0%) | KC vs ARI (81.0%) |
-| 500 | KC vs ARI (81.0%) | KC vs ARI (81.0%) | KC vs ARI (81.0%) |
+| 25 | KC vs ARI (81.2%) | KC vs ARI (81.2%) | KC vs ARI (81.2%) |
+| 100 | KC vs ARI (81.2%) | KC vs ARI (81.2%) | KC vs ARI (81.2%) |
+| 500 | KC vs ARI (81.2%) | KC vs ARI (81.2%) | KC vs ARI (81.2%) |
 
 ## WARPS Watch
 

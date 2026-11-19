@@ -10,8 +10,8 @@
 | 11 | CIN@WAS | play | total | OVER | standard | total routed as best available market with status playable | Selector isolated total OVER; Signals: sharp; WARPS moneyline overlay: HOME +63.0% EV |  |
 | 11 | BAL@CAR | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: AWAY +6.8% EV |  |
 | 11 | JAX@NYG | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: HOME +43.9% EV |  |
-| 11 | TB@DET | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating; WARPS moneyline overlay: AWAY +50.6% EV |  |
-| 11 | PIT@PHI | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +28.4% EV |  |
+| 11 | TB@DET | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating; WARPS moneyline overlay: AWAY +39.9% EV |  |
+| 11 | PIT@PHI | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +30.1% EV |  |
 | 11 | ARI@KC | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
 | 11 | IND@HOU | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
 | 11 | LV@DEN | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
