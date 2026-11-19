@@ -17,8 +17,8 @@
 ## Betting Card
 
 - Plays: 2
-- Watch: 5
-- Passes: 6
+- Watch: 6
+- Passes: 5
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
@@ -27,19 +27,19 @@
 | MIN@SF | watch | n/a | n/a | 2.0 |
 | BAL@CAR | watch | n/a | n/a | 1.0 |
 | JAX@NYG | watch | n/a | n/a | 1.0 |
-| TB@DET | watch | n/a | n/a | 1.0 |
+| MIA@BUF | watch | n/a | n/a | 1.0 |
 
 ## Survivor
 
-- Primary: KC vs ARI (81.3%)
+- Primary: KC vs ARI (81.0%)
 - Safest: BUF vs MIA (82.3%)
-- Path pick: KC vs ARI (81.3%)
+- Path pick: KC vs ARI (81.0%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | KC vs ARI (81.3%) | KC vs ARI (81.3%) | KC vs ARI (81.3%) |
-| 100 | KC vs ARI (81.3%) | KC vs ARI (81.3%) | KC vs ARI (81.3%) |
-| 500 | KC vs ARI (81.3%) | KC vs ARI (81.3%) | KC vs ARI (81.3%) |
+| 25 | KC vs ARI (81.0%) | KC vs ARI (81.0%) | KC vs ARI (81.0%) |
+| 100 | KC vs ARI (81.0%) | KC vs ARI (81.0%) | KC vs ARI (81.0%) |
+| 500 | KC vs ARI (81.0%) | KC vs ARI (81.0%) | KC vs ARI (81.0%) |
 
 ## WARPS Watch
 
