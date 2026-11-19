@@ -17,17 +17,17 @@
 ## Betting Card
 
 - Plays: 2
-- Watch: 6
-- Passes: 5
+- Watch: 4
+- Passes: 7
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | NYJ@LAC | play | spread | AWAY | 5.0 |
 | CIN@WAS | play | total | OVER | 3.0 |
-| MIN@SF | watch | n/a | n/a | 2.0 |
 | BAL@CAR | watch | n/a | n/a | 1.0 |
 | JAX@NYG | watch | n/a | n/a | 1.0 |
-| MIA@BUF | watch | n/a | n/a | 1.0 |
+| TB@DET | watch | n/a | n/a | 1.0 |
+| PIT@PHI | watch | n/a | n/a | n/a |
 
 ## Survivor
 
