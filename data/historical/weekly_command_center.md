@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W11 · live
-- Recommended action: **PLAY**
-- Confidence tier: **A**
-- Reason: At least one selector play cleared the current command gate.
+- Recommended action: **WATCH**
+- Confidence tier: **C**
+- Reason: No plays cleared, but watchlist spots exist.
 
 ## Source Gates
 
@@ -16,30 +16,30 @@
 
 ## Betting Card
 
-- Plays: 2
-- Watch: 4
+- Plays: 0
+- Watch: 6
 - Passes: 7
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| NYJ@LAC | play | spread | AWAY | 5.0 |
-| CIN@WAS | play | total | OVER | 3.0 |
-| BAL@CAR | watch | n/a | n/a | 1.0 |
-| JAX@NYG | watch | n/a | n/a | 1.0 |
+| NYJ@LAC | watch | n/a | n/a | 5.0 |
+| PIT@PHI | watch | n/a | n/a | 2.0 |
+| CIN@WAS | watch | n/a | n/a | 1.0 |
 | TB@DET | watch | n/a | n/a | 1.0 |
-| PIT@PHI | watch | n/a | n/a | n/a |
+| BAL@CAR | watch | n/a | n/a | n/a |
+| JAX@NYG | watch | n/a | n/a | n/a |
 
 ## Survivor
 
-- Primary: KC vs ARI (81.2%)
-- Safest: BUF vs MIA (82.3%)
-- Path pick: KC vs ARI (81.2%)
+- Primary: KC vs ARI (81.8%)
+- Safest: BUF vs MIA (82.7%)
+- Path pick: KC vs ARI (81.8%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | KC vs ARI (81.2%) | KC vs ARI (81.2%) | KC vs ARI (81.2%) |
-| 100 | KC vs ARI (81.2%) | KC vs ARI (81.2%) | KC vs ARI (81.2%) |
-| 500 | KC vs ARI (81.2%) | KC vs ARI (81.2%) | KC vs ARI (81.2%) |
+| 25 | KC vs ARI (81.8%) | KC vs ARI (81.8%) | KC vs ARI (81.8%) |
+| 100 | KC vs ARI (81.8%) | KC vs ARI (81.8%) | KC vs ARI (81.8%) |
+| 500 | KC vs ARI (81.8%) | KC vs ARI (81.8%) | KC vs ARI (81.8%) |
 
 ## WARPS Watch
 
