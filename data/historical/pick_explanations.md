@@ -66,7 +66,7 @@
 | W10 KC@ATL | lean | watch |  |  | watch | Signals: sharp, injury |
 | W10 SF@DAL | lean | watch |  |  | watch | Signals: sharp |
 | W10 WAS@NYG | lean | watch |  |  | watch | Signals: sharp |
-| W11 PIT@PHI | lean | watch |  |  | watch | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: HOME +28.4% EV |
+| W11 PIT@PHI | lean | watch |  |  | watch | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: HOME +24.5% EV |
 | WPRE2 NYJ@PIT | pass | pass |  |  | none | No isolated selector edge |
 | W2 IND@KC | lean | watch |  |  | watch | Signals: sharp |
 | W2 PIT@NE | lean | watch |  |  | watch | No isolated selector edge |
@@ -80,5 +80,5 @@
 | W9 HOU@LAC | lean | watch |  |  | watch | Signals: team_rating |
 | W10 JAX@TEN | lean | watch |  |  | watch | Signals: sharp |
 | W10 MIA@IND | lean | watch |  |  | watch | Signals: injury |
-| W11 CIN@WAS | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: HOME +63.0% EV |
 | W11 MIA@BUF | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +200.9% EV |
+| W11 TB@DET | lean | watch |  |  | watch | Signals: team_rating; WARPS moneyline overlay: AWAY +30.3% EV |
