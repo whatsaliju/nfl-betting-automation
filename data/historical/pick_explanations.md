@@ -18,7 +18,6 @@
 | W5 LV@NE | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME |
 | W9 NYG@PHI | play | play | total | UNDER | standard | Selector isolated total UNDER; Signals: sharp |
 | WPRE3 ATL@MIA | pass | pass |  |  | none | No isolated selector edge |
-| W11 NYJ@LAC | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +6.6% EV |
 | W4 ARI@NYG | pass | pass |  |  | none | No isolated selector edge |
 | W4 KC@LV | pass | pass |  |  | none | No isolated selector edge |
 | W7 NYG@HOU | lean | watch |  |  | watch | Signals: sharp, team_rating |
@@ -44,7 +43,7 @@
 | W9 JAX@BAL | lean | watch |  |  | watch | Signals: sharp, team_rating, injury |
 | W9 NYJ@KC | lean | watch |  |  | watch | Signals: sharp, team_rating |
 | W10 LAC@BAL | lean | watch |  |  | watch | Signals: sharp |
-| W11 MIN@SF | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +26.1% EV |
+| W11 NYJ@LAC | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +5.8% EV |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | No isolated selector edge |
 | W1 DEN@KC | lean | watch |  |  | watch | Signals: sharp |
@@ -80,5 +79,6 @@
 | W9 HOU@LAC | lean | watch |  |  | watch | Signals: team_rating |
 | W10 JAX@TEN | lean | watch |  |  | watch | Signals: sharp |
 | W10 MIA@IND | lean | watch |  |  | watch | Signals: injury |
-| W11 JAX@NYG | lean | watch |  |  | watch | WARPS moneyline overlay: HOME +39.0% EV |
-| W11 MIA@BUF | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +200.9% EV |
+| WPRE1 ARI@LV | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 CAR@BUF | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
+| WPRE1 CLE@CHI | pass | pass |  |  | none | Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |

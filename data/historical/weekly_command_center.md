@@ -17,16 +17,15 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 5
-- Passes: 8
+- Watch: 4
+- Passes: 9
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| MIN@SF | watch | n/a | n/a | 3.0 |
 | PIT@PHI | watch | n/a | n/a | 2.0 |
-| TB@DET | watch | n/a | n/a | 1.0 |
 | BAL@CAR | watch | n/a | n/a | n/a |
 | CIN@WAS | watch | n/a | n/a | n/a |
+| JAX@NYG | watch | n/a | n/a | n/a |
 
 ## Survivor
 
