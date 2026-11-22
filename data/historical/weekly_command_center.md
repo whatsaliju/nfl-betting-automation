@@ -17,11 +17,12 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 5
-- Passes: 8
+- Watch: 6
+- Passes: 7
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
+| MIN@SF | watch | n/a | n/a | 3.0 |
 | NYJ@LAC | watch | n/a | n/a | 3.0 |
 | BAL@CAR | watch | n/a | n/a | 2.0 |
 | CIN@WAS | watch | n/a | n/a | n/a |

@@ -9,7 +9,7 @@
 | W4 GB@TB | play | play | spread | HOME | standard | Selector isolated spread HOME; Signals: sharp, team_rating, injury; Value-gap alignment supports the side; WARPS fair-line prior agrees with the spread side |
 | W6 NO@NYG | play | play | total | OVER | standard | Selector isolated total OVER; Signals: sharp, ref_weather_context |
 | W2 JAX@DEN | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior agrees with the spread side |
-| W2 WAS@DAL | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME |
+| W2 WAS@DAL | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; WARPS fair-line prior conflicts toward HOME |
 | W3 CIN@PIT | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
 | W6 CAR@PHI | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME |
 | WPRE1 DEN@ATL | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Value-gap alignment supports the side; Source warning: source_health_status=DEGRADED, data_quality_status=DEGRADED |
@@ -43,7 +43,7 @@
 | W9 JAX@BAL | lean | watch |  |  | watch | Signals: sharp, team_rating, injury |
 | W9 NYJ@KC | lean | watch |  |  | watch | Signals: sharp, team_rating |
 | W10 LAC@BAL | lean | watch |  |  | watch | Signals: sharp |
-| W11 MIN@SF | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +29.4% EV |
+| W11 MIN@SF | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +26.1% EV |
 | W11 NYJ@LAC | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +5.8% EV |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | No isolated selector edge |
@@ -66,7 +66,7 @@
 | W10 KC@ATL | lean | watch |  |  | watch | Signals: sharp, injury |
 | W10 SF@DAL | lean | watch |  |  | watch | Signals: sharp |
 | W10 WAS@NYG | lean | watch |  |  | watch | Signals: sharp |
-| W11 BAL@CAR | lean | watch |  |  | watch | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: AWAY +5.9% EV |
+| W11 BAL@CAR | lean | watch |  |  | watch | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: AWAY +6.8% EV |
 | WPRE2 NYJ@PIT | pass | pass |  |  | none | No isolated selector edge |
 | W2 IND@KC | lean | watch |  |  | watch | Signals: sharp |
 | W2 PIT@NE | lean | watch |  |  | watch | No isolated selector edge |
