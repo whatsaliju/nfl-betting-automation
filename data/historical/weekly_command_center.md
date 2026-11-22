@@ -17,8 +17,8 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 6
-- Passes: 7
+- Watch: 5
+- Passes: 8
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
@@ -27,7 +27,6 @@
 | TB@DET | watch | n/a | n/a | 1.0 |
 | BAL@CAR | watch | n/a | n/a | n/a |
 | CIN@WAS | watch | n/a | n/a | n/a |
-| JAX@NYG | watch | n/a | n/a | n/a |
 
 ## Survivor
 

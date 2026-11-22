@@ -44,7 +44,7 @@
 | W9 JAX@BAL | lean | watch |  |  | watch | Signals: sharp, team_rating, injury |
 | W9 NYJ@KC | lean | watch |  |  | watch | Signals: sharp, team_rating |
 | W10 LAC@BAL | lean | watch |  |  | watch | Signals: sharp |
-| W11 MIN@SF | lean | watch |  |  | watch | Signals: sharp; WARPS moneyline overlay: AWAY +26.1% EV |
+| W11 MIN@SF | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +26.1% EV |
 | WPRE2 BAL@MIN | pass | pass |  |  | none | No isolated selector edge |
 | WPRE2 DAL@ARI | pass | pass |  |  | none | No isolated selector edge |
 | W1 DEN@KC | lean | watch |  |  | watch | Signals: sharp |
@@ -80,5 +80,5 @@
 | W9 HOU@LAC | lean | watch |  |  | watch | Signals: team_rating |
 | W10 JAX@TEN | lean | watch |  |  | watch | Signals: sharp |
 | W10 MIA@IND | lean | watch |  |  | watch | Signals: injury |
+| W11 JAX@NYG | lean | watch |  |  | watch | WARPS moneyline overlay: HOME +39.0% EV |
 | W11 MIA@BUF | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +200.9% EV |
-| W11 TB@DET | lean | watch |  |  | watch | Signals: team_rating; WARPS moneyline overlay: AWAY +19.9% EV |
