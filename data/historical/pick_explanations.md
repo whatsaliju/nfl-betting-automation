@@ -18,7 +18,7 @@
 | W5 LV@NE | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME |
 | W9 NYG@PHI | play | play | total | UNDER | standard | Selector isolated total UNDER; Signals: sharp |
 | WPRE3 ATL@MIA | pass | pass |  |  | none | No isolated selector edge |
-| W11 NYJ@LAC | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +5.8% EV |
+| W11 NYJ@LAC | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +6.6% EV |
 | W4 ARI@NYG | pass | pass |  |  | none | No isolated selector edge |
 | W4 KC@LV | pass | pass |  |  | none | No isolated selector edge |
 | W7 NYG@HOU | lean | watch |  |  | watch | Signals: sharp, team_rating |
@@ -66,7 +66,7 @@
 | W10 KC@ATL | lean | watch |  |  | watch | Signals: sharp, injury |
 | W10 SF@DAL | lean | watch |  |  | watch | Signals: sharp |
 | W10 WAS@NYG | lean | watch |  |  | watch | Signals: sharp |
-| W11 PIT@PHI | lean | watch |  |  | watch | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: HOME +24.5% EV |
+| W11 PIT@PHI | lean | watch |  |  | watch | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: HOME +21.1% EV |
 | WPRE2 NYJ@PIT | pass | pass |  |  | none | No isolated selector edge |
 | W2 IND@KC | lean | watch |  |  | watch | Signals: sharp |
 | W2 PIT@NE | lean | watch |  |  | watch | No isolated selector edge |
@@ -81,4 +81,4 @@
 | W10 JAX@TEN | lean | watch |  |  | watch | Signals: sharp |
 | W10 MIA@IND | lean | watch |  |  | watch | Signals: injury |
 | W11 MIA@BUF | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +200.9% EV |
-| W11 TB@DET | lean | watch |  |  | watch | Signals: team_rating; WARPS moneyline overlay: AWAY +30.3% EV |
+| W11 TB@DET | lean | watch |  |  | watch | Signals: team_rating; WARPS moneyline overlay: AWAY +19.9% EV |
