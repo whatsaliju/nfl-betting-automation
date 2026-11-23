@@ -31,23 +31,23 @@
 
 ## Survivor
 
-- Primary: KC vs ARI (81.7%)
-- Safest: BUF vs MIA (82.5%)
-- Path pick: KC vs ARI (81.7%)
+- Primary: CHI vs NO (82.5%)
+- Safest: CHI vs NO (82.5%)
+- Path pick: CHI vs NO (82.5%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | KC vs ARI (81.7%) | KC vs ARI (81.7%) | KC vs ARI (81.7%) |
-| 100 | KC vs ARI (81.7%) | KC vs ARI (81.7%) | KC vs ARI (81.7%) |
-| 500 | KC vs ARI (81.7%) | KC vs ARI (81.7%) | KC vs ARI (81.7%) |
+| 25 | CHI vs NO (82.5%) | CHI vs NO (82.5%) | CHI vs NO (82.5%) |
+| 100 | CHI vs NO (82.5%) | CHI vs NO (82.5%) | CHI vs NO (82.5%) |
+| 500 | CHI vs NO (82.5%) | CHI vs NO (82.5%) | CHI vs NO (82.5%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| KC | vs ARI | 74.6% | -293 |
-| BUF | vs MIA | 74.4% | -291 |
+| KC | vs ARI | 76.3% | -322 |
+| BUF | vs MIA | 75.3% | -305 |
+| HOU | vs IND | 67.7% | -209 |
 | DEN | vs LV | 66.7% | -201 |
-| CHI | vs NO | 65.4% | -189 |
-| DAL | vs TEN | 64.7% | -184 |
-| HOU | vs IND | 64.5% | -182 |
+| CHI | vs NO | 66.6% | -200 |
+| DAL | vs TEN | 65.7% | -191 |
