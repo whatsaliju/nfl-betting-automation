@@ -8,10 +8,10 @@
 |---:|---|---|---|---|---|---|---|---|
 | 11 | MIN@SF | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: AWAY +26.1% EV |  |
 | 11 | NYJ@LAC | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +5.8% EV |  |
-| 11 | BAL@CAR | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: AWAY +6.8% EV |  |
+| 11 | BAL@CAR | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: AWAY +5.5% EV |  |
 | 11 | CIN@WAS | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +63.0% EV |  |
 | 11 | JAX@NYG | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating; WARPS moneyline overlay: HOME +39.0% EV |  |
-| 11 | PIT@PHI | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: HOME +21.1% EV |  |
+| 11 | PIT@PHI | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: HOME +26.4% EV |  |
 | 11 | ARI@KC | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
 | 11 | IND@HOU | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
 | 11 | LV@DEN | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
