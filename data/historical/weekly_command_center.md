@@ -1,9 +1,9 @@
 # Weekly Command Center
 
-- Context: 2026 W11 · live
-- Recommended action: **WATCH**
-- Confidence tier: **C**
-- Reason: No plays cleared, but watchlist spots exist.
+- Context: 2026 W12 · live
+- Recommended action: **PLAY**
+- Confidence tier: **A**
+- Reason: At least one selector play cleared the current command gate.
 
 ## Source Gates
 
@@ -16,38 +16,33 @@
 
 ## Betting Card
 
-- Plays: 0
-- Watch: 6
-- Passes: 7
+- Plays: 1
+- Watch: 0
+- Passes: 15
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| MIN@SF | watch | n/a | n/a | 3.0 |
-| NYJ@LAC | watch | n/a | n/a | 3.0 |
-| BAL@CAR | watch | n/a | n/a | 2.0 |
-| CIN@WAS | watch | n/a | n/a | n/a |
-| JAX@NYG | watch | n/a | n/a | n/a |
-| PIT@PHI | watch | n/a | n/a | n/a |
+| CHI@DET | play | spread | HOME | 5.0 |
 
 ## Survivor
 
-- Primary: LAC vs NYJ (68.3%)
-- Safest: DEN vs LV (70.7%)
-- Path pick: DEN vs LV (70.7%)
+- Primary: JAX vs TEN (82.8%)
+- Safest: JAX vs TEN (82.8%)
+- Path pick: CIN vs NO (73.5%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | LAC vs NYJ (68.3%) | LAC vs NYJ (68.3%) | LAC vs NYJ (68.3%) |
-| 100 | LAC vs NYJ (68.3%) | LAC vs NYJ (68.3%) | LAC vs NYJ (68.3%) |
-| 500 | LAC vs NYJ (68.3%) | DEN vs LV (70.7%) | KC vs ARI (65.4%) |
+| 25 | JAX vs TEN (82.8%) | JAX vs TEN (82.8%) | JAX vs TEN (82.8%) |
+| 100 | JAX vs TEN (82.8%) | JAX vs TEN (82.8%) | JAX vs TEN (82.8%) |
+| 500 | JAX vs TEN (82.8%) | JAX vs TEN (82.8%) | CIN vs NO (73.5%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| KC | vs ARI | 76.8% | -332 |
-| BUF | vs MIA | 75.8% | -314 |
-| DEN | vs LV | 68.2% | -214 |
-| HOU | vs IND | 67.7% | -209 |
-| DAL | vs TEN | 66.6% | -199 |
-| CHI | vs NO | 66.4% | -197 |
+| JAX | vs TEN | 77.6% | -347 |
+| CIN | vs NO | 66.0% | -194 |
+| MIN | vs ATL | 65.3% | -188 |
+| DAL | vs PHI | 65.3% | -188 |
+| HOU | vs BAL | 65.1% | -187 |
+| LAR | vs GB | 64.4% | -181 |

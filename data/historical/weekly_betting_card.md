@@ -1,21 +1,24 @@
 # Weekly Betting Card
 
-- Plays: 0
-- Watch: 6
-- Passes: 7
+- Plays: 1
+- Watch: 0
+- Passes: 15
 
 | Week | Game | Action | Market | Side | Confidence | Route | Reasons | Risk |
 |---:|---|---|---|---|---|---|---|---|
-| 11 | MIN@SF | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: AWAY +26.1% EV |  |
-| 11 | NYJ@LAC | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, team_rating; WARPS moneyline overlay: AWAY +5.8% EV |  |
-| 11 | BAL@CAR | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: AWAY +5.5% EV |  |
-| 11 | CIN@WAS | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +68.8% EV |  |
-| 11 | JAX@NYG | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating; WARPS moneyline overlay: HOME +39.0% EV |  |
-| 11 | PIT@PHI | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: HOME +26.4% EV |  |
-| 11 | ARI@KC | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 11 | IND@HOU | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 11 | LV@DEN | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 11 | MIA@BUF | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 11 | NO@CHI | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 11 | TB@DET | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
-| 11 | TEN@DAL | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 12 | CHI@DET | play | spread | HOME | standard | spread routed as best available market with status playable; WARPS agrees | 🎯 TARGETED PLAY: Detroit Lions +2.5 |  |
+| 12 | ATL@MIN | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 12 | BAL@HOU | pass |  |  | none | Candidate markets did not clear the quality gate. | Selector did not clear an actionable market threshold |  |
+| 12 | CAR@TB | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 12 | DEN@PIT | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 12 | GB@LAR | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 12 | KC@BUF | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 12 | LV@CLE | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 12 | NE@LAC | pass |  |  | none | Candidate markets did not clear the quality gate. | Selector did not clear an actionable market threshold |  |
+| 12 | NO@CIN | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 12 | NYG@IND | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 12 | NYJ@MIA | pass |  |  | none | Candidate markets did not clear the quality gate. | Selector did not clear an actionable market threshold |  |
+| 12 | PHI@DAL | pass |  |  | none | Candidate markets did not clear the quality gate. | Selector did not clear an actionable market threshold |  |
+| 12 | SEA@SF | pass |  |  | none | Candidate markets did not clear the quality gate. | Selector did not clear an actionable market threshold |  |
+| 12 | TEN@JAX | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
+| 12 | WAS@ARI | pass |  |  | none | No market cleared selector thresholds. | Selector did not clear an actionable market threshold |  |
