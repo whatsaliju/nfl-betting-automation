@@ -81,6 +81,8 @@ passes  = [c for c in cards if c.get("action") == "pass"]
 #   Thu noon-5pm ET: contest lines are set (posted before 4pm).
 #   Fri 4pm-midnight ET: after the final injury report (Out/Doubtful), a full day to bet and set lineups.
 #   Sun before 1pm ET when a game kicks off within 2.5h: after inactives for the 9:30 / 1pm games.
+#   Wed / Fri / Sat, and Thu before noon, when any game kicks off within 3h (Thanksgiving,
+#   Black Friday, late-season Saturdays).
 # Only with a play on a game kicking off within 3h (after its inactives):
 #   Thu evening (TNF), Sun afternoon/evening (4pm window, SNF), Mon (MNF).
 # A manual run of Workflow 5 always sends.
@@ -90,6 +92,11 @@ def _kicks_soon(mk_list, hours):
 def _decision_point():
     et = _now.astimezone(ZoneInfo("America/New_York"))
     day, hour = et.weekday(), et.hour
+    # Off-schedule games (Thanksgiving Wednesday/Thursday morning, Black Friday, late-season
+    # Saturdays): send before any game that kicks off within 3h, play or not.
+    if (day in (2, 4, 5) or (day == 3 and hour < 12)) and kickoffs:
+        if any(_now < k < _now + timedelta(hours=3) for k in kickoffs.values()):
+            return True
     if day == 3 and 12 <= hour < 17:
         return True
     if day == 4 and hour >= 16:
