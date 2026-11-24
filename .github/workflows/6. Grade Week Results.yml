@@ -123,6 +123,7 @@ jobs:
           # Learning model: refit the history layer and the 2026 layer on the newly graded week.
           python3 scripts/build_history_model.py || echo "WARNING: history model not rebuilt"
           python3 scripts/build_learning_model.py || echo "WARNING: learning model not rebuilt"
+          python3 scripts/grade_model_view.py || echo "WARNING: Model view record not graded"
 
       - name: Log WARPS Edge Performance
         run: |

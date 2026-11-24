@@ -135,6 +135,10 @@ Key columns: `season`, `week`, `matchup_key`, `fair_home_spread`, `fair_away_spr
 - Liju's bets: win totals BAL U11.5 $200/$129, NE O9.5 $250/$156, LAC U10.5 $450/$300, DAL U9.5 $500/$416, JAX O9.5 $500/$550, CIN U9.5 $650/$975, ARI O4.5 $700/$875, MIA O4.5 $750/$1,012; futures MIN NFC North −105 $150, MIN NFC +825 $60, MIN SB +2000 $25, JAX AFC +600 $40, JAX SB +1250 $25; MVP Mahomes +850 $20, Murray (MIN) +11000 $10.
 - Contests after Week 8: KillerSports ATS 24-7-1, 24.5 pts, 32 of 100 picks used (#1: 45 pts, 73 used); Yahoo straight-up 70-50, 33rd (#1 81-39).
 
+### Model view record and timing (Nov 24 2026)
+- `scripts/grade_model_view.py` (Wf 6 Grade, Tuesday; needs full git history) grades the Model view from its committed `modelView.json` snapshots: `late` = last before kickoff, `early` = first of the week, each at its own line. Writes `site/src/data/modelViewRecord.json`; the email "Totals leans" block and the Edge Board panel show it. Sides are shown as coin-flip info only.
+- Weeks 7–11 2026: totals 53%+ late 19-11 (63.3%), early 18-8 (69.2%); 55%+ late 8-6, early 7-2; sides 53%+ late 10-6, early 10-5. Early-week numbers graded better → bet Model view totals when they first appear. (A shallow clone hides history before ~Nov 3: `git fetch --unshallow` before grading locally.)
+
 ### Pick'em Contest (`scripts/build_top_picks.py` → `site/src/data/topPicks.json`, Contest tab)
 - 100 picks/season, ≤10/week, ATS sides + O/U; lines posted Thursday by 2pm MT (4pm ET), picks lock at kickoff; win 1, push 0.5.
 - Contest line = `data/contest/contest_lines_{season}_wk{week}.csv` (matchup_key, home_spread, total — entered from what Liju's contest shows; line_source "contest"), else the last snapshot before Thu 4:30pm ET. The contest's numbers can differ from ours (Wk 7 2026: contest CIN −1 vs our snapshot CIN +1.5), so ask for the posted lines each Thursday.
