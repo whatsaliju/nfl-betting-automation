@@ -31,23 +31,23 @@
 
 ## Survivor
 
-- Primary: CHI vs NO (82.5%)
-- Safest: CHI vs NO (82.5%)
-- Path pick: CHI vs NO (82.5%)
+- Primary: LAC vs NYJ (68.3%)
+- Safest: DEN vs LV (70.7%)
+- Path pick: DEN vs LV (70.7%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | CHI vs NO (82.5%) | CHI vs NO (82.5%) | CHI vs NO (82.5%) |
-| 100 | CHI vs NO (82.5%) | CHI vs NO (82.5%) | CHI vs NO (82.5%) |
-| 500 | CHI vs NO (82.5%) | CHI vs NO (82.5%) | CHI vs NO (82.5%) |
+| 25 | LAC vs NYJ (68.3%) | LAC vs NYJ (68.3%) | LAC vs NYJ (68.3%) |
+| 100 | LAC vs NYJ (68.3%) | LAC vs NYJ (68.3%) | LAC vs NYJ (68.3%) |
+| 500 | LAC vs NYJ (68.3%) | DEN vs LV (70.7%) | KC vs ARI (65.4%) |
 
 ## WARPS Watch
 
 | Team | Game | Win Prob | Fair ML |
 |---|---|---:|---|
-| KC | vs ARI | 76.3% | -322 |
-| BUF | vs MIA | 75.3% | -305 |
+| KC | vs ARI | 76.8% | -332 |
+| BUF | vs MIA | 75.8% | -314 |
+| DEN | vs LV | 68.2% | -214 |
 | HOU | vs IND | 67.7% | -209 |
-| DEN | vs LV | 66.7% | -201 |
-| CHI | vs NO | 66.6% | -200 |
-| DAL | vs TEN | 65.7% | -191 |
+| DAL | vs TEN | 66.6% | -199 |
+| CHI | vs NO | 66.4% | -197 |
