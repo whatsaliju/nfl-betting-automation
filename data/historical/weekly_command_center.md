@@ -17,12 +17,17 @@
 ## Betting Card
 
 - Plays: 1
-- Watch: 0
-- Passes: 15
+- Watch: 5
+- Passes: 10
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
 | CHI@DET | play | spread | HOME | 5.0 |
+| BAL@HOU | watch | n/a | n/a | 2.0 |
+| NE@LAC | watch | n/a | n/a | n/a |
+| NYJ@MIA | watch | n/a | n/a | n/a |
+| PHI@DAL | watch | n/a | n/a | n/a |
+| SEA@SF | watch | n/a | n/a | n/a |
 
 ## Survivor
 
