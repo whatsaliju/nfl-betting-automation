@@ -17,29 +17,28 @@
 ## Betting Card
 
 - Plays: 0
-- Watch: 9
-- Passes: 7
+- Watch: 5
+- Passes: 11
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| KC@BUF | watch | n/a | n/a | 5.0 |
 | CHI@DET | watch | n/a | n/a | 4.0 |
-| GB@LAR | watch | n/a | n/a | 3.0 |
 | BAL@HOU | watch | n/a | n/a | 2.0 |
 | SEA@SF | watch | n/a | n/a | 1.0 |
 | NE@LAC | watch | n/a | n/a | n/a |
+| NYJ@MIA | watch | n/a | n/a | n/a |
 
 ## Survivor
 
-- Primary: JAX vs TEN (82.8%)
-- Safest: JAX vs TEN (82.8%)
-- Path pick: CIN vs NO (73.5%)
+- Primary: JAX vs TEN (82.5%)
+- Safest: JAX vs TEN (82.5%)
+- Path pick: JAX vs TEN (82.5%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | JAX vs TEN (82.8%) | JAX vs TEN (82.8%) | JAX vs TEN (82.8%) |
-| 100 | JAX vs TEN (82.8%) | JAX vs TEN (82.8%) | JAX vs TEN (82.8%) |
-| 500 | JAX vs TEN (82.8%) | JAX vs TEN (82.8%) | CIN vs NO (73.5%) |
+| 25 | JAX vs TEN (82.5%) | JAX vs TEN (82.5%) | JAX vs TEN (82.5%) |
+| 100 | JAX vs TEN (82.5%) | JAX vs TEN (82.5%) | JAX vs TEN (82.5%) |
+| 500 | JAX vs TEN (82.5%) | JAX vs TEN (82.5%) | CIN vs NO (72.6%) |
 
 ## WARPS Watch
 
