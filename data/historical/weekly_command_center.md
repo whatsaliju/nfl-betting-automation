@@ -1,9 +1,9 @@
 # Weekly Command Center
 
 - Context: 2026 W12 · live
-- Recommended action: **PLAY**
-- Confidence tier: **A**
-- Reason: At least one selector play cleared the current command gate.
+- Recommended action: **WATCH**
+- Confidence tier: **C**
+- Reason: No plays cleared, but watchlist spots exist.
 
 ## Source Gates
 
@@ -16,13 +16,13 @@
 
 ## Betting Card
 
-- Plays: 1
-- Watch: 8
+- Plays: 0
+- Watch: 9
 - Passes: 7
 
 | Game | Action | Market | Side | Score |
 |---|---|---|---|---:|
-| KC@BUF | play | total | UNDER | 5.0 |
+| KC@BUF | watch | n/a | n/a | 5.0 |
 | CHI@DET | watch | n/a | n/a | 4.0 |
 | GB@LAR | watch | n/a | n/a | 3.0 |
 | BAL@HOU | watch | n/a | n/a | 2.0 |

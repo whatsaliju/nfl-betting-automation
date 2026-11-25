@@ -1,16 +1,16 @@
 # Weekly Betting Card
 
-- Plays: 1
-- Watch: 8
+- Plays: 0
+- Watch: 9
 - Passes: 7
 
 | Week | Game | Action | Market | Side | Confidence | Route | Reasons | Risk |
 |---:|---|---|---|---|---|---|---|---|
-| 12 | KC@BUF | play | total | UNDER | standard | total routed as best available market with status playable | Selector isolated total UNDER; Signals: sharp, ref_weather_context; WARPS moneyline overlay: AWAY +5.0% EV |  |
+| 12 | KC@BUF | watch |  |  | standard | Watchlist only; no final market selected. | Selector isolated total UNDER; Signals: sharp, ref_weather_context; WARPS moneyline overlay: AWAY +5.0% EV |  |
 | 12 | CHI@DET | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp, team_rating; WARPS moneyline overlay: HOME +24.4% EV |  |
 | 12 | GB@LAR | watch |  |  | watch | Watchlist only; no final market selected. | Signals: sharp; WARPS moneyline overlay: HOME +16.0% EV |  |
 | 12 | BAL@HOU | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating, injury, model_confidence; WARPS moneyline overlay: AWAY +36.8% EV |  |
-| 12 | SEA@SF | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: AWAY +14.9% EV |  |
+| 12 | SEA@SF | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: AWAY +13.6% EV |  |
 | 12 | NE@LAC | watch |  |  | watch | Watchlist only; no final market selected. | WARPS moneyline overlay: AWAY +7.1% EV |  |
 | 12 | NYJ@MIA | watch |  |  | watch | Watchlist only; no final market selected. | Signals: team_rating; WARPS moneyline overlay: HOME +58.8% EV |  |
 | 12 | PHI@DAL | watch |  |  | watch | Watchlist only; no final market selected. | Signals: injury; WARPS moneyline overlay: AWAY +69.2% EV |  |
