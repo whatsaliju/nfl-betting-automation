@@ -166,7 +166,10 @@ def contest_cutoff(week_games):
     """Thursday 4:30pm ET of the week: the contest posts lines by 2pm MT (4pm ET), and the
     Thursday 4:22pm ET run captures the market right after."""
     first = min(datetime.fromisoformat(g["gameday"]).date() for g in week_games)
-    thursday = first - timedelta(days=(first.weekday() - 3) % 7)
+    # The Thursday of the first game's week: back from Fri-Sun, forward from a Mon-Wed game
+    # (Thanksgiving week 2026 opened on Wednesday; stepping back landed on the week before).
+    thursday = first + timedelta(days=3 - first.weekday()) if first.weekday() <= 3 else \
+        first - timedelta(days=first.weekday() - 3)
     return datetime(thursday.year, thursday.month, thursday.day, 16, 30, tzinfo=ET)
 
 
