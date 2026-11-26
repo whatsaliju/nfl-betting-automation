@@ -462,6 +462,7 @@ injury_section = build_injury_section()
 
 # ── Model view (learning model, second opinion) ──────────────────────────────
 def build_model_view_section():
+    """Totals leans up front (the Model view's working market), sides as coin-flip info."""
     try:
         with open("site/src/data/modelView.json") as f:
             mv = json.load(f)
@@ -469,31 +470,54 @@ def build_model_view_section():
         return ""
     if str(mv.get("week")) != cur_week_str:
         return ""
+    try:
+        with open("site/src/data/modelViewRecord.json") as f:
+            record = json.load(f).get("markets", {})
+    except (FileNotFoundError, json.JSONDecodeError):
+        record = {}
     live_teams = {c.get("away_tla") for c in cards} | {c.get("home_tla") for c in cards}
     thr = mv.get("lean_threshold", 0.53)
-    leans = []
+    totals, sides = [], []
     for g in mv.get("games", []):
         if g.get("away") not in live_teams and g.get("home") not in live_teams:
             continue  # already kicked off
-        for pick, conf in ((g["side_pick"], g["side_conf"]), (g["total_pick"], g["total_conf"])):
-            if conf >= thr:
-                leans.append((conf, pick, g["matchup"]))
-    if not leans:
+        if g["total_conf"] >= thr:
+            totals.append((g["total_conf"], g["total_pick"], g["matchup"]))
+        if g["side_conf"] >= thr:
+            sides.append((g["side_conf"], g["side_pick"], g["matchup"]))
+    if not totals and not sides:
         return ""
-    leans.sort(reverse=True)
-    rows = "".join(
-        f"<tr><td style='padding:4px 8px 4px 0;font-weight:600;'>{pick}</td>"
-        f"<td style='padding:4px 8px;color:#6b7280;'>{matchup}</td>"
-        f"<td style='padding:4px 0;text-align:right;font-weight:600;'>{round(conf * 100)}%</td></tr>"
-        for conf, pick, matchup in leans[:8]
-    )
-    return (
-        "<h2 style='font-size:16px;color:#111827;border-bottom:2px solid #e5e7eb;"
-        "padding-bottom:8px;margin:28px 0 8px;'>Model view</h2>"
-        f"<table style='width:100%;border-collapse:collapse;font-size:13px;color:#111827;'>{rows}</table>"
-        "<div style='font-size:12px;color:#6b7280;margin-top:6px;'>Learning model leans (2015&ndash;2025 history plus "
-        "2026 sharp money and line moves). A second opinion beside the engine, not a play; weak edges near 52.4% break-even.</div>"
-    )
+
+    def rec(market, tier="53", timing="late"):
+        r = (record.get(market, {}).get(tier, {}) or {}).get(timing) or {}
+        return f"{r['w']}-{r['l']}" if r.get("w") is not None and (r.get("w") or r.get("l")) else None
+
+    out = ("<h2 style='font-size:16px;color:#111827;border-bottom:2px solid #e5e7eb;"
+           "padding-bottom:8px;margin:28px 0 8px;'>Totals leans (Model view)</h2>")
+    if totals:
+        totals.sort(reverse=True)
+        rows = "".join(
+            f"<tr><td style='padding:4px 8px 4px 0;font-weight:700;'>{pick}</td>"
+            f"<td style='padding:4px 8px;color:#6b7280;'>{matchup}</td>"
+            f"<td style='padding:4px 0;text-align:right;font-weight:700;color:{'#15803d' if conf >= 0.55 else '#111827'};'>{round(conf * 100)}%</td></tr>"
+            for conf, pick, matchup in totals[:8])
+        out += f"<table style='width:100%;border-collapse:collapse;font-size:14px;color:#111827;'>{rows}</table>"
+    else:
+        out += "<div style='font-size:13px;color:#6b7280;'>No total clears the lean threshold this week.</div>"
+    live, early = rec("totals"), rec("totals", timing="early")
+    note = "The Model view's strongest market (2008&ndash;2025: 53.8% at 53%+)."
+    if live:
+        note += f" 2026 live at 53%+: <b>{live}</b> at game-day lines"
+        note += f", {early} at the early-week line" if early else ""
+        note += ". Early numbers have been better, so bet these when they first show up."
+    out += f"<div style='font-size:12px;color:#6b7280;margin-top:6px;'>{note}</div>"
+    if sides:
+        sides.sort(reverse=True)
+        side_txt = ", ".join(f"{pick} ({round(conf * 100)}%)" for conf, pick, _ in sides[:6])
+        srec = rec("sides")
+        out += (f"<div style='font-size:12px;color:#6b7280;margin-top:10px;'><b>Sides (coin flip, info only):</b> {side_txt}. "
+                f"18 seasons at 53%+: about 51%{f'; 2026 so far {srec}' if srec else ''}.</div>")
+    return out
 
 model_view_section = build_model_view_section()
 
