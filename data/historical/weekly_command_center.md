@@ -30,15 +30,15 @@
 
 ## Survivor
 
-- Primary: JAX vs TEN (82.5%)
-- Safest: JAX vs TEN (82.5%)
-- Path pick: JAX vs TEN (82.5%)
+- Primary: JAX vs TEN (82.9%)
+- Safest: JAX vs TEN (82.9%)
+- Path pick: JAX vs TEN (82.9%)
 
 | Pool | Safe | Balanced | Leverage |
 |---:|---|---|---|
-| 25 | JAX vs TEN (82.5%) | JAX vs TEN (82.5%) | JAX vs TEN (82.5%) |
-| 100 | JAX vs TEN (82.5%) | JAX vs TEN (82.5%) | JAX vs TEN (82.5%) |
-| 500 | JAX vs TEN (82.5%) | JAX vs TEN (82.5%) | CIN vs NO (72.6%) |
+| 25 | JAX vs TEN (82.9%) | JAX vs TEN (82.9%) | JAX vs TEN (82.9%) |
+| 100 | JAX vs TEN (82.9%) | JAX vs TEN (82.9%) | JAX vs TEN (82.9%) |
+| 500 | JAX vs TEN (82.9%) | JAX vs TEN (82.9%) | CIN vs NO (72.9%) |
 
 ## WARPS Watch
 
