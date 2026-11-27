@@ -147,8 +147,9 @@ def an_rows_v2(game):
             for o in mk.get("total") or []:
                 side = str(o.get("side", "")).lower()
                 if o.get("value") is not None and side in ("over", "under"):
-                    slot["total"].append(float(o["value"]))
-                    slot[side].append(o.get("odds"))
+                    if side == "over":
+                        slot["total"].append(float(o["value"]))   # one entry per book
+                    slot[side].append((float(o["value"]), o.get("odds")))
                     slot["books"].add(str(book))
             for o in mk.get("spread") or []:
                 if str(o.get("side", "")).lower() == "home" and o.get("value") is not None:
@@ -166,8 +167,8 @@ def an_rows_v1(game):
         slot = per.setdefault(period, {"total": [], "over": [], "under": [], "spread": [], "books": set()})
         if o.get("total") is not None:
             slot["total"].append(float(o["total"]))
-            slot["over"].append(o.get("over"))
-            slot["under"].append(o.get("under"))
+            slot["over"].append((float(o["total"]), o.get("over")))
+            slot["under"].append((float(o["total"]), o.get("under")))
             slot["books"].add(str(o.get("book_id")))
         if o.get("spread_home") is not None:
             slot["spread"].append(float(o["spread_home"]))
@@ -199,19 +200,31 @@ def action_network(week_games, log):
             for period, s in per.items():
                 if not s["total"]:
                     continue
-                rows.append({"matchup_key": mk, "period": period, "total": statistics.median(s["total"]),
-                             "over_price": median_price(s["over"]), "under_price": median_price(s["under"]),
-                             "home_spread": statistics.median(s["spread"]) if s["spread"] else "",
-                             "books": len(s["books"]), "source": "action_network"})
+                rows.append({"matchup_key": mk, "period": period, **consensus(s), "source": "action_network"})
     if not rows and sample:
         DEBUG.write_text(json.dumps(sample, indent=2) + "\n")
         log.append(f"Action Network answered but no period lines parsed; sample saved to {DEBUG.name}")
     return rows
 
 
-def median_price(vals):
-    vals = [float(v) for v in vals if v not in (None, "")]
-    return round(statistics.median(vals)) if vals else ""
+def mode_line(vals):
+    """Most-quoted line; ties go to the one nearest the median. Never an in-between number."""
+    counts = {v: vals.count(v) for v in vals}
+    mid = statistics.median(vals)
+    return max(counts, key=lambda v: (counts[v], -abs(v - mid)))
+
+
+def consensus(s):
+    """The most-quoted total and the median prices quoted at that exact line."""
+    line = mode_line(s["total"])
+
+    def price(side):
+        vals = [float(p) for ln, p in s[side] if ln == line and p not in (None, "", 0, "0")]
+        return round(statistics.median(vals)) if vals else ""
+
+    return {"total": line, "over_price": price("over"), "under_price": price("under"),
+            "home_spread": mode_line(s["spread"]) if s.get("spread") else "",
+            "books": sum(1 for ln in s["total"] if ln == line)}
 
 
 # ── Odds API fallback ────────────────────────────────────────────────────────
@@ -268,13 +281,11 @@ def odds_api(week_games, log):
                     if side in ("over", "under") and o.get("point") is not None:
                         if side == "over":
                             s["total"].append(float(o["point"]))
-                        s[side].append(o.get("price"))
+                        s[side].append((float(o["point"]), o.get("price")))
                         s["books"].add(bm.get("key"))
         for period, s in per.items():
             if s["total"]:
-                rows.append({"matchup_key": mk, "period": period, "total": statistics.median(s["total"]),
-                             "over_price": median_price(s["over"]), "under_price": median_price(s["under"]),
-                             "home_spread": "", "books": len(s["books"]), "source": "odds_api"})
+                rows.append({"matchup_key": mk, "period": period, **consensus(s), "source": "odds_api"})
     state["odds_api_day"] = today
     STATE.write_text(json.dumps(state) + "\n")
     log.append(f"Odds API fallback: {len(rows)} period lines for {len(soon)} games ({left} credits left)")
