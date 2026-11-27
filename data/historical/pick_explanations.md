@@ -18,11 +18,11 @@
 | W5 LV@NE | play | play | spread | AWAY | standard | Selector isolated spread AWAY; Signals: sharp, team_rating; Value-gap alignment supports the side; WARPS fair-line prior conflicts toward HOME |
 | W9 NYG@PHI | play | play | total | UNDER | standard | Selector isolated total UNDER; Signals: sharp |
 | WPRE3 ATL@MIA | pass | pass |  |  | none | No isolated selector edge |
-| W12 KC@BUF | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +11.6% EV |
+| W12 KC@BUF | pass | pass |  |  | none | WARPS moneyline overlay: AWAY +6.3% EV |
 | W4 ARI@NYG | pass | pass |  |  | none | No isolated selector edge |
 | W4 KC@LV | pass | pass |  |  | none | No isolated selector edge |
 | W7 NYG@HOU | lean | watch |  |  | watch | Signals: sharp, team_rating |
-| W12 CHI@DET | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: HOME +20.3% EV |
+| W12 CHI@DET | lean | watch |  |  | watch | Signals: sharp, team_rating; WARPS moneyline overlay: HOME +24.4% EV |
 | WPRE2 KC@TB | pass | pass |  |  | none | No isolated selector edge |
 | WPRE3 CHI@TEN | pass | pass |  |  | none | No isolated selector edge |
 | W1 ATL@PIT | lean | watch |  |  | watch | Signals: sharp |
