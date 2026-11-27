@@ -167,6 +167,12 @@ jobs:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: python3 scripts/verify_scraped_lines.py ${{ steps.get_week.outputs.week }}
 
+      - name: Log Quarter & Half Lines (period angles)
+        continue-on-error: true
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: python3 scripts/log_period_lines.py ${{ steps.get_week.outputs.week }}
+
       - name: Scrape Action Network Injuries & Weather
         run: |
           echo "🩹 Scraping Action Network injuries & weather..."
@@ -638,6 +644,10 @@ jobs:
             "data/line_corrections_*.csv"
             "data/line_verify_latest.json"
             "data/odds_api_cache.json"
+            "data/period_lines_*.csv"
+            "data/period_lines_state.json"
+            "data/period_lines_debug.json"
+            "data/period_angles_latest.json"
           )
 
           for pattern in "${FILES_TO_ADD[@]}"; do
