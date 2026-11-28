@@ -24,7 +24,7 @@
 |---|---|---|---|---:|
 | CHI@DET | watch | n/a | n/a | 4.0 |
 | BAL@HOU | watch | n/a | n/a | 2.0 |
-| NYJ@MIA | watch | n/a | n/a | 1.0 |
+| NYJ@MIA | watch | n/a | n/a | n/a |
 | SEA@SF | watch | n/a | n/a | n/a |
 | WAS@ARI | watch | n/a | n/a | n/a |
 
